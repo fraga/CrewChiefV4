@@ -359,7 +359,7 @@ namespace CrewChiefV4.commands
                             {
                                 keyPressTime = actionItem.holdTime;
                             }
-                            sendKeys(count, actionItem, keyPressTime, commandSet.waitBetweenEachCommand);
+                            sendKeys(count, actionItem, keyPressTime, commandSet.waitBetweenEachCommand, commandSet.autoExecuteStartChatMacro, commandSet.autoExecuteEndChatMacro);
                         }
                     }
                 }
@@ -375,7 +375,7 @@ namespace CrewChiefV4.commands
             }
         }
  
-        private void sendKeys(int count, ActionItem actionItem, int? keyPressTime, int waitBetweenKeys)
+        private void sendKeys(int count, ActionItem actionItem, int? keyPressTime, int waitBetweenKeys, bool autoExecuteStartChatMacro, bool autoExecuteEndChatMacro)
         {
             if (actionItem.allowFreeText)
             {
@@ -386,18 +386,18 @@ namespace CrewChiefV4.commands
                     foreach (ActionItem beforeItem in actionItem.actionItemsBeforeFreeText)
                     {
                         // TODO: do we actually need to parse out the repeats here?
-                        sendKeys(1, beforeItem, actionItem.holdTime, waitBetweenKeys);
+                        sendKeys(1, beforeItem, actionItem.holdTime, waitBetweenKeys, autoExecuteStartChatMacro, autoExecuteEndChatMacro);
                     }
                 }
                 else
                 {
                     ActionItem startChatActionItem = SpeechRecogniser.getStartChatMacro() == null ? null : SpeechRecogniser.getStartChatMacro().getSingleActionItemForChatStartAndEnd();
-                    if (startChatActionItem == null)
+                    if (startChatActionItem == null && autoExecuteStartChatMacro)
                     {
                         // yikes, no start chat macro, press T and hope
                         KeyPresser.SendKeyPress(new Tuple<VirtualKeyCode?, VirtualKeyCode>(null, VirtualKeyCode.VK_T), keyPressTime);
                     }
-                    else
+                    else if (autoExecuteStartChatMacro)
                     {
                         KeyPresser.SendKeyPresses(startChatActionItem.keyCodes, keyPressTime, startChatActionItem.waitTime);
                     }
@@ -411,18 +411,18 @@ namespace CrewChiefV4.commands
                     foreach (ActionItem afterItem in actionItem.actionItemsAfterFreeText)
                     {
                         // TODO: do we actually need to parse out the repeats here?
-                        sendKeys(1, afterItem, actionItem.holdTime, waitBetweenKeys);
+                        sendKeys(1, afterItem, actionItem.holdTime, waitBetweenKeys, autoExecuteStartChatMacro, autoExecuteEndChatMacro);
                     }
                 }
                 else
                 {
                     ActionItem endChatActionItem = SpeechRecogniser.getEndChatMacro() == null ? null : SpeechRecogniser.getEndChatMacro().getSingleActionItemForChatStartAndEnd();
-                    if (endChatActionItem == null)
+                    if (endChatActionItem == null && autoExecuteEndChatMacro)
                     {
                         // yikes, no end chat macro, press ENTER and hope
                         KeyPresser.SendKeyPress(new Tuple<VirtualKeyCode?, VirtualKeyCode>(null, VirtualKeyCode.RETURN), keyPressTime);
                     }
-                    else
+                    else if (autoExecuteEndChatMacro)
                     {
                         KeyPresser.SendKeyPresses(endChatActionItem.keyCodes, keyPressTime, endChatActionItem.waitTime);
                     }
@@ -587,7 +587,10 @@ namespace CrewChiefV4.commands
         public int waitBetweenEachCommand { get; set; }
         [JsonIgnore]
         private List<ActionItem> actionItems = null;
-
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public bool autoExecuteStartChatMacro { get; set; } = true;
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public bool autoExecuteEndChatMacro { get; set; } = true;
         public Boolean loadActionItems()
         {
             this.actionItems = new List<ActionItem>();

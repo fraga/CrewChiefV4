@@ -65,6 +65,8 @@
             this.controllersList = new System.Windows.Forms.ListBox();
             this.groupBoxGameSettings = new System.Windows.Forms.GroupBox();
             this.groupAvailableActions = new System.Windows.Forms.GroupBox();
+            this.autoExecuteEndMacro = new System.Windows.Forms.CheckBox();
+            this.autoExecuteStartMacro = new System.Windows.Forms.CheckBox();
             this.lableModifierKeys = new System.Windows.Forms.Label();
             this.comboBoxModifierKeySelection = new System.Windows.Forms.ComboBox();
             this.radioButtonModifierAndKey = new System.Windows.Forms.RadioButton();
@@ -170,7 +172,7 @@
             this.textBoxActionSequence.Multiline = true;
             this.textBoxActionSequence.Name = "textBoxActionSequence";
             this.textBoxActionSequence.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBoxActionSequence.Size = new System.Drawing.Size(339, 160);
+            this.textBoxActionSequence.Size = new System.Drawing.Size(339, 201);
             this.textBoxActionSequence.TabIndex = 7;
             this.textBoxActionSequence.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBoxActionSequence_KeyPress);
             // 
@@ -186,7 +188,7 @@
             // 
             // textBoxKeyPressTime
             // 
-            this.textBoxKeyPressTime.Location = new System.Drawing.Point(436, 224);
+            this.textBoxKeyPressTime.Location = new System.Drawing.Point(436, 268);
             this.textBoxKeyPressTime.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxKeyPressTime.Name = "textBoxKeyPressTime";
             this.textBoxKeyPressTime.Size = new System.Drawing.Size(152, 22);
@@ -195,7 +197,7 @@
             // 
             // textBoxWaitBetweenEachCommand
             // 
-            this.textBoxWaitBetweenEachCommand.Location = new System.Drawing.Point(611, 224);
+            this.textBoxWaitBetweenEachCommand.Location = new System.Drawing.Point(611, 268);
             this.textBoxWaitBetweenEachCommand.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxWaitBetweenEachCommand.Name = "textBoxWaitBetweenEachCommand";
             this.textBoxWaitBetweenEachCommand.Size = new System.Drawing.Size(164, 22);
@@ -236,7 +238,7 @@
             // labelKeyPressTime
             // 
             this.labelKeyPressTime.AutoSize = true;
-            this.labelKeyPressTime.Location = new System.Drawing.Point(432, 204);
+            this.labelKeyPressTime.Location = new System.Drawing.Point(432, 248);
             this.labelKeyPressTime.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelKeyPressTime.Name = "labelKeyPressTime";
             this.labelKeyPressTime.Size = new System.Drawing.Size(99, 17);
@@ -246,7 +248,7 @@
             // labelWaitBetweenEachCommand
             // 
             this.labelWaitBetweenEachCommand.AutoSize = true;
-            this.labelWaitBetweenEachCommand.Location = new System.Drawing.Point(607, 204);
+            this.labelWaitBetweenEachCommand.Location = new System.Drawing.Point(607, 248);
             this.labelWaitBetweenEachCommand.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelWaitBetweenEachCommand.Name = "labelWaitBetweenEachCommand";
             this.labelWaitBetweenEachCommand.Size = new System.Drawing.Size(131, 17);
@@ -286,7 +288,7 @@
             // 
             // buttonAddActionSequence
             // 
-            this.buttonAddActionSequence.Location = new System.Drawing.Point(432, 256);
+            this.buttonAddActionSequence.Location = new System.Drawing.Point(432, 300);
             this.buttonAddActionSequence.Margin = new System.Windows.Forms.Padding(4);
             this.buttonAddActionSequence.Name = "buttonAddActionSequence";
             this.buttonAddActionSequence.Size = new System.Drawing.Size(345, 42);
@@ -508,25 +510,27 @@
             this.groupBoxGameSettings.Margin = new System.Windows.Forms.Padding(4);
             this.groupBoxGameSettings.Name = "groupBoxGameSettings";
             this.groupBoxGameSettings.Padding = new System.Windows.Forms.Padding(4);
-            this.groupBoxGameSettings.Size = new System.Drawing.Size(1017, 316);
+            this.groupBoxGameSettings.Size = new System.Drawing.Size(1017, 359);
             this.groupBoxGameSettings.TabIndex = 31;
             this.groupBoxGameSettings.TabStop = false;
             this.groupBoxGameSettings.Text = "game_specific_settings";
             // 
             // groupAvailableActions
             // 
+            this.groupAvailableActions.Controls.Add(this.autoExecuteEndMacro);
             this.groupAvailableActions.Controls.Add(this.lableModifierKeys);
             this.groupAvailableActions.Controls.Add(this.comboBoxModifierKeySelection);
+            this.groupAvailableActions.Controls.Add(this.autoExecuteStartMacro);
             this.groupAvailableActions.Controls.Add(this.radioButtonModifierAndKey);
             this.groupAvailableActions.Controls.Add(this.textBoxSpecialActionParameter);
             this.groupAvailableActions.Controls.Add(this.buttonUndoLastAction);
             this.groupAvailableActions.Controls.Add(this.labelActionKeys);
+            this.groupAvailableActions.Controls.Add(this.radioButtonFreeTextAction);
             this.groupAvailableActions.Controls.Add(this.radioButtonAdvancedEditAction);
             this.groupAvailableActions.Controls.Add(this.labelSpecialActionParameter);
             this.groupAvailableActions.Controls.Add(this.radioButtonMultipleFuelAction);
             this.groupAvailableActions.Controls.Add(this.radioButtonWaitAction);
             this.groupAvailableActions.Controls.Add(this.radioButtonMultipleVoiceTrigger);
-            this.groupAvailableActions.Controls.Add(this.radioButtonFreeTextAction);
             this.groupAvailableActions.Controls.Add(this.buttonAddSelectedKeyToSequence);
             this.groupAvailableActions.Controls.Add(this.radioButtonMultipleKeyAction);
             this.groupAvailableActions.Controls.Add(this.radioButtonRegularKeyAction);
@@ -535,10 +539,30 @@
             this.groupAvailableActions.Margin = new System.Windows.Forms.Padding(4);
             this.groupAvailableActions.Name = "groupAvailableActions";
             this.groupAvailableActions.Padding = new System.Windows.Forms.Padding(4);
-            this.groupAvailableActions.Size = new System.Drawing.Size(419, 274);
+            this.groupAvailableActions.Size = new System.Drawing.Size(419, 328);
             this.groupAvailableActions.TabIndex = 6;
             this.groupAvailableActions.TabStop = false;
             this.groupAvailableActions.Text = "available_actions";
+            // 
+            // autoExecuteEndMacro
+            // 
+            this.autoExecuteEndMacro.AutoSize = true;
+            this.autoExecuteEndMacro.Location = new System.Drawing.Point(8, 290);
+            this.autoExecuteEndMacro.Name = "autoExecuteEndMacro";
+            this.autoExecuteEndMacro.Size = new System.Drawing.Size(182, 21);
+            this.autoExecuteEndMacro.TabIndex = 32;
+            this.autoExecuteEndMacro.Text = "auto_execute_end_chat";
+            this.autoExecuteEndMacro.UseVisualStyleBackColor = true;
+            // 
+            // autoExecuteStartMacro
+            // 
+            this.autoExecuteStartMacro.AutoSize = true;
+            this.autoExecuteStartMacro.Location = new System.Drawing.Point(8, 263);
+            this.autoExecuteStartMacro.Name = "autoExecuteStartMacro";
+            this.autoExecuteStartMacro.Size = new System.Drawing.Size(186, 21);
+            this.autoExecuteStartMacro.TabIndex = 29;
+            this.autoExecuteStartMacro.Text = "auto_execute_start_chat";
+            this.autoExecuteStartMacro.UseVisualStyleBackColor = true;
             // 
             // lableModifierKeys
             // 
@@ -564,7 +588,7 @@
             // radioButtonModifierAndKey
             // 
             this.radioButtonModifierAndKey.AutoSize = true;
-            this.radioButtonModifierAndKey.Location = new System.Drawing.Point(9, 194);
+            this.radioButtonModifierAndKey.Location = new System.Drawing.Point(9, 166);
             this.radioButtonModifierAndKey.Name = "radioButtonModifierAndKey";
             this.radioButtonModifierAndKey.Size = new System.Drawing.Size(141, 21);
             this.radioButtonModifierAndKey.TabIndex = 26;
@@ -605,7 +629,7 @@
             // radioButtonAdvancedEditAction
             // 
             this.radioButtonAdvancedEditAction.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.radioButtonAdvancedEditAction.Location = new System.Drawing.Point(9, 222);
+            this.radioButtonAdvancedEditAction.Location = new System.Drawing.Point(9, 192);
             this.radioButtonAdvancedEditAction.Margin = new System.Windows.Forms.Padding(4);
             this.radioButtonAdvancedEditAction.Name = "radioButtonAdvancedEditAction";
             this.radioButtonAdvancedEditAction.Size = new System.Drawing.Size(157, 42);
@@ -666,7 +690,7 @@
             // radioButtonFreeTextAction
             // 
             this.radioButtonFreeTextAction.AutoSize = true;
-            this.radioButtonFreeTextAction.Location = new System.Drawing.Point(9, 166);
+            this.radioButtonFreeTextAction.Location = new System.Drawing.Point(8, 235);
             this.radioButtonFreeTextAction.Margin = new System.Windows.Forms.Padding(4);
             this.radioButtonFreeTextAction.Name = "radioButtonFreeTextAction";
             this.radioButtonFreeTextAction.Size = new System.Drawing.Size(130, 21);
@@ -719,12 +743,12 @@
             this.textBoxGameMacroDescription.Multiline = true;
             this.textBoxGameMacroDescription.Name = "textBoxGameMacroDescription";
             this.textBoxGameMacroDescription.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBoxGameMacroDescription.Size = new System.Drawing.Size(223, 258);
+            this.textBoxGameMacroDescription.Size = new System.Drawing.Size(223, 312);
             this.textBoxGameMacroDescription.TabIndex = 11;
             // 
             // buttonLoadUserMacroSettings
             // 
-            this.buttonLoadUserMacroSettings.Location = new System.Drawing.Point(12, 646);
+            this.buttonLoadUserMacroSettings.Location = new System.Drawing.Point(12, 689);
             this.buttonLoadUserMacroSettings.Margin = new System.Windows.Forms.Padding(4);
             this.buttonLoadUserMacroSettings.Name = "buttonLoadUserMacroSettings";
             this.buttonLoadUserMacroSettings.Size = new System.Drawing.Size(213, 43);
@@ -735,7 +759,7 @@
             // 
             // buttonLoadDefaultMacroSettings
             // 
-            this.buttonLoadDefaultMacroSettings.Location = new System.Drawing.Point(233, 646);
+            this.buttonLoadDefaultMacroSettings.Location = new System.Drawing.Point(233, 689);
             this.buttonLoadDefaultMacroSettings.Margin = new System.Windows.Forms.Padding(4);
             this.buttonLoadDefaultMacroSettings.Name = "buttonLoadDefaultMacroSettings";
             this.buttonLoadDefaultMacroSettings.Size = new System.Drawing.Size(207, 43);
@@ -749,7 +773,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
-            this.ClientSize = new System.Drawing.Size(1388, 704);
+            this.ClientSize = new System.Drawing.Size(1388, 745);
             this.Controls.Add(this.buttonLoadDefaultMacroSettings);
             this.Controls.Add(this.buttonLoadUserMacroSettings);
             this.Controls.Add(this.groupBoxGameSettings);
@@ -831,5 +855,7 @@
         private System.Windows.Forms.RadioButton radioButtonModifierAndKey;
         private System.Windows.Forms.Label lableModifierKeys;
         private System.Windows.Forms.ComboBox comboBoxModifierKeySelection;
+        private System.Windows.Forms.CheckBox autoExecuteEndMacro;
+        private System.Windows.Forms.CheckBox autoExecuteStartMacro;
     }
 }

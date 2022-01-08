@@ -85,6 +85,8 @@ namespace CrewChiefV4
             deleteAssignmentButton.Text = Configuration.getUIString("delete_assignment");
             addAssignmentButton.Text = Configuration.getUIString("assign_control");
             currentAssignmentLabel.Text = Configuration.getUIString("no_control_assigned");
+            autoExecuteStartMacro.Text = Configuration.getUIString("auto_execute_start_chat");
+            autoExecuteEndMacro.Text = Configuration.getUIString("auto_execute_end_chat");
 
             radioButtonRegularKeyAction.Checked = true;
             radioButtonViewOnly.Checked = true;
@@ -208,6 +210,14 @@ namespace CrewChiefV4
                     if (macroForGame != null)
                     {
                         textBoxActionSequence.Lines = macroForGame.actionSequence;
+                        var match = textBoxActionSequence.Lines.ToList().Where(s => s.Contains("{FREE_TEXT}"));
+                        if(match != null)
+                        {
+                            autoExecuteStartMacro.Enabled = true;
+                            autoExecuteEndMacro.Enabled = true;
+                            autoExecuteStartMacro.Checked = macroForGame.autoExecuteStartChatMacro;
+                            autoExecuteEndMacro.Checked = macroForGame.autoExecuteEndChatMacro;                           
+                        }
                         textBoxKeyPressTime.Text = macroForGame.keyPressTime == null ? "" : macroForGame.keyPressTime.Value.ToString();
                         textBoxWaitBetweenEachCommand.Text = macroForGame.waitBetweenEachCommand.ToString();
                         textBoxGameMacroDescription.Text = macroForGame.description;
@@ -526,6 +536,7 @@ namespace CrewChiefV4
             }
             CommandSet currentCommandSet = currentCommandSets.FirstOrDefault(cs => cs.gameDefinition == currentSelectedGame.gameEnum.ToString());
             List<string> actions = textBoxActionSequence.Lines.Where(s => !string.IsNullOrWhiteSpace(s)).ToList();
+            var isFreeText = actions.Where(s => s.Contains("{FREE_TEXT}"));
             if (currentCommandSet == null)
             {
                 currentCommandSet = new CommandSet();
@@ -550,6 +561,11 @@ namespace CrewChiefV4
                 currentCommandSet.waitBetweenEachCommand = int.Parse(textBoxWaitBetweenEachCommand.Text);
                 currentCommandSets.Add(currentCommandSet);
                 currentMacro.commandSets = currentCommandSets.ToArray();
+                if (isFreeText != null)
+                {
+                    currentCommandSet.autoExecuteStartChatMacro = autoExecuteStartMacro.Checked;
+                    currentCommandSet.autoExecuteEndChatMacro = autoExecuteEndMacro.Checked;
+                }
                 saveMacroSettings();
                 updateMacroList(false);
                 listBoxAvailableMacros.SetSelected(currentSelectedMacroIndex, true);
@@ -575,6 +591,11 @@ namespace CrewChiefV4
                 else
                 {
                     currentCommandSet.description = currentSelectedGame.friendlyName + " version";
+                }
+                if (isFreeText != null)
+                {
+                    currentCommandSet.autoExecuteStartChatMacro = autoExecuteStartMacro.Checked;
+                    currentCommandSet.autoExecuteEndChatMacro = autoExecuteEndMacro.Checked;
                 }
                 saveMacroSettings();
                 updateMacroList(false);
@@ -621,6 +642,8 @@ namespace CrewChiefV4
             textBoxDescription.ShortcutsEnabled = false;
             comboBoxKeySelection.Enabled = true;
             comboBoxModifierKeySelection.Enabled = false;
+            autoExecuteStartMacro.Enabled = false;
+            autoExecuteEndMacro.Enabled = false;
             if (radioButtonRegularKeyAction.Checked)
             {
                 textBoxSpecialActionParameter.Enabled = false;
@@ -658,6 +681,8 @@ namespace CrewChiefV4
                 textBoxSpecialActionParameter.Enabled = true;
                 textBoxSpecialActionParameter.Text = "";
                 comboBoxKeySelection.Enabled = false;
+                autoExecuteStartMacro.Enabled = true;
+                autoExecuteEndMacro.Enabled = true;
                 labelSpecialActionParameter.Text = Configuration.getUIString("action_free_text");
             }
             else if(radioButtonModifierAndKey.Checked)
@@ -677,6 +702,8 @@ namespace CrewChiefV4
                 textBoxActionSequence.Enabled = true;
                 buttonAddSelectedKeyToSequence.Enabled = false;
                 textBoxDescription.ShortcutsEnabled = true;
+                autoExecuteStartMacro.Enabled = true;
+                autoExecuteEndMacro.Enabled = true;
             }
 
         }
