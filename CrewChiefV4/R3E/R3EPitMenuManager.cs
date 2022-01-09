@@ -148,7 +148,7 @@ namespace CrewChiefV4.R3E
 
         private static HashSet<CarData.CarClassEnum> classesAllowingMismatchedTyres = new HashSet<CarData.CarClassEnum>
         {
-            CarData.CarClassEnum.F1_90S, CarData.CarClassEnum.DTM_92,
+            CarData.CarClassEnum.F1_90S, CarData.CarClassEnum.DTM_92, CarData.CarClassEnum.GTO,
             CarData.CarClassEnum.GROUPC, CarData.CarClassEnum.GT2, CarData.CarClassEnum.GROUP5, CarData.CarClassEnum.M1_PROCAR,
             CarData.CarClassEnum.GTE, CarData.CarClassEnum.HILL_CLIMB_ICONS, CarData.CarClassEnum.GROUPA
         };
@@ -642,6 +642,8 @@ namespace CrewChiefV4.R3E
                 }
                 if (closeAfterSetting)
                 {
+                    // wait a couple of seconds before closing
+                    Thread.Sleep(2000);
                     closePitMenuIfOpen();
                 }
             }
