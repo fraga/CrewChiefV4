@@ -383,6 +383,8 @@ namespace CrewChiefV4.ACC
         // assumes we're already on the available tyres sets option
         private static bool selectTyreSet(int requestedTyreSet, int totalAvailableSets)
         {
+            // TODO: the currently fitted tyre set isn't available to be selected. We don't know what the currently fitted set is,
+            // so we need to be quite careful here
             if (requestedTyreSet <= totalAvailableSets)
             {
                 int currentTyreSet = CrewChief.currentGameState.TyreData.selectedSet;
