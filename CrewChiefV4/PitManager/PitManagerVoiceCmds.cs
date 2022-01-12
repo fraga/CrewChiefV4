@@ -268,7 +268,11 @@ namespace CrewChiefV4.PitManager
                             if (CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT)
                             {
                                 var litres = PitFuelling.fuelToEnd(fuelCapacity, currentFuel);
-                                PitManagerEventHandlers_RF2.rF2SetFuel(litres);
+                                if (litres >= 0)
+                                {
+                                    PitManagerEventHandlers_RF2.rF2SetFuel(litres);
+                                }
+                                // else couldn't calculate fuel required
                             }
                         }
                     }
@@ -404,6 +408,16 @@ namespace CrewChiefV4.PitManager
         static private Boolean baseCalculationsOnMaxConsumption = UserSettings.GetUserSettings().getBoolean("prefer_max_consumption_in_fuel_calculations");
 
         #region Public Methods
+        /// <summary>
+        /// Calculate how much fuel is needed to get to the end of the race
+        /// </summary>
+        /// <param name="fuelCapacity"></param>
+        /// <param name="currentFuel"></param>
+        /// <returns>
+        /// > 0: Litres needed
+        /// 0:   Enough fuel in car already
+        /// < 0: Couldn't calculate fuel required
+        /// </returns>
         static public int fuelToEnd(float fuelCapacity, float currentFuel)
         {
             int roundedLitresNeeded = -1;
@@ -417,7 +431,7 @@ namespace CrewChiefV4.PitManager
             {
                 crewChief.audioPlayer.playMessage(new QueuedMessage(AudioPlayer.folderNoData, 0));
                 Log.Fuel("Pit: couldn't calculate fuel needed");
-                roundedLitresNeeded = 0;
+                roundedLitresNeeded = -1;
             }
             else if (additionaLitresNeeded <= 0)
             {
