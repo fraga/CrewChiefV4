@@ -430,9 +430,9 @@ namespace CrewChiefV4.PitManager
             var litresNeeded = PitFuelling.fuelToEnd(
                 PitManagerVoiceCmds.getFuelCapacity(),
                 PitManagerVoiceCmds.getCurrentFuel());
-            if (litresNeeded == 0)
+            if (litresNeeded < 0)
             {
-                return true;
+                return true;    // Couldn't calculate
             }
             fuelVoiceCommandGiven = true;
             return rF2SetFuel(litresNeeded);
