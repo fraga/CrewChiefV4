@@ -3725,7 +3725,7 @@ namespace CrewChiefV4
                     {
                         writeMessage("Skipped " + repetitionCount + " copies of previous message\n");
                     }
-                    else if (repetitionCount >= 20 && MainWindow.instance.crewChief.mapped)
+                    else if (repetitionCount >= 20 && MainWindow.instance.crewChief.mapped && !value.Contains("ValidationException"))
                     {
                         writeMessage("++++++++++++ Skipped " + repetitionCount + " copies of previous message. Please report this error to the CC dev team ++++++++++++\n");
                     }
