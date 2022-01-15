@@ -15,7 +15,7 @@ namespace CrewChiefV4
         public static HashSet<String> additionalData = new HashSet<String>(StringComparer.InvariantCultureIgnoreCase); 
         public static void validate(String str)
         {
-            if (additionalData.Contains(str.Trim()))
+            if (str != null && additionalData.Contains(str.Trim()))
             {
                 throw new ValidationException();
             }
