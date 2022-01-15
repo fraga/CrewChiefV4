@@ -1448,6 +1448,132 @@
 					"waitBetweenEachCommand": 200
 				}
 			]
+		},
+		{
+			"name": "Fix all damage (AMS2 only)",
+			"description": "Selects 'Fix All' in the AMS2 ICM",
+			"voiceTriggers": [
+				"fix all damage",
+				"box, fix all damage"
+			],
+			"commandSets": [
+				{
+					"description": "Select ICM Fix All",
+					"gameDefinition": "AMS2",
+					"actionSequence": [
+						"KEY_E",
+						"KEY_W",
+						"KEY_D",
+						"{MULTIPLE,3}KEY_W",
+						"{MULTIPLE,2}KEY_S",
+						"KEY_D",
+						"{MULTIPLE,3}KEY_S",
+						"{MULTIPLE,4}KEY_D",
+						"KEY_S",
+						"KEY_D",
+						"{MULTIPLE,2}KEY_W",
+						"KEY_D",
+						"KEY_S",
+						"KEY_D"
+					],
+					"waitBetweenEachCommand": 30
+				}
+			]
+		},
+		{
+			"name": "Fix no damage (AMS2 only)",
+			"description": "Selects 'OFF' in the AMS2 ICM",
+			"voiceTriggers": [
+				"don't fix damage",				
+				"box, don't fix damage"
+			],
+			"commandSets": [
+				{
+					"description": "Select ICM damage, OFF",
+					"gameDefinition": "AMS2",
+					"actionSequence": [
+						"KEY_E",
+						"KEY_W",
+						"KEY_D",
+						"{MULTIPLE,3}KEY_W",
+						"{MULTIPLE,2}KEY_S",
+						"KEY_D",
+						"{MULTIPLE,3}KEY_S",
+						"{MULTIPLE,4}KEY_A",
+						"KEY_S",
+						"KEY_D",
+						"{MULTIPLE,2}KEY_W",
+						"KEY_D",
+						"KEY_S",
+						"KEY_D"
+					],
+					"waitBetweenEachCommand": 30
+				}
+			]
+		},
+		{
+			"name": "Fix aero damage (AMS2 only)",
+			"description": "Selects 'Aero' in the AMS2 ICM",
+			"voiceTriggers": [
+				"fix aero damage",
+				"box, fix aero damage"
+			],
+			"commandSets": [
+				{
+					"description": "Select ICM damage, Aero",
+					"gameDefinition": "AMS2",
+					"actionSequence": [
+						"KEY_E",
+						"KEY_W",
+						"KEY_D",
+						"{MULTIPLE,3}KEY_W",
+						"{MULTIPLE,2}KEY_S",
+						"KEY_D",
+						"{MULTIPLE,3}KEY_S",
+						"{MULTIPLE,4}KEY_A",
+						"KEY_D",
+						"KEY_S",
+						"KEY_D",
+						"{MULTIPLE,2}KEY_W",
+						"KEY_D",
+						"KEY_S",
+						"KEY_D"
+					],
+					"waitBetweenEachCommand": 30
+				}
+			]
+		},
+		{
+			"name": "Fix mechanical damage (AMS2 only)",
+			"description": "Selects 'Mech' in the AMS2 ICM",
+			"voiceTriggers": [
+				"fix mechanical damage",
+				"box, fix mechanical damage"
+			],
+			"commandSets": [
+				{
+					"description": "Select ICM damage, Mech",
+					"gameDefinition": "AMS2",
+					"actionSequence": [
+						"KEY_E",
+						"KEY_W",
+						"KEY_D",
+						"{MULTIPLE,3}KEY_W",
+						"{MULTIPLE,2}KEY_S",
+						"KEY_D",
+						"{MULTIPLE,3}KEY_S",
+						"{MULTIPLE,4}KEY_A",
+						"{MULTIPLE,2}KEY_D",
+						"KEY_S",
+						"KEY_D",
+						"{MULTIPLE,2}KEY_W",
+						"KEY_D",
+						"KEY_S",
+						"KEY_D"
+					],
+					"waitBetweenEachCommand": 30
+				}
+			]
 		}
 	]
 }
