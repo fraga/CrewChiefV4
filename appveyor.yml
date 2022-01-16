@@ -78,8 +78,7 @@
 -
   branches:
     only:
-      - XXmasterXX
-      # XX should stop it matching and thus stop this running
+      - master
 
   only_commits:
     files:
