@@ -89,6 +89,11 @@
     access_token:
       secure: hn932XqaLSiyTGxBTK5FbUiHSO58gsQKdQGp0JOU1a4=
 
+  # Empty build script to avoid error "Specify which project or solution file to use because the folder contains more than one project or solution file"
+  build_script:
+  - cmd: >-
+      cd .  
+
   on_finish:
     - git config --global credential.helper store
     - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://oauth2:$($env:access_token)@gitlab.com`n" -NoNewline
