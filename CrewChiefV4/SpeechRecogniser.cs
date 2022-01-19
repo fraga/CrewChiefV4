@@ -285,7 +285,7 @@ namespace CrewChiefV4
         public static String[] PIT_STOP_FIX_NO_AERO = Configuration.getSpeechRecognitionPhrases("PIT_STOP_FIX_NO_AERO");
         public static String[] PIT_STOP_FIX_SUSPENSION = Configuration.getSpeechRecognitionPhrases("PIT_STOP_FIX_SUSPENSION");
         public static String[] PIT_STOP_DONT_FIX_SUSPENSION = Configuration.getSpeechRecognitionPhrases("PIT_STOP_DONT_FIX_SUSPENSION");
-        public static String[] PIT_STOP_FIX_ALL = Configuration.getSpeechRecognitionPhrases("PIT_STOP_FIX_ALL");  // rF2
+        public static String[] PIT_STOP_FIX_ALL = Configuration.getSpeechRecognitionPhrases("PIT_STOP_FIX_ALL");  // rF2 & R3E
         public static String[] PIT_STOP_FIX_BODY = Configuration.getSpeechRecognitionPhrases("PIT_STOP_FIX_BODY");  // rF2
         public static String[] PIT_STOP_FIX_NONE = Configuration.getSpeechRecognitionPhrases("PIT_STOP_FIX_NONE");  // rF2
         public static String[] PIT_STOP_SERVE_PENALTY = Configuration.getSpeechRecognitionPhrases("PIT_STOP_SERVE_PENALTY");
@@ -2091,6 +2091,8 @@ namespace CrewChiefV4
                 validateAndAdd(PIT_STOP_OPTION_TYRES, r3eChoices);
                 validateAndAdd(PIT_STOP_DONT_REFUEL, r3eChoices);
                 validateAndAdd(PIT_STOP_REFUEL, r3eChoices);
+                validateAndAdd(PIT_STOP_FIX_ALL, r3eChoices);
+                validateAndAdd(PIT_STOP_FIX_NONE, r3eChoices);
 
                 GrammarBuilderWrapper r3eGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper(r3eChoices);
                 r3eGrammarBuilder.SetCulture(cultureInfo);

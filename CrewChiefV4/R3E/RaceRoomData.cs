@@ -456,13 +456,8 @@ namespace CrewChiefV4.RaceRoom
             public Int32 Body;
             public Int32 FrontWing;
             public Int32 RearWing;
-
-            // note that this one is no longer in the array since body got added :(
-            // public Int32 Suspension;
-
-            // Pit menu buttons
-            public Int32 ButtonTop;
-            public Int32 ButtonBottom;
+            public Int32 Suspension;
+            public Int32 RequestPit;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]

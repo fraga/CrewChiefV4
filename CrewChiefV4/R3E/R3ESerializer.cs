@@ -138,10 +138,8 @@ namespace CrewChiefV4.RaceRoom
                         writeProperty(writer, "Body", data.PitMenuState.Body, disabledProperties);
                         writeProperty(writer, "FrontWing", data.PitMenuState.FrontWing, disabledProperties);
                         writeProperty(writer, "RearWing", data.PitMenuState.RearWing, disabledProperties);
-                        // body got added, suspension got bumped off the end of the array. Sad panda 
-                        // writeProperty(writer, "Suspension", data.PitMenuState.Suspension, disabledProperties);
-                        writeProperty(writer, "ButtonTop", data.PitMenuState.ButtonTop, disabledProperties);
-                        writeProperty(writer, "ButtonBottom", data.PitMenuState.ButtonBottom, disabledProperties);
+                        writeProperty(writer, "Suspension", data.PitMenuState.Suspension, disabledProperties);
+                        writeProperty(writer, "RequestPit", data.PitMenuState.RequestPit, disabledProperties);
                         writer.WriteEndObject();
                     }
 
