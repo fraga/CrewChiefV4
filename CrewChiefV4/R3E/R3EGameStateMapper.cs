@@ -1274,7 +1274,7 @@ namespace CrewChiefV4.RaceRoom
             currentGameState.PitData.PitSpeedLimit = shared.SessionPitSpeedLimit;
 
             //------------------------ Pit menu -----------------------------
-            R3EPitMenuManager.map(shared.PitMenuSelection, shared.PitMenuState);
+            R3EPitMenuManager.map(shared.PitMenuSelection, shared.PitMenuState, shared.PitState);
 
             //------------------------ Car position / motion data -----------------------
             currentGameState.PositionAndMotionData.CarSpeed = shared.CarSpeed;

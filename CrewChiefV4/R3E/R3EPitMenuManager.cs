@@ -120,7 +120,8 @@ namespace CrewChiefV4.R3E
 
         private static SelectedItem selectedItem;
         private static PitMenuState state;
-        
+        private static int pitState;
+
         private static Object myLock = new Object();
 
         // set to false at the start of every session to avoid us using stale pit menu data. A bit flaky...
@@ -167,11 +168,14 @@ namespace CrewChiefV4.R3E
         }
 
         // called by the mapper on every tick
-        public static void map(Int32 pitMenuSelection, PitMenuState state)
+        // pitState is -1 = N/A, 0 = None, 1 = Requested stop, 2 = Entered pitlane heading for pitspot, 3 = Stopped at pitspot, 4 = Exiting pitspot heading for pit exit
+        public static void map(Int32 pitMenuSelection, PitMenuState state, int pitState)
         {
             R3EPitMenuManager.selectedItem = (SelectedItem) pitMenuSelection;
             R3EPitMenuManager.state = state;
-            if (state.ButtonBottom != -1 || state.ButtonTop != -1)
+            R3EPitMenuManager.pitState = pitState;
+            if (state.ButtonBottom != -1 || state.ButtonTop != -1 || state.Body != -1 || state.Driverchange != -1 || state.FrontTires != -1 || state.FrontWing != -1
+                || state.Fuel != -1 || state.Penalty != -1 || state.Preset != -1 || state.RearTires != -1 || state.RearWing != -1)
             {
                 // one of the buttons is available so the menu must be open - snapshot its state
                 hasStateForCurrentSession = true;
@@ -770,11 +774,31 @@ namespace CrewChiefV4.R3E
 
         public static PitSelectionState getPitRequestState()
         {
+            // based on pitstate flag first:
+            if (R3EPitMenuManager.pitState == 1)
+            {
+                return PitSelectionState.SELECTED;
+            }
+
+            // pit menu states are broken. Hopefully this will be fixed in-game, for now interpret the button states
+            // based on the current incorrect behaviour:
             if (!R3EPitMenuManager.menuIsOpen())
             {
                 return PitSelectionState.UNKNOWN;
             }
+            if (R3EPitMenuManager.state.ButtonTop == -1 && R3EPitMenuManager.state.ButtonBottom == -1)
+            {
+                return PitSelectionState.SELECTED;
+            }
+            if (R3EPitMenuManager.state.ButtonTop == -1 && R3EPitMenuManager.state.ButtonBottom == 1)
+            {
+                return PitSelectionState.AVAILABLE;
+            }
+
+            // 'Correct' button state behaviour prior to the addition of 'fix suspension' menu item, which has broken
+            // the button state logic
             // requested => bottom button available (which is 'cancel')
+            /*
             if (R3EPitMenuManager.state.ButtonBottom == 1)
             {
                 return PitSelectionState.SELECTED;
@@ -782,7 +806,7 @@ namespace CrewChiefV4.R3E
             if (R3EPitMenuManager.state.ButtonTop == 1)
             {
                 return PitSelectionState.AVAILABLE;
-            }
+            }*/
             return PitSelectionState.UNAVAILABLE;
         }
 
@@ -948,10 +972,10 @@ namespace CrewChiefV4.R3E
             switch (selectedItem)
             {
                 case SelectedItem.ButtonBottom:
-                    state = R3EPitMenuManager.state.ButtonTop;
+                    state = R3EPitMenuManager.state.ButtonBottom;
                     break;
                 case SelectedItem.ButtonTop:
-                    state = R3EPitMenuManager.state.ButtonBottom;
+                    state = R3EPitMenuManager.state.ButtonTop;
                     break;
                 case SelectedItem.Driverchange:
                     state = R3EPitMenuManager.state.Driverchange;
