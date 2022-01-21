@@ -351,7 +351,12 @@ namespace CrewChiefV4.Events
                             // allow an existing queued pearl to be played if it's type is 'bad'
                             Dictionary<String, Object> validationData = new Dictionary<String, Object>();
                             validationData.Add(positionValidationKey, currentGameState.SessionData.ClassPosition);
-                            if (GlobalBehaviourSettings.complaintsCountInThisSession < GlobalBehaviourSettings.maxComplaintsPerSession)
+                            bool hasPenalty = currentGameState.PenaltiesData.HasSlowDown
+                                || currentGameState.PenaltiesData.HasStopAndGo
+                                || currentGameState.PenaltiesData.HasDriveThrough
+                                || currentGameState.PenaltiesData.PenaltyType == PenatiesData.DetailedPenaltyType.DRIVE_THROUGH
+                                || currentGameState.PenaltiesData.PenaltyType == PenatiesData.DetailedPenaltyType.STOP_AND_GO;
+                            if (GlobalBehaviourSettings.complaintsCountInThisSession < GlobalBehaviourSettings.maxComplaintsPerSession && !hasPenalty)
                             {
                                 QueuedMessage beingOvertakenMessage = new QueuedMessage(folderBeingOvertaken, 3, abstractEvent: this, validationData: validationData, priority: 10);
                                 audioPlayer.playMessage(beingOvertakenMessage, PearlsOfWisdom.PearlType.BAD, 0);
