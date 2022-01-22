@@ -4,7 +4,7 @@ Written by Jim Britton, Morten Roslev, Vytautas Leonavičius, Paul Burgess, Tony
 
 Additional material from Scoops (fantastic track layout mapping work), Nolan Bates (conversion of thousands of phrases from speech to text for subtitle support) and Longtomjr (F1 2018 UDP data format structs). Fantastic alternate spotter sounds by Geoffrey Lessel, Matt Orr (aka EmptyBox), Clare Britton, Mike Schreiner, Phil Linden, Lee Taylor and Micha (last name?). Also a thank you to Nick Thissen for his work on iRacingSdkWrapper.  Rally mode was created in collaboration with Janne Laahanen, who contributed his codriver pack and helped in understanding of the RBR pacenotes.
 
-The source code for Crew Chief is available here: https://github.com/mrbelowski/CrewChiefV4
+The source code for Crew Chief is available at https://gitlab.com/mr_belowski/CrewChiefV4
 
 For support and discussions about Crew Chief we have our very own forum here: https://thecrewchief.org/
 
