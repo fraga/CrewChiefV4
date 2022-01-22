@@ -431,7 +431,7 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
-Version 4.15.3.12: Suppress "defend you position" type messages when we have a slowdown penalty; R3E - fix broken 'request pit' command and a couple of pit menu nagivation issues; R3E - added repair all and repair none voice commands ('pitstop fix all' / 'box, fix all' / 'pitstop repair all' / 'box, repair all' and 'pitstop fix none' / 'box, fix none' / 'pitstop repair none' / 'box, repair none')
+Version 4.15.3.12: Suppress "defend you position" type messages when we have a slowdown penalty; R3E - fix broken 'request pit' command and a couple of pit menu nagivation issues; R3E - added repair all and repair none voice commands ('pitstop fix all' / 'box, fix all' / 'pitstop repair all' / 'box, repair all' and 'pitstop fix none' / 'box, fix none' / 'pitstop repair none' / 'box, repair none'); GTR2 - plugin update
 
 Version 4.15.3.11: Allow start and end chat actions to be disabled per macro; iRacing - fix for mapping errors when the game doesn't send us a player name; R3E - fix GTO pit menu tyre compound selection; Rf2 - pit menu refuelling bug fixes; AMS2 - added repair pit menu macros; GTR2 - plugin update
 
