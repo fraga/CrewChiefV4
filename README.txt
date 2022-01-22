@@ -431,6 +431,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.15.3.12: Suppress "defend you position" type messages when we have a slowdown penalty; R3E - fix broken 'request pit' command and a couple of pit menu nagivation issues; R3E - added repair all and repair none voice commands ('pitstop fix all' / 'box, fix all' / 'pitstop repair all' / 'box, repair all' and 'pitstop fix none' / 'box, fix none' / 'pitstop repair none' / 'box, repair none')
+
 Version 4.15.3.11: Allow start and end chat actions to be disabled per macro; iRacing - fix for mapping errors when the game doesn't send us a player name; R3E - fix GTO pit menu tyre compound selection; Rf2 - pit menu refuelling bug fixes; AMS2 - added repair pit menu macros; GTR2 - plugin update
 
 Version 4.15.3.10: Optionally block all complaining and negative messages - to implement this we've updated how we handle the "Max complaints per session" variable - this limits the maximum number of times the app can complain at or make a negative comment to the player in a single session. If you're happy to have the app complain when you do badly (by the app's occasionally unattainable standards) then set this to a higher number. If you don't want the app to complain at all set it to 0. The default value of 60 is intended to prevent the app's grumbling from getting tiresome in endurance or very long races; Added an option to limit the app's messages to information only ("Disable commentary" property, default false). This setting blocks the app's general 'advice' and encouragement / grumbling messages; GTR2 - updated plugin
