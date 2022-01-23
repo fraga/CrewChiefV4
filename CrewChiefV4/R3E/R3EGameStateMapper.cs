@@ -1491,8 +1491,10 @@ namespace CrewChiefV4.RaceRoom
             {
                 return TyreType.R3E_2017_F5;
             }
-            // bias ply cars
-            if (carClass == CarData.CarClassEnum.GROUP4 || carClass == CarData.CarClassEnum.GROUP5 || carClass == CarData.CarClassEnum.M1_PROCAR)
+            // bias ply cars - Note that procar and gr5 are using the newer tyre model and have multiple compounds - mapping to a single
+            // 'ply' tyre isn't sufficient here. The game-provided thresholds should be OK, so it should be safe to allow these to map
+            // to the 2017 tyres
+            if (carClass == CarData.CarClassEnum.GROUP4)
             {
                 return TyreType.Bias_Ply;
             }
