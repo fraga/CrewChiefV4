@@ -51,6 +51,7 @@ namespace CrewChiefV4.iRacing
             CarIdxSteer = (System.Single[])sdk.GetData("CarIdxSteer");
             CarIdxRPM = (System.Single[])sdk.GetData("CarIdxRPM");
 			CarIdxGear = (System.Int32[])sdk.GetData("CarIdxGear");
+            DrsStatus = (System.Int32)sdk.GetData("DRS_Status");
             SteeringWheelAngle = (System.Single)sdk.GetData("SteeringWheelAngle");
             Throttle = (System.Single)sdk.GetData("Throttle");
 			Brake = (System.Single)sdk.GetData("Brake");
@@ -290,6 +291,11 @@ namespace CrewChiefV4.iRacing
 		/// -1=reverse  0=neutral  1..n=current gear by car index
 		/// <summary>
 		public System.Int32[] CarIdxGear;
+
+        /// <summary>
+        /// 0=no drs available, 1=drs detected, 2=drs available, 3=drs enabled
+        /// <summary>
+        public System.Int32 DrsStatus;
 
         /// <summary>
         /// Steering wheel angle

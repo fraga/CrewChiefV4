@@ -51,6 +51,7 @@ namespace CrewChiefV4.iRacing
                 this.positionChangeTime = positionChangeTime;
             }
         }
+
         TrackSurfaces prevTrackSurface;
         public override GameStateData mapToGameStateData(Object memoryMappedFileStruct, GameStateData previousGameState)
         {
@@ -71,6 +72,7 @@ namespace CrewChiefV4.iRacing
                 CrewChief.distanceRoundTrack = shared.Driver.Live.CorrectedLapDistance * ((float)shared.SessionData.Track.Length * 1000);
                 //return previousGameState;
             }
+            updateOvertakingAids(currentGameState, shared.Telemetry);
 
             SessionPhase lastSessionPhase = SessionPhase.Unavailable;
             SessionType lastSessionType = SessionType.Unavailable;
@@ -1242,7 +1244,12 @@ namespace CrewChiefV4.iRacing
             return currentGameState;
         }
 
-
+        private void updateOvertakingAids(GameStateData currentGameState, iRacingData telemetry)
+        {
+            currentGameState.OvertakingAids.DrsDetected = telemetry.DrsStatus == 1;
+            currentGameState.OvertakingAids.DrsAvailable = telemetry.DrsStatus == 2;
+            currentGameState.OvertakingAids.DrsEngaged = telemetry.DrsStatus == 3;
+        }
 
         private void updateOpponentData(OpponentData opponentData, String driverName, int CostId, int racePosition, int completedLaps,
             int sector, float completedLapTime, int gear, float rpm,float steeringAngle, Boolean isInPits, bool previousIsApporchingPits,
