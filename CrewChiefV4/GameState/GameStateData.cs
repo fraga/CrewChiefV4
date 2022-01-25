@@ -3183,9 +3183,10 @@ namespace CrewChiefV4.GameState
         public Single PushToPassEngagedTimeLeft;
         public Single PushToPassWaitTimeLeft;
 
-        public Boolean DrsEnabled;
-        public Boolean DrsAvailable;
-        public Boolean DrsEngaged;
+        public Boolean DrsEnabled; // Track/car supports DRS
+        public Boolean DrsDetected; // DRS detected for upcoming zone
+        public Boolean DrsAvailable; // DRS available now, needs to be engaged by player
+        public Boolean DrsEngaged; // DRS engaged by player
         public Single DrsRange;
         public Single DrsActivationsRemaining = -1; // -1 means no limit
     }

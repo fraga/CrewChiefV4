@@ -809,7 +809,8 @@ namespace CrewChiefV4.Audio
             }
         }
 
-        private void prepareFX(DirectoryInfo fxSoundDirectory, bool verbose) {
+        private void prepareFX(DirectoryInfo fxSoundDirectory, bool verbose)
+        {
             FileInfo[] bleepFiles = fxSoundDirectory.GetFiles();
             String alternate_prefix = useAlternateBeeps ? "alternate_" : "";
             String opposite_prefix = !useAlternateBeeps ? "alternate_" : "";
@@ -817,108 +818,23 @@ namespace CrewChiefV4.Audio
             {
                 Console.WriteLine("Preparing sound effects");
             }
+
+            // For fx with additional alternate versions (prefixed alternate_)
+            String[] alternatives = { "start_bleep", "end_bleep", "short_start_bleep" };
+            // For fx with NO alternate versions
+            String[] plains = { "listen_start_sound", "listen_end_sound", "pace_notes_recording_start_stop_bleep", "drs_detected_bleep", "drs_available_bleep" };
             foreach (FileInfo bleepFile in bleepFiles)
             {
                 if (bleepFile.Name.EndsWith(".wav"))
                 {
-                    if (bleepFile.Name.StartsWith(alternate_prefix + "start") && !singleSounds.ContainsKey("start_bleep"))
+                    foreach (string nameWithSuffix in alternatives)
                     {
-                        SingleSound sound = new SingleSound(bleepFile.FullName, true, allowCaching, allowCaching);
-                        sound.isBleep = true;
-                        if (eagerLoadSoundFiles)
-                        {
-                            sound.LoadAndCacheFile();
-                        }
-                        singleSounds.Add("start_bleep", sound);
-                        availableSounds.Add("start_bleep");
+                        maybeLoadFX(bleepFile, alternate_prefix, nameWithSuffix, nameWithSuffix);
+                        maybeLoadFX(bleepFile, opposite_prefix, nameWithSuffix, "alternate_" + nameWithSuffix);
                     }
-                    else if (bleepFile.Name.StartsWith(alternate_prefix + "end") && !singleSounds.ContainsKey("end_bleep"))
+                    foreach (string nameWithSuffix in plains)
                     {
-                        SingleSound sound = new SingleSound(bleepFile.FullName, true, allowCaching, allowCaching);
-                        sound.isBleep = true;
-                        if (eagerLoadSoundFiles)
-                        {
-                            sound.LoadAndCacheFile();
-                        }
-                        singleSounds.Add("end_bleep", sound);
-                        availableSounds.Add("end_bleep");
-                    }
-                    else if (bleepFile.Name.StartsWith(alternate_prefix + "short_start") && !singleSounds.ContainsKey("short_start_bleep"))
-                    {
-                        SingleSound sound = new SingleSound(bleepFile.FullName, true, allowCaching, allowCaching);
-                        sound.isBleep = true;
-                        if (eagerLoadSoundFiles)
-                        {
-                            sound.LoadAndCacheFile();
-                        }
-                        singleSounds.Add("short_start_bleep", sound);
-                        availableSounds.Add("short_start_bleep");
-                    }
-                    else if (bleepFile.Name.StartsWith("listen_start") && !singleSounds.ContainsKey("listen_start_sound"))
-                    {
-                        SingleSound sound = new SingleSound(bleepFile.FullName, true, allowCaching, allowCaching);
-                        sound.isBleep = true;
-                        if (eagerLoadSoundFiles)
-                        {
-                            sound.LoadAndCacheFile();
-                        }
-                        singleSounds.Add("listen_start_sound", sound);
-                        availableSounds.Add("listen_start_sound");
-                    }
-                    else if (bleepFile.Name.StartsWith("listen_end") && !singleSounds.ContainsKey("listen_end_sound"))
-                    {
-                        SingleSound sound = new SingleSound(bleepFile.FullName, true, allowCaching, allowCaching);
-                        sound.isBleep = true;
-                        if (eagerLoadSoundFiles)
-                        {
-                            sound.LoadAndCacheFile();
-                        }
-                        singleSounds.Add("listen_end_sound", sound);
-                        availableSounds.Add("listen_end_sound");
-                    }
-                    else if (bleepFile.Name.StartsWith(opposite_prefix + "start") && !singleSounds.ContainsKey("alternate_start_bleep"))
-                    {
-                        SingleSound sound = new SingleSound(bleepFile.FullName, true, allowCaching, allowCaching);
-                        sound.isBleep = true;
-                        if (eagerLoadSoundFiles)
-                        {
-                            sound.LoadAndCacheFile();
-                        }
-                        singleSounds.Add("alternate_start_bleep", sound);
-                        availableSounds.Add("alternate_start_bleep");
-                    }
-                    else if (bleepFile.Name.StartsWith(opposite_prefix + "end") && !singleSounds.ContainsKey("alternate_end_bleep"))
-                    {
-                        SingleSound sound = new SingleSound(bleepFile.FullName, true, allowCaching, allowCaching);
-                        sound.isBleep = true;
-                        if (eagerLoadSoundFiles)
-                        {
-                            sound.LoadAndCacheFile();
-                        }
-                        singleSounds.Add("alternate_end_bleep", sound);
-                        availableSounds.Add("alternate_end_bleep");
-                    }
-                    else if (bleepFile.Name.StartsWith(opposite_prefix + "short_start") && !singleSounds.ContainsKey("alternate_short_start_bleep"))
-                    {
-                        SingleSound sound = new SingleSound(bleepFile.FullName, true, allowCaching, allowCaching);
-                        sound.isBleep = true;
-                        if (eagerLoadSoundFiles)
-                        {
-                            sound.LoadAndCacheFile();
-                        }
-                        singleSounds.Add("alternate_short_start_bleep", sound);
-                        availableSounds.Add("alternate_short_start_bleep");
-                    }
-                    else if (bleepFile.Name.StartsWith("pace_notes_recording_start_stop_bleep") && !singleSounds.ContainsKey("pace_notes_recording_start_stop_bleep"))
-                    {
-                        SingleSound sound = new SingleSound(bleepFile.FullName, true, allowCaching, allowCaching);
-                        sound.isBleep = true;
-                        if (eagerLoadSoundFiles)
-                        {
-                            sound.LoadAndCacheFile();
-                        }
-                        singleSounds.Add("pace_notes_recording_start_stop_bleep", sound);
-                        availableSounds.Add("pace_notes_recording_start_stop_bleep");
+                        maybeLoadFX(bleepFile, "", nameWithSuffix, nameWithSuffix);
                     }
                 }
             }
@@ -926,8 +842,39 @@ namespace CrewChiefV4.Audio
             {
                 Console.WriteLine("Prepare sound effects completed");
             }
-
         }
+
+        /// <summary>
+        /// Tests <c>bleepFile</c> against name of sound we are looking to load.
+        ///
+        /// If there is a positive match, loads sound and caches under given <c>key</c>.
+        /// Allows "_bleep" and "_sound" suffixes likewise. A prefix is an optional "alternate_"
+        /// to accommodate alternative beep sound settings.
+        /// </summary>
+        private void maybeLoadFX(FileInfo bleepFile, string namePrefix, string nameWithSuffix, string key)
+        {
+            string name = nameWithSuffix;
+            if (nameWithSuffix.EndsWith("_bleep"))
+            {
+                name = nameWithSuffix.Substring(0, nameWithSuffix.Length - "_bleep".Length);
+            } else if (nameWithSuffix.EndsWith("_sound"))
+            {
+                name = nameWithSuffix.Substring(0, nameWithSuffix.Length - "_sound".Length);
+            }
+            if (!bleepFile.Name.StartsWith(namePrefix + name) || singleSounds.ContainsKey(key))
+            {
+                return;
+            }
+            SingleSound sound = new SingleSound(bleepFile.FullName, true, allowCaching, allowCaching);
+            sound.isBleep = true;
+            if (eagerLoadSoundFiles)
+            {
+                sound.LoadAndCacheFile();
+            }
+            singleSounds.Add(key, sound);
+            availableSounds.Add(key);
+        }
+
 
         private void loadVoices()
         {

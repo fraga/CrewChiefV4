@@ -35,6 +35,7 @@ namespace CrewChiefV4.Events
 
         private Boolean drsMessagesEnabled = UserSettings.GetUserSettings().getBoolean("enable_drs_messages");
         private Boolean ptpMessagesEnabled = UserSettings.GetUserSettings().getBoolean("enable_push_to_pass_messages");
+        private Boolean drsBeepsEnabled = UserSettings.GetUserSettings().getBoolean("enable_drs_beeps");
 
         private bool ptpHasCooldown = false;
 
@@ -43,7 +44,11 @@ namespace CrewChiefV4.Events
 
         public override List<SessionType> applicableSessionTypes
         {
-            get { return new List<SessionType> { SessionType.Race }; }
+            get { return new List<SessionType> {
+                SessionType.Race,
+                // Only for DRS Beep
+                SessionType.Practice, SessionType.Qualify, SessionType.LonePractice
+            }; }
         }
 
         public OvertakingAidsMonitor(AudioPlayer audioPlayer)
@@ -72,6 +77,37 @@ namespace CrewChiefV4.Events
                 return;
             }
 
+            // For all session types
+            if (drsBeepsEnabled && previousGameState != null)
+            {
+                // State transitions:
+                // *players passes detection point, game determines DRS will be available*
+                // DETECTED [detected_bleep]
+                // *crossing DRS start zone*
+                // AVAILABLE [available_bleep]
+                // *player enables DRS*
+                // ENGAGED
+                // *player lifts throttle or brakes while still in DRS zone*
+                // DETECTED
+                // *player presses throttle again while still in DRS zone*
+                // AVAILABLE [available_bleep]
+                // *player leaves DRS zone*
+                if (!previousGameState.OvertakingAids.DrsDetected && !previousGameState.OvertakingAids.DrsEngaged &&
+                    currentGameState.OvertakingAids.DrsDetected)
+                {
+                    audioPlayer.getSoundCache().Play("drs_detected_bleep", SoundMetadata.beep);
+                }
+                if (!previousGameState.OvertakingAids.DrsAvailable && currentGameState.OvertakingAids.DrsAvailable)
+                {
+                    audioPlayer.getSoundCache().Play("drs_available_bleep", SoundMetadata.beep);
+                }
+            }
+
+            // DRS messages are for race only.
+            if (currentGameState.SessionData.SessionType != SessionType.Race)
+            {
+                return;
+            }
             if (drsMessagesEnabled && previousGameState != null)
             {
                 if (!previousGameState.OvertakingAids.DrsEnabled && currentGameState.OvertakingAids.DrsEnabled)

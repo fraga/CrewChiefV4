@@ -1198,6 +1198,18 @@ namespace CrewChiefV4.Properties {
                 this["enable_push_to_pass_messages"] = value;
             }
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool enable_drs_beeps {
+            get {
+                return ((bool)(this["enable_drs_beeps"]));
+            }
+            set {
+                this["enable_drs_beeps"] = value;
+            }
+        }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]

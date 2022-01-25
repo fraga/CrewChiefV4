@@ -13,7 +13,7 @@ The full changelog is now at the end of this file.
 
 Quick start
 -----------
-You need to install .net 4.5 or above to use the app. Download the CrewChiefV4.msi installer and run it. Start the app. Click the "Download sound pack" button and the "Download driver names" button to get the latest sounds and driver names. Select a game from the list at the top right. When the sounds and driver names have finished downloading, click the "Start Application" button. Then fire up the game. Note that the app comes with swearing 'off' by default - if you want to be sworn at you need to enable this in the Properties UI.
+You need to install .net 4.7.2 or above to use the app. Download the CrewChiefV4.msi installer and run it. Start the app. Click the "Download sound pack" button and the "Download driver names" button to get the latest sounds and driver names. Select a game from the list at the top right. When the sounds and driver names have finished downloading, click the "Start Application" button. Then fire up the game. Note that the app comes with swearing 'off' by default - if you want to be sworn at you need to enable this in the Properties UI.
 
 
 Running with voice recognition
