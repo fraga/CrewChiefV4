@@ -72,7 +72,7 @@ namespace CrewChiefV4.iRacing
                 CrewChief.distanceRoundTrack = shared.Driver.Live.CorrectedLapDistance * ((float)shared.SessionData.Track.Length * 1000);
                 //return previousGameState;
             }
-            updateOvertakingAids(currentGameState, shared.Telemetry);
+            updateOvertakingAids(currentGameState, shared.Telemetry.DRS_Status);
 
             SessionPhase lastSessionPhase = SessionPhase.Unavailable;
             SessionType lastSessionType = SessionType.Unavailable;
@@ -1244,11 +1244,11 @@ namespace CrewChiefV4.iRacing
             return currentGameState;
         }
 
-        private void updateOvertakingAids(GameStateData currentGameState, iRacingData telemetry)
+        private void updateOvertakingAids(GameStateData currentGameState, DrsStatus drsStatus)
         {
-            currentGameState.OvertakingAids.DrsDetected = telemetry.DrsStatus == 1;
-            currentGameState.OvertakingAids.DrsAvailable = telemetry.DrsStatus == 2;
-            currentGameState.OvertakingAids.DrsEngaged = telemetry.DrsStatus == 3;
+            currentGameState.OvertakingAids.DrsDetected = drsStatus == DrsStatus.DrsDetected;
+            currentGameState.OvertakingAids.DrsAvailable = drsStatus == DrsStatus.DrsAvailable;
+            currentGameState.OvertakingAids.DrsEngaged = drsStatus == DrsStatus.DrsEnabled;
         }
 
         private void updateOpponentData(OpponentData opponentData, String driverName, int CostId, int racePosition, int completedLaps,
