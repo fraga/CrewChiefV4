@@ -453,11 +453,12 @@ namespace CrewChiefV4.RaceRoom
             public Int32 Fuel;
             public Int32 FrontTires;
             public Int32 RearTires;
-            public Int32 Body;
+            // body has been removed, when we move the cursor to it, the state field changes to 'unavailable'
             public Int32 FrontWing;
             public Int32 RearWing;
             public Int32 Suspension;
             public Int32 RequestPit;
+            public Int32 CancelPitReqest;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
