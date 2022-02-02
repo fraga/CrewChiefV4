@@ -135,7 +135,7 @@ namespace CrewChiefV4.RaceRoom
                         writeProperty(writer, "Fuel", data.PitMenuState.Fuel, disabledProperties);
                         writeProperty(writer, "FrontTires", data.PitMenuState.FrontTires, disabledProperties);
                         writeProperty(writer, "RearTires", data.PitMenuState.RearTires, disabledProperties);
-                        writeProperty(writer, "Body", data.PitMenuState.Body, disabledProperties);
+                        writeProperty(writer, "CancelPitRequest", data.PitMenuState.CancelPitReqest, disabledProperties);
                         writeProperty(writer, "FrontWing", data.PitMenuState.FrontWing, disabledProperties);
                         writeProperty(writer, "RearWing", data.PitMenuState.RearWing, disabledProperties);
                         writeProperty(writer, "Suspension", data.PitMenuState.Suspension, disabledProperties);
