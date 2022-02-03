@@ -186,7 +186,7 @@ namespace CrewChiefV4.R3E
             {
                 atLeastOneButtonIsAvailable = false;
             }
-            if (log)
+            /*if (log)
             {
                 Console.WriteLine("PIT MENU STATE CHANGE (is open = " + menuIsOpen() + "): select = " + (SelectedItem)pitMenuSelection
                     + ", RequestPit = " + state.RequestPit
@@ -200,7 +200,7 @@ namespace CrewChiefV4.R3E
                     + ", RearTires = " + state.RearTires
                     + ", RearWing = " + state.RearWing
                     + ", Suspension = " + state.Suspension);
-            }
+            }*/
         }
 
         public static void processVoiceCommand(String voiceMessage, AudioPlayer audioPlayer)
