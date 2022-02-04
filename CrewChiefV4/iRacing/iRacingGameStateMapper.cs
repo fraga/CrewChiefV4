@@ -351,7 +351,7 @@ namespace CrewChiefV4.iRacing
                     currentGameState.SessionData.SessionTotalRunTime = previousGameState.SessionData.SessionTotalRunTime;
                     currentGameState.SessionData.SessionNumberOfLaps = previousGameState.SessionData.SessionNumberOfLaps;
                     currentGameState.SessionData.SessionHasFixedTime = previousGameState.SessionData.SessionHasFixedTime;
-                    currentGameState.SessionData.HasExtraLap = previousGameState.SessionData.HasExtraLap;
+                    currentGameState.SessionData.ExtraLapsAfterTimedSessionComplete = previousGameState.SessionData.ExtraLapsAfterTimedSessionComplete;
                     currentGameState.SessionData.NumCarsOverallAtStartOfSession = previousGameState.SessionData.NumCarsOverallAtStartOfSession;
                     currentGameState.SessionData.NumCarsInPlayerClassAtStartOfSession = previousGameState.SessionData.NumCarsInPlayerClassAtStartOfSession;
                     currentGameState.SessionData.EventIndex = previousGameState.SessionData.EventIndex;
@@ -952,10 +952,13 @@ namespace CrewChiefV4.iRacing
                             Boolean finishedAllottedRaceLaps = currentGameState.SessionData.SessionNumberOfLaps > 0 && currentGameState.SessionData.SessionNumberOfLaps == currentOpponentLapsCompleted;
                             Boolean finishedAllottedRaceTime = false;
 
-                            if (currentGameState.SessionData.SessionTotalRunTime > 0 && currentGameState.SessionData.SessionTimeRemaining <= 0 &&
-                                previousOpponentCompletedLaps < currentOpponentLapsCompleted)
+                            if (currentGameState.SessionData.SessionTotalRunTime > 0 && currentGameState.SessionData.SessionTimeRemaining <= 0
+                                && previousOpponentCompletedLaps < currentOpponentLapsCompleted)
                             {
-                                finishedAllottedRaceTime = true;
+                                // timed session, we've started a new lap after the time has reached zero. Where there's no extra lap this means we've finished. If there's 1 or more
+                                // extras he's finished when he's started more than the extra laps number
+                                currentOpponentData.LapsStartedAfterRaceTimeEnd++;
+                                finishedAllottedRaceTime = currentOpponentData.LapsStartedAfterRaceTimeEnd > currentGameState.SessionData.ExtraLapsAfterTimedSessionComplete;
                             }
 
                             if (currentOpponentOverallPosition == 1 && (finishedAllottedRaceTime || finishedAllottedRaceLaps))

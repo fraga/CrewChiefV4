@@ -1198,7 +1198,7 @@ namespace CrewChiefV4.Properties {
                 this["enable_push_to_pass_messages"] = value;
             }
         }
-
+        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
@@ -5384,6 +5384,18 @@ namespace CrewChiefV4.Properties {
             }
             set {
                 this["just_the_facts"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("UTF-8")]
+        public string ams2_character_encoding {
+            get {
+                return ((string)(this["ams2_character_encoding"]));
+            }
+            set {
+                this["ams2_character_encoding"] = value;
             }
         }
     }

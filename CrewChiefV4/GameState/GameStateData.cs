@@ -864,7 +864,7 @@ namespace CrewChiefV4.GameState
         public int SessionNumberOfLaps;
 
         // some timed sessions have an extra lap added after the timer reaches zero
-        public Boolean HasExtraLap;
+        public int ExtraLapsAfterTimedSessionComplete;
 
         public int SessionStartClassPosition;
 
@@ -1566,7 +1566,7 @@ namespace CrewChiefV4.GameState
             }
         }
 
-        public Boolean HasStartedExtraLap ;
+        public int LapsStartedAfterRaceTimeEnd = 0;
 
         public TyreType CurrentTyres = TyreType.Unknown_Race;
 
