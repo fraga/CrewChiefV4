@@ -390,7 +390,7 @@ namespace CrewChiefV4.RaceRoom
                             currentGameState.SessionData.SessionTotalRunTime = shared.SessionTimeRemaining;
                             if (shared.SessionLengthFormat == 2)
                             {
-                                currentGameState.SessionData.HasExtraLap = true;
+                                currentGameState.SessionData.ExtraLapsAfterTimedSessionComplete = 1;
                             }
                             currentGameState.SessionData.SessionHasFixedTime = true;
                         }
@@ -509,7 +509,7 @@ namespace CrewChiefV4.RaceRoom
                     currentGameState.SessionData.SessionTotalRunTime = previousGameState.SessionData.SessionTotalRunTime;
                     currentGameState.SessionData.SessionNumberOfLaps = previousGameState.SessionData.SessionNumberOfLaps;
                     currentGameState.SessionData.SessionHasFixedTime = previousGameState.SessionData.SessionHasFixedTime;
-                    currentGameState.SessionData.HasExtraLap = previousGameState.SessionData.HasExtraLap;
+                    currentGameState.SessionData.ExtraLapsAfterTimedSessionComplete = previousGameState.SessionData.ExtraLapsAfterTimedSessionComplete;
                     currentGameState.SessionData.NumCarsOverallAtStartOfSession = previousGameState.SessionData.NumCarsOverallAtStartOfSession;
                     currentGameState.SessionData.NumCarsInPlayerClassAtStartOfSession = previousGameState.SessionData.NumCarsInPlayerClassAtStartOfSession;
                     currentGameState.SessionData.EventIndex = previousGameState.SessionData.EventIndex;
@@ -927,26 +927,15 @@ namespace CrewChiefV4.RaceRoom
 
                         Boolean finishedAllottedRaceLaps = currentGameState.SessionData.SessionNumberOfLaps > 0 && currentGameState.SessionData.SessionNumberOfLaps == currentOpponentLapsCompleted;
                         Boolean finishedAllottedRaceTime = false;
-                        if (currentGameState.SessionData.HasExtraLap &&
-                            currentGameState.SessionData.SessionType == SessionType.Race)
+
+                        if (currentGameState.SessionData.SessionType == SessionType.Race
+                            && currentGameState.SessionData.SessionTotalRunTime > 0 && currentGameState.SessionData.SessionTimeRemaining <= 0
+                            && previousOpponentCompletedLaps < currentOpponentLapsCompleted)
                         {
-                            if (currentGameState.SessionData.SessionTotalRunTime > 0 && currentGameState.SessionData.SessionTimeRemaining <= 0 &&
-                                previousOpponentCompletedLaps < currentOpponentLapsCompleted)
-                            {
-                                if (!currentOpponentData.HasStartedExtraLap)
-                                {
-                                    currentOpponentData.HasStartedExtraLap = true;
-                                }
-                                else
-                                {
-                                    finishedAllottedRaceTime = true;
-                                }
-                            }
-                        }
-                        else if (currentGameState.SessionData.SessionTotalRunTime > 0 && currentGameState.SessionData.SessionTimeRemaining <= 0 &&
-                            previousOpponentCompletedLaps < currentOpponentLapsCompleted)
-                        {
-                            finishedAllottedRaceTime = true;
+                            // timed session, we've started a new lap after the time has reached zero. Where there's no extra lap this means we've finished. If there's 1 or more
+                            // extras he's finished when he's started more than the extra laps number
+                            currentOpponentData.LapsStartedAfterRaceTimeEnd++;
+                            finishedAllottedRaceTime = currentOpponentData.LapsStartedAfterRaceTimeEnd > currentGameState.SessionData.ExtraLapsAfterTimedSessionComplete;
                         }
 
                         if (currentOpponentRacePosition == 1 && (finishedAllottedRaceTime || finishedAllottedRaceLaps))

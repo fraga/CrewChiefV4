@@ -1508,6 +1508,12 @@ pcars_character_encoding_help = For PS4 always use UTF-8. For PC and XBox this w
 pcars_character_encoding_filter = PCARS_64BIT;PCARS_32BIT;PCARS_NETWORK
 pcars_character_encoding_metadata = RESTART_REQUIRED
 
+# Property: AMS2 character encoding
+ams2_character_encoding = AMS2 character encoding
+ams2_character_encoding_help = Should usually be UTF-8
+ams2_character_encoding_filter = AMS2
+ams2_character_encoding_metadata = RESTART_REQUIRED
+
 # Property: Enable pCARS pit window messages
 enable_pcars_pit_window_messages = Enable pCARS pit window messages
 enable_pcars_pit_window_messages_help = Play pit window messages in pCARS. Don't use this in online racing - the game always sends an enforced pit stop lap even if this isn't enabled by the host

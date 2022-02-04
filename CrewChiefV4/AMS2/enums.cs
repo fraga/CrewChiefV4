@@ -209,4 +209,15 @@ namespace CrewChiefV4.AMS2
       //-------------
       CRASH_MAX
     };
+
+    // (Type#14) DrsState Flags (to be used with 'mDrsState')
+    // TODO: figure out the state flags
+    enum DrsState
+    {
+        DRS_INSTALLED = (0 << 1),  // Vehicle has DRS capability
+        DRS_ZONE_RULES = (0 << 2),  // 1 if DRS uses F1 style rules
+        DRS_AVAILABLE_NEXT = (0 << 3),  // detection zone was triggered (only applies to f1 style rules)
+        DRS_AVAILABLE_NOW = (0 << 4),  // detection zone was triggered and we are now in the zone (only applies to f1 style rules)
+        DRS_ACTIVE = (0 << 5),  // Wing is in activated state
+    };
 }

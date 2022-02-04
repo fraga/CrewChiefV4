@@ -194,7 +194,7 @@ namespace CrewChiefV4.Events
 
         private static float litresPerGallon = 3.78541f;
 
-        private Boolean hasExtraLap = false;
+        private int extraLapsAfterTimedSessionComplete = 0;
 
         private Boolean sessionHasHadFCY = false;
 
@@ -244,7 +244,7 @@ namespace CrewChiefV4.Events
 
             lapsRemaining = -1;
             secondsRemaining = -1;
-            hasExtraLap = false;
+            extraLapsAfterTimedSessionComplete = 0;
             fuelCapacity = 0;
             gotPredictedPitWindow = false;
             playedPitWindowOpen = false;
@@ -279,7 +279,7 @@ namespace CrewChiefV4.Events
                 return;
             }
             fuelUseActive = currentGameState.FuelData.FuelUseActive;
-            hasExtraLap = currentGameState.SessionData.HasExtraLap;
+            extraLapsAfterTimedSessionComplete = currentGameState.SessionData.ExtraLapsAfterTimedSessionComplete;
             // if the fuel level has increased, don't trigger
             if (currentFuel > -1 && currentFuel < currentGameState.FuelData.FuelLeft)
             {
@@ -1679,12 +1679,12 @@ namespace CrewChiefV4.Events
                     {
                         expectedLapTime = CrewChief.currentGameState.TimingData.getPlayerClassBestLapTime();
                     }
-                    float maxMinutesRemaining = (secondsRemaining + (hasExtraLap ? expectedLapTime * 2 : expectedLapTime)) / 60f;
+                    float maxMinutesRemaining = (secondsRemaining + ((extraLapsAfterTimedSessionComplete + 1) *  expectedLapTime)) / 60f;
                     float totalLitresNeededToEnd = 0;
                     if (averageUsagePerLapForCalculation > 0)
                     {
                         totalLitresNeededToEnd = (averageUsagePerMinuteForCalculation * minutesRemaining) +
-                            (hasExtraLap ? averageUsagePerLapForCalculation * 2 : averageUsagePerLapForCalculation) +
+                            ((extraLapsAfterTimedSessionComplete + 1) * averageUsagePerLapForCalculation) +
                             (addReserve ? reserve : 0);
                     }
                     else

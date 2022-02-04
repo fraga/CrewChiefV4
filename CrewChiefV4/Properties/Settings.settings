@@ -1343,5 +1343,8 @@
     <Setting Name="just_the_facts" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="ams2_character_encoding" Type="System.String" Scope="User">
+      <Value Profile="(Default)">UTF-8</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

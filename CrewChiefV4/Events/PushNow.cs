@@ -87,11 +87,8 @@ namespace CrewChiefV4.Events
                         currentGameState.SessionData.SessionTimeRemaining < 4 * 60 && currentGameState.SessionData.SessionTimeRemaining > 2 * 60)
                 {
                     // estimate the number of remaining laps - be optimistic...
-                    int numLapsLeft = (int)Math.Ceiling((double)currentGameState.SessionData.SessionTimeRemaining / (double)currentGameState.SessionData.PlayerLapTimeSessionBest);
-                    if (currentGameState.SessionData.HasExtraLap)
-                    {
-                        numLapsLeft = numLapsLeft + 1;
-                    }
+                    int numLapsLeft = (int)Math.Ceiling((double)currentGameState.SessionData.SessionTimeRemaining / (double)currentGameState.SessionData.PlayerLapTimeSessionBest)
+                        + currentGameState.SessionData.ExtraLapsAfterTimedSessionComplete;
                     playedNearEndTimePush = checkGaps(currentGameState, numLapsLeft, checkPushToGain, checkPushToHold);
                 }
                 else if ((checkPushToGain || checkPushToHold) && !playedNearEndLapsPush && !currentGameState.SessionData.SessionHasFixedTime &&
