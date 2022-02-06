@@ -431,6 +431,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.16.0.0: Change target .Net version to 4.7.2. This should have no effect on users, it's required to support new collaborators on the project as the development tooling for the old 4.5 target version is very difficult to find; AMS2 - updated to latest shared memory version (includes IMO tyre temps and support for extra lap after timed races); iRacing - added DRS bleeps (enable with the "Enable DRS beeps" property); R3E - fix tyre type mapping for Gr5 cars; R3E - fix pit menu nagivation (note that this fix is required to keep up with changes to the game, and the 'fix body work' command is no longer available); 
+
 Version 4.15.3.12: Suppress "defend you position" type messages when we have a slowdown penalty; R3E - fix broken 'request pit' command and a couple of pit menu nagivation issues; R3E - added repair all and repair none voice commands ('pitstop fix all' / 'box, fix all' / 'pitstop repair all' / 'box, repair all' and 'pitstop fix none' / 'box, fix none' / 'pitstop repair none' / 'box, repair none'); GTR2 - plugin update
 
 Version 4.15.3.11: Allow start and end chat actions to be disabled per macro; iRacing - fix for mapping errors when the game doesn't send us a player name; R3E - fix GTO pit menu tyre compound selection; Rf2 - pit menu refuelling bug fixes; AMS2 - added repair pit menu macros; GTR2 - plugin update
