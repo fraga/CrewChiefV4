@@ -59,6 +59,12 @@ OverwriteFile $rootPath\"sounds_config.txt" $ccLayoutMainPath
 OverwriteFile $releaseBinPath\"AutoUpdater.NET.dll" $ccLayoutMainPath
 OverwriteFile $releaseBinPath\"MathNet.Numerics.dll" $ccLayoutMainPath
 OverwriteFile $releaseBinPath\"NAudio.dll" $ccLayoutMainPath
+OverwriteFile $releaseBinPath\"NAudio.Core.dll" $ccLayoutMainPath
+OverwriteFile $releaseBinPath\"NAudio.Asio.dll" $ccLayoutMainPath
+OverwriteFile $releaseBinPath\"NAudio.Midi.dll" $ccLayoutMainPath
+OverwriteFile $releaseBinPath\"NAudio.Wasapi.dll" $ccLayoutMainPath
+OverwriteFile $releaseBinPath\"NAudio.WinForms.dll" $ccLayoutMainPath
+OverwriteFile $releaseBinPath\"NAudio.WinMM.dll" $ccLayoutMainPath
 OverwriteFile $releaseBinPath\"Newtonsoft.Json.dll" $ccLayoutMainPath
 OverwriteFile $releaseBinPath\"SharpDX.dll" $ccLayoutMainPath
 OverwriteFile $releaseBinPath\"SharpDX.DirectInput.dll" $ccLayoutMainPath
