@@ -82,7 +82,7 @@ namespace CrewChiefV4.rFactor1
                 {
                     try
                     {
-                        memoryMappedFile = MemoryMappedFile.OpenExisting(rFactor1Constant.SharedMemoryName);
+                        memoryMappedFile = MemoryMappedFile.OpenExisting(rFactor1Constant.SharedMemoryName, MemoryMappedFileRights.Read);
                         sharedmemorysize = Marshal.SizeOf(typeof(rfShared));
                         sharedMemoryReadBuffer = new byte[sharedmemorysize];
                         initialised = true;
@@ -111,7 +111,7 @@ namespace CrewChiefV4.rFactor1
                 }
                 try
                 {
-                    using (var sharedMemoryStreamView = memoryMappedFile.CreateViewStream())
+                    using (var sharedMemoryStreamView = memoryMappedFile.CreateViewStream(0, sharedmemorysize, MemoryMappedFileAccess.Read))
                     {
                         BinaryReader _SharedMemoryStream = new BinaryReader(sharedMemoryStreamView);
                         sharedMemoryReadBuffer = _SharedMemoryStream.ReadBytes(sharedmemorysize);
