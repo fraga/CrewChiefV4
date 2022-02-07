@@ -89,7 +89,7 @@ namespace CrewChiefV4.AMS2
                 {
                     try
                     {
-                        memoryMappedFile = MemoryMappedFile.OpenExisting("$pcars2$");
+                        memoryMappedFile = MemoryMappedFile.OpenExisting("$pcars2$", MemoryMappedFileRights.Read);
                         sharedmemorysize = Marshal.SizeOf(typeof(ams2APIStruct));
                         sharedMemoryReadBuffer = new byte[sharedmemorysize];
                         initialised = true;
@@ -126,7 +126,7 @@ namespace CrewChiefV4.AMS2
                     int retries = -1;
                     do {
                         retries++;
-                        using (var sharedMemoryStreamView = memoryMappedFile.CreateViewStream())
+                        using (var sharedMemoryStreamView = memoryMappedFile.CreateViewStream(0, sharedmemorysize, MemoryMappedFileAccess.Read))
                         {
                             BinaryReader _SharedMemoryStream = new BinaryReader(sharedMemoryStreamView);
                             sharedMemoryReadBuffer = _SharedMemoryStream.ReadBytes(sharedmemorysize);

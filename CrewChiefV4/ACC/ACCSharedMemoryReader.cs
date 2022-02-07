@@ -110,15 +110,15 @@ namespace CrewChiefV4.ACC
                 {
                     try
                     {
-                        memoryMappedPhysicsFile = MemoryMappedFile.OpenExisting(accConstant.SharedMemoryNamePhysics);
+                        memoryMappedPhysicsFile = MemoryMappedFile.OpenExisting(accConstant.SharedMemoryNamePhysics, MemoryMappedFileRights.Read);
                         sharedmemoryPhysicssize = Marshal.SizeOf(typeof(SPageFilePhysics));
                         sharedMemoryPhysicsReadBuffer = new byte[sharedmemoryPhysicssize];
 
-                        memoryMappedGraphicFile = MemoryMappedFile.OpenExisting(accConstant.SharedMemoryNameGraphic);
+                        memoryMappedGraphicFile = MemoryMappedFile.OpenExisting(accConstant.SharedMemoryNameGraphic, MemoryMappedFileRights.Read);
                         sharedmemoryGraphicsize = Marshal.SizeOf(typeof(SPageFileGraphic));
                         sharedMemoryGraphicReadBuffer = new byte[sharedmemoryGraphicsize];
 
-                        memoryMappedStaticFile = MemoryMappedFile.OpenExisting(accConstant.SharedMemoryNameStatic);
+                        memoryMappedStaticFile = MemoryMappedFile.OpenExisting(accConstant.SharedMemoryNameStatic, MemoryMappedFileRights.Read);
                         sharedmemoryStaticsize = Marshal.SizeOf(typeof(SPageFileStatic));
                         sharedMemoryStaticReadBuffer = new byte[sharedmemoryStaticsize];
 
@@ -154,7 +154,7 @@ namespace CrewChiefV4.ACC
                 }
                 try
                 {
-                    using (var sharedMemoryStreamView = memoryMappedStaticFile.CreateViewStream())
+                    using (var sharedMemoryStreamView = memoryMappedStaticFile.CreateViewStream(0, sharedmemoryStaticsize, MemoryMappedFileAccess.Read))
                     {
                         BinaryReader _SharedMemoryStream = new BinaryReader(sharedMemoryStreamView);
                         sharedMemoryStaticReadBuffer = _SharedMemoryStream.ReadBytes(sharedmemoryStaticsize);
@@ -162,7 +162,7 @@ namespace CrewChiefV4.ACC
                         accShared.accStatic = (SPageFileStatic)Marshal.PtrToStructure(handleStatic.AddrOfPinnedObject(), typeof(SPageFileStatic));
                         handleStatic.Free();
                     }
-                    using (var sharedMemoryStreamView = memoryMappedGraphicFile.CreateViewStream())
+                    using (var sharedMemoryStreamView = memoryMappedGraphicFile.CreateViewStream(0, sharedmemoryGraphicsize, MemoryMappedFileAccess.Read))
                     {
                         BinaryReader _SharedMemoryStream = new BinaryReader(sharedMemoryStreamView);
                         sharedMemoryGraphicReadBuffer = _SharedMemoryStream.ReadBytes(sharedmemoryGraphicsize);
@@ -171,7 +171,7 @@ namespace CrewChiefV4.ACC
                         handleGraphic.Free();
                     }
 
-                    using (var sharedMemoryStreamView = memoryMappedPhysicsFile.CreateViewStream())
+                    using (var sharedMemoryStreamView = memoryMappedPhysicsFile.CreateViewStream(0, sharedmemoryPhysicssize, MemoryMappedFileAccess.Read))
                     {
                         BinaryReader _SharedMemoryStream = new BinaryReader(sharedMemoryStreamView);
                         sharedMemoryPhysicsReadBuffer = _SharedMemoryStream.ReadBytes(sharedmemoryPhysicssize);

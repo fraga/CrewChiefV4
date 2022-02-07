@@ -48,7 +48,7 @@ namespace rF2SharedMemory
 
     public void Connect()
     {
-      this.memoryMappedFile = MemoryMappedFile.OpenExisting(this.BUFFER_NAME);
+      this.memoryMappedFile = MemoryMappedFile.OpenExisting(this.BUFFER_NAME, MemoryMappedFileRights.Read);
 
       // NOTE: Make sure that BUFFER_SIZE matches the structure size in the plugin (debug mode prints that).
       this.fullSizeBuffer = new byte[this.BUFFER_SIZE_BYTES];
@@ -101,7 +101,7 @@ namespace rF2SharedMemory
 
     public void GetMappedDataUnsynchronized(ref MappedBufferT mappedData)
     {
-      using (var sharedMemoryStreamView = this.memoryMappedFile.CreateViewStream())
+      using (var sharedMemoryStreamView = this.memoryMappedFile.CreateViewStream(0, this.BUFFER_SIZE_BYTES, MemoryMappedFileAccess.Read))
       {
         var sharedMemoryStream = new BinaryReader(sharedMemoryStreamView);
         var sharedMemoryReadBuffer = sharedMemoryStream.ReadBytes(this.BUFFER_SIZE_BYTES);

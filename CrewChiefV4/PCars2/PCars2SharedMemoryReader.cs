@@ -90,7 +90,7 @@ namespace CrewChiefV4.PCars2
                     try
                     {
                         // note that pCars3 also uses "$pcars2$" for its shared memory file
-                        memoryMappedFile = MemoryMappedFile.OpenExisting("$pcars2$");
+                        memoryMappedFile = MemoryMappedFile.OpenExisting("$pcars2$", MemoryMappedFileRights.Read);
                         sharedmemorysize = Marshal.SizeOf(typeof(pCars2APIStruct));
                         sharedMemoryReadBuffer = new byte[sharedmemorysize];
                         initialised = true;
@@ -127,7 +127,7 @@ namespace CrewChiefV4.PCars2
                     int retries = -1;
                     do {
                         retries++;
-                        using (var sharedMemoryStreamView = memoryMappedFile.CreateViewStream())
+                        using (var sharedMemoryStreamView = memoryMappedFile.CreateViewStream(0, sharedmemorysize, MemoryMappedFileAccess.Read))
                         {
                             BinaryReader _SharedMemoryStream = new BinaryReader(sharedMemoryStreamView);
                             sharedMemoryReadBuffer = _SharedMemoryStream.ReadBytes(sharedmemorysize);

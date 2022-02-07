@@ -74,7 +74,7 @@ namespace CrewChiefV4.PCars
                 {
                     try
                     {
-                        memoryMappedFile = MemoryMappedFile.OpenExisting("$pcars$");
+                        memoryMappedFile = MemoryMappedFile.OpenExisting("$pcars$", MemoryMappedFileRights.Read);
                         sharedmemorysize = Marshal.SizeOf(typeof(pCarsAPIStruct));
                         sharedMemoryReadBuffer = new byte[sharedmemorysize];
                         initialised = true;
@@ -103,7 +103,7 @@ namespace CrewChiefV4.PCars
                 }
                 try
                 {
-                    using (var sharedMemoryStreamView = memoryMappedFile.CreateViewStream())
+                    using (var sharedMemoryStreamView = memoryMappedFile.CreateViewStream(0, sharedmemorysize, MemoryMappedFileAccess.Read))
                     {
                         BinaryReader _SharedMemoryStream = new BinaryReader(sharedMemoryStreamView);
                         sharedMemoryReadBuffer = _SharedMemoryStream.ReadBytes(sharedmemorysize);
