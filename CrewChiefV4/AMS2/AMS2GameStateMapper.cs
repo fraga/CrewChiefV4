@@ -1432,17 +1432,17 @@ namespace CrewChiefV4.AMS2
         {
             ams2APIStruct shared = (ams2APIStruct)memoryMappedFileStruct;
             uint sessionState = shared.mSessionState;
-            if (sessionState == (uint)eSessionState.SESSION_RACE || sessionState == (uint)eSessionState.SESSION_FORMATION_LAP)
+            if (sessionState == (uint)eSessionState.SESSION_QUALIFY)
+            {
+                return SessionType.Qualify;
+            }
+            else if (sessionState == (uint)eSessionState.SESSION_RACE || sessionState == (uint)eSessionState.SESSION_FORMATION_LAP)
             {
                 return SessionType.Race;
             }
             else if (sessionState == (uint)eSessionState.SESSION_PRACTICE || sessionState == (uint)eSessionState.SESSION_TEST)
             {
                 return SessionType.Practice;
-            } 
-            else if (sessionState == (uint)eSessionState.SESSION_QUALIFY)
-            {
-                return SessionType.Qualify;
             }
             else if (sessionState == (uint)eSessionState.SESSION_TIME_ATTACK)
             {
