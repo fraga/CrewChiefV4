@@ -340,6 +340,7 @@ namespace CrewChiefV4.RaceRoom
                         }
                         else
                         {
+                            // Note that the R3E SafetyCar is car class ID 10743
                             currentGameState.carClass = CarData.getCarClassForRaceRoomId(participantStruct.DriverInfo.ClassId);
                             currentGameState.SessionData.PlayerCarNr = participantStruct.DriverInfo.CarNumber.ToString();
                             CarData.RACEROOM_CLASS_ID = participantStruct.DriverInfo.ClassId;
