@@ -1337,8 +1337,7 @@ namespace CrewChiefV4.Events
                     audioPlayer.playMessage(new QueuedMessage(folderWillFixRearAero, 0));
                 }
             }
-            // can't announce suspension fix as we don't know the state any more
-            /*if (R3EPitMenuManager.latestState[SelectedItem.Suspension] == PitSelectionState.SELECTED)
+            if (R3EPitMenuManager.latestState[SelectedItem.Suspension] == PitSelectionState.SELECTED)
             {
                 // "we'll fix the suspension"
                 audioPlayer.playMessage(new QueuedMessage(folderWillFixSuspension, 0));
@@ -1349,7 +1348,7 @@ namespace CrewChiefV4.Events
                 // "we'll leave the suspension"
                 audioPlayer.playMessage(new QueuedMessage(folderWillLeaveSuspension, 0));
                 haveData = true;
-            }*/
+            }
             if (R3EPitMenuManager.latestState[SelectedItem.Penalty] == PitSelectionState.SELECTED)
             {
                 // "we'll be serving the penalty"
