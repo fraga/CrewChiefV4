@@ -3436,83 +3436,84 @@
 					}
 				]
 			},
-			{
-				"rf2TrackNames": [ "LeMans91" ],
-				"trackLandmarks": [
-					{
-						"landmarkName": "dunlop_curve",
-						"distanceRoundLapStart": 380,
-						"distanceRoundLapEnd": 780,
-						"isCommonOvertakingSpot": false
-					},
-					{
-						"landmarkName": "dunlop_chicane",
-						"distanceRoundLapStart": 790,
-						"distanceRoundLapEnd": 960,
-						"isCommonOvertakingSpot": true
-					},
-					{
-						"landmarkName": "the_esses",
-						"distanceRoundLapStart": 1380,
-						"distanceRoundLapEnd": 1650,
-						"isCommonOvertakingSpot": false
-					},
-					{
-						"landmarkName": "tetre_rouge",
-						"distanceRoundLapStart": 1850,
-						"distanceRoundLapEnd": 1995,
-						"isCommonOvertakingSpot": true
-					},
-					{
-						"landmarkName": "playstation_chicane",
-						"distanceRoundLapStart": 3910,
-						"distanceRoundLapEnd": 4355,
-						"isCommonOvertakingSpot": true
-					},
-					{
-						"landmarkName": "michelin_chicane",
-						"distanceRoundLapStart": 5890,
-						"distanceRoundLapEnd": 6280,
-						"isCommonOvertakingSpot": false
-					},
-					{
-						"landmarkName": "mulsanne",
-						"distanceRoundLapStart": 7680,
-						"distanceRoundLapEnd": 7800,
-						"isCommonOvertakingSpot": true
-					},
-					{
-						"landmarkName": "indianapolis",
-						"distanceRoundLapStart": 9780,
-						"distanceRoundLapEnd": 9915,
-						"isCommonOvertakingSpot": true
-					},
-					{
-						"landmarkName": "arnage",
-						"distanceRoundLapStart": 10125,
-						"distanceRoundLapEnd": 10220,
-						"isCommonOvertakingSpot": true
-					},
-					{
-						"landmarkName": "porsche_curves",
-						"distanceRoundLapStart": 11360,
-						"distanceRoundLapEnd": 12370,
-						"isCommonOvertakingSpot": false
-					},
-					{
-						"landmarkName": "the_first_ford_chicane",
-						"distanceRoundLapStart": 13200,
-						"distanceRoundLapEnd": 13350,
-						"isCommonOvertakingSpot": true
-					},
-					{
-						"landmarkName": "the_second_ford_chicane",
-						"distanceRoundLapStart": 13370,
-						"distanceRoundLapEnd": 13490,
-						"isCommonOvertakingSpot": false
-					}
-				]
-			},
+		{
+			"rf2TrackNames": [ "LeMans91" ],
+			"acTrackNames": [ "sx_lemans:chicane" ],
+			"trackLandmarks": [
+				{
+					"landmarkName": "dunlop_curve",
+					"distanceRoundLapStart": 380,
+					"distanceRoundLapEnd": 780,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "dunlop_chicane",
+					"distanceRoundLapStart": 790,
+					"distanceRoundLapEnd": 960,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "the_esses",
+					"distanceRoundLapStart": 1380,
+					"distanceRoundLapEnd": 1650,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "tetre_rouge",
+					"distanceRoundLapStart": 1850,
+					"distanceRoundLapEnd": 1995,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "playstation_chicane",
+					"distanceRoundLapStart": 3910,
+					"distanceRoundLapEnd": 4355,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "michelin_chicane",
+					"distanceRoundLapStart": 5890,
+					"distanceRoundLapEnd": 6280,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "mulsanne",
+					"distanceRoundLapStart": 7680,
+					"distanceRoundLapEnd": 7800,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "indianapolis",
+					"distanceRoundLapStart": 9780,
+					"distanceRoundLapEnd": 9915,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "arnage",
+					"distanceRoundLapStart": 10125,
+					"distanceRoundLapEnd": 10220,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "porsche_curves",
+					"distanceRoundLapStart": 11360,
+					"distanceRoundLapEnd": 12370,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "the_first_ford_chicane",
+					"distanceRoundLapStart": 13200,
+					"distanceRoundLapEnd": 13350,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "the_second_ford_chicane",
+					"distanceRoundLapStart": 13370,
+					"distanceRoundLapEnd": 13490,
+					"isCommonOvertakingSpot": false
+				}
+			]
+		},
 			{
 				"rf2TrackNames": [ "Le Bugatti Circuit" ],
 				"pcarsTrackName": "Le Mans:Le Circuit Bugatti",
