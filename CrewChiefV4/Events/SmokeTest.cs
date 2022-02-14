@@ -122,7 +122,6 @@ namespace CrewChiefV4.Events
                 audioPlayer.playMessageImmediately(new QueuedMessage(SMOKE_TEST_CODRIVER, 0,
                     messageFragments: MessageContents(CoDriver.folderMicCheck)), false);
             }
-
             PlaybackModerator.SetTracing(true /*enabled*/);
             
             DirectoryInfo soundDirectory = new DirectoryInfo(AudioPlayer.soundFilesPath);
