@@ -455,7 +455,7 @@ namespace CrewChiefV4.ACC
             public int isCarInPitline;
             public int isCarInPit;
             public int carLeaderboardPosition;
-            public int carRealTimeLeaderboardPosition;
+            public int carRealTimeLeaderboardPosition; // for race sessions this is derived from the total distance travelled, for other sessions it's the carLeaderboardPosition
             public float spLineLength;
             public int isConnected; // NOT USED, IS ALWAYS 1
             public int raceNumber;

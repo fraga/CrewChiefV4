@@ -42,20 +42,6 @@ namespace ksBroadcastingNetwork
             ConnectAndRun();
         }
 
-        public async Task LockForReadingAsync(Action action)
-        {
-            await udpTaskSemaphore.WaitAsync();
-
-            try
-            {
-                action();
-            }
-            finally
-            {
-                udpTaskSemaphore.Release();
-            }
-        }
-
         private UdpClient GetUdpClient(bool isSending = false)
         {
             lock(udpLock)
@@ -108,8 +94,6 @@ namespace ksBroadcastingNetwork
 
                 while (allowRun)
                 {
-                    await udpTaskSemaphore.WaitAsync();
-
                     try
                     {
                         UdpClient client = GetUdpClient();
@@ -149,10 +133,6 @@ namespace ksBroadcastingNetwork
                     }
                     catch
                     {
-                    }
-                    finally
-                    {
-                        udpTaskSemaphore.Release();
                     }
                 }
             });

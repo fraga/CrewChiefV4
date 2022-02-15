@@ -952,12 +952,14 @@ namespace CrewChiefV4.iRacing
                             Boolean finishedAllottedRaceLaps = currentGameState.SessionData.SessionNumberOfLaps > 0 && currentGameState.SessionData.SessionNumberOfLaps == currentOpponentLapsCompleted;
                             Boolean finishedAllottedRaceTime = false;
 
-                            if (currentGameState.SessionData.SessionTotalRunTime > 0 && currentGameState.SessionData.SessionTimeRemaining <= 0
-                                && previousOpponentCompletedLaps < currentOpponentLapsCompleted)
+                            if (currentGameState.SessionData.SessionTotalRunTime > 0 && currentGameState.SessionData.SessionTimeRemaining <= 0)
                             {
-                                // timed session, we've started a new lap after the time has reached zero. Where there's no extra lap this means we've finished. If there's 1 or more
-                                // extras he's finished when he's started more than the extra laps number
-                                currentOpponentData.LapsStartedAfterRaceTimeEnd++;
+                                if (previousOpponentCompletedLaps < currentOpponentLapsCompleted)
+                                {
+                                    // timed session, we've started a new lap after the time has reached zero. Where there's no extra lap this means we've finished. If there's 1 or more
+                                    // extras he's finished when he's started more than the extra laps number
+                                    currentOpponentData.LapsStartedAfterRaceTimeEnd++;
+                                }
                                 finishedAllottedRaceTime = currentOpponentData.LapsStartedAfterRaceTimeEnd > currentGameState.SessionData.ExtraLapsAfterTimedSessionComplete;
                             }
 

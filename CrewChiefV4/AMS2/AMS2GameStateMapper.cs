@@ -791,12 +791,14 @@ namespace CrewChiefV4.AMS2
                                     Boolean finishedAllottedRaceLaps = currentGameState.SessionData.SessionNumberOfLaps > 0 && currentGameState.SessionData.SessionNumberOfLaps == currentOpponentLapsCompleted;
                                     Boolean finishedAllottedRaceTime = false;
 
-                                    if (currentGameState.SessionData.SessionTotalRunTime > 0 && currentGameState.SessionData.SessionTimeRemaining < 1
-                                        && previousOpponentCompletedLaps < currentOpponentLapsCompleted)
+                                    if (currentGameState.SessionData.SessionTotalRunTime > 0 && currentGameState.SessionData.SessionTimeRemaining < 1)
                                     {
-                                        // timed session, he's started a new lap after the time has reached zero. Where there's no extra lap this means we've finished. If there's 1 or more
-                                        // extras he's finished when he's started more than the extra laps number
-                                        currentOpponentData.LapsStartedAfterRaceTimeEnd++;
+                                        if (previousOpponentCompletedLaps < currentOpponentLapsCompleted)
+                                        {
+                                            // timed session, he's started a new lap after the time has reached zero. Where there's no extra lap this means we've finished. If there's 1 or more
+                                            // extras he's finished when he's started more than the extra laps number
+                                            currentOpponentData.LapsStartedAfterRaceTimeEnd++;
+                                        }
                                         finishedAllottedRaceTime = currentOpponentData.LapsStartedAfterRaceTimeEnd > currentGameState.SessionData.ExtraLapsAfterTimedSessionComplete;
                                     }
 
