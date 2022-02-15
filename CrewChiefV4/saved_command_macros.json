@@ -980,7 +980,8 @@
 			"description": "press the key to open the ACC pit menu. Note this isn't a toggle. Longer hold time here because we rely on this in the pit macros",
 			"voiceTriggers": [
 				"show pit menu",
-				"show pit stop"
+				"show pit stop",
+				"open pit menu"
 			],
 			"commandSets": [
 				{
@@ -1044,7 +1045,8 @@
 			"name": "close acc pit / standings / electronics menu",
 			"description": "go to the pit menu then press INSERT",
 			"voiceTriggers": [
-				"close menu"
+				"close menu",
+				"close pit menu"
 			],
 			"commandSets": [
 				{

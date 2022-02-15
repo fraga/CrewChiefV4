@@ -401,14 +401,11 @@ namespace CrewChiefV4.ACC
                 || raceFinished
                 || (previousGameState != null && previousGameState.SessionData.SessionRunningTime < 10 && shared.accGraphic.session == AC_SESSION_TYPE.AC_RACE);
 
-            if (useLeaderboardPosition)
-            {
-                currentGameState.SessionData.OverallPosition = playerVehicle.carLeaderboardPosition;
-            }
-            else
-            {
-                currentGameState.SessionData.OverallPosition = playerVehicle.carRealTimeLeaderboardPosition;
-            }
+            currentGameState.SessionData.DriverRawName = playerVehicle.driverName;
+            int positionFromGame = useLeaderboardPosition ? playerVehicle.carLeaderboardPosition : playerVehicle.carRealTimeLeaderboardPosition;
+            currentGameState.SessionData.OverallPosition = currentGameState.SessionData.SessionType == SessionType.Race && previousGameState != null
+                ? getRacePosition(currentGameState.SessionData.DriverRawName, previousGameState.SessionData.OverallPosition, positionFromGame, currentGameState.Now)
+                : positionFromGame;
 
             currentGameState.SessionData.TrackDefinition = TrackData.getTrackDefinition(shared.accStatic.track + ":" + shared.accStatic.NOT_SET_trackConfiguration, shared.accChief.trackLength, shared.accStatic.sectorCount);
 
@@ -470,7 +467,6 @@ namespace CrewChiefV4.ACC
                     }
                     Console.WriteLine("Time in this new session = " + sessionTimeRemaining.ToString("0.000"));
                 }
-                currentGameState.SessionData.DriverRawName = playerVehicle.driverName;
                 currentGameState.PitData.IsRefuellingAllowed = true;
 
                 //add carclasses for assetto corsa.
@@ -908,25 +904,21 @@ namespace CrewChiefV4.ACC
                                     {
                                         finishedAllottedRaceLaps = currentGameState.SessionData.SessionNumberOfLaps > 0 && currentGameState.SessionData.SessionNumberOfLaps == currentOpponentLapsCompleted;
                                     }
-                                    else if (currentGameState.SessionData.SessionTotalRunTime > 0 && currentGameState.SessionData.SessionTimeRemaining <= 0
-                                        && previousOpponentCompletedLaps < currentOpponentLapsCompleted)
+                                    else if (currentGameState.SessionData.SessionTotalRunTime > 0 && currentGameState.SessionData.SessionTimeRemaining <= 0)
                                     {
-                                        // timed session, he's started a new lap after the time has reached zero. Where there's no extra lap this means we've finished. If there's 1 or more
-                                        // extras he's finished when he's started more than the extra laps number
-                                        currentOpponentData.LapsStartedAfterRaceTimeEnd++;
+                                        if (previousOpponentCompletedLaps < currentOpponentLapsCompleted)
+                                        {
+                                            // timed session, he's started a new lap after the time has reached zero. Where there's no extra lap this means we've finished. If there's 1 or more
+                                            // extras he's finished when he's started more than the extra laps number
+                                            currentOpponentData.LapsStartedAfterRaceTimeEnd++;
+                                        }
                                         finishedAllottedRaceTime = currentOpponentData.LapsStartedAfterRaceTimeEnd > currentGameState.SessionData.ExtraLapsAfterTimedSessionComplete;
                                     }
                                 }
-
-                                if (useLeaderboardPosition || finishedAllottedRaceLaps || finishedAllottedRaceTime)
-                                {
-                                    currentOpponentRacePosition = participantStruct.carLeaderboardPosition;
-                                }
-                                else
-                                {
-                                    currentOpponentRacePosition = participantStruct.carRealTimeLeaderboardPosition;
-                                }
-
+                                int opponentPositionFromGame = useLeaderboardPosition || finishedAllottedRaceLaps || finishedAllottedRaceTime
+                                    ?  participantStruct.carLeaderboardPosition
+                                    :  participantStruct.carRealTimeLeaderboardPosition;
+                                currentOpponentRacePosition = getRacePosition(participantName, previousOpponentPosition, opponentPositionFromGame, currentGameState.Now);
 
                                 if (currentOpponentRacePosition == 1 && (finishedAllottedRaceTime || finishedAllottedRaceLaps))
                                 {

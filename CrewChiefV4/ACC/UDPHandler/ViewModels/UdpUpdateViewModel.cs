@@ -32,11 +32,5 @@ namespace ksBroadcastingTestClient
         {
             ClientPanelVM.Shutdown();
         }
-
-        public async Task LockForReadingAsync(Action action)
-        {
-            if (udpClient != null)
-                await udpClient.LockForReadingAsync(action);
-        }
     }
 }
