@@ -1390,6 +1390,11 @@ namespace CrewChiefV4.ACC
             }
 
             currentGameState.PositionAndMotionData.WorldPosition = new float[] { playerVehicle.worldPosition.x, playerVehicle.worldPosition.y, playerVehicle.worldPosition.z };
+            currentGameState.PitData.HasMandatoryPitStop = shared.accGraphic.missingMandatoryPits > 0 && shared.accGraphic.missingMandatoryPits < 255;
+            currentGameState.PitData.MandatoryPitStopCompleted = shared.accGraphic.MandatoryPitDone > 0;
+
+            // always ignore pit window data as it's unreliable
+            currentGameState.PitData.PitWindow = PitWindow.Unavailable;
 
             return currentGameState;
         }

@@ -764,6 +764,7 @@ namespace CrewChiefV4.Events
                         if (pitWindowClosedTime > 0 && currentGameState.PitData.PitWindow != PitWindow.StopInProgress &&
                             !currentGameState.PitData.InPitlane &&
                             currentGameState.PitData.PitWindow != PitWindow.Completed &&
+                            pitWindowOpenTime > 0 &&
                             currentGameState.SessionData.SessionTotalRunTime - currentGameState.SessionData.SessionTimeRemaining > pitWindowOpenTime * 60 &&
                             currentGameState.SessionData.SessionTotalRunTime - currentGameState.SessionData.SessionTimeRemaining < pitWindowClosedTime * 60)
                         {
@@ -1502,6 +1503,10 @@ namespace CrewChiefV4.Events
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage("yesBoxAfter", 0,
                                     messageFragments: MessageContents(folderMandatoryPitStopsYesStopAfter, TimeSpanWrapper.FromMinutes(pitWindowOpenTime, Precision.MINUTES))));
+                }
+                else if (hasMandatoryPitStop && !mandatoryStopCompleted)
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderYes, 0));
                 }
                 else
                 {

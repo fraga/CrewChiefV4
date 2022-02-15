@@ -273,6 +273,15 @@ namespace CrewChiefV4.Events
         private float[] leftRearAverageIMOLastLap;
         private float[] rightRearAverageIMOLastLap;
 
+        private LinkedList<float> leftFrontPressureSamples = new LinkedList<float>();
+        private LinkedList<float> rightFrontPressureSamples = new LinkedList<float>();
+        private LinkedList<float> leftRearPressureSamples = new LinkedList<float>();
+        private LinkedList<float> rightRearPressureSamples = new LinkedList<float>();
+        private float leftFrontAveragePressureLastLap;
+        private float rightFrontAveragePressureLastLap;
+        private float leftRearAveragePressureLastLap;
+        private float rightRearAveragePressureLastLap;
+
         private int lapsIntoSessionBeforeTempMessage = 2;
 
         // check at start of which sector (1=s/f line)
@@ -567,11 +576,19 @@ namespace CrewChiefV4.Events
             rightRearInnerSamples.Clear();
             rightRearMiddleSamples.Clear();
             rightRearOuterSamples.Clear();
+            leftFrontPressureSamples.Clear();
+            rightFrontPressureSamples.Clear();
+            leftRearPressureSamples.Clear();
+            rightRearPressureSamples.Clear();
             leftFrontAverageIMOLastLap = null;
             rightFrontAverageIMOLastLap = null;
             leftRearAverageIMOLastLap = null;
             rightRearAverageIMOLastLap = null;
-        }
+            leftFrontAveragePressureLastLap = 0;
+            rightFrontAveragePressureLastLap = 0;
+            leftRearAveragePressureLastLap = 0;
+            rightRearAveragePressureLastLap = 0;
+    }
 
         private Boolean isBrakeTempPeakForLap(float leftFront, float rightFront, float leftRear, float rightRear)
         {
@@ -659,7 +676,7 @@ namespace CrewChiefV4.Events
             }
         }
 
-        private void getIMOAveragesForLap()
+        private void getIMOAndPressureAveragesForLap()
         {
             if (leftFrontInnerSamples.Count > 0 && leftFrontMiddleSamples.Count > 0 && leftFrontOuterSamples.Count > 0)
             {
@@ -677,9 +694,26 @@ namespace CrewChiefV4.Events
             {
                 rightRearAverageIMOLastLap = new float[] { rightRearInnerSamples.Average(), rightRearMiddleSamples.Average(), rightRearOuterSamples.Average() };
             }
+
+            if (leftFrontPressureSamples.Count > 0)
+            {
+                leftFrontAveragePressureLastLap = leftFrontPressureSamples.Average();
+            }
+            if (rightFrontPressureSamples.Count > 0)
+            {
+                rightFrontAveragePressureLastLap = rightFrontPressureSamples.Average();
+            }
+            if (leftRearPressureSamples.Count > 0)
+            {
+                leftRearAveragePressureLastLap = leftRearPressureSamples.Average();
+            }
+            if (rightRearPressureSamples.Count > 0)
+            {
+                rightRearAveragePressureLastLap = rightRearPressureSamples.Average();
+            }
         }
 
-        private void clearIMOData()
+        private void clearIMOAndPressureData()
         {
             leftFrontInnerSamples.Clear();
             leftFrontMiddleSamples.Clear();
@@ -693,6 +727,10 @@ namespace CrewChiefV4.Events
             rightRearInnerSamples.Clear();
             rightRearMiddleSamples.Clear();
             rightRearOuterSamples.Clear();
+            leftFrontPressureSamples.Clear();
+            rightFrontPressureSamples.Clear();
+            leftRearPressureSamples.Clear();
+            rightRearPressureSamples.Clear();
         }
 
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
@@ -765,14 +803,14 @@ namespace CrewChiefV4.Events
                     thisLapTyreConditionReportSector = 3;
                     thisLapTyreTempReportSector = 2;
                 }
-                // just finished a lap, get IMO data
-                getIMOAveragesForLap();
-                clearIMOData();
+                // just finished a lap, get IMO data and pressure
+                getIMOAndPressureAveragesForLap();
+                clearIMOAndPressureData();
             }
             else if (previousGameState != null && previousGameState.PitData.InPitlane && !currentGameState.PitData.InPitlane)
             {
                 // just exited the pit, clear the lap's IMO temp data
-                clearIMOData();
+                clearIMOAndPressureData();
             }
             else if (!currentGameState.PitData.InPitlane && currentGameState.PositionAndMotionData.CarSpeed > 10 && currentGameState.Now > nextIMOSamplesDue)
             {
@@ -790,6 +828,12 @@ namespace CrewChiefV4.Events
                 rightRearInnerSamples.AddLast(currentGameState.TyreData.RearRight_LeftTemp);
                 rightRearMiddleSamples.AddLast(currentGameState.TyreData.RearRight_CenterTemp);
                 rightRearOuterSamples.AddLast(currentGameState.TyreData.RearRight_RightTemp);
+
+                // and pressure samples for ACC
+                leftFrontPressureSamples.AddLast(currentGameState.TyreData.FrontLeftPressure);
+                rightFrontPressureSamples.AddLast(currentGameState.TyreData.FrontRightPressure);
+                leftRearPressureSamples.AddLast(currentGameState.TyreData.RearLeftPressure);
+                rightRearPressureSamples.AddLast(currentGameState.TyreData.RearRightPressure);
             }
 
             enableWheelSpinWarnings = enableWheelSpinWarnings && GlobalBehaviourSettings.enabledMessageTypes.Contains(MessageTypes.LOCKING_AND_SPINNING);
@@ -1871,7 +1915,15 @@ namespace CrewChiefV4.Events
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOW_ARE_MY_TYRE_PRESSURES_RIGHT_NOW))
             {
-                if (!hasUsableIMOTempData(false) || CrewChief.currentGameState == null)
+                if (CrewChief.gameDefinition.gameEnum == GameEnum.ACC)
+                {
+                    playPressureMessage(delayResponses,
+                        aggregatePressureMessages(getACCPressureMessage(CornerData.Corners.FRONT_LEFT, false),
+                        getACCPressureMessage(CornerData.Corners.FRONT_RIGHT, false),
+                        getACCPressureMessage(CornerData.Corners.REAR_LEFT, false),
+                        getACCPressureMessage(CornerData.Corners.REAR_RIGHT, false)));
+                }
+                else if (!hasUsableIMOTempData(false) || CrewChief.currentGameState == null)
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
                 }
@@ -1884,7 +1936,15 @@ namespace CrewChiefV4.Events
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOW_ARE_MY_TYRE_PRESSURES))
             {
-                if (!hasUsableIMOTempData(true) || CrewChief.currentGameState == null)
+                if (CrewChief.gameDefinition.gameEnum == GameEnum.ACC)
+                {
+                    playPressureMessage(delayResponses,
+                        aggregatePressureMessages(getACCPressureMessage(CornerData.Corners.FRONT_LEFT, true),
+                        getACCPressureMessage(CornerData.Corners.FRONT_RIGHT, true),
+                        getACCPressureMessage(CornerData.Corners.REAR_LEFT, true),
+                        getACCPressureMessage(CornerData.Corners.REAR_RIGHT, true)));
+                }
+                else if (!hasUsableIMOTempData(true) || CrewChief.currentGameState == null)
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
                 }
@@ -1897,7 +1957,13 @@ namespace CrewChiefV4.Events
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOW_ARE_MY_FRONT_TYRE_PRESSURES_RIGHT_NOW))
             {
-                if (!hasUsableIMOTempData(false) || CrewChief.currentGameState == null)
+                if (CrewChief.gameDefinition.gameEnum == GameEnum.ACC)
+                {
+                    playPressureMessage(delayResponses,
+                        aggregatePressureMessages(getACCPressureMessage(CornerData.Corners.FRONT_LEFT, false),
+                        getACCPressureMessage(CornerData.Corners.FRONT_RIGHT, false), null, null));
+                }
+                else if (!hasUsableIMOTempData(false) || CrewChief.currentGameState == null)
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
                 }
@@ -1909,7 +1975,13 @@ namespace CrewChiefV4.Events
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOW_ARE_MY_FRONT_TYRE_PRESSURES))
             {
-                if (!hasUsableIMOTempData(true) || CrewChief.currentGameState == null)
+                if (CrewChief.gameDefinition.gameEnum == GameEnum.ACC)
+                {
+                    playPressureMessage(delayResponses,
+                        aggregatePressureMessages(getACCPressureMessage(CornerData.Corners.FRONT_LEFT, true),
+                        getACCPressureMessage(CornerData.Corners.FRONT_RIGHT, true), null, null));
+                }
+                else if (!hasUsableIMOTempData(true) || CrewChief.currentGameState == null)
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
                 }
@@ -1921,7 +1993,13 @@ namespace CrewChiefV4.Events
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOW_ARE_MY_REAR_TYRE_PRESSURES_RIGHT_NOW))
             {
-                if (!hasUsableIMOTempData(false) || CrewChief.currentGameState == null)
+                if (CrewChief.gameDefinition.gameEnum == GameEnum.ACC)
+                {
+                    playPressureMessage(delayResponses,
+                        aggregatePressureMessages(null, null, getACCPressureMessage(CornerData.Corners.REAR_LEFT, false),
+                        getACCPressureMessage(CornerData.Corners.REAR_RIGHT, false)));
+                }
+                else if (!hasUsableIMOTempData(false) || CrewChief.currentGameState == null)
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
                 }
@@ -1933,7 +2011,13 @@ namespace CrewChiefV4.Events
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOW_ARE_MY_REAR_TYRE_PRESSURES))
             {
-                if (!hasUsableIMOTempData(true) || CrewChief.currentGameState == null)
+                if (CrewChief.gameDefinition.gameEnum == GameEnum.ACC)
+                {
+                    playPressureMessage(delayResponses,
+                        aggregatePressureMessages(null, null, getACCPressureMessage(CornerData.Corners.REAR_LEFT, true),
+                        getACCPressureMessage(CornerData.Corners.REAR_RIGHT, true)));
+                }
+                else if (!hasUsableIMOTempData(true) || CrewChief.currentGameState == null)
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
                 }
@@ -2069,7 +2153,6 @@ namespace CrewChiefV4.Events
 
         private String getPressureMessage(CornerData.Corners corners, Boolean useAverageData)
         {
-
             float percentDiff;
             float averageEdgeTemp;
             float middleTemp;
@@ -2172,6 +2255,112 @@ namespace CrewChiefV4.Events
                         return folderRightRearPressureLow;
                     }
                     else if (percentDiff < 10)
+                    {
+                        return folderRightRearPressureVeryLow;
+                    }
+                    else
+                    {
+                        return folderRightRearPressureOK;
+                    }
+                default:
+                    return null;
+            }
+        }
+
+        private String getACCPressureMessage(CornerData.Corners corners, Boolean useAverageData)
+        {
+            bool onDrys = CrewChief.currentGameState.TyreData.TyreTypeName == null
+                || CrewChief.currentGameState.TyreData.TyreTypeName.Length == 0
+                || !CrewChief.currentGameState.TyreData.TyreTypeName.ToLowerInvariant().Contains("wet");
+
+            float veryHigh = onDrys ? CarData.accDryVeryHighPressureThreshold : CarData.accWetVeryHighPressureThreshold;
+            float high = onDrys ? CarData.accDryHighPressureThreshold : CarData.accWetHighPressureThreshold;
+            float low = onDrys ? CarData.accDryLowPressureThreshold : CarData.accWetLowPressureThreshold;
+            float veryLow = onDrys ? CarData.accDryVeryLowPressureThreshold : CarData.accWetVeryLowPressureThreshold;
+
+            float frontLeft = useAverageData ? leftFrontAveragePressureLastLap : CrewChief.currentGameState.TyreData.FrontLeftPressure;
+            float frontRight = useAverageData ? rightFrontAveragePressureLastLap : CrewChief.currentGameState.TyreData.FrontRightPressure;
+            float rearLeft = useAverageData ? leftRearAveragePressureLastLap : CrewChief.currentGameState.TyreData.RearLeftPressure;
+            float rearRight = useAverageData ? rightRearAveragePressureLastLap : CrewChief.currentGameState.TyreData.RearRightPressure;
+            switch (corners)
+            {
+                case CornerData.Corners.FRONT_LEFT:
+                    if (frontLeft > veryHigh)
+                    {
+                        return folderLeftFrontPressureVeryHigh;
+                    }
+                    else if (frontLeft > high)
+                    {
+                        return folderLeftFrontPressureHigh;
+                    }
+                    else if (frontLeft < low)
+                    {
+                        return folderLeftFrontPressureLow;
+                    }
+                    else if (frontLeft < veryLow)
+                    {
+                        return folderLeftFrontPressureVeryLow;
+                    }
+                    else
+                    {
+                        return folderLeftFrontPressureOK;
+                    }
+                case CornerData.Corners.FRONT_RIGHT:
+                    if (frontRight > veryHigh)
+                    {
+                        return folderRightFrontPressureVeryHigh;
+                    }
+                    else if (frontRight > high)
+                    {
+                        return folderRightFrontPressureHigh;
+                    }
+                    else if (frontRight < low)
+                    {
+                        return folderRightFrontPressureLow;
+                    }
+                    else if (frontRight < veryLow)
+                    {
+                        return folderRightFrontPressureVeryLow;
+                    }
+                    else
+                    {
+                        return folderRightFrontPressureOK;
+                    }
+                case CornerData.Corners.REAR_LEFT:
+                    if (rearLeft > veryHigh)
+                    {
+                        return folderLeftRearPressureVeryHigh;
+                    }
+                    else if (rearLeft > high)
+                    {
+                        return folderLeftRearPressureHigh;
+                    }
+                    else if (rearLeft < low)
+                    {
+                        return folderLeftRearPressureLow;
+                    }
+                    else if (rearLeft < veryLow)
+                    {
+                        return folderLeftRearPressureVeryLow;
+                    }
+                    else
+                    {
+                        return folderLeftRearPressureOK;
+                    }
+                case CornerData.Corners.REAR_RIGHT:
+                    if (rearRight > veryHigh)
+                    {
+                        return folderRightRearPressureVeryHigh;
+                    }
+                    else if (rearRight > high)
+                    {
+                        return folderRightRearPressureHigh;
+                    }
+                    else if (rearRight < low)
+                    {
+                        return folderRightRearPressureLow;
+                    }
+                    else if (rearRight < veryLow)
                     {
                         return folderRightRearPressureVeryLow;
                     }

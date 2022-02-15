@@ -135,6 +135,16 @@ namespace CrewChiefV4
         private static float maxWarmCarbonBrakeTemp = 1200;
         private static float maxHotCarbonBrakeTemp = 1500;
 
+        // some ACC tyre pressure ranges
+        public static float accDryVeryHighPressureThreshold = 28.8f * 6.894f;
+        public static float accWetVeryHighPressureThreshold = 32.0f * 6.894f;
+        public static float accDryHighPressureThreshold = 28.3f * 6.894f;
+        public static float accWetHighPressureThreshold = 31.0f * 6.894f;
+        public static float accDryLowPressureThreshold = 27.2f * 6.894f;
+        public static float accWetLowPressureThreshold = 29.0f * 6.894f;
+        public static float accDryVeryLowPressureThreshold = 26.5f * 6.894f;
+        public static float accWetVeryLowPressureThreshold = 28.0f * 6.894f;
+
         public enum CarClassEnum
         {
             G2, G3, GT, GT1X, GT1, GTE, GT2, GTC, GTLM, GT3, GT4, GT5, GT300, GT500, NGT, Kart_1, Kart_2, KART_JUNIOR, KART_F1, KART_X30_SENIOR, KART_X30_RENTAL, SUPERKART, LMP1, LMP2, LMP3, LMP900, ROAD_A, ROAD_B, ROAD_C1,

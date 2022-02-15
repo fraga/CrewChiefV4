@@ -324,7 +324,8 @@ namespace CrewChiefV4.ACC
 
             [MarshalAsAttribute(UnmanagedType.ByValTStr, SizeConst = 33)]
             public string trackStatus; // (Green, Fast, Optimum, Damp, Wet)
-            public int missingMandatoryPits;//  Mandatory pitstops the player still has to do
+            public int missingMandatoryPits; // Mandatory pitstops the player still has to do, may be 255 in sessions with no mandatory stop, 
+                                             // probably zero when the stops have been completed
             public float Clock; // Time of day in seconds
             public int directionLightsLeft; // Is Blinker left on (WTF? There's no usable race position but we have blinker status?)
             public int directionLightsRight; // Is Blinker right on

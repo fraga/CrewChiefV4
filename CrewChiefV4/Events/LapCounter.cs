@@ -202,7 +202,7 @@ namespace CrewChiefV4.Events
                 possibleMessages.Add(new QueuedMessage("air_temp", 0, messageFragments: MessageContents(ConditionsMonitor.folderAirTempIs,
                     convertTemp(currentConditions.AmbientTemperature), getTempUnit()), abstractEvent: this, priority: 10));
             }
-            if (currentGameState.PitData.HasMandatoryPitStop && CrewChief.gameDefinition.gameEnum != GameEnum.RF1 && CrewChief.gameDefinition.gameEnum != GameEnum.RF2_64BIT && CrewChief.gameDefinition.gameEnum != GameEnum.GTR2)
+            if (currentGameState.PitData.HasMandatoryPitStop && currentGameState.PitData.PitWindowStart > 0 && CrewChief.gameDefinition.gameEnum != GameEnum.RF1 && CrewChief.gameDefinition.gameEnum != GameEnum.RF2_64BIT && CrewChief.gameDefinition.gameEnum != GameEnum.GTR2)
             {
                 if (currentGameState.SessionData.SessionHasFixedTime)
                 {
