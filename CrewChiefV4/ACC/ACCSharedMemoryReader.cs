@@ -48,10 +48,7 @@ namespace CrewChiefV4.ACC
 
         private SPageFileCrewChief mostRecentUDPData = null;
 
-        private Dictionary<int, int> lapsCompletedByCarId = new Dictionary<int, int>();
-        private Dictionary<int, float> splinePositionByCarId = new Dictionary<int, float>();
-        private HashSet<int> carIdsWaitingForSplineReset = new HashSet<int>();
-        private HashSet<int> carIdsWithForcedLapIncrement = new HashSet<int>();
+        private Dictionary<int, DataForSync> syncData = new Dictionary<int, DataForSync>();
 
         public class ACCStructWrapper
         {
@@ -312,16 +309,18 @@ namespace CrewChiefV4.ACC
                             accShared.accStatic, accShared.accGraphic.position);
                         if (playerVehicle != null)
                         {
-                            activeVehicles.AddFirst(createCar(1, playerVehicle, structWrapper.data.accGraphic.carIDs, structWrapper.data.accGraphic.carCoordinates));
-                            distancesTravelled.Add(playerVehicle.Laps + playerVehicle.SplinePosition);
+                            accVehicleInfo playerCar = createCar(1, playerVehicle, structWrapper.data.accGraphic.carIDs, structWrapper.data.accGraphic.carCoordinates);
+                            activeVehicles.AddFirst(playerCar);
+                            distancesTravelled.Add(playerCar.lapCount + playerCar.spLineLength);
 
                             // only add a car to our data set if it exists in the UDP data and the shared memory car IDs array
                             foreach (CarViewModel car in udpUpdateViewModel.BroadcastingVM.Cars)
                             {
                                 if (car != playerVehicle && structWrapper.data.accGraphic.carIDs.Contains(car.CarIndex))
                                 {
-                                    activeVehicles.AddLast(createCar(0, car, structWrapper.data.accGraphic.carIDs, structWrapper.data.accGraphic.carCoordinates));
-                                    distancesTravelled.Add(car.Laps + car.SplinePosition);
+                                    accVehicleInfo opponentCar = createCar(0, car, structWrapper.data.accGraphic.carIDs, structWrapper.data.accGraphic.carCoordinates);
+                                    activeVehicles.AddLast(opponentCar);
+                                    distancesTravelled.Add(opponentCar.lapCount + opponentCar.spLineLength);
                                 }
                             }
                             // now set the accVehicle array from our list of vehicles that we've deemed to be 'active'
@@ -410,105 +409,160 @@ namespace CrewChiefV4.ACC
                 z_coord = carPosition.z;
             }
 
-            int correctedLapCount = correctLapCount(car.Laps, car.SplinePosition, car.CarIndex);
+            int carIndex = car.CarIndex;
+            int bestLapTime = (bestLap?.IsValid ?? false) ? bestLap.LaptimeMS ?? 0 : 0;
+            int currentLapInvalid = (currentLap?.IsValid ?? false) ? 0 : 1;
+            int currentLapTime = currentLap?.LaptimeMS ?? 0;
+            int lastLapTime = (lastLap?.IsValid ?? false) ? lastLap.LaptimeMS ?? 0 : 0;
+            float splineLength = car.SplinePosition;
+            int lapsCompleted = car.Laps;
+
+            if (syncStartlineData(car.CarIndex, lapsCompleted, splineLength, bestLapTime, lastLapTime, currentLapTime, currentLapInvalid == 1))
+            {
+                // ask the syncData for the correct values:
+                DataForSync dataForSync = syncData[carIndex];
+                bestLapTime = dataForSync.getCorrectedBestLapTime(bestLapTime);
+                lastLapTime = dataForSync.getCorrectedLastLapTime(lastLapTime);
+                lapsCompleted = dataForSync.getCorrectedLapCount(lapsCompleted);
+                splineLength = dataForSync.getCorrectedSpline(splineLength);
+            }
+
             return new accVehicleInfo
             {
-                bestLapMS = (bestLap?.IsValid ?? false) ? bestLap.LaptimeMS ?? 0 : 0,
-                carId = car.CarIndex,
+                bestLapMS = bestLapTime,
+                carId = carIndex,
                 carLeaderboardPosition = car.Position,
                 carModel = getCarModel(car.CarModelEnum),
                 carRealTimeLeaderboardPosition = car.Position,  /* don't be tempted to use TrackPosition here, it's always zero */
-                currentLapInvalid = (currentLap?.IsValid ?? false) ? 0 : 1,
-                currentLapTimeMS = currentLap?.LaptimeMS ?? 0,
+                currentLapInvalid = currentLapInvalid,
+                currentLapTimeMS = currentLapTime,
                 isPlayerVehicle = carIsPlayerVehicle,
                 driverName = carDriverName,
                 isCarInPit = (car.CarLocation == CarLocationEnum.PitEntry || car.CarLocation == CarLocationEnum.PitExit || car.CarLocation == CarLocationEnum.Pitlane) ? 1 : 0,
                 isCarInPitline = (car.CarLocation == CarLocationEnum.Pitlane) ? 1 : 0,
                 isConnected = 1,
-                lapCount = correctedLapCount,
-                lastLapTimeMS = (lastLap?.IsValid ?? false) ? lastLap.LaptimeMS ?? 0 : 0,
+                lapCount = lapsCompleted,
+                lastLapTimeMS = lastLapTime,
                 speedMS = car.Kmh * 0.277778f,
-                spLineLength = car.SplinePosition,
+                spLineLength = splineLength,
                 worldPosition = new accVec3 { x = x_coord, z = z_coord },
                 raceNumber = car.RaceNumber
             };            
         }
-        
-        private int correctLapCount(int lapCountFromData, float splineFromData, int carId)
+
+        // returns true if we're in the magic sync zone and we're waiting for data
+        private bool syncStartlineData(int carId, int lapCountFromData, float splineFromData, int bestLapFromData, int lastLapFromData, int currentLapFromData, bool currentLapInvalid)
         {
-            int correctedLapCount = lapCountFromData;
-            // 2 cases: one where the spline position is small (<0.07) and one where it's large (> 0.93). This is a bit arbitrary but it should be
-            // enough to catch the 2 possible cases
-            int previousLapsCompleted;
-            float previousSplinePosition;
-            // only proceed if we have data and we've completed 1 or more laps. Can't apply this correction
-            // on lap 1 because we don't know the difference between crossing the startline at the race start and crossing it after lap 1
-            if (lapCountFromData > 0 && lapsCompletedByCarId.TryGetValue(carId, out previousLapsCompleted) && splinePositionByCarId.TryGetValue(carId, out previousSplinePosition))
+            if (splineFromData >= 0.93 || splineFromData <= 0.07)
             {
-                if (splineFromData > 0.93)
+                if (!syncData.ContainsKey(carId))
                 {
-                    // approaching finish line, while in this zone check for an early lapcount increment
-                    if (lapCountFromData > previousLapsCompleted && !carIdsWaitingForSplineReset.Contains(carId))
-                    {
-                        // we've not yet crossed the line according to the spline position but the lap count has been incremented so we're waiting for the spline position to reset
-                        carIdsWaitingForSplineReset.Add(carId);
-                        carIdsWithForcedLapIncrement.Remove(carId);
-                        // use the previous lap count until we actually cross the line
-                        correctedLapCount = previousLapsCompleted;
-                        Console.WriteLine("Car " + carId + " lapcount increment blocked, waiting for spline to reset from " + splineFromData);
-                    }
-                }
-                else if (splineFromData < 0.07 && splineFromData >= 0)
-                {
-                    // recently crossed the line, while in this zone see if we need to apply a waiting lap increment or force one if it's late
-                    if (carIdsWithForcedLapIncrement.Contains(carId))
-                    {
-                        // we're in the early part of the lap and we've already established that the game was late sending the lap increment so use
-                        // the corrected value we saved
-                        correctedLapCount = lapsCompletedByCarId[carId];
-                        if (lapCountFromData == correctedLapCount)
-                        {
-                            Console.WriteLine("Car " + carId + " lapcount update was late, received at spline position " + splineFromData);
-                            carIdsWithForcedLapIncrement.Remove(carId);
-                        }
-                    }
-                    else if (previousSplinePosition > 0.93)
-                    {
-                        // we've crossed the line on the this tick, see if we're waiting to increment or if we're late incrementing
-                        if (carIdsWaitingForSplineReset.Contains(carId))
-                        {
-                            // we can now allow the game's prematurely updated lap count to be used
-                            carIdsWaitingForSplineReset.Remove(carId);
-                            carIdsWithForcedLapIncrement.Remove(carId);
-                            lapsCompletedByCarId[carId] = lapCountFromData;
-                            // we already set correctedLapCount = lapCountFromData
-                            Console.WriteLine("Car " + carId + " lapcount incremented after spline reset");
-                        }
-                        else if (lapCountFromData == previousLapsCompleted && !carIdsWithForcedLapIncrement.Contains(carId))
-                        {
-                            // we've just crossed the line, our lap count should have been incremented but hasn't
-                            correctedLapCount = lapCountFromData + 1;
-                            carIdsWaitingForSplineReset.Remove(carId);
-                            carIdsWithForcedLapIncrement.Add(carId);
-                            lapsCompletedByCarId[carId] = correctedLapCount;
-                            Console.WriteLine("Car " + carId + " spline reset but lapcount hasn't incremented, forcing increment");
-                        }
-                    }
+                    syncData.Add(carId, new DataForSync(lapCountFromData, splineFromData, bestLapFromData, lastLapFromData, currentLapFromData, currentLapInvalid));
+                    return true;
                 }
                 else
                 {
-                    // we're not in the interesting area of the lap so reset all the cached stuff
-                    carIdsWaitingForSplineReset.Remove(carId);
-                    carIdsWithForcedLapIncrement.Remove(carId);
-                    lapsCompletedByCarId[carId] = lapCountFromData;
+                    return syncData[carId].update(lapCountFromData, splineFromData, bestLapFromData, lastLapFromData, currentLapFromData);
                 }
             }
             else
             {
-                lapsCompletedByCarId[carId] = lapCountFromData;
+                // clear the cached sync data for cars out of the zone
+                syncData.Remove(carId);
+                return false;
             }
-            splinePositionByCarId[carId] = splineFromData;
-            return correctedLapCount;
+        }
+
+        class DataForSync
+        {
+            int lapCountBefore;
+            float splineBefore;
+            int bestLapTimeBefore;
+            int lastLapTimeBefore;
+            int currentLapTimeBefore;
+            bool currentLapInvalid;
+
+            bool waitingForSpline = true;
+            bool waitingForLapCount = true;
+            bool waitingForLaptimes = true;
+
+            public DataForSync(int lapCountBefore, float splineBefore, int bestLapTimeBefore, int lastLapTimeBefore, int currentLapTimeBefore, bool currentLapInvalid)
+            {
+                this.lapCountBefore = lapCountBefore;
+                this.splineBefore = splineBefore;
+                this.bestLapTimeBefore = bestLapTimeBefore;
+                this.lastLapTimeBefore = lastLapTimeBefore;
+                this.currentLapTimeBefore = currentLapTimeBefore;
+                this.currentLapInvalid = currentLapInvalid;
+
+                if (currentLapInvalid && lastLapTimeBefore == 0)
+                {
+                    // if we're on an invalid lap and our lastLapTime is zero then finishing this lap won't update any of the laptime data,
+                    // so don't wait for new lap data in this case:
+                    this.waitingForLaptimes = false;
+                }
+            }
+            public bool update(int lapCountFromTick, float splineFromTick, int bestLapTimeFromTick, int lastLapTimeFromTick, int currentLapTimeFromTick)
+            {
+                // don't do any work if we're not waiting. This instance will hang around in the syncData until the car is passed spline position 0.07,
+                // it'll be checked on each tick until then.
+                if (!waitingForAnyUpdates())
+                {
+                    return false;
+                }
+                if (this.waitingForLapCount && this.lapCountBefore < lapCountFromTick)
+                {
+                    // trivial case - lap count has incremented
+                    this.waitingForLapCount = false;
+                }
+                if (this.waitingForSpline && splineFromTick < 0.93)
+                {
+                    // 0.93 cause that's our cutoff but the splineFromTick will typically be 0.0-something in this case
+                    this.waitingForSpline = false;
+                }
+                if (this.waitingForLaptimes)
+                {
+                    // any change in the best or last means we have new laptime data (here we assume best / last lap updates happen in the same tick)
+                    // any reduction in the current laptime means we've reset
+                    if (bestLapTimeFromTick != this.bestLapTimeBefore
+                        || lastLapTimeFromTick != this.lastLapTimeBefore
+                        || this.currentLapTimeBefore > currentLapTimeFromTick)
+                    {
+                        this.waitingForLaptimes = false;
+                    }
+                }
+                return waitingForAnyUpdates();
+            }
+            public float getCorrectedSpline(float splineFromTick)
+            {
+                if (waitingForAnyUpdates())
+                {
+                    // allow spline position to update until it starts to decrease. It'll typically be a small number but anything lower than the
+                    // magic zone start point is a decrease, so we check for that. This means we effectively pause the spline updates at 1 once that.
+                    // reset to 0.something
+                    return splineFromTick >= 0.93 ? splineFromTick : 1;
+                }
+                return splineFromTick;
+            }
+            public bool waitingForAnyUpdates()
+            {
+                // this is the guard - if any of the synchronized data items haven't been updated (or reset to zero in the case of the spline),
+                // return false so the caller can ask this instance what the corrected values should be.
+                return waitingForLapCount || waitingForLaptimes || waitingForSpline;
+            }
+            // laptime / lapcount stuff is trivial - get the previous best / last if we're waiting for any updates
+            public int getCorrectedLapCount(int lapCountFromTick)
+            {
+                return waitingForAnyUpdates() ? this.lapCountBefore : lapCountFromTick;
+            }
+            public int getCorrectedLastLapTime(int lastLapTimeFromTick)
+            {
+                return waitingForAnyUpdates() ? this.lastLapTimeBefore : lastLapTimeFromTick;
+            }
+            public int getCorrectedBestLapTime(int bestLapTimeFromTick)
+            {
+                return waitingForAnyUpdates() ? this.bestLapTimeBefore : bestLapTimeFromTick;
+            }
         }
 
         private CarViewModel getPlayerVehicle(List<CarViewModel> cars, int carId, SPageFileStatic accStatic, int positionFromSharedMem)
