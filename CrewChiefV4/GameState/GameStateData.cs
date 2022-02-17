@@ -2778,6 +2778,7 @@ namespace CrewChiefV4.GameState
         // RF1/RF2 hack for mandatory pit stop windows, which are used to trigger 'box now' messages
         public Boolean ResetEvents;
 
+        // this is the number of pitstops the player has completed
         public int NumPitStops;
 
         public Boolean IsPitCrewDone;

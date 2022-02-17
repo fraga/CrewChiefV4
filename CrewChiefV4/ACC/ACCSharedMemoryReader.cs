@@ -48,12 +48,19 @@ namespace CrewChiefV4.ACC
 
         private SPageFileCrewChief mostRecentUDPData = null;
 
-        private Dictionary<int, DataForSync> syncData = new Dictionary<int, DataForSync>();
+        // carId is typically 0 - 50 in offline session, and 1000+ in online sessions. Allow 10000 entries in this array
+        private const int MAX_CAR_ID = 9999;
+        private static DataForSync[] syncData = new DataForSync[MAX_CAR_ID + 1];
 
         public class ACCStructWrapper
         {
             public long ticksWhenRead;
             public ACCShared data;
+        }
+
+        public static void clearSyncData()
+        {
+            Array.Clear(ACCSharedMemoryReader.syncData, 0, MAX_CAR_ID + 1);
         }
 
         public override void DumpRawGameData()
@@ -417,7 +424,15 @@ namespace CrewChiefV4.ACC
             float splineLength = car.SplinePosition;
             int lapsCompleted = car.Laps;
 
-            if (syncStartlineData(car.CarIndex, lapsCompleted, splineLength, bestLapTime, lastLapTime, currentLapTime, currentLapInvalid == 1))
+            if (carIndex > MAX_CAR_ID)
+            {
+                // can't do the data sync on car IDs ouside the array, want if we're in debug (this will spam)
+                if (CrewChief.Debugging)
+                {
+                    Console.WriteLine("CarID " + carIndex + " exceeds max dataSync size of " + MAX_CAR_ID);
+                }
+            }
+            else if (syncStartlineData(car.CarIndex, lapsCompleted, splineLength, bestLapTime, lastLapTime, currentLapTime, currentLapInvalid))
             {
                 // ask the syncData for the correct values:
                 DataForSync dataForSync = syncData[carIndex];
@@ -425,6 +440,7 @@ namespace CrewChiefV4.ACC
                 lastLapTime = dataForSync.getCorrectedLastLapTime(lastLapTime);
                 lapsCompleted = dataForSync.getCorrectedLapCount(lapsCompleted);
                 splineLength = dataForSync.getCorrectedSpline(splineLength);
+                currentLapInvalid = dataForSync.getCurrentLapInvalid(currentLapInvalid);
             }
 
             return new accVehicleInfo
@@ -451,24 +467,25 @@ namespace CrewChiefV4.ACC
         }
 
         // returns true if we're in the magic sync zone and we're waiting for data
-        private bool syncStartlineData(int carId, int lapCountFromData, float splineFromData, int bestLapFromData, int lastLapFromData, int currentLapFromData, bool currentLapInvalid)
+        private bool syncStartlineData(int carId, int lapCountFromData, float splineFromData, int bestLapFromData, int lastLapFromData, int currentLapFromData, int currentLapInvalid)
         {
             if (splineFromData >= 0.93 || splineFromData <= 0.07)
             {
-                if (!syncData.ContainsKey(carId))
+                DataForSync currentCarSyncData = ACCSharedMemoryReader.syncData[carId];
+                if (currentCarSyncData == null)
                 {
-                    syncData.Add(carId, new DataForSync(lapCountFromData, splineFromData, bestLapFromData, lastLapFromData, currentLapFromData, currentLapInvalid));
+                    syncData[carId] = new DataForSync(lapCountFromData, splineFromData, bestLapFromData, lastLapFromData, currentLapFromData, currentLapInvalid);
                     return true;
                 }
                 else
                 {
-                    return syncData[carId].update(lapCountFromData, splineFromData, bestLapFromData, lastLapFromData, currentLapFromData);
+                    return currentCarSyncData.update(lapCountFromData, splineFromData, bestLapFromData, lastLapFromData, currentLapFromData, currentLapInvalid);
                 }
             }
             else
             {
-                // clear the cached sync data for cars out of the zone
-                syncData.Remove(carId);
+                // clear the cached sync data for cars which are out of the zone
+                ACCSharedMemoryReader.syncData[carId] = null;
                 return false;
             }
         }
@@ -480,13 +497,13 @@ namespace CrewChiefV4.ACC
             int bestLapTimeBefore;
             int lastLapTimeBefore;
             int currentLapTimeBefore;
-            bool currentLapInvalid;
+            int currentLapInvalid;
 
             bool waitingForSpline = true;
             bool waitingForLapCount = true;
             bool waitingForLaptimes = true;
 
-            public DataForSync(int lapCountBefore, float splineBefore, int bestLapTimeBefore, int lastLapTimeBefore, int currentLapTimeBefore, bool currentLapInvalid)
+            public DataForSync(int lapCountBefore, float splineBefore, int bestLapTimeBefore, int lastLapTimeBefore, int currentLapTimeBefore, int currentLapInvalid)
             {
                 this.lapCountBefore = lapCountBefore;
                 this.splineBefore = splineBefore;
@@ -495,15 +512,23 @@ namespace CrewChiefV4.ACC
                 this.currentLapTimeBefore = currentLapTimeBefore;
                 this.currentLapInvalid = currentLapInvalid;
 
-                if (currentLapInvalid && lastLapTimeBefore == 0)
+                if (currentLapInvalid == 1 && lastLapTimeBefore == 0)
                 {
                     // if we're on an invalid lap and our lastLapTime is zero then finishing this lap won't update any of the laptime data,
                     // so don't wait for new lap data in this case:
                     this.waitingForLaptimes = false;
                 }
             }
-            public bool update(int lapCountFromTick, float splineFromTick, int bestLapTimeFromTick, int lastLapTimeFromTick, int currentLapTimeFromTick)
+            public bool update(int lapCountFromTick, float splineFromTick, int bestLapTimeFromTick, int lastLapTimeFromTick, int currentLapTimeFromTick, int currentLapInvalid)
             {
+                // special case: if our lap is still valid but we've got no currentLap time, and it's lap zero, we're on the formation lap
+                bool onFormationLap = lapCountFromTick == 0 && currentLapTimeFromTick == 0 && currentLapInvalid == 0;
+                if (onFormationLap)
+                {
+                    waitingForSpline = false;
+                    waitingForLapCount = false;
+                    waitingForLaptimes = false;
+                }
                 // don't do any work if we're not waiting. This instance will hang around in the syncData until the car is passed spline position 0.07,
                 // it'll be checked on each tick until then.
                 if (!waitingForAnyUpdates())
@@ -522,6 +547,11 @@ namespace CrewChiefV4.ACC
                 }
                 if (this.waitingForLaptimes)
                 {
+                    if (currentLapInvalid == 1)
+                    {
+                        // save this if it's true, allows us to prevent transition from invalid to valid before we cross the line
+                        this.currentLapInvalid = currentLapInvalid;
+                    }
                     // any change in the best or last means we have new laptime data (here we assume best / last lap updates happen in the same tick)
                     // any reduction in the current laptime means we've reset
                     if (bestLapTimeFromTick != this.bestLapTimeBefore
@@ -549,6 +579,11 @@ namespace CrewChiefV4.ACC
                 // this is the guard - if any of the synchronized data items haven't been updated (or reset to zero in the case of the spline),
                 // return false so the caller can ask this instance what the corrected values should be.
                 return waitingForLapCount || waitingForLaptimes || waitingForSpline;
+            }
+            public int getCurrentLapInvalid(int currentLapInvalidFromTick)
+            {
+                // if we're waiting for updates, return the saved value so we don't allow this to reset before the new lap starts
+                return waitingForAnyUpdates() ? this.currentLapInvalid : currentLapInvalidFromTick;
             }
             // laptime / lapcount stuff is trivial - get the previous best / last if we're waiting for any updates
             public int getCorrectedLapCount(int lapCountFromTick)

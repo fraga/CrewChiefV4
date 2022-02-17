@@ -311,7 +311,7 @@ namespace CrewChiefV4.Events
 
         public String getPressureUnit()
         {
-            return usePSI ? folderPSI : folderBar;
+            return CrewChief.gameDefinition.gameEnum == GameEnum.ACC || usePSI ? folderPSI : folderBar;
         }
 
         public int convertTemp(float temp)
@@ -332,7 +332,7 @@ namespace CrewChiefV4.Events
 
         public float convertPressure(float pressure, int decimalPlaces)
         {
-            return usePSI ? kpaToPsi(pressure, decimalPlaces) : kpaToBar(pressure, decimalPlaces);
+            return CrewChief.gameDefinition.gameEnum == GameEnum.ACC || usePSI ? kpaToPsi(pressure, decimalPlaces) : kpaToBar(pressure, decimalPlaces);
         }
 
         private static float kpaToPsi(float kpa, int decimalPlaces)

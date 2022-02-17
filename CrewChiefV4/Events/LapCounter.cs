@@ -193,7 +193,7 @@ namespace CrewChiefV4.Events
             }*/
             CrewChiefV4.GameState.Conditions.ConditionsSample currentConditions = currentGameState.Conditions.getMostRecentConditions();
             List<QueuedMessage> possibleMessages = new List<QueuedMessage>();
-            if (currentConditions != null)
+            if (currentConditions != null && currentConditions.TrackTemperature != 0 && currentConditions.AmbientTemperature != 0)
             {
                 Console.WriteLine("Pre-start message for track temp");
                 possibleMessages.Add(new QueuedMessage("trackTemp", 0, messageFragments: MessageContents(ConditionsMonitor.folderTrackTempIs,
