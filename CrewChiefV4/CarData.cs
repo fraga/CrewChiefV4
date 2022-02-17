@@ -137,9 +137,9 @@ namespace CrewChiefV4
 
         // some ACC tyre pressure ranges
         public static float accDryVeryHighPressureThreshold = 28.8f * 6.894f;
-        public static float accWetVeryHighPressureThreshold = 32.0f * 6.894f;
+        public static float accWetVeryHighPressureThreshold = 33.0f * 6.894f;
         public static float accDryHighPressureThreshold = 28.3f * 6.894f;
-        public static float accWetHighPressureThreshold = 31.0f * 6.894f;
+        public static float accWetHighPressureThreshold = 32.0f * 6.894f;
         public static float accDryLowPressureThreshold = 27.2f * 6.894f;
         public static float accWetLowPressureThreshold = 29.0f * 6.894f;
         public static float accDryVeryLowPressureThreshold = 26.0f * 6.894f;

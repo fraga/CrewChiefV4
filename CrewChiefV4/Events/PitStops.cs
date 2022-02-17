@@ -1481,7 +1481,10 @@ namespace CrewChiefV4.Events
             }
             else
             {
-                if (!hasMandatoryPitStop || mandatoryStopCompleted || !enableWindowWarnings)
+                // for ACC use the data in the game state directly here because they'll be correct even on the formation lap
+                bool hasStop = CrewChief.gameDefinition.gameEnum == GameEnum.ACC ? CrewChief.currentGameState.PitData.HasMandatoryPitStop : hasMandatoryPitStop;
+                float windowOpenTime = CrewChief.gameDefinition.gameEnum == GameEnum.ACC ? CrewChief.currentGameState.PitData.PitWindowStart : pitWindowOpenTime;
+                if (!hasStop || mandatoryStopCompleted || !enableWindowWarnings)
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNo, 0));
                 }
@@ -1499,12 +1502,12 @@ namespace CrewChiefV4.Events
                     audioPlayer.playMessageImmediately(new QueuedMessage("yesBoxOnLap", 0,
                                     messageFragments: MessageContents(folderMandatoryPitStopsYesStopOnLap, pitWindowOpenLap)));
                 }
-                else if (pitWindowOpenTime > 0)
+                else if (windowOpenTime > 0)
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage("yesBoxAfter", 0,
-                                    messageFragments: MessageContents(folderMandatoryPitStopsYesStopAfter, TimeSpanWrapper.FromMinutes(pitWindowOpenTime, Precision.MINUTES))));
+                                    messageFragments: MessageContents(folderMandatoryPitStopsYesStopAfter, TimeSpanWrapper.FromMinutes(windowOpenTime, Precision.MINUTES))));
                 }
-                else if (hasMandatoryPitStop && !mandatoryStopCompleted)
+                else if (hasStop && !mandatoryStopCompleted)
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderYes, 0));
                 }

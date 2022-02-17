@@ -1635,10 +1635,6 @@ namespace CrewChiefV4.Events
             {
                 reportCurrentTyreTemps();
             }
-            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHAT_ARE_MY_TYRE_PRESSURES))
-            {
-                reportCurrentTyrePressures();
-            }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOW_ARE_MY_BRAKE_TEMPS))
             {
                 if (currentBrakeTempStatus != null)
@@ -2026,6 +2022,10 @@ namespace CrewChiefV4.Events
                     playPressureMessage(delayResponses,
                         aggregatePressureMessages(null, null, getPressureMessage(CornerData.Corners.REAR_LEFT, true), getPressureMessage(CornerData.Corners.REAR_RIGHT, true)));
                 }
+            }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHAT_ARE_MY_TYRE_PRESSURES))
+            {
+                reportCurrentTyrePressures();
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHAT_ARE_MY_LEFT_FRONT_SURFACE_TEMPS))
             {
