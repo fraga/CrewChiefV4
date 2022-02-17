@@ -40,8 +40,6 @@ namespace CrewChiefV4.ACC
 
         private List<CornerData.EnumWithThresholds> brakeTempThresholdsForPlayersCar = CarData.getBrakeTempThresholds(CarData.getCarClassFromEnum(CarData.CarClassEnum.GT3));
 
-        private int lapCountAtSector1End = -1;
-
         // next track conditions sample due after:
         private DateTime nextConditionsSampleDue = DateTime.MinValue;
 
@@ -76,6 +74,9 @@ namespace CrewChiefV4.ACC
         private int[] acceptedYellowSectors = new int[] { 0, 0, 0 };
         private int[] pendingYellowSectors = new int[] { 0, 0, 0 };
         private bool hasPendingChanges = false;
+
+        // we have the player's sector number but not the opponents, so derive the sector points as we go
+        private float[] sectorSplinePointsFromGame = new float[] {0, -1, -1 };
 
         private void updateFlagSectors(int sector1, int sector2, int sector3, DateTime now)
         {
@@ -384,7 +385,7 @@ namespace CrewChiefV4.ACC
             
             currentGameState.SessionData.IsDisqualified = shared.accGraphic.flag == AC_FLAG_TYPE.AC_BLACK_FLAG;
             bool isInPits = shared.accGraphic.isInPit == 1;
-            int lapsCompleted = shared.accGraphic.completedLaps;
+            int lapsCompleted = playerVehicle.lapCount;
             ACCGameStateMapper.numberOfSectorsOnTrack = shared.accStatic.sectorCount;
 
             Boolean raceFinished = lapsCompleted == numberOfLapsInSession || (previousGameState != null && previousGameState.SessionData.LeaderHasFinishedRace && previousGameState.SessionData.IsNewLap);
@@ -425,6 +426,8 @@ namespace CrewChiefV4.ACC
                             (currentGameState.SessionData.SessionHasFixedTime && sessionTimeRemaining > lastSessionTimeRemaining + 1))))
             {
                 opponentDisconnectionCounter.Clear();
+                ACCSharedMemoryReader.clearSyncData();
+                sectorSplinePointsFromGame = new float[] { 0, -1, -1 };
                 Console.WriteLine("New session, trigger...");
                 if (sessionOfSameTypeRestarted)
                 {
@@ -450,7 +453,6 @@ namespace CrewChiefV4.ACC
                 {
                     Console.WriteLine("sessionTimeRemaining = " + sessionTimeRemaining.ToString("0.000") + " lastSessionTimeRemaining = " + lastSessionTimeRemaining.ToString("0.000"));
                 }
-                lapCountAtSector1End = -1;
                 currentGameState.SessionData.IsNewSession = true;
                 currentGameState.SessionData.SessionNumberOfLaps = numberOfLapsInSession;
                 currentGameState.SessionData.LeaderHasFinishedRace = false;
@@ -552,7 +554,6 @@ namespace CrewChiefV4.ACC
                             currentGameState.SessionData.SessionStartTime = currentGameState.Now;
                             currentGameState.SessionData.SessionNumberOfLaps = numberOfLapsInSession;
                         }
-                        lapCountAtSector1End = -1;
                         currentGameState.SessionData.LeaderHasFinishedRace = false;
                         currentGameState.SessionData.NumCarsOverallAtStartOfSession = shared.accChief.vehicle.Length;
                         currentGameState.SessionData.TrackDefinition = TrackData.getTrackDefinition(shared.accStatic.track + ":" + shared.accStatic.NOT_SET_trackConfiguration, shared.accChief.trackLength, shared.accStatic.sectorCount);
@@ -595,9 +596,6 @@ namespace CrewChiefV4.ACC
 
                         currentGameState.TyreData.TyreTypeName = shared.accGraphic.tyreCompound;
                         tyreTempThresholds = getTyreTempThresholds(currentGameState.carClass, currentGameState.TyreData.TyreTypeName);
-
-                        currentGameState.PitData.PitWindowStart = - 1;
-                        currentGameState.PitData.PitWindowEnd = - 1;
 
                         if (previousGameState != null)
                         {
@@ -699,30 +697,28 @@ namespace CrewChiefV4.ACC
                     currentGameState.SessionData.SessionRunningTime = (float)(currentGameState.Now - currentGameState.SessionData.SessionStartTime).TotalSeconds;
                 }
 
-                currentGameState.SessionData.SectorNumber = shared.accGraphic.currentSectorIndex + 1;
+                // need to be careful with shared.accGraphic.currentSectorIndex - it's not sync'ed to the player and opponent lap end data
+                // so we use the spline position which is sync'ed for sector 1 so this aligns with lap start events
+                int sectorIndex = playerVehicle.spLineLength < 0.07 ? 0 : playerVehicle.spLineLength > 0.93 ? 2 : shared.accGraphic.currentSectorIndex;
+                currentGameState.SessionData.SectorNumber = sectorIndex + 1;
 
+                // if we've started a new sector and we don't have the sector point, record it from the player's splineLength
+                if (sectorIndex > 0 && sectorSplinePointsFromGame[sectorIndex] == -1 && playerVehicle.spLineLength > sectorSplinePointsFromGame[sectorIndex - 1])
+                {
+                    sectorSplinePointsFromGame[sectorIndex] = playerVehicle.spLineLength;
+                }
                 if (currentGameState.SessionData.OverallPosition == 1)
                 {
                     currentGameState.SessionData.LeaderSectorNumber = currentGameState.SessionData.SectorNumber;
                 }
                 currentGameState.SessionData.IsNewSector = previousGameState == null || currentGameState.SessionData.SectorNumber != previousGameState.SessionData.SectorNumber;
-
-                //if(currentGameState.SessionData.IsNewSector)
-                //    if (shared.accChief.vehicle != null && shared.accChief.vehicle.Length > 0)
-                //        System.Diagnostics.Debug.WriteLine("Sector: " + currentGameState.SessionData.SectorNumber + " Track: " + shared.accChief.trackLength + " Pos: " + (shared.accChief.trackLength * shared.accChief.vehicle[0].spLineLength));
-
-                if (previousGameState != null && currentGameState.SessionData.IsNewSector && previousGameState.SessionData.SectorNumber == 1)
-                {
-                    lapCountAtSector1End = shared.accGraphic.completedLaps;
-                    // belt & braces, just in case we never had 'new lap data' so never updated the lap count on crossing the line
-                    currentGameState.SessionData.CompletedLaps = lapCountAtSector1End;
-                }
-                currentGameState.SessionData.LapTimeCurrent = mapToFloatTime(shared.accGraphic.iCurrentTime);
+ 
+                currentGameState.SessionData.LapTimeCurrent = mapToFloatTime(playerVehicle.currentLapTimeMS);
                 
-                currentGameState.SessionData.CurrentLapIsValid = shared.accGraphic.isValidLap == 1;
+                currentGameState.SessionData.CurrentLapIsValid = playerVehicle.currentLapInvalid == 0;
                 bool hasCrossedSFLine = currentGameState.SessionData.IsNewSector && currentGameState.SessionData.SectorNumber == 1;
-                float lastLapTime = mapToFloatTime(shared.accGraphic.iLastTime);
-                currentGameState.SessionData.IsNewLap = currentGameState.HasNewLapData(previousGameState, lastLapTime, hasCrossedSFLine)
+                float lastLapTime = mapToFloatTime(playerVehicle.lastLapTimeMS);
+                currentGameState.SessionData.IsNewLap = (playerVehicle.isCarInPit == 0 && hasCrossedSFLine)
                     || ((lastSessionPhase == SessionPhase.Countdown)
                     && (currentGameState.SessionData.SessionPhase == SessionPhase.Green || currentGameState.SessionData.SessionPhase == SessionPhase.FullCourseYellow));
 
@@ -732,11 +728,14 @@ namespace CrewChiefV4.ACC
                     currentGameState.TyreData.incrementLapsPerSet();
                     currentGameState.SessionData.CurrentLapIsValid = true;
                     Boolean lapWasValid = previousGameState != null && previousGameState.SessionData.CurrentLapIsValid;
+                    // invalidate non-race outlaps
+                    if (currentGameState.SessionData.SessionType != SessionType.Race && currentGameState.PitData.OnOutLap)
+                    {
+                        lapWasValid = false;
+                    }
                     currentGameState.readLandmarksForThisLap = false;
-                    // correct IsNewSector so it's in sync with IsNewLap
                     currentGameState.SessionData.IsNewSector = true;
-                    // if we have new lap data, update the lap count using the laps completed at sector1 end + 1, or the game provided data (whichever is bigger)
-                    currentGameState.SessionData.CompletedLaps = Math.Max(lapCountAtSector1End + 1, shared.accGraphic.completedLaps);
+                    currentGameState.SessionData.CompletedLaps = playerVehicle.lapCount;
 
                     currentGameState.SessionData.playerCompleteLapWithProvidedLapTime(currentGameState.SessionData.OverallPosition,
                         currentGameState.SessionData.SessionRunningTime,
@@ -751,12 +750,6 @@ namespace CrewChiefV4.ACC
                         currentGameState.TimingData);
                     currentGameState.SessionData.playerStartNewLap(currentGameState.SessionData.CompletedLaps + 1,
                         currentGameState.SessionData.OverallPosition, currentGameState.PitData.InPitlane, currentGameState.SessionData.SessionRunningTime);
-                }
-                else if (previousGameState != null && currentGameState.SessionData.SectorNumber == 1 && currentGameState.SessionData.IsNewSector && previousGameState.SessionData.SectorNumber != 0)
-                {
-                    // don't allow IsNewSector to be true if IsNewLap is not - roll back to the previous sector number and correct the flag
-                    currentGameState.SessionData.SectorNumber = previousGameState.SessionData.SectorNumber;
-                    currentGameState.SessionData.IsNewSector = false;
                 }
 
                 //Sector
@@ -819,7 +812,7 @@ namespace CrewChiefV4.ACC
                 }
               
                 if (currentGameState.SessionData.SessionFastestLapTimeFromGamePlayerClass == -1 ||
-                    currentGameState.SessionData.SessionFastestLapTimeFromGamePlayerClass > mapToFloatTime(playerVehicle.bestLapMS))
+                    (playerVehicle.bestLapMS > 0 && currentGameState.SessionData.SessionFastestLapTimeFromGamePlayerClass > mapToFloatTime(playerVehicle.bestLapMS)))
                 {
                     currentGameState.SessionData.SessionFastestLapTimeFromGamePlayerClass = mapToFloatTime(playerVehicle.bestLapMS);
                 }
@@ -854,19 +847,12 @@ namespace CrewChiefV4.ACC
                                 int previousOpponentPosition = 0;
                                 int currentOpponentSector = 0;
                                 Boolean previousOpponentIsEnteringPits = false;
-                                /* previous tick data for hasNewLapData check*/
-                                Boolean previousOpponentDataWaitingForNewLapData = false;
-                                DateTime previousOpponentNewLapDataTimerExpiry = DateTime.MaxValue;
-                                float previousOpponentLastLapTime = -1;
-                                Boolean previousOpponentLastLapValid = false;
 
                                 float[] previousOpponentWorldPosition = new float[] { 0, 0, 0 };
                                 float previousOpponentSpeed = 0;
                                 float previousDistanceRoundTrack = 0;
                                 int currentOpponentRacePosition = 0;
                                 OpponentData previousOpponentData = getOpponentForName(previousGameState, participantName);
-                                int previousCompletedLapsWhenHasNewLapDataWasLastTrue = -2;
-                                float previousOpponentGameTimeWhenLastCrossedStartFinishLine = -1;
                                 // store some previous opponent data that we'll need later
                                 if (previousOpponentData != null)
                                 {
@@ -878,18 +864,11 @@ namespace CrewChiefV4.ACC
                                     previousOpponentSpeed = previousOpponentData.Speed;
                                     previousDistanceRoundTrack = previousOpponentData.DistanceRoundTrack;
 
-                                    previousOpponentDataWaitingForNewLapData = previousOpponentData.WaitingForNewLapData;
-                                    previousOpponentNewLapDataTimerExpiry = previousOpponentData.NewLapDataTimerExpiry;
-                                    previousCompletedLapsWhenHasNewLapDataWasLastTrue = previousOpponentData.CompletedLapsWhenHasNewLapDataWasLastTrue;
-                                    previousOpponentGameTimeWhenLastCrossedStartFinishLine = previousOpponentData.GameTimeWhenLastCrossedStartFinishLine;
-
-                                    previousOpponentLastLapTime = previousOpponentData.LastLapTime;
-                                    previousOpponentLastLapValid = previousOpponentData.LastLapValid;
                                     currentOpponentData.ClassPositionAtPreviousTick = previousOpponentData.ClassPosition;
                                     currentOpponentData.OverallPositionAtPreviousTick = previousOpponentData.OverallPosition;
                                 }
                                 float currentOpponentLapDistance = spLineLengthToDistanceRoundTrack(shared.accChief.trackLength, participantStruct.spLineLength);
-                                currentOpponentSector = getCurrentSector(currentGameState.SessionData.TrackDefinition, currentOpponentLapDistance);
+                                currentOpponentSector = getCurrentSector(currentGameState.SessionData.TrackDefinition, currentOpponentLapDistance, participantStruct.spLineLength);
 
                                 currentOpponentData.DeltaTime.SetNextDeltaPoint(currentOpponentLapDistance, participantStruct.lapCount,
                                     participantStruct.speedMS, currentGameState.Now, participantStruct.isCarInPitline != 1);
@@ -928,8 +907,6 @@ namespace CrewChiefV4.ACC
                                 Boolean isEnteringPits = participantStruct.isCarInPitline == 1 && currentOpponentSector == ACCGameStateMapper.numberOfSectorsOnTrack;
                                 Boolean isLeavingPits = participantStruct.isCarInPitline == 1 && currentOpponentSector == 1;
 
-                                float secondsSinceLastUpdate = (float)new TimeSpan(currentGameState.Ticks - previousGameState.Ticks).TotalSeconds;
-
                                 upateOpponentData(currentOpponentData,
                                     previousOpponentData,
                                     currentOpponentRacePosition,
@@ -940,7 +917,6 @@ namespace CrewChiefV4.ACC
                                     participantStruct.isCarInPitline == 1,
                                     participantStruct.currentLapInvalid == 0,
                                     currentGameState.SessionData.SessionRunningTime,
-                                    secondsSinceLastUpdate,
                                     new float[] { participantStruct.worldPosition.x, participantStruct.worldPosition.z },
                                     participantStruct.speedMS,
                                     currentOpponentLapDistance,
@@ -950,13 +926,6 @@ namespace CrewChiefV4.ACC
                                     shared.accPhysics.roadTemp,
                                     currentGameState.SessionData.SessionType == SessionType.Race,
                                     currentGameState.SessionData.TrackDefinition.distanceForNearPitEntryChecks,
-                                    previousOpponentCompletedLaps,
-                                    previousOpponentDataWaitingForNewLapData,
-                                    previousOpponentNewLapDataTimerExpiry,
-                                    previousOpponentLastLapTime,
-                                    previousOpponentLastLapValid,
-                                    previousCompletedLapsWhenHasNewLapDataWasLastTrue,
-                                    previousOpponentGameTimeWhenLastCrossedStartFinishLine,
                                     currentGameState.TimingData,
                                     currentGameState.carClass,
                                     participantStruct.raceNumber);
@@ -974,7 +943,7 @@ namespace CrewChiefV4.ACC
                                     currentOpponentData.trackLandmarksTiming = new TrackLandmarksTiming();
                                 }
                                 if (currentGameState.SessionData.SessionFastestLapTimeFromGamePlayerClass == -1 ||
-                                        currentGameState.SessionData.SessionFastestLapTimeFromGamePlayerClass > mapToFloatTime(participantStruct.bestLapMS))
+                                        (participantStruct.bestLapMS > 0 && currentGameState.SessionData.SessionFastestLapTimeFromGamePlayerClass > mapToFloatTime(participantStruct.bestLapMS)))
                                 {
                                     currentGameState.SessionData.SessionFastestLapTimeFromGamePlayerClass = mapToFloatTime(participantStruct.bestLapMS);
                                 }
@@ -1172,9 +1141,6 @@ namespace CrewChiefV4.ACC
                 currentGameState.PitData.IsAtPitExit = true;
             }
 
-            // always ignore pit window data as it's unreliable
-            currentGameState.PitData.PitWindow = PitWindow.Unavailable;
-
             //damage data
             if (shared.accChief.isInternalMemoryModuleLoaded == 1)
             {
@@ -1288,46 +1254,12 @@ namespace CrewChiefV4.ACC
                     currentGameState.TyreData.PeakFrontRightTemperatureForLap, currentGameState.TyreData.PeakRearLeftTemperatureForLap,
                     currentGameState.TyreData.PeakRearRightTemperatureForLap);
 
-
             // tyre wear is always 0.0 in the shared memory data
-            /*Boolean currentTyreValid = currentTyreCompound != null && currentTyreCompound.Length > 0 &&
-                acTyres.Count > 0 && acTyres.ContainsKey(currentTyreCompound);
 
-            if (currentTyreValid)
+            if (previousGameState != null && previousGameState.SessionData.CurrentLapIsValid && !currentGameState.SessionData.CurrentLapIsValid)
             {
-                float currentTyreWearMinimumValue = acTyres[currentTyreCompound].tyreWearMinimumValue;
-                currentGameState.TyreData.FrontLeftPercentWear = getTyreWearPercentage(shared.accPhysics.tyreWear[0], currentTyreWearMinimumValue);
-                currentGameState.TyreData.FrontRightPercentWear = getTyreWearPercentage(shared.accPhysics.tyreWear[1], currentTyreWearMinimumValue);
-                currentGameState.TyreData.RearLeftPercentWear = getTyreWearPercentage(shared.accPhysics.tyreWear[2], currentTyreWearMinimumValue);
-                currentGameState.TyreData.RearRightPercentWear = getTyreWearPercentage(shared.accPhysics.tyreWear[3], currentTyreWearMinimumValue);
-                if (!currentGameState.PitData.OnOutLap)
-                {
-                    currentGameState.TyreData.TyreConditionStatus = CornerData.getCornerData(acTyres[currentTyreCompound].tyreWearThresholdsForAC,
-                        currentGameState.TyreData.FrontLeftPercentWear, currentGameState.TyreData.FrontRightPercentWear,
-                        currentGameState.TyreData.RearLeftPercentWear, currentGameState.TyreData.RearRightPercentWear);
-                }
-                else
-                {
-                    currentGameState.TyreData.TyreConditionStatus = CornerData.getCornerData(acTyres[currentTyreCompound].tyreWearThresholdsForAC, -1f, -1f, -1f, -1f);
-                }
+                currentGameState.PenaltiesData.CutTrackWarnings++;
             }
-
-            var msg = $"Wear: {shared.accPhysics.tyreWear[0].ToString("N2")} : {shared.accPhysics.tyreWear[1].ToString("N2")} : {shared.accPhysics.tyreWear[2].ToString("N2")} : { shared.accPhysics.tyreWear[3].ToString("N2")}";
-            if (msgHash.Add(msg.GetHashCode()))
-                System.Diagnostics.Debug.WriteLine(msg);
-
-            msg = $"Flag: {shared.accGraphic.flag} : {shared.accGraphic.penaltyTime}";
-            if (msgHash.Add(msg.GetHashCode()))
-                System.Diagnostics.Debug.WriteLine(msg);
-            */
-
-            currentGameState.PenaltiesData.IsOffRacingSurface = shared.accPhysics.NOT_SET_numberOfTyresOut > 2;
-            if (!currentGameState.PitData.OnOutLap && previousGameState != null && !previousGameState.PenaltiesData.IsOffRacingSurface && currentGameState.PenaltiesData.IsOffRacingSurface &&
-                !(shared.accGraphic.session == AC_SESSION_TYPE.AC_RACE && isCountDown))
-            {
-                currentGameState.PenaltiesData.CutTrackWarnings = previousGameState.PenaltiesData.CutTrackWarnings + 1;
-            }
-
             if (playerVehicle.speedMS > 7 && currentGameState.carClass != null)
             {
                 float minRotatingSpeed = (float)Math.PI * playerVehicle.speedMS / currentGameState.carClass.maxTyreCircumference;
@@ -1390,12 +1322,52 @@ namespace CrewChiefV4.ACC
             }
 
             currentGameState.PositionAndMotionData.WorldPosition = new float[] { playerVehicle.worldPosition.x, playerVehicle.worldPosition.y, playerVehicle.worldPosition.z };
-            currentGameState.PitData.HasMandatoryPitStop = shared.accGraphic.missingMandatoryPits > 0 && shared.accGraphic.missingMandatoryPits < 255;
-            currentGameState.PitData.MandatoryPitStopCompleted = shared.accGraphic.MandatoryPitDone > 0;
 
-            // always ignore pit window data as it's unreliable
             currentGameState.PitData.PitWindow = PitWindow.Unavailable;
+            currentGameState.PitData.PitWindowStart = -1;
+            currentGameState.PitData.PitWindowEnd = -1;
+            if (currentGameState.SessionData.SessionType == SessionType.Race 
+                && shared.accGraphic.missingMandatoryPits < 255 /* 255 means nothing to miss, so no mandatory stop */ 
+                && (shared.accGraphic.missingMandatoryPits > 0 || shared.accGraphic.MandatoryPitDone > 0)) /* 0 missing and 0 done means no mandatory stop */
+            {
+                // 'has' actually means 'the session has a mandatory stop', we might have completed it but this will remain true
+                currentGameState.PitData.HasMandatoryPitStop = true;
+                // where there's no pit window, the game sends data where start is after end, so check this:
+                if (shared.accStatic.PitWindowStart > 0
+                        && shared.accStatic.PitWindowEnd > 0
+                        && shared.accStatic.PitWindowStart < shared.accStatic.PitWindowEnd)
+                {
+                    currentGameState.PitData.PitWindowStart = (float)shared.accStatic.PitWindowStart / (60000f);
+                    currentGameState.PitData.PitWindowEnd = (float)shared.accStatic.PitWindowEnd / (60000f);
+                }
+                currentGameState.PitData.MandatoryPitStopCompleted = shared.accGraphic.missingMandatoryPits == 0;
 
+                // note that the game sometimes sends shared.accGraphic.MandatoryPitDone == 1 all through the session when there's no mandatory stop. In this
+                // case we'll immediately map to Closed. It should really be Unavailable but there's no sane way to tell the difference. Closed is probably OK anyway
+                if (currentGameState.SessionData.SessionHasFixedTime && currentGameState.SessionData.SessionRunningTime < currentGameState.SessionData.SessionTotalRunTime)
+                {                    
+                    bool beforeWindow = currentGameState.SessionData.SessionRunningTime < currentGameState.PitData.PitWindowStart * 60;
+                    bool afterWindow = currentGameState.SessionData.SessionRunningTime > currentGameState.PitData.PitWindowEnd * 60;
+                    if ((beforeWindow || afterWindow) && !currentGameState.PitData.MandatoryPitStopCompleted)
+                    {
+                        currentGameState.PitData.PitWindow = PitWindow.Closed;
+                    }
+                    else if (currentGameState.PitData.HasMandatoryPitStop && !beforeWindow && !afterWindow)
+                    {
+                        currentGameState.PitData.PitWindow = currentGameState.PitData.InPitlane ? PitWindow.StopInProgress : PitWindow.Open;
+                    }
+                    else if (currentGameState.PitData.MandatoryPitStopCompleted)
+                    {
+                        currentGameState.PitData.PitWindow = PitWindow.Completed;
+                    }
+                }
+            }
+            /*
+            Console.WriteLine("PIT WINDOW AT " + currentGameState.SessionData.SessionRunningTime + " : " + currentGameState.PitData.PitWindow + " start "
+                + currentGameState.PitData.PitWindowStart + " end " + currentGameState.PitData.PitWindowEnd + " has : " + currentGameState.PitData.HasMandatoryPitStop +
+                " completed " + currentGameState.PitData.MandatoryPitStopCompleted + " sharedMissing " + shared.accGraphic.missingMandatoryPits +
+                " sharedDone = " + shared.accGraphic.MandatoryPitDone);
+            */
             return currentGameState;
         }
 
@@ -1428,13 +1400,9 @@ namespace CrewChiefV4.ACC
         }
 
         private void upateOpponentData(OpponentData opponentData, OpponentData previousOpponentData, int realtimeRacePosition, int completedLaps, int sector,
-            float completedLapTime, float lastLapTime, Boolean isInPits, Boolean lapIsValid, float sessionRunningTime, float secondsSinceLastUpdate,
+            float completedLapTime, float lastLapTime, Boolean isInPits, Boolean lapIsValid, float sessionRunningTime,
             float[] currentWorldPosition, float speed, float distanceRoundTrack, Boolean sessionLengthIsTime, float sessionTimeRemaining,
-            float airTemperature, float trackTempreture, Boolean isRace, float nearPitEntryPointDistance,
-            /* previous tick data for hasNewLapData check*/
-            int previousOpponentDataLapsCompleted, Boolean previousOpponentDataWaitingForNewLapData,
-            DateTime previousOpponentNewLapDataTimerExpiry, float previousOpponentLastLapTime, Boolean previousOpponentLastLapValid,
-            int previousCompletedLapsWhenHasNewLapDataWasLastTrue, float previousOpponentGameTimeWhenLastCrossedStartFinishLine,
+            float airTemperature, float trackTemperature, Boolean isRace, float nearPitEntryPointDistance,
             TimingData timingData, CarData.CarClass playerCarClass, int raceNumber)
         {
             if (opponentData.CurrentSectorNumber == 0)
@@ -1444,13 +1412,7 @@ namespace CrewChiefV4.ACC
             float previousDistanceRoundTrack = opponentData.DistanceRoundTrack;
             opponentData.DistanceRoundTrack = distanceRoundTrack;
             opponentData.CarNumber = raceNumber.ToString();
-            Boolean validSpeed = true;
-            if (speed > 500)
-            {
-                // faster than 500m/s (1000+mph) suggests the player has quit to the pit. Might need to reassess this as the data are quite noisy
-                validSpeed = false;
-                opponentData.Speed = 0;
-            }
+
             opponentData.Speed = speed;
             if (opponentData.OverallPosition != realtimeRacePosition)
             {
@@ -1472,20 +1434,15 @@ namespace CrewChiefV4.ACC
 
             bool hasCrossedSFline = opponentData.CurrentSectorNumber == ACCGameStateMapper.numberOfSectorsOnTrack && sector == 1;
 
-            bool hasNewLapData = opponentData.HasNewLapData(lastLapTime, hasCrossedSFline, completedLaps, isRace, sessionRunningTime, previousOpponentDataWaitingForNewLapData,
-                 previousOpponentNewLapDataTimerExpiry, previousOpponentLastLapTime, previousOpponentLastLapValid, previousCompletedLapsWhenHasNewLapDataWasLastTrue, previousOpponentGameTimeWhenLastCrossedStartFinishLine);
-
-            if (opponentData.CurrentSectorNumber == ACCGameStateMapper.numberOfSectorsOnTrack && sector == ACCGameStateMapper.numberOfSectorsOnTrack && (!lapIsValid || !validSpeed))
+            if (opponentData.CurrentSectorNumber == ACCGameStateMapper.numberOfSectorsOnTrack && sector == ACCGameStateMapper.numberOfSectorsOnTrack && !lapIsValid)
             {
                 // special case for s3 - need to invalidate lap immediately
                 opponentData.InvalidateCurrentLap();
             }
-            if (opponentData.CurrentSectorNumber != sector || hasNewLapData)
+            if (opponentData.CurrentSectorNumber != sector || hasCrossedSFline)
             {
-                if (hasNewLapData)
+                if (hasCrossedSFline)
                 {
-                    int correctedLapCount = Math.Max(completedLaps, opponentData.lapCountAtSector1End + 1);
-                    // if we have new lap data, we must be in sector 1
                     opponentData.CurrentSectorNumber = 1;
                     if (opponentData.OpponentLapData.Count > 0)
                     {
@@ -1499,32 +1456,23 @@ namespace CrewChiefV4.ACC
                         else
                         {
                             opponentData.CompleteLapWithProvidedLapTime(realtimeRacePosition, sessionRunningTime, lastLapTime, isInPits,
-                                false, trackTempreture, airTemperature, sessionLengthIsTime, sessionTimeRemaining, ACCGameStateMapper.numberOfSectorsOnTrack,
+                                false, trackTemperature, airTemperature, sessionLengthIsTime, sessionTimeRemaining, ACCGameStateMapper.numberOfSectorsOnTrack,
                                 timingData, CarData.IsCarClassEqual(opponentData.CarClass, playerCarClass, true));
                         }
                     }
 
-                    opponentData.StartNewLap(correctedLapCount + 1, realtimeRacePosition, isInPits, sessionRunningTime, false, trackTempreture, airTemperature);
+                    opponentData.StartNewLap(completedLaps + 1, realtimeRacePosition, isInPits, sessionRunningTime, false, trackTemperature, airTemperature);
                     opponentData.IsNewLap = true;
-                    opponentData.CompletedLaps = correctedLapCount;
+                    opponentData.CompletedLaps = completedLaps;
                     // recheck the car class here?
                 }
                 else if (((opponentData.CurrentSectorNumber == 1 && sector == 2) || (opponentData.CurrentSectorNumber == 2 && sector == 3)))
                 {
+                    // if we've not yet logged the position of the current sector start, make the time invalid:
                     opponentData.AddCumulativeSectorData(opponentData.CurrentSectorNumber, realtimeRacePosition, completedLapTime, sessionRunningTime,
-                        lapIsValid && validSpeed, false, trackTempreture, airTemperature);
-
-                    // if we've just finished sector 1, capture the laps completed (and ensure the CompleteLaps count is up to date)
-                    if (opponentData.CurrentSectorNumber == 1)
-                    {
-                        opponentData.lapCountAtSector1End = completedLaps;
-                        opponentData.CompletedLaps = completedLaps;
-                    }
-
-                    // only update the sector number if it's one of the above cases. This prevents us from moving the opponent sector number to 1 before
-                    // he has new lap data
-                    opponentData.CurrentSectorNumber = sector;
+                        lapIsValid && sectorSplinePointsFromGame[sector -1] > 0, false, trackTemperature, airTemperature);
                 }
+                opponentData.CurrentSectorNumber = sector;
             }
             if (sector == ACCGameStateMapper.numberOfSectorsOnTrack && isInPits)
             {
@@ -1731,15 +1679,22 @@ namespace CrewChiefV4.ACC
             }
         }
 
-        private int getCurrentSector(TrackDefinition trackDef, float distanceRoundtrack)
+        private int getCurrentSector(TrackDefinition trackDef, float distanceRoundtrack, float splinePoint)
         {
-
             int ret = 3;
-            if (distanceRoundtrack >= 0 && distanceRoundtrack < trackDef.sectorPoints[0])
+            if (sectorSplinePointsFromGame[1] > 0 && splinePoint < sectorSplinePointsFromGame[1])
             {
                 ret = 1;
             }
-            if (distanceRoundtrack >= trackDef.sectorPoints[0] && (trackDef.sectorPoints[1] == 0 || distanceRoundtrack < trackDef.sectorPoints[1]))
+            else if (sectorSplinePointsFromGame[2] > 0 && splinePoint < sectorSplinePointsFromGame[2])
+            {
+                ret = 2;
+            }
+            else if (distanceRoundtrack >= 0 && distanceRoundtrack < trackDef.sectorPoints[0])
+            {
+                ret = 1;
+            }
+            else if (distanceRoundtrack >= trackDef.sectorPoints[0] && (trackDef.sectorPoints[1] == 0 || distanceRoundtrack < trackDef.sectorPoints[1]))
             {
                 ret = 2;
             }
