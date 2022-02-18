@@ -1726,12 +1726,25 @@ namespace CrewChiefV4
             if (!VROverlayController.vrUpdateThreadRunning)
                 return;
 
-            if (UserSettings.GetUserSettings().getBoolean("force_seated_on_vr_view_reset"))
-                OpenVR.Chaperone.ResetZeroPose(ETrackingUniverseOrigin.TrackingUniverseSeated);
-            else
-                OpenVR.Chaperone.ResetZeroPose(OpenVR.Compositor.GetTrackingSpace());
+            try
+            {
 
-            Log.Commentary("Reset VR view");
+                if (UserSettings.GetUserSettings().getBoolean("force_seated_on_vr_view_reset"))
+                    OpenVR.Chaperone.ResetZeroPose(ETrackingUniverseOrigin.TrackingUniverseSeated);
+                else
+                    OpenVR.Chaperone.ResetZeroPose(OpenVR.Compositor.GetTrackingSpace());
+
+                Log.Commentary("Reset VR view");
+            }
+            catch (Exception ex)
+            {
+                // What happens is for some reason CC loses connection to SVR objects, in particularly while alt-tabbing.
+                // It then recovers nicely (although slowly), but in between, OVR references are invalid.
+                // One of the reasons I know for sure is security: for example, one window running elevated while SVR is not. Etc.
+                //
+                // So just ignore, but log until better times when we understand the problem and the correct solution.
+                Utilities.ReportException(ex, "resetSteamVRTrackingPose exception.", needReport: false);
+            }
         }
 
         private void consoleUpdateThreadWorker()
