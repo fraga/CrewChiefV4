@@ -453,8 +453,9 @@ namespace CrewChiefV4.ACC
             public int currentLapTimeMS;
             public int lastLapTimeMS;
             public accVec3 worldPosition;
-            public int isCarInPitline;
-            public int isCarInPit;
+            public int isCarInPitlane;  // car is inside the pit limiter region
+            public int isCarInPitEntry; // car is within the pit entry region
+            public int isCarInPitExit;  // car is within the pit exit region
             public int carLeaderboardPosition;
             public int carRealTimeLeaderboardPosition; // for race sessions this is derived from the total distance travelled, for other sessions it's the carLeaderboardPosition
             public float spLineLength;

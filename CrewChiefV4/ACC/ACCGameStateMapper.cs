@@ -718,7 +718,7 @@ namespace CrewChiefV4.ACC
                 currentGameState.SessionData.CurrentLapIsValid = playerVehicle.currentLapInvalid == 0;
                 bool hasCrossedSFLine = currentGameState.SessionData.IsNewSector && currentGameState.SessionData.SectorNumber == 1;
                 float lastLapTime = mapToFloatTime(playerVehicle.lastLapTimeMS);
-                currentGameState.SessionData.IsNewLap = (playerVehicle.isCarInPit == 0 && hasCrossedSFLine)
+                currentGameState.SessionData.IsNewLap = (playerVehicle.isCarInPitlane == 0 && hasCrossedSFLine)
                     || ((lastSessionPhase == SessionPhase.Countdown)
                     && (currentGameState.SessionData.SessionPhase == SessionPhase.Green || currentGameState.SessionData.SessionPhase == SessionPhase.FullCourseYellow));
 
@@ -871,7 +871,7 @@ namespace CrewChiefV4.ACC
                                 currentOpponentSector = getCurrentSector(currentGameState.SessionData.TrackDefinition, currentOpponentLapDistance, participantStruct.spLineLength);
 
                                 currentOpponentData.DeltaTime.SetNextDeltaPoint(currentOpponentLapDistance, participantStruct.lapCount,
-                                    participantStruct.speedMS, currentGameState.Now, participantStruct.isCarInPitline != 1);
+                                    participantStruct.speedMS, currentGameState.Now, participantStruct.isCarInPitlane != 1);
 
                                 int currentOpponentLapsCompleted = participantStruct.lapCount;
 
@@ -904,9 +904,6 @@ namespace CrewChiefV4.ACC
                                     currentGameState.SessionData.LeaderHasFinishedRace = true;
                                 }
 
-                                Boolean isEnteringPits = participantStruct.isCarInPitline == 1 && currentOpponentSector == ACCGameStateMapper.numberOfSectorsOnTrack;
-                                Boolean isLeavingPits = participantStruct.isCarInPitline == 1 && currentOpponentSector == 1;
-
                                 upateOpponentData(currentOpponentData,
                                     previousOpponentData,
                                     currentOpponentRacePosition,
@@ -914,7 +911,7 @@ namespace CrewChiefV4.ACC
                                     currentOpponentSector,
                                     mapToFloatTime(participantStruct.currentLapTimeMS),
                                     mapToFloatTime(participantStruct.lastLapTimeMS),
-                                    participantStruct.isCarInPitline == 1,
+                                    participantStruct.isCarInPitlane == 1,
                                     participantStruct.currentLapInvalid == 0,
                                     currentGameState.SessionData.SessionRunningTime,
                                     new float[] { participantStruct.worldPosition.x, participantStruct.worldPosition.z },
@@ -936,7 +933,7 @@ namespace CrewChiefV4.ACC
                                     String stoppedInLandmark = currentOpponentData.trackLandmarksTiming.updateLandmarkTiming(
                                         currentGameState.SessionData.TrackDefinition, currentGameState.SessionData.SessionRunningTime,
                                         previousDistanceRoundTrack, currentOpponentData.DistanceRoundTrack, currentOpponentData.Speed, currentOpponentData.CarClass);
-                                    currentOpponentData.stoppedInLandmark = participantStruct.isCarInPitline == 1 ? null : stoppedInLandmark;
+                                    currentOpponentData.stoppedInLandmark = participantStruct.isCarInPitlane == 1 ? null : stoppedInLandmark;
                                 }
                                 if (currentGameState.SessionData.JustGoneGreen)
                                 {
