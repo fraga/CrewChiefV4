@@ -1301,6 +1301,17 @@ namespace CrewChiefV4.GameState
             }
         }
 
+        public void overwritePlayerSectorTimes(float providedS1Time, float providedS2Time, float providedS3Time)
+        {
+            if (PlayerLapData.Count == 0)
+            {
+                return;
+            }
+            LapData lapData = PlayerLapData[PlayerLapData.Count - 1];
+            lapData.SectorTimes[0] = providedS1Time == 0 ? -1 : providedS1Time;
+            lapData.SectorTimes[1] = providedS2Time == 0 ? -1 : providedS2Time;
+            lapData.SectorTimes[2] = providedS3Time == 0 ? -1 : providedS3Time;
+        }
 
         public void playerAddCumulativeSectorData(int sectorNumberJustCompleted, int overallPosition, float cumulativeSectorTime,
             float gameTimeAtSectorEnd, Boolean lapIsValid, Boolean isRaining, float trackTemp, float airTemp)
@@ -1953,6 +1964,17 @@ namespace CrewChiefV4.GameState
             {
                 isProbablyLastLap = true;
             }
+        }
+        public void overwriteOpponentSectorTimes(float providedS1Time, float providedS2Time, float providedS3Time)
+        {
+            if (OpponentLapData.Count == 0)
+            {
+                return;
+            }
+            LapData lapData = OpponentLapData[OpponentLapData.Count - 1];
+            lapData.SectorTimes[0] = providedS1Time == 0 ? -1 : providedS1Time;
+            lapData.SectorTimes[1] = providedS2Time == 0 ? -1 : providedS2Time;
+            lapData.SectorTimes[2] = providedS3Time == 0 ? -1 : providedS3Time;
         }
         public void CompleteLapThatMightHaveMissingSectorTimes(int position, float gameTimeAtLapEnd, float providedLapTime, Boolean lapWasValid,
             Boolean isRaining, float trackTemp, float airTemp, Boolean sessionLengthIsTime, float sessionTimeRemaining, int numberOfSectors,

@@ -751,6 +751,10 @@ namespace CrewChiefV4.ACC
                         currentGameState.SessionData.SessionTimeRemaining,
                         ACCGameStateMapper.numberOfSectorsOnTrack,
                         currentGameState.TimingData);
+                    currentGameState.SessionData.overwritePlayerSectorTimes(
+                        (float)playerVehicle.lastSplit1TimeMS / 1000f,
+                        (float)playerVehicle.lastSplit2TimeMS / 1000f,
+                        (float)playerVehicle.lastSplit3TimeMS / 1000f);
                     currentGameState.SessionData.playerStartNewLap(currentGameState.SessionData.CompletedLaps + 1,
                         currentGameState.SessionData.OverallPosition, currentGameState.PitData.InPitlane, currentGameState.SessionData.SessionRunningTime);
                 }
@@ -907,7 +911,7 @@ namespace CrewChiefV4.ACC
                                     currentGameState.SessionData.LeaderHasFinishedRace = true;
                                 }
 
-                                upateOpponentData(currentOpponentData,
+                                updateOpponentData(currentOpponentData,
                                     previousOpponentData,
                                     currentOpponentRacePosition,
                                     currentOpponentLapsCompleted,
@@ -928,7 +932,10 @@ namespace CrewChiefV4.ACC
                                     currentGameState.SessionData.TrackDefinition.distanceForNearPitEntryChecks,
                                     currentGameState.TimingData,
                                     currentGameState.carClass,
-                                    participantStruct.raceNumber);
+                                    participantStruct.raceNumber,
+                                    participantStruct.lastSplit1TimeMS,
+                                    participantStruct.lastSplit2TimeMS,
+                                    participantStruct.lastSplit3TimeMS);
 
                                 if (previousOpponentData != null)
                                 {
@@ -1400,11 +1407,11 @@ namespace CrewChiefV4.ACC
             return tyreTempThresholds;
         }
 
-        private void upateOpponentData(OpponentData opponentData, OpponentData previousOpponentData, int realtimeRacePosition, int completedLaps, int sector,
+        private void updateOpponentData(OpponentData opponentData, OpponentData previousOpponentData, int realtimeRacePosition, int completedLaps, int sector,
             float completedLapTime, float lastLapTime, Boolean isInPits, Boolean lapIsValid, float sessionRunningTime,
             float[] currentWorldPosition, float speed, float distanceRoundTrack, Boolean sessionLengthIsTime, float sessionTimeRemaining,
             float airTemperature, float trackTemperature, Boolean isRace, float nearPitEntryPointDistance,
-            TimingData timingData, CarData.CarClass playerCarClass, int raceNumber)
+            TimingData timingData, CarData.CarClass playerCarClass, int raceNumber, int lastLapS1TimeMs, int lastLapS2TimeMs, int lastLapS3TimeMs)
         {
             if (opponentData.CurrentSectorNumber == 0)
             {
@@ -1459,6 +1466,10 @@ namespace CrewChiefV4.ACC
                             opponentData.CompleteLapWithProvidedLapTime(realtimeRacePosition, sessionRunningTime, lastLapTime, isInPits,
                                 false, trackTemperature, airTemperature, sessionLengthIsTime, sessionTimeRemaining, ACCGameStateMapper.numberOfSectorsOnTrack,
                                 timingData, CarData.IsCarClassEqual(opponentData.CarClass, playerCarClass, true));
+                            opponentData.overwriteOpponentSectorTimes(
+                                (float)lastLapS1TimeMs / 1000f,
+                                (float)lastLapS2TimeMs / 1000f,
+                                (float)lastLapS3TimeMs / 1000f);
                         }
                     }
 
