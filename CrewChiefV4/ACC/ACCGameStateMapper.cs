@@ -555,6 +555,7 @@ namespace CrewChiefV4.ACC
                             currentGameState.SessionData.SessionNumberOfLaps = numberOfLapsInSession;
                         }
                         currentGameState.SessionData.LeaderHasFinishedRace = false;
+                        sectorSplinePointsFromGame = new float[] { 0, -1, -1 };
                         currentGameState.SessionData.NumCarsOverallAtStartOfSession = shared.accChief.vehicle.Length;
                         currentGameState.SessionData.TrackDefinition = TrackData.getTrackDefinition(shared.accStatic.track + ":" + shared.accStatic.NOT_SET_trackConfiguration, shared.accChief.trackLength, shared.accStatic.sectorCount);
                         if (currentGameState.SessionData.TrackDefinition.unknownTrack)
@@ -703,7 +704,9 @@ namespace CrewChiefV4.ACC
                 currentGameState.SessionData.SectorNumber = sectorIndex + 1;
 
                 // if we've started a new sector and we don't have the sector point, record it from the player's splineLength
-                if (sectorIndex > 0 && sectorSplinePointsFromGame[sectorIndex] == -1 && playerVehicle.spLineLength > sectorSplinePointsFromGame[sectorIndex - 1])
+                if (playerVehicle.isCarInPitlane == 0
+                    && (sectorIndex != 2 || playerVehicle.spLineLength < 0.93) // additional sanity check for sector3 start position
+                    && sectorIndex > 0 && sectorSplinePointsFromGame[sectorIndex] == -1 && playerVehicle.spLineLength > sectorSplinePointsFromGame[sectorIndex - 1])
                 {
                     sectorSplinePointsFromGame[sectorIndex] = playerVehicle.spLineLength;
                 }
