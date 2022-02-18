@@ -1280,7 +1280,7 @@ namespace CrewChiefV4.rFactor2
                 cgs.Conditions.addSample(cgs.Now, csd.CompletedLaps, csd.SectorNumber,
                     (float)shared.scoring.mScoringInfo.mAmbientTemp, (float)shared.scoring.mScoringInfo.mTrackTemp, (float)shared.scoring.mScoringInfo.mRaining,
                     (float)Math.Sqrt((double)(shared.scoring.mScoringInfo.mWind.x * shared.scoring.mScoringInfo.mWind.x + shared.scoring.mScoringInfo.mWind.y * shared.scoring.mScoringInfo.mWind.y + shared.scoring.mScoringInfo.mWind.z * shared.scoring.mScoringInfo.mWind.z)),
-                    0, 0, 0, csd.IsNewLap);
+                    0, 0, 0, csd.IsNewLap, ConditionsMonitor.TrackStatus.UNKNOWN);
             }
 
             // --------------------------------

@@ -283,7 +283,7 @@ namespace CrewChiefV4.ACC
             public int idealLineOn;
             public int isInPitLane;
 
-            public float surfaceGrip;
+            public float NOT_SET_surfaceGrip;
             public int MandatoryPitDone;
             public float windSpeed;
             public float windDirection;
@@ -448,10 +448,16 @@ namespace CrewChiefV4.ACC
             public string carModel;
             public float speedMS;
             public int bestLapMS;
+            public int bestSplit1TimeMS;
+            public int bestSplit2TimeMS;
+            public int bestSplit3TimeMS;
             public int lapCount;
             public int currentLapInvalid;
             public int currentLapTimeMS;
             public int lastLapTimeMS;
+            public int lastSplit1TimeMS;
+            public int lastSplit2TimeMS;
+            public int lastSplit3TimeMS;
             public accVec3 worldPosition;
             public int isCarInPitlane;  // car is inside the pit limiter region
             public int isCarInPitEntry; // car is within the pit entry region
@@ -466,7 +472,6 @@ namespace CrewChiefV4.ACC
         public class SPageFileCrewChief
         {
             public int focusVehicle;
-            public string serverName;
             public accVehicleInfo[] vehicle = new accVehicleInfo[0];
             public byte[] acInstallPath;
             public int isInternalMemoryModuleLoaded;
@@ -474,7 +479,6 @@ namespace CrewChiefV4.ACC
             public SessionPhase SessionPhase;
             public float trackLength;
             public float rainLevel;
-            public float cloudCoverPercent;
         }
 
         public class ACCShared

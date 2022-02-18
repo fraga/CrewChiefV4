@@ -235,15 +235,15 @@ namespace CrewChiefV4.ACC
                 CrewChief.trackName = shared.accStatic.track + ":" + shared.accStatic.NOT_SET_trackConfiguration;
                 CrewChief.carClass = CarData.getCarClassForClassNameOrCarName(playerVehicle.carModel).carClassEnum;
                 CrewChief.viewingReplay = true;
-                CrewChief.distanceRoundTrack = (shared.accChief.vehicle?.Length ?? 0) == 0 ? 0 : spLineLengthToDistanceRoundTrack(shared.accChief.trackLength, playerVehicle.spLineLength);
+                CrewChief.distanceRoundTrack = spLineLengthToDistanceRoundTrack(shared.accChief.trackLength, playerVehicle.spLineLength);
             }
 
-            if (status == AC_STATUS.AC_REPLAY || status == AC_STATUS.AC_OFF || shared.accChief.vehicle.Length <= 0)
+            if (status == AC_STATUS.AC_REPLAY || status == AC_STATUS.AC_OFF)
             {
                 return previousGameState;
             }
 
-            Boolean isOnline = shared.accChief.serverName.Length > 0;
+            Boolean isOnline = shared.accStatic.isOnline == 1;
             Boolean isSinglePlayerPracticeSession = shared.accChief.vehicle.Length == 1 && !isOnline && shared.accGraphic.session == AC_SESSION_TYPE.AC_PRACTICE;
             float distanceRoundTrack = spLineLengthToDistanceRoundTrack(shared.accChief.trackLength, playerVehicle.spLineLength);
 
@@ -1280,7 +1280,8 @@ namespace CrewChiefV4.ACC
                 float currentRainLevel = (float)shared.accGraphic.rainIntensity / 5f;   // 5 enum levels for rain from 0 (none) to 1 (monsoon)
                 nextConditionsSampleDue = currentGameState.Now.Add(ConditionsMonitor.ConditionsSampleFrequency);
                 currentGameState.Conditions.addSample(currentGameState.Now, currentGameState.SessionData.CompletedLaps, currentGameState.SessionData.SectorNumber,
-                    shared.accPhysics.airTemp, shared.accPhysics.roadTemp, currentRainLevel, 0, 0, 0, 0, currentGameState.SessionData.IsNewLap);
+                    shared.accPhysics.airTemp, shared.accPhysics.roadTemp, currentRainLevel, 0, 0, 0, 0, currentGameState.SessionData.IsNewLap,
+                    (ConditionsMonitor.TrackStatus) shared.accGraphic.trackGripStatus /* our track status maps directly to ACC grip status */);
 
                 
             }

@@ -3124,10 +3124,11 @@ namespace CrewChiefV4.GameState
             public float WindDirectionX;
             public float WindDirectionY;
             public float CloudBrightness;
+            public ConditionsMonitor.TrackStatus TrackStatus;
             public Boolean atStartLine;
 
             public ConditionsSample(DateTime time, int lapCount, int sectorNumber, float AmbientTemperature, float TrackTemperature, float RainDensity,
-                float WindSpeed, float WindDirectionX, float WindDirectionY, float CloudBrightness, Boolean atStartLine)
+                float WindSpeed, float WindDirectionX, float WindDirectionY, float CloudBrightness, Boolean atStartLine, ConditionsMonitor.TrackStatus TrackStatus)
             {
                 this.Time = time;
                 this.LapCount = lapCount;
@@ -3140,14 +3141,15 @@ namespace CrewChiefV4.GameState
                 this.WindDirectionY = WindDirectionY;
                 this.CloudBrightness = CloudBrightness;
                 this.atStartLine = atStartLine;
+                this.TrackStatus = TrackStatus;
             }
         }
 
         public void addSample(DateTime time, int lapCount, int sectorNumber, float AmbientTemperature, float TrackTemperature, float RainDensity,
-                float WindSpeed, float WindDirectionX, float WindDirectionY, float CloudBrightness, Boolean atStartLine)
+                float WindSpeed, float WindDirectionX, float WindDirectionY, float CloudBrightness, Boolean atStartLine, ConditionsMonitor.TrackStatus TrackStatus)
         {
             samples.Add(new ConditionsSample(time, lapCount, sectorNumber, AmbientTemperature, TrackTemperature, RainDensity,
-                WindSpeed, WindDirectionX, WindDirectionY, CloudBrightness, atStartLine));
+                WindSpeed, WindDirectionX, WindDirectionY, CloudBrightness, atStartLine, TrackStatus));
         }
 
         public ConditionsSample getMostRecentConditions()

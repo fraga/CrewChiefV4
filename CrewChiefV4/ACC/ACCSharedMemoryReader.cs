@@ -299,12 +299,9 @@ namespace CrewChiefV4.ACC
                                 break;
                         }
 
-                        structWrapper.data.accChief.serverName = ""; // udpUpdateViewModel.BroadcastingVM.EventVM.Evt.;
-
                         structWrapper.data.accChief.isInternalMemoryModuleLoaded = 1;
                         structWrapper.data.accChief.trackLength = udpUpdateViewModel.BroadcastingVM.TrackVM?.TrackMeters ?? 0;
                         structWrapper.data.accChief.rainLevel = udpUpdateViewModel.SessionInfoVM.RainLevel;
-                        structWrapper.data.accChief.cloudCoverPercent = udpUpdateViewModel.SessionInfoVM.CloudCoverPercent;
 
                         // until we check that a driver's carId is also in the accGraphic.carIDs array, we don't know how long this list will be:
                         LinkedList<accVehicleInfo> activeVehicles = new LinkedList<accVehicleInfo>();
@@ -418,9 +415,15 @@ namespace CrewChiefV4.ACC
 
             int carIndex = car.CarIndex;
             int bestLapTime = (bestLap?.IsValid ?? false) ? bestLap.LaptimeMS ?? 0 : 0;
+            int bestSplit1Time = bestLap?.Split1MS ?? 0;
+            int bestSplit2Time = bestLap?.Split2MS ?? 0;
+            int bestSplit3Time = bestLap?.Split3MS ?? 0;
             int currentLapInvalid = (currentLap?.IsValid ?? false) ? 0 : 1;
             int currentLapTime = currentLap?.LaptimeMS ?? 0;
             int lastLapTime = (lastLap?.IsValid ?? false) ? lastLap.LaptimeMS ?? 0 : 0;
+            int lastSplit1Time = lastLap?.Split1MS ?? 0;
+            int lastSplit2Time = lastLap?.Split2MS ?? 0;
+            int lastSplit3Time = lastLap?.Split3MS ?? 0;
             float splineLength = car.SplinePosition;
             int lapsCompleted = car.Laps;
 
@@ -432,12 +435,21 @@ namespace CrewChiefV4.ACC
                     Console.WriteLine("CarID " + carIndex + " exceeds max dataSync size of " + MAX_CAR_ID);
                 }
             }
-            else if (syncStartlineData(car.CarIndex, lapsCompleted, splineLength, bestLapTime, lastLapTime, currentLapTime, currentLapInvalid))
+            else if (syncStartlineData(car.CarIndex, lapsCompleted, splineLength,
+                bestLapTime, bestSplit1Time, bestSplit2Time, bestSplit3Time,
+                lastLapTime, lastSplit1Time, lastSplit2Time, lastSplit3Time,
+                currentLapTime, currentLapInvalid))
             {
                 // ask the syncData for the correct values:
                 DataForSync dataForSync = syncData[carIndex];
                 bestLapTime = dataForSync.getCorrectedBestLapTime(bestLapTime);
+                bestSplit1Time = dataForSync.getCorrectedBestSplit1Time(bestSplit1Time);
+                bestSplit2Time = dataForSync.getCorrectedBestSplit2Time(bestSplit2Time);
+                bestSplit3Time = dataForSync.getCorrectedBestSplit3Time(bestSplit3Time);
                 lastLapTime = dataForSync.getCorrectedLastLapTime(lastLapTime);
+                lastSplit1Time = dataForSync.getCorrectedLastSplit1Time(lastSplit1Time);
+                lastSplit2Time = dataForSync.getCorrectedLastSplit2Time(lastSplit2Time);
+                lastSplit3Time = dataForSync.getCorrectedLastSplit3Time(lastSplit3Time);
                 lapsCompleted = dataForSync.getCorrectedLapCount(lapsCompleted);
                 splineLength = dataForSync.getCorrectedSpline(splineLength);
                 currentLapInvalid = dataForSync.getCurrentLapInvalid(currentLapInvalid);
@@ -446,6 +458,9 @@ namespace CrewChiefV4.ACC
             return new accVehicleInfo
             {
                 bestLapMS = bestLapTime,
+                bestSplit1TimeMS = bestSplit1Time,
+                bestSplit2TimeMS = bestSplit2Time,
+                bestSplit3TimeMS = bestSplit3Time,
                 carId = carIndex,
                 carLeaderboardPosition = car.Position,
                 carModel = getCarModel(car.CarModelEnum),
@@ -460,6 +475,9 @@ namespace CrewChiefV4.ACC
                 isConnected = 1,
                 lapCount = lapsCompleted,
                 lastLapTimeMS = lastLapTime,
+                lastSplit1TimeMS = lastSplit1Time,
+                lastSplit2TimeMS = lastSplit2Time,
+                lastSplit3TimeMS = lastSplit3Time,
                 speedMS = car.Kmh * 0.277778f,
                 spLineLength = splineLength,
                 worldPosition = new accVec3 { x = x_coord, z = z_coord },
@@ -468,14 +486,20 @@ namespace CrewChiefV4.ACC
         }
 
         // returns true if we're in the magic sync zone and we're waiting for data
-        private bool syncStartlineData(int carId, int lapCountFromData, float splineFromData, int bestLapFromData, int lastLapFromData, int currentLapFromData, int currentLapInvalid)
+        private bool syncStartlineData(int carId, int lapCountFromData, float splineFromData, 
+            int bestLapFromData, int bestSplit1TimeFromData, int bestSplit2TimeFromData, int bestSplit3TimeFromData,
+            int lastLapFromData, int lastSplit1TimeFromData, int lastSplit2TimeFromData, int lastSplit3TimeFromData,
+            int currentLapFromData, int currentLapInvalid)
         {
             if (splineFromData >= 0.93 || splineFromData <= 0.07)
             {
                 DataForSync currentCarSyncData = ACCSharedMemoryReader.syncData[carId];
                 if (currentCarSyncData == null)
                 {
-                    syncData[carId] = new DataForSync(lapCountFromData, splineFromData, bestLapFromData, lastLapFromData, currentLapFromData, currentLapInvalid);
+                    syncData[carId] = new DataForSync(lapCountFromData, splineFromData,
+                        bestLapFromData, bestSplit1TimeFromData, bestSplit2TimeFromData, bestSplit3TimeFromData,
+                        lastLapFromData, lastSplit1TimeFromData, lastSplit2TimeFromData, lastSplit3TimeFromData,
+                        currentLapFromData, currentLapInvalid);
                     return true;
                 }
                 else
@@ -495,22 +519,51 @@ namespace CrewChiefV4.ACC
         {
             int lapCountBefore;
             float splineBefore;
+
             int bestLapTimeBefore;
+            int bestSplit1TimeBefore;
+            int bestSplit2TimeBefore;
+            int bestSplit3TimeBefore;
+
             int lastLapTimeBefore;
+            int lastSplit1TimeBefore;
+            int lastSplit2TimeBefore;
+            int lastSplit3TimeBefore;
+
             int currentLapTimeBefore;
+
             int currentLapInvalid;
 
             bool waitingForSpline = true;
             bool waitingForLapCount = true;
             bool waitingForLaptimes = true;
 
-            public DataForSync(int lapCountBefore, float splineBefore, int bestLapTimeBefore, int lastLapTimeBefore, int currentLapTimeBefore, int currentLapInvalid)
+            public DataForSync(int lapCountBefore, float splineBefore,
+                int bestLapTimeBefore,
+                int bestSplit1TimeBefore,
+                int bestSplit2TimeBefore,
+                int bestSplit3TimeBefore,
+                int lastLapTimeBefore,
+                int lastSplit1TimeBefore,
+                int lastSplit2TimeBefore,
+                int lastSplit3TimeBefore,
+                int currentLapTimeBefore,
+                int currentLapInvalid)
             {
                 this.lapCountBefore = lapCountBefore;
                 this.splineBefore = splineBefore;
                 this.bestLapTimeBefore = bestLapTimeBefore;
+                this.bestSplit1TimeBefore = bestSplit1TimeBefore;
+                this.bestSplit2TimeBefore = bestSplit2TimeBefore;
+                this.bestSplit3TimeBefore = bestSplit3TimeBefore;
+
                 this.lastLapTimeBefore = lastLapTimeBefore;
+                this.lastSplit1TimeBefore = lastSplit1TimeBefore;
+                this.lastSplit2TimeBefore = lastSplit2TimeBefore;
+                this.lastSplit3TimeBefore = lastSplit3TimeBefore;
+
                 this.currentLapTimeBefore = currentLapTimeBefore;
+
                 this.currentLapInvalid = currentLapInvalid;
 
                 if (currentLapInvalid == 1 && lastLapTimeBefore == 0)
@@ -595,9 +648,33 @@ namespace CrewChiefV4.ACC
             {
                 return waitingForAnyUpdates() ? this.lastLapTimeBefore : lastLapTimeFromTick;
             }
+            public int getCorrectedLastSplit1Time(int lastSplit1TimeFromTick)
+            {
+                return waitingForAnyUpdates() ? this.lastSplit1TimeBefore : lastSplit1TimeFromTick;
+            }
+            public int getCorrectedLastSplit2Time(int lastSplit2TimeFromTick)
+            {
+                return waitingForAnyUpdates() ? this.lastSplit2TimeBefore : lastSplit2TimeFromTick;
+            }
+            public int getCorrectedLastSplit3Time(int lastSplit3TimeFromTick)
+            {
+                return waitingForAnyUpdates() ? this.lastSplit3TimeBefore : lastSplit3TimeFromTick;
+            }
             public int getCorrectedBestLapTime(int bestLapTimeFromTick)
             {
                 return waitingForAnyUpdates() ? this.bestLapTimeBefore : bestLapTimeFromTick;
+            }
+            public int getCorrectedBestSplit1Time(int bestSplit1TimeFromTick)
+            {
+                return waitingForAnyUpdates() ? this.bestSplit1TimeBefore : bestSplit1TimeFromTick;
+            }
+            public int getCorrectedBestSplit2Time(int bestSplit2TimeFromTick)
+            {
+                return waitingForAnyUpdates() ? this.bestSplit2TimeBefore : bestSplit2TimeFromTick;
+            }
+            public int getCorrectedBestSplit3Time(int bestSplit3TimeFromTick)
+            {
+                return waitingForAnyUpdates() ? this.bestSplit3TimeBefore : bestSplit3TimeFromTick;
             }
         }
 

@@ -28,6 +28,11 @@ namespace CrewChiefV4.Events
             NONE, DRIZZLE, LIGHT, MID, HEAVY, STORM
         }
 
+        public enum TrackStatus
+        {
+            GREEN, FAST, OPTIMUM, GREASY, DAMP, WET, FLOODED, UNKNOWN
+        }
+
         private Boolean enableTrackAndAirTempReports = UserSettings.GetUserSettings().getBoolean("enable_track_and_air_temp_reports");
         private Boolean enablePCarsRainPrediction = UserSettings.GetUserSettings().getBoolean("pcars_enable_rain_prediction");
 

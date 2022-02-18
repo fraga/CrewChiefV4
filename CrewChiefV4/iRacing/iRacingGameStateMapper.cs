@@ -237,7 +237,7 @@ namespace CrewChiefV4.iRacing
                     }
                 }
                 // add a conditions sample when we first start a session so we're not using stale or default data in the pre-lights phase
-                currentGameState.Conditions.addSample(currentGameState.Now, 0, 1, shared.Telemetry.AirTemp, shared.Telemetry.TrackTempCrew, 0, shared.Telemetry.WindVel, 0, 0, 0, true);
+                currentGameState.Conditions.addSample(currentGameState.Now, 0, 1, shared.Telemetry.AirTemp, shared.Telemetry.TrackTempCrew, 0, shared.Telemetry.WindVel, 0, 0, 0, true, ConditionsMonitor.TrackStatus.UNKNOWN);
 
                 //need to call this after adding opponents else we have nothing to compare against 
                 GameStateData.Multiclass = shared.SessionData.NumCarClasses > 1;
@@ -1130,7 +1130,7 @@ namespace CrewChiefV4.iRacing
             {
                 nextConditionsSampleDue = currentGameState.Now.Add(ConditionsMonitor.ConditionsSampleFrequency);
                 currentGameState.Conditions.addSample(currentGameState.Now, currentGameState.SessionData.CompletedLaps, currentGameState.SessionData.SectorNumber,
-                    shared.Telemetry.AirTemp, shared.Telemetry.TrackTempCrew, 0, shared.Telemetry.WindVel, 0, 0, 0, currentGameState.SessionData.IsNewLap);
+                    shared.Telemetry.AirTemp, shared.Telemetry.TrackTempCrew, 0, shared.Telemetry.WindVel, 0, 0, 0, currentGameState.SessionData.IsNewLap, ConditionsMonitor.TrackStatus.UNKNOWN);
             }
 
             currentGameState.PenaltiesData.IsOffRacingSurface = shared.Telemetry.PlayerTrackSurface == TrackSurfaces.OffTrack;
