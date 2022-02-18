@@ -124,7 +124,8 @@ namespace CrewChiefV4.ACC
             }
             float[] currentPlayerPosition = new float[] { currentPlayerData.worldPosition.x, currentPlayerData.worldPosition.z };
 
-            if (currentPlayerData.isCarInPitlane == 0)
+            // most tracks have a separated pit approach lane. Don't spot for cars in this lane. Pit exit lanes tend to be more open so spot there:
+            if (currentPlayerData.isCarInPitlane == 0 || currentPlayerData.isCarInPitEntry == 0)
             {
                 List<float[]> currentOpponentPositions = new List<float[]>();
                 float[] playerVelocityData = new float[3];
@@ -136,7 +137,7 @@ namespace CrewChiefV4.ACC
                 for (int i = 1; i < currentState.accChief.vehicle.Length; i++)
                 {
                     accVehicleInfo vehicle = currentState.accChief.vehicle[i];
-                    if (vehicle.isCarInPitlane == 1 || vehicle.isConnected != 1)
+                    if (vehicle.isCarInPitlane == 1 || vehicle.isCarInPitEntry == 1 || vehicle.isConnected != 1)
                     {
                         continue;
                     }
