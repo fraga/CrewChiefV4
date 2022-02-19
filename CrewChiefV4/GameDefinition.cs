@@ -61,6 +61,9 @@ namespace CrewChiefV4
             "marcas_launch_exe", "marcas_launch_params", "launch_marcas", true, commandLineName:"MARCAS");
         public static GameDefinition ftruck = new GameDefinition(GameEnum.RF1, "ftruck", "FTRUCK", "CrewChiefV4.rFactor1.RF1Spotter",
             "ftruck_launch_exe", "ftruck_launch_params", "launch_ftruck", true, commandLineName:"FTRUCK");
+        public static GameDefinition arcaSimRacing = new GameDefinition(GameEnum.RF1, "asr", "ARCA", "CrewChiefV4.rFactor1.RF1Spotter",
+            "asr_launch_exe", gameStartCommandOptionsProperty:null, gameStartEnabledProperty: "launch_asr", allowsUserCreatedCars: true, gameInstallDirectory: "arca", commandLineName: "ASR",
+            approxFilterNames: new String[] { "asrx", "asr" });
         public static GameDefinition assetto64Bit = new GameDefinition(GameEnum.ASSETTO_64BIT, "assetto_64_bit", "acs", "CrewChiefV4.assetto.ACSSpotter",
             "acs_launch_exe", "acs_launch_params", "launch_acs", true, "assettocorsa",
             approxFilterNames: new String[] { "assetto", "corsa" });
@@ -169,6 +172,7 @@ namespace CrewChiefV4
             definitions.Add(gameStockCar);
             definitions.Add(marcas);
             definitions.Add(ftruck);
+            definitions.Add(arcaSimRacing);
             definitions.Add(pCars2);
             definitions.Add(pCars3);
             definitions.Add(pCars64Bit);

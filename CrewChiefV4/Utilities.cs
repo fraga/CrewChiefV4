@@ -293,6 +293,7 @@ namespace CrewChiefV4
                 {
                     ProcessStartInfo startInfo = new ProcessStartInfo(launchExe);
                     startInfo.Arguments = launchParams;
+                    startInfo.WorkingDirectory = Path.GetDirectoryName(launchExe);
                     process.StartInfo = startInfo;
                     process.Start();
                 }

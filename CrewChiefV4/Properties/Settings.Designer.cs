@@ -5398,5 +5398,41 @@ namespace CrewChiefV4.Properties {
                 this["ams2_character_encoding"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string asr_launch_exe {
+            get {
+                return ((string)(this["asr_launch_exe"]));
+            }
+            set {
+                this["asr_launch_exe"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool launch_asr {
+            get {
+                return ((bool)(this["launch_asr"]));
+            }
+            set {
+                this["launch_asr"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string asr_install_path {
+            get {
+                return ((string)(this["asr_install_path"]));
+            }
+            set {
+                this["asr_install_path"] = value;
+            }
+        }
     }
 }
