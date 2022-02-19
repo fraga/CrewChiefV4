@@ -433,9 +433,9 @@ namespace CrewChiefV4
                             ba.wasPressedDown = true;
                             ba.hasUnprocessedClick = true;
                             // Set auto-repeat timeout
-                            ba.clickTime = DateTime.Now.AddMilliseconds(repeatRate);
+                            ba.clickTime = DateTime.UtcNow.AddMilliseconds(repeatRate);
                         }
-                        else if (ba.clickTime < DateTime.Now)
+                        else if (ba.clickTime < DateTime.UtcNow)
                         {   // Remote "button" still pressed after "repeatRate" mS
                             ba.wasPressedDown = false;
                             // If still pressed then next time it will auto repeat
@@ -466,9 +466,9 @@ namespace CrewChiefV4
                                             ba.wasPressedDown = true;
                                             ba.hasUnprocessedClick = true;
                                             // Set auto-repeat timeout
-                                            ba.clickTime = DateTime.Now.AddMilliseconds(repeatRate);
+                                            ba.clickTime = DateTime.UtcNow.AddMilliseconds(repeatRate);
                                         }
-                                        else if (ba.clickTime < DateTime.Now)
+                                        else if (ba.clickTime < DateTime.UtcNow)
                                         {   // Button still pressed after "repeatRate" mS
                                             ba.wasPressedDown = false;
                                             // If still pressed then next time it will auto repeat

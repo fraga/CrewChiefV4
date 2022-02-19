@@ -3628,19 +3628,19 @@ namespace CrewChiefV4
             {
                 DateTime lastRejectedCommandDateTime = this.rejectedCommands.Last == null ? DateTime.MinValue : this.rejectedCommands.Last.Value.dateTime;
                 // don't add this into the rejected list if it comes immediately after the last rejected command
-                if ((DateTime.Now - lastRejectedCommandDateTime).TotalSeconds >= SREThresholdInfo.secondsBetweenLoggedSREAttempts)
+                if ((DateTime.UtcNow - lastRejectedCommandDateTime).TotalSeconds >= SREThresholdInfo.secondsBetweenLoggedSREAttempts)
                 {
                     rejectedCountSinceLastReview++;
-                    this.rejectedCommands.AddLast(new HistoricSRECommandInfo(confidence, currentThreshold, command, DateTime.Now));
+                    this.rejectedCommands.AddLast(new HistoricSRECommandInfo(confidence, currentThreshold, command, DateTime.UtcNow));
                 }
             }
             private void addAcceptedCommand(float confidence, string command)
             {
                 DateTime lastAcceptedCommandDateTime = this.acceptedCommands.Last == null ? DateTime.MinValue : this.acceptedCommands.Last.Value.dateTime;
-                if ((DateTime.Now - lastAcceptedCommandDateTime).TotalSeconds >= SREThresholdInfo.secondsBetweenLoggedSREAttempts)
+                if ((DateTime.UtcNow - lastAcceptedCommandDateTime).TotalSeconds >= SREThresholdInfo.secondsBetweenLoggedSREAttempts)
                 {
                     acceptedCountSinceLastReview++;
-                    this.acceptedCommands.AddLast(new HistoricSRECommandInfo(confidence, currentThreshold, command, DateTime.Now));
+                    this.acceptedCommands.AddLast(new HistoricSRECommandInfo(confidence, currentThreshold, command, DateTime.UtcNow));
                 }
             }
             private void reviewThreshold()
@@ -3724,7 +3724,7 @@ namespace CrewChiefV4
             {
                 return this.rejectedCommands.Last != null
                         && this.rejectedCommands.Last.Value.command == recognisedText
-                        && (DateTime.Now - this.rejectedCommands.Last.Value.dateTime).TotalSeconds < SREThresholdInfo.maxSecondsBetweenRepeatedCommands;
+                        && (DateTime.UtcNow - this.rejectedCommands.Last.Value.dateTime).TotalSeconds < SREThresholdInfo.maxSecondsBetweenRepeatedCommands;
             }
             private float getAverageConfidence(bool isRejectedMessages, int totalToCheck)
             {
