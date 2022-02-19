@@ -750,11 +750,9 @@ namespace CrewChiefV4.ACC
                         currentGameState.SessionData.SessionHasFixedTime,
                         currentGameState.SessionData.SessionTimeRemaining,
                         ACCGameStateMapper.numberOfSectorsOnTrack,
-                        currentGameState.TimingData);
-                    currentGameState.SessionData.overwritePlayerSectorTimes(
+                        currentGameState.TimingData,
                         (float)playerVehicle.lastSplit1TimeMS / 1000f,
-                        (float)playerVehicle.lastSplit2TimeMS / 1000f,
-                        (float)playerVehicle.lastSplit3TimeMS / 1000f);
+                        (float)playerVehicle.lastSplit2TimeMS / 1000f);
                     currentGameState.SessionData.playerStartNewLap(currentGameState.SessionData.CompletedLaps + 1,
                         currentGameState.SessionData.OverallPosition, currentGameState.PitData.InPitlane, currentGameState.SessionData.SessionRunningTime);
                 }
@@ -1289,11 +1287,13 @@ namespace CrewChiefV4.ACC
             {
                 float currentRainLevel = (float)shared.accGraphic.rainIntensity / 5f;   // 5 enum levels for rain from 0 (none) to 1 (monsoon)
                 nextConditionsSampleDue = currentGameState.Now.Add(ConditionsMonitor.ConditionsSampleFrequency);
-                currentGameState.Conditions.addSample(currentGameState.Now, currentGameState.SessionData.CompletedLaps, currentGameState.SessionData.SectorNumber,
-                    shared.accPhysics.airTemp, shared.accPhysics.roadTemp, currentRainLevel, 0, 0, 0, 0, currentGameState.SessionData.IsNewLap,
-                    (ConditionsMonitor.TrackStatus) shared.accGraphic.trackGripStatus /* our track status maps directly to ACC grip status */);
-
-                
+                // sometimes the game sends zeros, so don't take a sample of the temps are zero
+                if (shared.accPhysics.airTemp != 0 && shared.accPhysics.roadTemp != 0)
+                {
+                    currentGameState.Conditions.addSample(currentGameState.Now, currentGameState.SessionData.CompletedLaps, currentGameState.SessionData.SectorNumber,
+                        shared.accPhysics.airTemp, shared.accPhysics.roadTemp, currentRainLevel, 0, 0, 0, 0, currentGameState.SessionData.IsNewLap,
+                        (ConditionsMonitor.TrackStatus)shared.accGraphic.trackGripStatus /* our track status maps directly to ACC grip status */);
+                }
             }
             currentGameState.Conditions.rainLevelNow = (ConditionsMonitor.RainLevel)shared.accGraphic.rainIntensity;
             currentGameState.Conditions.rainLevelIn10Mins = (ConditionsMonitor.RainLevel)shared.accGraphic.rainIntensityIn10min;
@@ -1465,11 +1465,7 @@ namespace CrewChiefV4.ACC
                         {
                             opponentData.CompleteLapWithProvidedLapTime(realtimeRacePosition, sessionRunningTime, lastLapTime, isInPits,
                                 false, trackTemperature, airTemperature, sessionLengthIsTime, sessionTimeRemaining, ACCGameStateMapper.numberOfSectorsOnTrack,
-                                timingData, CarData.IsCarClassEqual(opponentData.CarClass, playerCarClass, true));
-                            opponentData.overwriteOpponentSectorTimes(
-                                (float)lastLapS1TimeMs / 1000f,
-                                (float)lastLapS2TimeMs / 1000f,
-                                (float)lastLapS3TimeMs / 1000f);
+                                timingData, CarData.IsCarClassEqual(opponentData.CarClass, playerCarClass, true), (float)lastLapS1TimeMs / 1000f, (float)lastLapS2TimeMs / 1000f);
                         }
                     }
 

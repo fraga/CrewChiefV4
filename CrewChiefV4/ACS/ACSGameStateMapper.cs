@@ -1256,7 +1256,7 @@ namespace CrewChiefV4.assetto
                     currentGameState.SessionData.playerCompleteLapWithProvidedLapTime(currentGameState.SessionData.OverallPosition, currentGameState.SessionData.SessionRunningTime,
                         lastLapTime, currentGameState.SessionData.CurrentLapIsValid, currentGameState.PitData.InPitlane, false,
                         shared.acsPhysics.roadTemp, shared.acsPhysics.airTemp, currentGameState.SessionData.SessionHasFixedTime,
-                        currentGameState.SessionData.SessionTimeRemaining, ACSGameStateMapper.numberOfSectorsOnTrack, currentGameState.TimingData);
+                        currentGameState.SessionData.SessionTimeRemaining, ACSGameStateMapper.numberOfSectorsOnTrack, currentGameState.TimingData, null, null);
                     currentGameState.SessionData.playerStartNewLap(currentGameState.SessionData.CompletedLaps + 1,
                         currentGameState.SessionData.OverallPosition, currentGameState.PitData.InPitlane, currentGameState.SessionData.SessionRunningTime);
                 }
@@ -1952,7 +1952,7 @@ namespace CrewChiefV4.assetto
                         {
                             opponentData.CompleteLapWithProvidedLapTime(leaderBoardPosition, sessionRunningTime, lastLapTime, isInPits,
                                 false, trackTempreture, airTemperature, sessionLengthIsTime, sessionTimeRemaining, ACSGameStateMapper.numberOfSectorsOnTrack,
-                                timingData, CarData.IsCarClassEqual(opponentData.CarClass, playerCarClass));
+                                timingData, CarData.IsCarClassEqual(opponentData.CarClass, playerCarClass), null, null);
                         }
                     }
 

@@ -2460,7 +2460,8 @@ namespace CrewChiefV4.rFactor2
                         (float)scoring.mScoringInfo.mAmbientTemp,
                         csd.SessionHasFixedTime,
                         csd.SessionTimeRemaining,
-                        3, cgs.TimingData);
+                        3, cgs.TimingData,
+                        null, null);
                 }
 
                 csd.playerStartNewLap(

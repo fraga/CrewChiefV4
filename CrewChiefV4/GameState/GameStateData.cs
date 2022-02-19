@@ -1246,7 +1246,7 @@ namespace CrewChiefV4.GameState
 
         public void playerCompleteLapWithProvidedLapTime(int overallPosition, float gameTimeAtLapEnd, float providedLapTime,
             Boolean lapIsValid /*IMPORTANT: this is 'current lap is valid'*/, Boolean inPitLane, Boolean isRaining, float trackTemp,
-            float airTemp, Boolean sessionLengthIsTime, float sessionTimeRemaining, int numberOfSectors, TimingData timingData)
+            float airTemp, Boolean sessionLengthIsTime, float sessionTimeRemaining, int numberOfSectors, TimingData timingData, float? overriddenS1, float? overriddenS2)
         {
             if (PlayerLapData.Count == 0)
             {
@@ -1262,6 +1262,16 @@ namespace CrewChiefV4.GameState
             if (SessionTimesAtEndOfSectors.TryGetValue(numberOfSectors, out sessionTimeAtEndOfLastLap) && sessionTimeAtEndOfLastLap > 0)
             {
                 LapTimePreviousEstimateForInvalidLap = SessionRunningTime - sessionTimeAtEndOfLastLap;
+            }
+            // override the internal timing for S1 and S2. This is a ACC-only hack, our internal timing for these sectors is wildly 'off'
+            if (overriddenS1 != null)
+            {
+                PlayerLapData[PlayerLapData.Count - 1].SectorTimes[0] = overriddenS1.Value;
+            }
+            if (overriddenS2 != null)
+            {
+                PlayerLapData[PlayerLapData.Count - 1].SectorTimes[1] = overriddenS2.Value;
+                // we could also override the S3 time here but the cumulative calulation below will be correct anyway as it'll be driven entirely from the game data
             }
             playerAddCumulativeSectorData(numberOfSectors, overallPosition, providedLapTime, gameTimeAtLapEnd, lapIsValid, isRaining, trackTemp, airTemp);
             lapData.LapTime = providedLapTime;
@@ -1300,19 +1310,7 @@ namespace CrewChiefV4.GameState
                 }
             }
         }
-
-        public void overwritePlayerSectorTimes(float providedS1Time, float providedS2Time, float providedS3Time)
-        {
-            if (PlayerLapData.Count == 0)
-            {
-                return;
-            }
-            LapData lapData = PlayerLapData[PlayerLapData.Count - 1];
-            lapData.SectorTimes[0] = providedS1Time == 0 ? -1 : providedS1Time;
-            lapData.SectorTimes[1] = providedS2Time == 0 ? -1 : providedS2Time;
-            lapData.SectorTimes[2] = providedS3Time == 0 ? -1 : providedS3Time;
-        }
-
+        
         public void playerAddCumulativeSectorData(int sectorNumberJustCompleted, int overallPosition, float cumulativeSectorTime,
             float gameTimeAtSectorEnd, Boolean lapIsValid, Boolean isRaining, float trackTemp, float airTemp)
         {
@@ -1925,16 +1923,25 @@ namespace CrewChiefV4.GameState
                 InvalidateCurrentLap();
             }
             CompleteLapWithProvidedLapTime(position, gameTimeAtLapEnd, providedLapTime, InPits, isRaining, trackTemp, airTemp, sessionLengthIsTime,
-                sessionTimeRemaining, numberOfSectors, timingData, isPlayerCarClass);
+                sessionTimeRemaining, numberOfSectors, timingData, isPlayerCarClass, null, null);
         }
 
         public void CompleteLapWithProvidedLapTime(int position, float gameTimeAtLapEnd, float providedLapTime, Boolean inPits,
             Boolean isRaining, float trackTemp, float airTemp, Boolean sessionLengthIsTime, float sessionTimeRemaining, int numberOfSectors,
-            TimingData timingData, Boolean isPlayerCarClass)
+            TimingData timingData, Boolean isPlayerCarClass, float? overriddenS1, float? overriddenS2)
         {
             if (OpponentLapData.Count > 0)
             {
                 LapData lapData = OpponentLapData[OpponentLapData.Count - 1];
+                // override the internal timing for S1 and S2. This is a ACC-only hack, our internal timing for these sectors is wildly 'off'
+                if (overriddenS1 != null)
+                {
+                    lapData.SectorTimes[0] = overriddenS1.Value;
+                }
+                if (overriddenS2 != null)
+                { 
+                    lapData.SectorTimes[1] = overriddenS2.Value;
+                }
                 if (OpponentLapData.Count == 1 || !lapData.hasMissingSectors)
                 {
                     AddCumulativeSectorData(numberOfSectors, position, providedLapTime, gameTimeAtLapEnd, lapData.IsValid, isRaining, trackTemp, airTemp);
