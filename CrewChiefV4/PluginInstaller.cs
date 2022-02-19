@@ -259,9 +259,13 @@ namespace CrewChiefV4
                 {
                     gameInstallPath = UserSettings.GetUserSettings().getString("ams_install_path");
                 }
-                if (gameDefinition.gameInstallDirectory.Equals("rFactor"))
+                else if (gameDefinition.gameInstallDirectory.Equals("rFactor"))
                 {
                     gameInstallPath = UserSettings.GetUserSettings().getString("rf1_install_path");
+                }
+                else if (gameDefinition.gameInstallDirectory.Equals("arca"))
+                {
+                    gameInstallPath = UserSettings.GetUserSettings().getString("asr_install_path");
                 }
                 else
                 {
@@ -421,6 +425,10 @@ namespace CrewChiefV4
                     if (gameDefinition.gameInstallDirectory.Equals("rFactor"))
                     {
                         UserSettings.GetUserSettings().setProperty("rf1_install_path", gameInstallPath);
+                    }
+                    if (gameDefinition.gameInstallDirectory.Equals("arca"))
+                    {
+                        UserSettings.GetUserSettings().setProperty("asr_install_path", gameInstallPath);
                     }
                 }
                 else if (gameDefinition.gameEnum == GameEnum.RBR)
