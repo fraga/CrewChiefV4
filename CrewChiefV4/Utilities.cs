@@ -275,20 +275,13 @@ namespace CrewChiefV4
 
         public static void runGame(String launchExe, String launchParams)
         {
+            // Inconsistent handling of spaces in paths
+            // ProcessStartInfo() is happy with the escaped " version: "\"c:\pa th\game.exe\""
+            // GetDirectoryName() wants "c:\pa th\game.exe"
+            // Neither is happy if the user enters "c:\pa th\game.exe" with quotes
             try
             {
                 Console.WriteLine("Attempting to run game using " + launchExe + " " + launchParams);
-                if (launchExe.Contains(" "))
-                {
-                    if (!launchExe.StartsWith("\""))
-                    {
-                        launchExe = "\"" + launchExe;
-                    }
-                    if (!launchExe.EndsWith("\""))
-                    {
-                        launchExe = launchExe + "\"";
-                    }
-                }
                 using (Process process = new Process())
                 {
                     ProcessStartInfo startInfo = new ProcessStartInfo(launchExe);
