@@ -123,7 +123,7 @@ namespace CrewChiefV4.Events
 
         public override List<SessionPhase> applicableSessionPhases
         {
-            get { return new List<SessionPhase> { SessionPhase.Formation, SessionPhase.FullCourseYellow }; }
+            get { return new List<SessionPhase> { SessionPhase.Formation, SessionPhase.Countdown, SessionPhase.FullCourseYellow }; }
         }
 
         /*
@@ -182,8 +182,14 @@ namespace CrewChiefV4.Events
             if (!GlobalBehaviourSettings.enableFrozenOrderMessages
                 || cgs.PitData.InPitlane /*|| cgs.SessionData.SessionRunningTime < 10 */
                 || GameStateData.onManualFormationLap  // We may want manual formation to phase of FrozenOrder.
-                || pgs == null)
+                || pgs == null
+                || (cgs.SessionData.SessionPhase == SessionPhase.Countdown && CrewChief.gameDefinition.gameEnum != GameEnum.ACC)) // trigger on countdown only for ACC
                 return; // don't process if we're in the pits or just started a session
+
+            if (CrewChief.gameDefinition.gameEnum == GameEnum.ACC && !LapCounter.playedPreLightsMessage)
+            {
+                return;
+            }
 
             var cfod = cgs.FrozenOrderData;
             var pfod = pgs.FrozenOrderData;
@@ -242,7 +248,8 @@ namespace CrewChiefV4.Events
                 shouldFollowSafetyCar = (cfod.AssignedColumn == FrozenOrderColumn.None && cfod.AssignedPosition == 1)  // Single file order.
                     || (cfod.AssignedColumn != FrozenOrderColumn.None && cfod.AssignedPosition <= 2);  // Double file (grid) order.
 
-                useCarNumber = (CrewChief.gameDefinition.gameEnum == GameEnum.IRACING || (CrewChief.gameDefinition.gameEnum == GameEnum.GTR2 && !cgs.carClass.preferNameForOrderMessages))
+                useCarNumber = (CrewChief.gameDefinition.gameEnum == GameEnum.IRACING || CrewChief.gameDefinition.gameEnum == GameEnum.ACC
+                                || (CrewChief.gameDefinition.gameEnum == GameEnum.GTR2 && !cgs.carClass.preferNameForOrderMessages))
                     && !shouldFollowSafetyCar && cfod.CarNumberToFollowRaw != "-1" && Int32.TryParse(cfod.CarNumberToFollowRaw, out carNumber)
                     && !(useDriverName && cfod.DriverToFollowRaw != null && AudioPlayer.canReadName(cfod.DriverToFollowRaw, false));
 

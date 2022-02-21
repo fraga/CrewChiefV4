@@ -240,18 +240,6 @@ namespace CrewChiefV4.ACC
                         // Populate data from the ACC UDP info. We have to lock it because data can be updated while we read it
                         BroadcastingEvent[] events = udpUpdateViewModel.BroadcastingVM.EventVM.GetEvents();
 
-                        //foreach (var evt in events)
-                        //{
-                        //GreenFlag = 1,
-                        //SessionOver = 2,
-                        //PenaltyCommMsg = 3,
-                        //Accident = 4,
-                        //LapCompleted = 5,
-                        //BestSessionLap = 6,
-                        //BestPersonalLap = 7
-
-                        //Console.WriteLine($"Event: {evt.Type.ToString()} - {evt.Msg}");
-                        //}
                         AC_SESSION_TYPE sessionType;
                         switch (udpUpdateViewModel.SessionInfoVM.SessionType)
                         {
@@ -281,13 +269,12 @@ namespace CrewChiefV4.ACC
                                 structWrapper.data.accChief.SessionPhase = GameState.SessionPhase.Checkered;
                                 break;
                             case SessionPhase.PreSession:
-                            case SessionPhase.Starting:
-                            case SessionPhase.PreFormation:
                                 structWrapper.data.accChief.SessionPhase = GameState.SessionPhase.Countdown;
                                 break;
                             case SessionPhase.PostSession:
                                 structWrapper.data.accChief.SessionPhase = GameState.SessionPhase.Finished;
                                 break;
+                            case SessionPhase.PreFormation:
                             case SessionPhase.FormationLap:
                                 structWrapper.data.accChief.SessionPhase = GameState.SessionPhase.Formation;
                                 break;
@@ -298,7 +285,6 @@ namespace CrewChiefV4.ACC
                                 structWrapper.data.accChief.SessionPhase = GameState.SessionPhase.Unavailable;
                                 break;
                         }
-
                         structWrapper.data.accChief.isInternalMemoryModuleLoaded = 1;
                         structWrapper.data.accChief.trackLength = udpUpdateViewModel.BroadcastingVM.TrackVM?.TrackMeters ?? 0;
                         structWrapper.data.accChief.rainLevel = udpUpdateViewModel.SessionInfoVM.RainLevel;
@@ -306,7 +292,6 @@ namespace CrewChiefV4.ACC
                         // until we check that a driver's carId is also in the accGraphic.carIDs array, we don't know how long this list will be:
                         LinkedList<accVehicleInfo> activeVehicles = new LinkedList<accVehicleInfo>();
                         structWrapper.data.accChief.vehicle = new accVehicleInfo[udpUpdateViewModel.BroadcastingVM.Cars.Count];
-
                         List<float> distancesTravelled = new List<float>();
                         // get the player vehicle first and put this at the front of the list
                         var playerVehicle = getPlayerVehicle(udpUpdateViewModel.BroadcastingVM.Cars, accShared.accGraphic.playerCarID,
@@ -454,7 +439,6 @@ namespace CrewChiefV4.ACC
                 splineLength = dataForSync.getCorrectedSpline(splineLength);
                 currentLapInvalid = dataForSync.getCurrentLapInvalid(currentLapInvalid);
             }
-
             return new accVehicleInfo
             {
                 bestLapMS = bestLapTime,

@@ -31,8 +31,8 @@
         NONE = 0,
 		Starting = 1,
 		PreFormation = 2,
-		FormationLap = 3,
-		PreSession = 4,
+		FormationLap = 3, // in races, this is when we're scooting around in single file warming our tyres
+		PreSession = 4,   // in races, this is when we're approaching the start line in our final formation order / positions
 		Session = 5,
 		SessionOver = 6,
 		PostSession = 7,

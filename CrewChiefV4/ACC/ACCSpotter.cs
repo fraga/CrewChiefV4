@@ -52,7 +52,7 @@ namespace CrewChiefV4.ACC
             }
             playerRotation = (float)(2 * Math.PI) - playerRotation;
             float playerXPosition = playerData.worldPosition.x;
-            float playerZPosition = playerData.worldPosition.y;
+            float playerZPosition = playerData.worldPosition.z;
             int playerStartingPosition = playerData.carLeaderboardPosition;
             int numCars = latestRawData.accChief.vehicle.Length;
             return getGridSideInternal(latestRawData, playerRotation, playerXPosition, playerZPosition, playerStartingPosition, numCars);
@@ -65,7 +65,7 @@ namespace CrewChiefV4.ACC
             {
                 if (vehicleInfo.carLeaderboardPosition == position)
                 {
-                    return new float[] { vehicleInfo.worldPosition.x, vehicleInfo.worldPosition.y };
+                    return new float[] { vehicleInfo.worldPosition.x, vehicleInfo.worldPosition.z };
                 }
             }
             return new float[] { 0, 0 };
@@ -125,7 +125,8 @@ namespace CrewChiefV4.ACC
             float[] currentPlayerPosition = new float[] { currentPlayerData.worldPosition.x, currentPlayerData.worldPosition.z };
 
             // most tracks have a separated pit approach lane. Don't spot for cars in this lane. Pit exit lanes tend to be more open so spot there:
-            if (currentPlayerData.isCarInPitlane == 0 || currentPlayerData.isCarInPitEntry == 0)
+            if (currentGameState.SessionData.SessionPhase != SessionPhase.Formation && currentGameState.SessionData.SessionPhase != SessionPhase.Countdown
+                && (currentPlayerData.isCarInPitlane == 0 || currentPlayerData.isCarInPitEntry == 0))
             {
                 List<float[]> currentOpponentPositions = new List<float[]>();
                 float[] playerVelocityData = new float[3];

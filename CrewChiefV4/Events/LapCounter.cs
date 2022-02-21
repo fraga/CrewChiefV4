@@ -72,7 +72,7 @@ namespace CrewChiefV4.Events
         
         private Boolean playedGetReady;
 
-        private Boolean playedPreLightsMessage;
+        public static Boolean playedPreLightsMessage;
 
         private Boolean purgePreLightsMessages;
 
@@ -198,9 +198,10 @@ namespace CrewChiefV4.Events
                 Console.WriteLine("Pre-start message for track temp");
                 possibleMessages.Add(new QueuedMessage("trackTemp", 0, messageFragments: MessageContents(ConditionsMonitor.folderTrackTempIs,
                     convertTemp(currentConditions.TrackTemperature), getTempUnit()), abstractEvent: this, priority: 10));
-                Console.WriteLine("Pre-start message for air temp");
+                // don't bother this this, it's just noise:
+                /* Console.WriteLine("Pre-start message for air temp");
                 possibleMessages.Add(new QueuedMessage("air_temp", 0, messageFragments: MessageContents(ConditionsMonitor.folderAirTempIs,
-                    convertTemp(currentConditions.AmbientTemperature), getTempUnit()), abstractEvent: this, priority: 10));
+                    convertTemp(currentConditions.AmbientTemperature), getTempUnit()), abstractEvent: this, priority: 10));*/
             }
             if (currentGameState.PitData.HasMandatoryPitStop && currentGameState.PitData.PitWindowStart > 0 && CrewChief.gameDefinition.gameEnum != GameEnum.RF1 && CrewChief.gameDefinition.gameEnum != GameEnum.RF2_64BIT && CrewChief.gameDefinition.gameEnum != GameEnum.GTR2)
             {
@@ -353,7 +354,7 @@ namespace CrewChiefV4.Events
             {
                 // nasty... 2 separate code paths here - one for the existing pre-lights logic which is a ball of spaghetti I don't fancy unpicking, 
                 // one for the 'cancel on control input' version
-                if (playPreRaceMessagesUntilCancelled)
+                if (playPreRaceMessagesUntilCancelled || CrewChief.gameDefinition.gameEnum == GameEnum.ACC)
                 {
                     if (!playedGetReady)
                     {
@@ -372,8 +373,11 @@ namespace CrewChiefV4.Events
                             {
                                 // we've started playing the pre-lights messages. As soon as the play makes a throttle input purge this queue.
                                 // Some games hold the brake at '1' automatically on the grid, so this can't be used
+                                //
+                                // ACC switches from formation to countdown when we're on the last part of the rolling start
                                 purgePreLightsMessages = previousGameState != null &&
-                                    currentGameState.ControlData.ThrottlePedal > 0.2 && previousGameState.ControlData.ThrottlePedal > 0.2;
+                                    ((CrewChief.gameDefinition.gameEnum == GameEnum.ACC && previousGameState.SessionData.SessionPhase == SessionPhase.Formation && currentGameState.SessionData.SessionPhase == SessionPhase.Countdown)
+                                     || (CrewChief.gameDefinition.gameEnum != GameEnum.ACC && currentGameState.ControlData.ThrottlePedal > 0.2 && previousGameState.ControlData.ThrottlePedal > 0.2));
                             }
                             else
                             {
@@ -388,6 +392,7 @@ namespace CrewChiefV4.Events
                                         (currentGameState.SessionData.SessionPhase == SessionPhase.Gridwalk && CrewChief.gameDefinition.gameEnum != GameEnum.RACE_ROOM) ||
                                         (currentGameState.SessionData.SessionPhase == SessionPhase.Formation && CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM) ||
                                         (currentGameState.SessionData.SessionPhase == SessionPhase.Formation && CrewChief.gameDefinition.gameEnum == GameEnum.IRACING) ||
+                                        (currentGameState.SessionData.SessionPhase == SessionPhase.Formation && CrewChief.gameDefinition.gameEnum == GameEnum.ACC && currentGameState.Conditions.samples.Count > 0) ||
                                         (currentGameState.SessionData.SessionPhase == SessionPhase.Formation && (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT || CrewChief.gameDefinition.gameEnum != GameEnum.GTR2) &&
                                         currentGameState.SessionData.SectorNumber == 3)))
                                 {

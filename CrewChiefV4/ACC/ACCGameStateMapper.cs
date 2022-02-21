@@ -78,6 +78,8 @@ namespace CrewChiefV4.ACC
         // we have the player's sector number but not the opponents, so derive the sector points as we go
         private float[] sectorSplinePointsFromGame = new float[] {0, -1, -1 };
 
+        private DateTime waitForCountdownPhase = DateTime.MaxValue;
+
         private void updateFlagSectors(int sector1, int sector2, int sector3, DateTime now)
         {
             bool isYellow = sector1 == 1 || sector2 == 1 || sector3 == 1;
@@ -382,15 +384,24 @@ namespace CrewChiefV4.ACC
                     isCountDown = countDown.TotalMilliseconds >= 0.25;
                 }
             }
-            
+
             currentGameState.SessionData.IsDisqualified = shared.accGraphic.flag == AC_FLAG_TYPE.AC_BLACK_FLAG;
             bool isInPits = shared.accGraphic.isInPit == 1;
             int lapsCompleted = playerVehicle.lapCount;
             ACCGameStateMapper.numberOfSectorsOnTrack = shared.accStatic.sectorCount;
 
             Boolean raceFinished = lapsCompleted == numberOfLapsInSession || (previousGameState != null && previousGameState.SessionData.LeaderHasFinishedRace && previousGameState.SessionData.IsNewLap);
-            
+
             currentGameState.SessionData.SessionPhase = shared.accChief.SessionPhase;
+            // hold back the transition from formation to countdown as short rolling starts will have a very short formation period (<5 seconds) and a long countdown (>20s)
+            if (currentGameState.SessionData.SessionPhase == SessionPhase.Formation)
+            {
+                waitForCountdownPhase = currentGameState.Now.AddSeconds(15);
+            }
+            else if (currentGameState.SessionData.SessionPhase == SessionPhase.Countdown && currentGameState.Now < waitForCountdownPhase)
+            {
+                currentGameState.SessionData.SessionPhase = SessionPhase.Formation;
+            }
             if (raceFinished && shared.accChief.SessionPhase == SessionPhase.Checkered)
             {
                 currentGameState.SessionData.SessionPhase = SessionPhase.Finished;
@@ -457,7 +468,7 @@ namespace CrewChiefV4.ACC
                 currentGameState.SessionData.SessionNumberOfLaps = numberOfLapsInSession;
                 currentGameState.SessionData.LeaderHasFinishedRace = false;
                 currentGameState.SessionData.SessionStartTime = currentGameState.Now;
-                
+
                 if (currentGameState.SessionData.SessionHasFixedTime)
                 {
                     currentGameState.SessionData.SessionTotalRunTime = sessionTimeRemaining;
@@ -676,6 +687,8 @@ namespace CrewChiefV4.ACC
                     currentGameState.TimingData = previousGameState.TimingData;
 
                     currentGameState.SessionData.JustGoneGreenTime = previousGameState.SessionData.JustGoneGreenTime;
+
+                    currentGameState.FrozenOrderData = previousGameState.FrozenOrderData;
                 }
 
                 //------------------- Variable session data ---------------------------
@@ -715,9 +728,9 @@ namespace CrewChiefV4.ACC
                     currentGameState.SessionData.LeaderSectorNumber = currentGameState.SessionData.SectorNumber;
                 }
                 currentGameState.SessionData.IsNewSector = previousGameState == null || currentGameState.SessionData.SectorNumber != previousGameState.SessionData.SectorNumber;
- 
+
                 currentGameState.SessionData.LapTimeCurrent = mapToFloatTime(playerVehicle.currentLapTimeMS);
-                
+
                 currentGameState.SessionData.CurrentLapIsValid = playerVehicle.currentLapInvalid == 0;
                 bool hasCrossedSFLine = currentGameState.SessionData.IsNewSector && currentGameState.SessionData.SectorNumber == 1;
                 float lastLapTime = mapToFloatTime(playerVehicle.lastLapTimeMS);
@@ -815,7 +828,7 @@ namespace CrewChiefV4.ACC
                         currentGameState.SessionData.trackLandmarksTiming.cancelWaitingForLandmarkEnd();
                     }
                 }
-              
+
                 if (currentGameState.SessionData.SessionFastestLapTimeFromGamePlayerClass == -1 ||
                     (playerVehicle.bestLapMS > 0 && currentGameState.SessionData.SessionFastestLapTimeFromGamePlayerClass > mapToFloatTime(playerVehicle.bestLapMS)))
                 {
@@ -900,8 +913,8 @@ namespace CrewChiefV4.ACC
                                     }
                                 }
                                 int opponentPositionFromGame = useLeaderboardPosition || finishedAllottedRaceLaps || finishedAllottedRaceTime
-                                    ?  participantStruct.carLeaderboardPosition
-                                    :  participantStruct.carRealTimeLeaderboardPosition;
+                                    ? participantStruct.carLeaderboardPosition
+                                    : participantStruct.carRealTimeLeaderboardPosition;
                                 currentOpponentRacePosition = getRacePosition(participantName, previousOpponentPosition, opponentPositionFromGame, currentGameState.Now);
 
                                 if (currentOpponentRacePosition == 1 && (finishedAllottedRaceTime || finishedAllottedRaceLaps))
@@ -992,7 +1005,7 @@ namespace CrewChiefV4.ACC
                                 shared.accChief.trackLength,
                                 currentGameState.SessionData.SessionType == SessionType.Race),
                                 currentGameState);
-                        }                        
+                        }
                     }
                 }
 
@@ -1067,7 +1080,7 @@ namespace CrewChiefV4.ACC
             }
 
             currentGameState.PenaltiesData.HasTimeDeduction = shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_PostRaceTime;
-            
+
             if (shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_DriveThrough_PitSpeeding
                 || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_Disqualified_PitSpeeding
                 || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_StopAndGo_10_PitSpeeding
@@ -1272,7 +1285,7 @@ namespace CrewChiefV4.ACC
                 currentGameState.TyreData.RightFrontIsLocked = Math.Abs(shared.accPhysics.wheelAngularSpeed[1]) < minRotatingSpeed;
                 currentGameState.TyreData.LeftRearIsLocked = Math.Abs(shared.accPhysics.wheelAngularSpeed[2]) < minRotatingSpeed;
                 currentGameState.TyreData.RightRearIsLocked = Math.Abs(shared.accPhysics.wheelAngularSpeed[3]) < minRotatingSpeed;
-                
+
                 // '3' here is a magic number - we want to allow the wheel to spin significantly faster than the ideal we we're not always grumbling about it
                 float maxRotatingSpeed = 3 * (float)Math.PI * playerVehicle.speedMS / currentGameState.carClass.minTyreCircumference;
                 // all the cars are RWD (so far), so don't bother checking front wheelspin
@@ -1282,18 +1295,16 @@ namespace CrewChiefV4.ACC
                 currentGameState.TyreData.RightRearIsSpinning = Math.Abs(shared.accPhysics.wheelAngularSpeed[3]) > maxRotatingSpeed;
             }
 
-            //conditions
-            if (currentGameState.Now > nextConditionsSampleDue)
+            // conditions
+            // sometimes the game sends zeros, so don't take a sample if the temps are zero
+            if (currentGameState.Now > nextConditionsSampleDue && (shared.accPhysics.airTemp != 0 || shared.accPhysics.roadTemp != 0))
             {
                 float currentRainLevel = (float)shared.accGraphic.rainIntensity / 5f;   // 5 enum levels for rain from 0 (none) to 1 (monsoon)
                 nextConditionsSampleDue = currentGameState.Now.Add(ConditionsMonitor.ConditionsSampleFrequency);
-                // sometimes the game sends zeros, so don't take a sample of the temps are zero
-                if (shared.accPhysics.airTemp != 0 && shared.accPhysics.roadTemp != 0)
-                {
-                    currentGameState.Conditions.addSample(currentGameState.Now, currentGameState.SessionData.CompletedLaps, currentGameState.SessionData.SectorNumber,
-                        shared.accPhysics.airTemp, shared.accPhysics.roadTemp, currentRainLevel, 0, 0, 0, 0, currentGameState.SessionData.IsNewLap,
-                        (ConditionsMonitor.TrackStatus)shared.accGraphic.trackGripStatus /* our track status maps directly to ACC grip status */);
-                }
+
+                currentGameState.Conditions.addSample(currentGameState.Now, currentGameState.SessionData.CompletedLaps, currentGameState.SessionData.SectorNumber,
+                    shared.accPhysics.airTemp, shared.accPhysics.roadTemp, currentRainLevel, 0, 0, 0, 0, currentGameState.SessionData.IsNewLap,
+                    (ConditionsMonitor.TrackStatus)shared.accGraphic.trackGripStatus /* our track status maps directly to ACC grip status */);
             }
             currentGameState.Conditions.rainLevelNow = (ConditionsMonitor.RainLevel)shared.accGraphic.rainIntensity;
             currentGameState.Conditions.rainLevelIn10Mins = (ConditionsMonitor.RainLevel)shared.accGraphic.rainIntensityIn10min;
@@ -1334,8 +1345,8 @@ namespace CrewChiefV4.ACC
             currentGameState.PitData.PitWindow = PitWindow.Unavailable;
             currentGameState.PitData.PitWindowStart = -1;
             currentGameState.PitData.PitWindowEnd = -1;
-            if (currentGameState.SessionData.SessionType == SessionType.Race 
-                && shared.accGraphic.missingMandatoryPits < 255 /* 255 means nothing to miss, so no mandatory stop */ 
+            if (currentGameState.SessionData.SessionType == SessionType.Race
+                && shared.accGraphic.missingMandatoryPits < 255 /* 255 means nothing to miss, so no mandatory stop */
                 && (shared.accGraphic.missingMandatoryPits > 0 || shared.accGraphic.MandatoryPitDone > 0)) /* 0 missing and 0 done means no mandatory stop */
             {
                 // 'has' actually means 'the session has a mandatory stop', we might have completed it but this will remain true
@@ -1353,7 +1364,7 @@ namespace CrewChiefV4.ACC
                 // note that the game sometimes sends shared.accGraphic.MandatoryPitDone == 1 all through the session when there's no mandatory stop. In this
                 // case we'll immediately map to Closed. It should really be Unavailable but there's no sane way to tell the difference. Closed is probably OK anyway
                 if (currentGameState.SessionData.SessionHasFixedTime && currentGameState.SessionData.SessionRunningTime < currentGameState.SessionData.SessionTotalRunTime)
-                {                    
+                {
                     bool beforeWindow = currentGameState.SessionData.SessionRunningTime < currentGameState.PitData.PitWindowStart * 60;
                     bool afterWindow = currentGameState.SessionData.SessionRunningTime > currentGameState.PitData.PitWindowEnd * 60;
                     if ((beforeWindow || afterWindow) && !currentGameState.PitData.MandatoryPitStopCompleted)
@@ -1370,12 +1381,62 @@ namespace CrewChiefV4.ACC
                     }
                 }
             }
-            /*
-            Console.WriteLine("PIT WINDOW AT " + currentGameState.SessionData.SessionRunningTime + " : " + currentGameState.PitData.PitWindow + " start "
-                + currentGameState.PitData.PitWindowStart + " end " + currentGameState.PitData.PitWindowEnd + " has : " + currentGameState.PitData.HasMandatoryPitStop +
-                " completed " + currentGameState.PitData.MandatoryPitStopCompleted + " sharedMissing " + shared.accGraphic.missingMandatoryPits +
-                " sharedDone = " + shared.accGraphic.MandatoryPitDone);
-            */
+
+            // Frozen order stuff
+            if (previousGameState != null && currentGameState.SessionData.SessionType == SessionType.Race)
+            {
+                int playerPosition = currentGameState.SessionData.OverallPosition;
+                if (currentGameState.SessionData.SessionPhase == SessionPhase.Formation)
+                {
+                    // need to capture the grid side data before the cars start moving but we must have a non-zero heading first. Without the
+                    // heading check the spotter will see a heading of 0 for the first few ticks and get the side calculation wrong
+                    if (currentGameState.FrozenOrderData.Phase == FrozenOrderPhase.None && shared.accPhysics.heading != 0)
+                    {
+                        Tuple<GridSide, Dictionary<int, GridSide>> gridSides = MainWindow.instance.crewChief.getGridSide();
+                        bool leaderCol = playerPosition == 1 || gridSides.Item1 == gridSides.Item2[1];
+                        currentGameState.FrozenOrderData = new FrozenOrderData();
+                        currentGameState.FrozenOrderData.AssignedColumn = gridSides.Item1 == GridSide.LEFT ? FrozenOrderColumn.Left : FrozenOrderColumn.Right;
+                        currentGameState.FrozenOrderData.Action = playerPosition == 1 ? FrozenOrderAction.StayInPole : FrozenOrderAction.Follow;
+                        currentGameState.FrozenOrderData.Phase = FrozenOrderPhase.Rolling;
+                        currentGameState.FrozenOrderData.AssignedPosition = playerPosition;
+                        currentGameState.FrozenOrderData.AssignedGridPosition = leaderCol ? (playerPosition / 2) + 1 : playerPosition / 2;
+                        if (playerPosition > 1)
+                        {
+                            // special case for P2 - no safety car to follow so just tell him to follow the leader
+                            OpponentData carFront = currentGameState.getOpponentAtOverallPosition(playerPosition == 2 ? 1 : playerPosition - 2);
+                            currentGameState.FrozenOrderData.CarNumberToFollowRaw = carFront.CarNumber;
+                            currentGameState.FrozenOrderData.DriverToFollowRaw = carFront.DriverRawName;
+                        }
+                    }
+                }
+                // start the reminders when we reach the countdown phase so we don't get 'catch up to...' messages during the initial ghost-car chaos.
+                // Note that this phase transition has been held back by 15 seconds so we don't move immediately to 'countdown' on the short formation laps
+                else if (currentGameState.SessionData.SessionPhase == SessionPhase.Countdown && currentGameState.FrozenOrderData.Phase == FrozenOrderPhase.Rolling)
+                {
+                    if (playerPosition > currentGameState.FrozenOrderData.AssignedPosition)
+                    {
+                        currentGameState.FrozenOrderData.Action = playerPosition == 1 ? FrozenOrderAction.MoveToPole : FrozenOrderAction.CatchUp;
+                    }
+                    else if (playerPosition < currentGameState.FrozenOrderData.AssignedPosition)
+                    {
+                        currentGameState.FrozenOrderData.Action = FrozenOrderAction.AllowToPass;
+                    }
+                    else
+                    {
+                        currentGameState.FrozenOrderData.Action = FrozenOrderAction.None;
+                    }
+                }
+                else
+                {
+                    currentGameState.FrozenOrderData.Phase = FrozenOrderPhase.None;
+                    currentGameState.FrozenOrderData.Action = FrozenOrderAction.None;
+                }
+            }
+            else
+            {
+                currentGameState.FrozenOrderData.Phase = FrozenOrderPhase.None;
+                currentGameState.FrozenOrderData.Action = FrozenOrderAction.None;
+            }
             return currentGameState;
         }
 
