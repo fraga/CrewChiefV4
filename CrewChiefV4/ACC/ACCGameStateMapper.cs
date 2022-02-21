@@ -1395,7 +1395,7 @@ namespace CrewChiefV4.ACC
                         Tuple<GridSide, Dictionary<int, GridSide>> gridSides = MainWindow.instance.crewChief.getGridSide();
                         bool leaderCol = playerPosition == 1 || gridSides.Item1 == gridSides.Item2[1];
                         currentGameState.FrozenOrderData = new FrozenOrderData();
-                        currentGameState.FrozenOrderData.AssignedColumn = gridSides.Item1 == GridSide.LEFT ? FrozenOrderColumn.Left : FrozenOrderColumn.Right;
+                        currentGameState.FrozenOrderData.AssignedColumn = /*gridSides.Item1 == GridSide.LEFT ? FrozenOrderColumn.Left : FrozenOrderColumn.Right;*/ FrozenOrderColumn.None;
                         currentGameState.FrozenOrderData.Action = playerPosition == 1 ? FrozenOrderAction.StayInPole : FrozenOrderAction.Follow;
                         currentGameState.FrozenOrderData.Phase = FrozenOrderPhase.Rolling;
                         currentGameState.FrozenOrderData.AssignedPosition = playerPosition;
