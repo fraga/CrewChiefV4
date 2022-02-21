@@ -45,17 +45,11 @@ namespace CrewChiefV4.ACC
         {
             ACCShared latestRawData = ((ACCSharedMemoryReader.ACCStructWrapper)currentStateObj).data;
             accVehicleInfo playerData = latestRawData.accChief.vehicle[0];
-            float playerRotation = latestRawData.accPhysics.heading;
-            if (playerRotation < 0)
-            {
-                playerRotation = (float)(2 * Math.PI) + playerRotation;
-            }
-            playerRotation = (float)(2 * Math.PI) - playerRotation;
             float playerXPosition = playerData.worldPosition.x;
             float playerZPosition = playerData.worldPosition.z;
             int playerStartingPosition = playerData.carLeaderboardPosition;
             int numCars = latestRawData.accChief.vehicle.Length;
-            return getGridSideInternal(latestRawData, playerRotation, playerXPosition, playerZPosition, playerStartingPosition, numCars);
+            return getGridSideInternal(latestRawData, latestRawData.accPhysics.heading, playerXPosition, playerZPosition, playerStartingPosition, numCars);
         }
 
         protected override float[] getWorldPositionOfDriverAtPosition(Object currentStateObj, int position)
