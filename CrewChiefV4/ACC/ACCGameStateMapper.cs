@@ -420,8 +420,9 @@ namespace CrewChiefV4.ACC
                 : positionFromGame;
 
             currentGameState.SessionData.TrackDefinition = TrackData.getTrackDefinition(shared.accStatic.track + ":" + shared.accStatic.NOT_SET_trackConfiguration, shared.accChief.trackLength, shared.accStatic.sectorCount);
-
-            Boolean sessionOfSameTypeRestarted = ((currentGameState.SessionData.SessionType == SessionType.Race && lastSessionType == SessionType.Race) ||
+            currentGameState.SessionData.Clock = shared.accGraphic.Clock;
+            Boolean sessionOfSameTypeRestarted = (previousGameState != null && previousGameState.SessionData.Clock - currentGameState.SessionData.Clock > 2)
+                || ((currentGameState.SessionData.SessionType == SessionType.Race && lastSessionType == SessionType.Race) ||
                 (currentGameState.SessionData.SessionType == SessionType.Practice && lastSessionType == SessionType.Practice) ||
                 (currentGameState.SessionData.SessionType == SessionType.Qualify && lastSessionType == SessionType.Qualify)) &&
                 ((lastSessionPhase == SessionPhase.Green || lastSessionPhase == SessionPhase.FullCourseYellow) || lastSessionPhase == SessionPhase.Finished) &&
