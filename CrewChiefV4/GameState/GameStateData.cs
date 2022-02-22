@@ -967,7 +967,7 @@ namespace CrewChiefV4.GameState
 
         public float Clock = 0;   // ACC only, used to catch session restart
 
-        public Boolean triggerStartWarning = false; // ACC only - this happens when the leader gets to within 100m of the start line in 'countdown' phase and is true for 1 tick only
+        public Boolean triggerStartWarning = false; // ACC only - this happens when the leader gets to within 125m of the start line in 'countdown' phase and is true for 1 tick only
 
         // this is the expected finish position based only on ratings, and the number of cars in the player class.
         // For games which make this data available, it's expected to be updated regularly during Q and P sessions

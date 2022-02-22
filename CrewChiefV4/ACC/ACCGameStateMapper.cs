@@ -841,7 +841,7 @@ namespace CrewChiefV4.ACC
                         && participantStruct.carLeaderboardPosition == 1
                         && !getReadyTriggeredForThisSession
                         && currentGameState.SessionData.TrackDefinition != null && currentGameState.SessionData.TrackDefinition.trackLength > 0
-                        && currentGameState.SessionData.TrackDefinition.trackLength - participantStruct.spLineLength * currentGameState.SessionData.TrackDefinition.trackLength < 100)
+                        && currentGameState.SessionData.TrackDefinition.trackLength - participantStruct.spLineLength * currentGameState.SessionData.TrackDefinition.trackLength < 125)
                     {
                         getReadyTriggeredForThisSession = true;
                         currentGameState.SessionData.triggerStartWarning = true;
