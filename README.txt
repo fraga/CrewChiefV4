@@ -431,6 +431,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.16.1.2: Fix issues launching games; ACC - wired up more pre-start messages and some pit window and session transition fixes
+
 Version 4.16.1.1: ACC - major improvements to data synchronization and stability work arounds. This should improve the ACC experience significantly, bringing it to a similar level to other games; AMS2 & R3E - open shared memory with read-access only. This should address some startup issues when using the app with other tools that access the games' shared memory files; GTR2 - plugin update; ARCA Sim Racing - added basic support for this game using the existing Rfactor1 plugin and classes; A few minor bug fixes
 
 Version 4.16.0.1: Change target Dot Net version to 4.7.2. This should have no effect on users, it's required to support new collaborators on the project as the development tooling for the old 4.5 target version is very difficult to find; AMS2 - updated to latest shared memory version (includes IMO tyre temps and support for extra lap after timed races); iRacing - added DRS bleeps (enable with the "Enable DRS beeps" property); R3E - fix tyre type mapping for Gr5 cars; R3E - fix pit menu nagivation (note that this fix is required to keep up with changes to the game, and the 'fix body work' command is no longer available); GTR2 - plugin update

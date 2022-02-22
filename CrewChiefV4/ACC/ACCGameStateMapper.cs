@@ -1335,6 +1335,9 @@ namespace CrewChiefV4.ACC
 
             currentGameState.PositionAndMotionData.WorldPosition = new float[] { playerVehicle.worldPosition.x, playerVehicle.worldPosition.y, playerVehicle.worldPosition.z };
 
+            // note on the window stuff... It only matches what's in the session options (offline) if you skip P and Q. Otherwise it's based on the last session length prior to the
+            // race. In many cases this means the values will fail the sanity checks here, so that's good. There may be cases where it's nonsense but not nonsense enough to prevent
+            // us accepting the numbers and calling the nonsense
             currentGameState.PitData.PitWindow = PitWindow.Unavailable;
             currentGameState.PitData.PitWindowStart = -1;
             currentGameState.PitData.PitWindowEnd = -1;
@@ -1347,7 +1350,8 @@ namespace CrewChiefV4.ACC
                 // where there's no pit window, the game sends data where start is after end, so check this:
                 if (shared.accStatic.PitWindowStart > 0
                         && shared.accStatic.PitWindowEnd > 0
-                        && shared.accStatic.PitWindowStart < shared.accStatic.PitWindowEnd)
+                        && shared.accStatic.PitWindowStart < shared.accStatic.PitWindowEnd
+                        && shared.accStatic.PitWindowEnd / 1000f < currentGameState.SessionData.SessionTotalRunTime)
                 {
                     currentGameState.PitData.PitWindowStart = (float)shared.accStatic.PitWindowStart / (60000f);
                     currentGameState.PitData.PitWindowEnd = (float)shared.accStatic.PitWindowEnd / (60000f);
@@ -1386,11 +1390,11 @@ namespace CrewChiefV4.ACC
                     if (currentGameState.FrozenOrderData.Phase == FrozenOrderPhase.None && shared.accPhysics.heading != 0)
                     {
                         Tuple<GridSide, Dictionary<int, GridSide>> gridSides = MainWindow.instance.crewChief.getGridSide();
-                        bool leaderCol = playerPosition == 1 || gridSides.Item1 == gridSides.Item2[1];
                         currentGameState.FrozenOrderData = new FrozenOrderData();
                         currentGameState.FrozenOrderData.AssignedColumn = gridSides.Item1 == GridSide.LEFT ? FrozenOrderColumn.Left : FrozenOrderColumn.Right;
                         currentGameState.FrozenOrderData.Phase = FrozenOrderPhase.Rolling;
                         currentGameState.FrozenOrderData.AssignedPosition = playerPosition;
+                        bool leaderCol = playerPosition % 2 != 0;
                         currentGameState.FrozenOrderData.AssignedGridPosition = leaderCol ? (playerPosition / 2) + 1 : playerPosition / 2;
                         if (playerPosition > 1)
                         {
