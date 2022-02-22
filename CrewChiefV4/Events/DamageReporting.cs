@@ -366,7 +366,7 @@ namespace CrewChiefV4.Events
                         // if we're subject to > 40G (400m/s2), this is considered dangerous. If we've stopped (or nearly stopped) immediately
                         // after the impact, assume it's a bad 'un. If we're still moving after the impact, track the speed for 3 seconds and 
                         // if it doesn't increase in that time, we can assume it's a bad 'un
-                        if (calculatedAcceleration > 400)
+                        if (calculatedAcceleration > 400 || (CrewChief.gameDefinition.gameEnum == GameEnum.ACC && calculatedAcceleration > 270))
                         {
                             Console.WriteLine("Massive impact. Current speed = " + currentGameState.PositionAndMotionData.CarSpeed.ToString("0.000") +
                                 " previous speed = " + previousGameState.PositionAndMotionData.CarSpeed.ToString("0.000") + " acceleration = " + (calculatedAcceleration / 9.8f).ToString("0.0000") + "g");
