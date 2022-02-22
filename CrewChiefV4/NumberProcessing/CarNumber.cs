@@ -19,9 +19,25 @@ namespace CrewChiefV4.NumberProcessing
         public List<MessageFragment> getMessageFragments()
         {
             List<MessageFragment> fragments = new List<MessageFragment>();
-            if (number <= 0 || number < 100 || number > 1000 || number % 100 == 0)
+            // some edge cases - 0, 00 and 000
+            if (numberString == "0")
             {
-                // <100 or round number of hundreds: just read it
+                fragments.Add(MessageFragment.Integer(0));
+                return fragments;
+            }
+            if (numberString == "00")
+            {
+                fragments.Add(MessageFragment.Text("numbers/zerozero"));
+                return fragments;
+            }
+            else if (numberString == "000")
+            {
+                fragments.Add(MessageFragment.Text("numbers/zerozero"));
+                return fragments;
+            }
+            if (number < 0 || number > 1000 || number % 100 == 0)
+            {
+                // round number of hundreds or unprocessable: just read it
                 fragments.Add(MessageFragment.Integer(number));
             }
             else
@@ -33,7 +49,7 @@ namespace CrewChiefV4.NumberProcessing
                 // if we have no hundreds, check for leading zeros in the number string and read them if necessary
                 if (hundreds == 0)
                 {
-                    if (numberString.Length == 2 && numberString[0] == '0')
+                    if (numberString.Length == 2 || numberString.Length == 3 && numberString[0] == '0')
                     {
                         fragments.Add(MessageFragment.Integer(0));
                         addedLeadingZeros = true;

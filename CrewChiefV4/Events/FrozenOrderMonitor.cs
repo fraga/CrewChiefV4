@@ -12,6 +12,7 @@ using CrewChiefV4.RaceRoom.RaceRoomData;
 using System.Threading;
 using CrewChiefV4.GameState;
 using CrewChiefV4.Audio;
+using CrewChiefV4.NumberProcessing;
 
 namespace CrewChiefV4.Events
 {
@@ -107,9 +108,6 @@ namespace CrewChiefV4.Events
         private const string validationActionKey = "validationActionKey";
         private const string validationAssignedPositionKey = "validationAssignedPositionKey";
         private const string validationDriverToFollowKey = "validationDriverToFollowKey";
-
-        private const string doubleZeroKey = "numbers/zerozero";
-        private const string zeroKey = "numbers/0";
 
         public FrozenOrderMonitor(AudioPlayer audioPlayer)
         {
@@ -237,11 +235,8 @@ namespace CrewChiefV4.Events
             // Detect if we should be following SC, as SC has no driver name.
             var shouldFollowSafetyCar = false;
             var driverToFollow = "";
-            var carNumber = -1;
-            // add leading "zero" to announcment of car number?
-            var leadingZeros = false;
-            // this will be either "zero" or "zerozero" depending on the number
-            var leadingZerosKey = "";
+            var carNumberInt = -1;
+            var carNumberString = "";
             var useCarNumber = false;
             if (cfodp == FrozenOrderPhase.Rolling || cfodp == FrozenOrderPhase.FullCourseYellow)
             {
@@ -250,19 +245,9 @@ namespace CrewChiefV4.Events
 
                 useCarNumber = (CrewChief.gameDefinition.gameEnum == GameEnum.IRACING || CrewChief.gameDefinition.gameEnum == GameEnum.ACC
                                 || (CrewChief.gameDefinition.gameEnum == GameEnum.GTR2 && !cgs.carClass.preferNameForOrderMessages))
-                    && !shouldFollowSafetyCar && cfod.CarNumberToFollowRaw != "-1" && Int32.TryParse(cfod.CarNumberToFollowRaw, out carNumber)
+                    && !shouldFollowSafetyCar && cfod.CarNumberToFollowRaw != "-1" && Int32.TryParse(cfod.CarNumberToFollowRaw, out carNumberInt)
                     && !(useDriverName && cfod.DriverToFollowRaw != null && AudioPlayer.canReadName(cfod.DriverToFollowRaw, false));
-
-                if (useCarNumber && cfod.CarNumberToFollowRaw.StartsWith("00"))
-                {
-                    leadingZerosKey = doubleZeroKey;
-                    leadingZeros = true;
-                }
-                else if (useCarNumber && cfod.CarNumberToFollowRaw.StartsWith("0"))
-                {
-                    leadingZerosKey = zeroKey;
-                    leadingZeros = true;
-                }
+                carNumberString = cfod.CarNumberToFollowRaw;
                 driverToFollow = shouldFollowSafetyCar ? (useAmericanTerms ? folderThePaceCar : folderTheSafetyCar) : (useCarNumber ? cfod.CarNumberToFollowRaw : cfod.DriverToFollowRaw);
             }
 
@@ -286,10 +271,6 @@ namespace CrewChiefV4.Events
 
                     var usableDriverNameToFollow = shouldFollowSafetyCar || useCarNumber ? driverToFollow : (driverToFollow != null ? DriverNameHelper.getUsableDriverName(driverToFollow) : null);
 
-                    // special case for a single leading zero - only play it if we have to - e.g. there is a car using number 023 and one using number 23
-                    if (useCarNumber && leadingZeros && leadingZerosKey == zeroKey)
-                        leadingZeros = this.ShouldUseLeadingZeros(carNumber, currentGameState.getCarNumbers());
-                    
                     var validationData = new Dictionary<string, object>();
                     validationData.Add(FrozenOrderMonitor.validateMessageTypeKey, FrozenOrderMonitor.validateMessageTypeAction);
                     validationData.Add(FrozenOrderMonitor.validationActionKey, cfod.Action);
@@ -313,7 +294,7 @@ namespace CrewChiefV4.Events
                                 else
                                     audioPlayer.playMessage(new QueuedMessage("frozen_order/follow_driver", 0,
                                         secondsDelay: 0, messageFragments:
-                                        leadingZeros ? MessageContents(folderFollowCarNumber, leadingZerosKey, carNumber) : MessageContents(folderFollowCarNumber, carNumber), abstractEvent: this,
+                                        MessageContents(folderFollowCarNumber, new CarNumber(carNumberString)), abstractEvent: this,
                                         validationData: validationData, priority: 10));
                             }
                             else
@@ -330,7 +311,7 @@ namespace CrewChiefV4.Events
                                 else
                                     audioPlayer.playMessage(new QueuedMessage("frozen_order/follow_driver_in_col", 0,
                                         secondsDelay: 0, messageFragments:
-                                        leadingZeros ? MessageContents(folderFollowCarNumber, leadingZerosKey, carNumber, columnName) : MessageContents(folderFollowCarNumber, carNumber, columnName), abstractEvent: this,
+                                        MessageContents(folderFollowCarNumber, new CarNumber(carNumberString), columnName), abstractEvent: this,
                                         validationData: validationData, priority: 10));
                             }
                         }
@@ -349,7 +330,7 @@ namespace CrewChiefV4.Events
                             else
                                 audioPlayer.playMessage(new QueuedMessage("frozen_order/allow_driver_to_pass", delay + 6,
                                     secondsDelay: delay, messageFragments:
-                                    leadingZeros ? MessageContents(folderAllowCarNumber, leadingZerosKey, carNumber, folderToPass) : MessageContents(folderAllowCarNumber, carNumber, folderToPass), abstractEvent: this,
+                                    MessageContents(folderAllowCarNumber, new CarNumber(carNumberString), folderToPass), abstractEvent: this,
                                     validationData: validationData, priority: 10));
 
                         }
@@ -370,7 +351,7 @@ namespace CrewChiefV4.Events
                             else
                                 audioPlayer.playMessage(new QueuedMessage("frozen_order/catch_up_to_driver", delay + 6,
                                     secondsDelay: delay, messageFragments:
-                                    leadingZeros ? MessageContents(folderCatchUpToCarNumber, leadingZerosKey, carNumber) : MessageContents(folderCatchUpToCarNumber, carNumber), abstractEvent: this,
+                                    MessageContents(folderCatchUpToCarNumber, new CarNumber(carNumberString)), abstractEvent: this,
                                     validationData: validationData, priority: 10));
                         }
                         else
@@ -431,10 +412,6 @@ namespace CrewChiefV4.Events
 
                 var usableDriverNameToFollow = shouldFollowSafetyCar || useCarNumber ? driverToFollow : (driverToFollow != null ? DriverNameHelper.getUsableDriverName(driverToFollow) : null);
 
-                // special case for a single leading zero - only play it if we have to - e.g. there is a car using number 023 and one using number 23
-                if (useCarNumber && leadingZeros && leadingZerosKey == zeroKey)
-                    leadingZeros = this.ShouldUseLeadingZeros(carNumber, currentGameState.getCarNumbers());
-
                 var validationData = new Dictionary<string, object>();
                 validationData.Add(FrozenOrderMonitor.validateMessageTypeKey, FrozenOrderMonitor.validateMessageTypeAction);
                 validationData.Add(FrozenOrderMonitor.validationActionKey, cfod.Action);
@@ -456,9 +433,7 @@ namespace CrewChiefV4.Events
                         {
                             audioPlayer.playMessage(new QueuedMessage("frozen_order/lineup_single_file_follow_car_number",
                                 delay + 6, secondsDelay: delay, messageFragments:
-                                leadingZeros ? 
-                                    MessageContents(useAmericanTerms ? folderPaceCarIsOut : folderSafetyCarIsOut, folderLineUpSingleFileBehindCarNumber, leadingZerosKey, carNumber) :
-                                    MessageContents(useAmericanTerms ? folderPaceCarIsOut : folderSafetyCarIsOut, folderLineUpSingleFileBehindCarNumber, carNumber), 
+                                MessageContents(useAmericanTerms ? folderPaceCarIsOut : folderSafetyCarIsOut, folderLineUpSingleFileBehindCarNumber, new CarNumber(carNumberString)), 
                                 abstractEvent: this, validationData: validationData, priority: 10));
 
                         }
@@ -477,14 +452,14 @@ namespace CrewChiefV4.Events
                         if (shouldFollowSafetyCar)
                         {
                             audioPlayer.playMessage(new QueuedMessage("frozen_order/lineup_single_file_follow_safety_car",
-                                delay + 6, secondsDelay: delay, messageFragments: MessageContents(useAmericanTerms ? folderLineUpSingleFileBehindSafetyCarUS : folderLineUpSingleFileBehindSafetyCarEU), 
+                                delay + 6, secondsDelay: delay, messageFragments: MessageContents(useAmericanTerms ? folderLineUpSingleFileBehindSafetyCarUS : folderLineUpSingleFileBehindSafetyCarEU),
                                 abstractEvent: this, validationData: validationData, priority: 10));
                         }
                         else if (useCarNumber)
                         {
                             audioPlayer.playMessage(new QueuedMessage("frozen_order/lineup_single_file_follow_car_number",
                                 delay + 6, secondsDelay: delay, messageFragments: 
-                                leadingZeros ? MessageContents(folderLineUpSingleFileBehindCarNumber, leadingZerosKey, carNumber) : MessageContents(folderLineUpSingleFileBehindCarNumber, carNumber), 
+                                MessageContents(folderLineUpSingleFileBehindCarNumber, new CarNumber(carNumberString)), 
                                 abstractEvent: this, validationData: validationData, priority: 10));
 
                         }
@@ -524,10 +499,6 @@ namespace CrewChiefV4.Events
 
                     var usableDriverNameToFollow = shouldFollowSafetyCar || useCarNumber ? driverToFollow : (driverToFollow != null ? DriverNameHelper.getUsableDriverName(driverToFollow) : null);
 
-                    // special case for a single leading zero - only play it if we have to - e.g. there is a car using number 023 and one using number 23
-                    if (useCarNumber && leadingZeros && leadingZerosKey == zeroKey)
-                        leadingZeros = this.ShouldUseLeadingZeros(carNumber, currentGameState.getCarNumbers());
-
                     var validationData = new Dictionary<string, object>();
                     validationData.Add(FrozenOrderMonitor.validateMessageTypeKey, FrozenOrderMonitor.validateMessageTypeAction);
                     validationData.Add(FrozenOrderMonitor.validationActionKey, cfod.Action);
@@ -565,16 +536,16 @@ namespace CrewChiefV4.Events
                             {
                                 if (announceSCRLastFCYLapLane && cfod.AssignedColumn == FrozenOrderColumn.Left)
                                     audioPlayer.playMessage(new QueuedMessage("frozen_order/follow_driver_in_left",
-                                        delay + 6, secondsDelay: delay, messageFragments: leadingZeros ? MessageContents(folderFollowCarNumber, leadingZerosKey, carNumber, columnName) : MessageContents(folderFollowCarNumber, carNumber, columnName),
+                                        delay + 6, secondsDelay: delay, messageFragments: MessageContents(folderFollowCarNumber, new CarNumber(carNumberString), columnName),
                                         abstractEvent: this, validationData: validationData, priority: 10));
                                 else if (announceSCRLastFCYLapLane && cfod.AssignedColumn == FrozenOrderColumn.Right)
                                     audioPlayer.playMessage(new QueuedMessage("frozen_order/follow_driver_in_right",
                                         delay + 6, secondsDelay: delay,
-                                        messageFragments: leadingZeros ? MessageContents(folderFollowCarNumber, leadingZerosKey, carNumber, columnName) : MessageContents(folderFollowCarNumber, carNumber, columnName),
+                                        messageFragments: MessageContents(folderFollowCarNumber, new CarNumber(carNumberString), columnName),
                                         abstractEvent: this, validationData: validationData, priority: 10));
                                 else
                                     audioPlayer.playMessage(new QueuedMessage("frozen_order/follow_driver", delay + 6,
-                                        secondsDelay: delay, messageFragments: leadingZeros ? MessageContents(folderFollowCarNumber, leadingZerosKey, carNumber) : MessageContents(folderFollowCarNumber, carNumber),
+                                        secondsDelay: delay, messageFragments: MessageContents(folderFollowCarNumber, new CarNumber(carNumberString)),
                                         abstractEvent: this, validationData: validationData, priority: 10));
                             }
                         }
@@ -598,7 +569,7 @@ namespace CrewChiefV4.Events
                             else
                                 audioPlayer.playMessage(new QueuedMessage("frozen_order/allow_driver_to_pass",
                                     delay + 6, secondsDelay: delay, messageFragments:
-                                    leadingZeros ? MessageContents(folderAllowCarNumber, leadingZerosKey, carNumber, folderToPass) : MessageContents(folderAllowCarNumber, carNumber, folderToPass),
+                                    MessageContents(folderAllowCarNumber, new CarNumber(carNumberString), folderToPass),
                                     abstractEvent: this, validationData: validationData, priority: 10));
                         }
                         else
@@ -618,7 +589,7 @@ namespace CrewChiefV4.Events
                             else
                                 audioPlayer.playMessage(new QueuedMessage("frozen_order/catch_up_to_driver",
                                     delay + 6, secondsDelay: delay, messageFragments:
-                                    leadingZeros ? MessageContents(folderCatchUpToCarNumber, leadingZerosKey, carNumber) : MessageContents(folderCatchUpToCarNumber, carNumber),
+                                    MessageContents(folderCatchUpToCarNumber, new CarNumber(carNumberString)),
                                     abstractEvent: this, validationData: validationData, priority: 10));
                         }
                         else
@@ -740,33 +711,5 @@ namespace CrewChiefV4.Events
 
             // For fast rolling, do nothing for now.
         }
-
-        // double check if we can use leading zero(s)
-        private Boolean ShouldUseLeadingZeros(int carNumber, HashSet<string> carNumbers)
-        {
-            // check to see if we want to add a leading zero - the 'correct' way to announce the car number is to always honour the leading
-            // zeros, but in cases where there's only 1 leading zero and the number isn't ambiguous, we override this. This is because
-            // "zero twenty three" sounds a bit weird if there's no car number 23 as well. We will always honour numbers with 2
-            // leading zeros like 007
-            int copiesOfNumber = 0;
-            foreach (string carNumberString in carNumbers)
-            {
-                if (carNumberString != "-1")
-                {
-                    int parsedNumber = int.Parse(carNumberString);
-                    if (parsedNumber == carNumber)
-                    {
-                        copiesOfNumber++;
-                        if (copiesOfNumber > 1)
-                        {
-                            break;
-                        }
-                    }
-                }
-            }
-            // only allow the leadingZero to be used if there's >1 copy if this number
-            return copiesOfNumber > 1;
-        }
-
     }
 }
