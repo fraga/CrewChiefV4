@@ -78,7 +78,7 @@ namespace CrewChiefV4.ACC
         // we have the player's sector number but not the opponents, so derive the sector points as we go
         private float[] sectorSplinePointsFromGame = new float[] {0, -1, -1 };
 
-        private DateTime waitForCountdownPhase = DateTime.MaxValue;
+        private bool getReadyTriggeredForThisSession = false;
 
         private void updateFlagSectors(int sector1, int sector2, int sector3, DateTime now)
         {
@@ -393,15 +393,6 @@ namespace CrewChiefV4.ACC
             Boolean raceFinished = lapsCompleted == numberOfLapsInSession || (previousGameState != null && previousGameState.SessionData.LeaderHasFinishedRace && previousGameState.SessionData.IsNewLap);
 
             currentGameState.SessionData.SessionPhase = shared.accChief.SessionPhase;
-            // hold back the transition from formation to countdown as short rolling starts will have a very short formation period (<5 seconds) and a long countdown (>20s)
-            if (currentGameState.SessionData.SessionPhase == SessionPhase.Formation)
-            {
-                waitForCountdownPhase = currentGameState.Now.AddSeconds(15);
-            }
-            else if (currentGameState.SessionData.SessionPhase == SessionPhase.Countdown && currentGameState.Now < waitForCountdownPhase)
-            {
-                currentGameState.SessionData.SessionPhase = SessionPhase.Formation;
-            }
             if (raceFinished && shared.accChief.SessionPhase == SessionPhase.Checkered)
             {
                 currentGameState.SessionData.SessionPhase = SessionPhase.Finished;
@@ -421,14 +412,10 @@ namespace CrewChiefV4.ACC
 
             currentGameState.SessionData.TrackDefinition = TrackData.getTrackDefinition(shared.accStatic.track + ":" + shared.accStatic.NOT_SET_trackConfiguration, shared.accChief.trackLength, shared.accStatic.sectorCount);
             currentGameState.SessionData.Clock = shared.accGraphic.Clock;
-            Boolean sessionOfSameTypeRestarted = (previousGameState != null && previousGameState.SessionData.Clock - currentGameState.SessionData.Clock > 2)
-                || ((currentGameState.SessionData.SessionType == SessionType.Race && lastSessionType == SessionType.Race) ||
+            Boolean sessionOfSameTypeRestarted = ((currentGameState.SessionData.SessionType == SessionType.Race && lastSessionType == SessionType.Race) ||
                 (currentGameState.SessionData.SessionType == SessionType.Practice && lastSessionType == SessionType.Practice) ||
-                (currentGameState.SessionData.SessionType == SessionType.Qualify && lastSessionType == SessionType.Qualify)) &&
-                ((lastSessionPhase == SessionPhase.Green || lastSessionPhase == SessionPhase.FullCourseYellow) || lastSessionPhase == SessionPhase.Finished) &&
-                currentGameState.SessionData.SessionPhase == SessionPhase.Countdown &&
-                (currentGameState.SessionData.SessionType == SessionType.Race ||
-                    currentGameState.SessionData.SessionHasFixedTime && sessionTimeRemaining > lastSessionTimeRemaining + 1);
+                (currentGameState.SessionData.SessionType == SessionType.Qualify && lastSessionType == SessionType.Qualify)) 
+                && (previousGameState != null && previousGameState.SessionData.Clock - currentGameState.SessionData.Clock > 2);
 
             if (sessionOfSameTypeRestarted ||
                 (currentGameState.SessionData.SessionType != SessionType.Unavailable &&
@@ -438,12 +425,13 @@ namespace CrewChiefV4.ACC
                             (currentGameState.SessionData.SessionHasFixedTime && sessionTimeRemaining > lastSessionTimeRemaining + 1))))
             {
                 opponentDisconnectionCounter.Clear();
+                getReadyTriggeredForThisSession = false;
                 ACCSharedMemoryReader.clearSyncData();
                 sectorSplinePointsFromGame = new float[] { 0, -1, -1 };
                 Console.WriteLine("New session, trigger...");
                 if (sessionOfSameTypeRestarted)
                 {
-                    Console.WriteLine("Session of same type (" + lastSessionType + ") restarted (green / finished -> countdown)");
+                    Console.WriteLine("Session of same type (" + lastSessionType + ") restarted (previous clock = " + previousGameState.SessionData.Clock + " current clock = " + currentGameState.SessionData.Clock + ")");
                 }
                 if (lastSessionType != currentGameState.SessionData.SessionType)
                 {
@@ -849,7 +837,11 @@ namespace CrewChiefV4.ACC
 
                     String participantName = participantStruct.driverName.ToLower();
                     OpponentData currentOpponentData = getOpponentForName(currentGameState, participantName);
-
+                    if (currentGameState.SessionData.SessionPhase == SessionPhase.Countdown && participantStruct.carLeaderboardPosition == 1 && !getReadyTriggeredForThisSession && participantStruct.spLineLength > 0.97)
+                    {
+                        getReadyTriggeredForThisSession = true;
+                        currentGameState.SessionData.triggerStartWarning = true;
+                    }
                     if (participantName != null && participantName.Length > 0)
                     {
                         // there's a driver in the game data so remove him from the set who may have left the game
@@ -1397,7 +1389,6 @@ namespace CrewChiefV4.ACC
                         bool leaderCol = playerPosition == 1 || gridSides.Item1 == gridSides.Item2[1];
                         currentGameState.FrozenOrderData = new FrozenOrderData();
                         currentGameState.FrozenOrderData.AssignedColumn = gridSides.Item1 == GridSide.LEFT ? FrozenOrderColumn.Left : FrozenOrderColumn.Right;
-                        currentGameState.FrozenOrderData.Action = playerPosition == 1 ? FrozenOrderAction.StayInPole : FrozenOrderAction.Follow;
                         currentGameState.FrozenOrderData.Phase = FrozenOrderPhase.Rolling;
                         currentGameState.FrozenOrderData.AssignedPosition = playerPosition;
                         currentGameState.FrozenOrderData.AssignedGridPosition = leaderCol ? (playerPosition / 2) + 1 : playerPosition / 2;
@@ -1408,11 +1399,13 @@ namespace CrewChiefV4.ACC
                             currentGameState.FrozenOrderData.CarNumberToFollowRaw = carFront.CarNumber;
                             currentGameState.FrozenOrderData.DriverToFollowRaw = carFront.DriverRawName;
                         }
+                        // note that we don't set an 'action' here - this comes when we hit the countdown phase (it's single file until then)
                     }
                 }
-                // start the reminders when we reach the countdown phase so we don't get 'catch up to...' messages during the initial ghost-car chaos.
-                // Note that this phase transition has been held back by 15 seconds so we don't move immediately to 'countdown' on the short formation laps
-                else if (currentGameState.SessionData.SessionPhase == SessionPhase.Countdown && currentGameState.FrozenOrderData.Phase == FrozenOrderPhase.Rolling)
+                else if (playerVehicle.isCarInPitlane == 0
+                    && currentGameState.SessionData.SessionPhase == SessionPhase.Countdown
+                    && currentGameState.FrozenOrderData.Phase == FrozenOrderPhase.Rolling
+                    && currentGameState.FrozenOrderData.AssignedPosition > 0)
                 {
                     if (playerPosition > currentGameState.FrozenOrderData.AssignedPosition)
                     {
@@ -1422,9 +1415,10 @@ namespace CrewChiefV4.ACC
                     {
                         currentGameState.FrozenOrderData.Action = FrozenOrderAction.AllowToPass;
                     }
-                    else
+                    else if (previousGameState.SessionData.SessionPhase == SessionPhase.Formation)
                     {
-                        currentGameState.FrozenOrderData.Action = FrozenOrderAction.None;
+                        // only allow the follow action to be trigger on transition from formation to countdown (when we have to form up)
+                        currentGameState.FrozenOrderData.Action = currentGameState.FrozenOrderData.AssignedPosition == 1 ? FrozenOrderAction.StayInPole : FrozenOrderAction.Follow;
                     }
                 }
                 else

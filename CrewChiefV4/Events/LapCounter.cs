@@ -100,7 +100,10 @@ namespace CrewChiefV4.Events
         private Boolean playedRejoinAtBackMessage = false;
 
         private Boolean playedPreLightsRollingStartWarning = false;
+
         public static bool whiteFlagLastLapAnnounced = false;
+
+        public static bool preStartTempsAnnounced = false;
 
         public override List<SessionPhase> applicableSessionPhases
         {
@@ -156,6 +159,7 @@ namespace CrewChiefV4.Events
             poleSitter = null;
             leaderHasGone = false;
             LapCounter.whiteFlagLastLapAnnounced = false;
+            LapCounter.preStartTempsAnnounced = false;
         }
 
         private OpponentData getOpponent(GameStateData currentGameState, String opponentName)
@@ -195,13 +199,14 @@ namespace CrewChiefV4.Events
             List<QueuedMessage> possibleMessages = new List<QueuedMessage>();
             if (currentConditions != null && currentConditions.TrackTemperature != 0 && currentConditions.AmbientTemperature != 0)
             {
-                Console.WriteLine("Pre-start message for track temp");
-                possibleMessages.Add(new QueuedMessage("trackTemp", 0, messageFragments: MessageContents(ConditionsMonitor.folderTrackTempIs,
-                    convertTemp(currentConditions.TrackTemperature), getTempUnit()), abstractEvent: this, priority: 10));
-                // don't bother this this, it's just noise:
-                /* Console.WriteLine("Pre-start message for air temp");
-                possibleMessages.Add(new QueuedMessage("air_temp", 0, messageFragments: MessageContents(ConditionsMonitor.folderAirTempIs,
-                    convertTemp(currentConditions.AmbientTemperature), getTempUnit()), abstractEvent: this, priority: 10));*/
+                LapCounter.preStartTempsAnnounced = true;
+                Console.WriteLine("Pre-start message for track and air temp");
+                possibleMessages.Add(new QueuedMessage("trackAndAirTemp", 0, messageFragments: MessageContents(
+                    ConditionsMonitor.folderTrackTempIs,
+                    convertTemp(currentConditions.TrackTemperature),
+                    ConditionsMonitor.folderAirTempIs,
+                    convertTemp(currentConditions.AmbientTemperature),
+                    getTempUnit()), abstractEvent: this, priority: 10));
             }
             if (currentGameState.PitData.HasMandatoryPitStop && currentGameState.PitData.PitWindowStart > 0 && CrewChief.gameDefinition.gameEnum != GameEnum.RF1 && CrewChief.gameDefinition.gameEnum != GameEnum.RF2_64BIT && CrewChief.gameDefinition.gameEnum != GameEnum.GTR2)
             {
@@ -374,10 +379,9 @@ namespace CrewChiefV4.Events
                                 // we've started playing the pre-lights messages. As soon as the play makes a throttle input purge this queue.
                                 // Some games hold the brake at '1' automatically on the grid, so this can't be used
                                 //
-                                // ACC switches from formation to countdown when we're on the last part of the rolling start
-                                purgePreLightsMessages = previousGameState != null &&
-                                    ((CrewChief.gameDefinition.gameEnum == GameEnum.ACC && previousGameState.SessionData.SessionPhase == SessionPhase.Formation && currentGameState.SessionData.SessionPhase == SessionPhase.Countdown)
-                                     || (CrewChief.gameDefinition.gameEnum != GameEnum.ACC && currentGameState.ControlData.ThrottlePedal > 0.2 && previousGameState.ControlData.ThrottlePedal > 0.2));
+                                // ACC switches from formation to countdown when we're on the last part of the rolling start but we need to wait a while longer - there's a separate ACC specific variable for this
+                                purgePreLightsMessages = currentGameState.SessionData.triggerStartWarning
+                                     || (CrewChief.gameDefinition.gameEnum != GameEnum.ACC && currentGameState.ControlData.ThrottlePedal > 0.2 && previousGameState.ControlData.ThrottlePedal > 0.2);
                             }
                             else
                             {
@@ -392,11 +396,12 @@ namespace CrewChiefV4.Events
                                         (currentGameState.SessionData.SessionPhase == SessionPhase.Gridwalk && CrewChief.gameDefinition.gameEnum != GameEnum.RACE_ROOM) ||
                                         (currentGameState.SessionData.SessionPhase == SessionPhase.Formation && CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM) ||
                                         (currentGameState.SessionData.SessionPhase == SessionPhase.Formation && CrewChief.gameDefinition.gameEnum == GameEnum.IRACING) ||
-                                        (currentGameState.SessionData.SessionPhase == SessionPhase.Formation && CrewChief.gameDefinition.gameEnum == GameEnum.ACC && currentGameState.Conditions.samples.Count > 0) ||
+                                        (currentGameState.SessionData.SessionPhase == SessionPhase.Formation && CrewChief.gameDefinition.gameEnum == GameEnum.ACC) ||
                                         (currentGameState.SessionData.SessionPhase == SessionPhase.Formation && (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT || CrewChief.gameDefinition.gameEnum != GameEnum.GTR2) &&
                                         currentGameState.SessionData.SectorNumber == 3)))
                                 {
                                     Console.WriteLine("Queuing pre-lights messages");
+                                    LapCounter.preStartTempsAnnounced = false;
                                     playPreLightsMessage(currentGameState, 10); // queue as many messages as we have here, in any order
                                 }
                             }

@@ -205,7 +205,7 @@ namespace CrewChiefV4.Events
             {
                 Console.WriteLine("Frozen Order: New Phase detected: " + cfod.Phase);
                 int delay = Utilities.random.Next(0, 3);
-                if (cfod.Phase == FrozenOrderPhase.Rolling && CrewChief.gameDefinition.gameEnum != GameEnum.IRACING)
+                if (cfod.Phase == FrozenOrderPhase.Rolling && CrewChief.gameDefinition.gameEnum != GameEnum.IRACING && CrewChief.gameDefinition.gameEnum != GameEnum.ACC /* ACC is always rolling start, no reminder needed */)
                     audioPlayer.playMessage(new QueuedMessage(folderRollingStartReminder, delay + 4, secondsDelay: delay, abstractEvent: this, priority: 10));
                 else if (cfod.Phase == FrozenOrderPhase.FormationStanding)
                     audioPlayer.playMessage(new QueuedMessage(folderStandingStartReminder, delay + 4, secondsDelay: delay, abstractEvent: this, priority: 10));
