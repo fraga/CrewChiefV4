@@ -49,14 +49,14 @@ namespace CrewChiefV4.NumberProcessing
                 // if we have no hundreds, check for leading zeros in the number string and read them if necessary
                 if (hundreds == 0)
                 {
-                    if (numberString.Length == 2 || numberString.Length == 3 && numberString[0] == '0')
-                    {
-                        fragments.Add(MessageFragment.Integer(0));
-                        addedLeadingZeros = true;
-                    }
-                    else if (numberString.Length == 3 && numberString[0] == '0' && numberString[1] == '0')
+                    if (numberString.Length == 3 && numberString[0] == '0' && numberString[1] == '0')
                     {
                         fragments.Add(MessageFragment.Text("numbers/zerozero"));
+                        addedLeadingZeros = true;
+                    }
+                    else if ((numberString.Length == 2 || numberString.Length == 3) && numberString[0] == '0')
+                    {
+                        fragments.Add(MessageFragment.Integer(0));
                         addedLeadingZeros = true;
                     }
                 }
