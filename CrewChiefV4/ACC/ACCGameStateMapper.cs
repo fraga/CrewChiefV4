@@ -837,7 +837,11 @@ namespace CrewChiefV4.ACC
 
                     String participantName = participantStruct.driverName.ToLower();
                     OpponentData currentOpponentData = getOpponentForName(currentGameState, participantName);
-                    if (currentGameState.SessionData.SessionPhase == SessionPhase.Countdown && participantStruct.carLeaderboardPosition == 1 && !getReadyTriggeredForThisSession && participantStruct.spLineLength > 0.96)
+                    if (currentGameState.SessionData.SessionPhase == SessionPhase.Countdown
+                        && participantStruct.carLeaderboardPosition == 1
+                        && !getReadyTriggeredForThisSession
+                        && currentGameState.SessionData.TrackDefinition != null && currentGameState.SessionData.TrackDefinition.trackLength > 0
+                        && currentGameState.SessionData.TrackDefinition.trackLength - participantStruct.spLineLength * currentGameState.SessionData.TrackDefinition.trackLength < 100)
                     {
                         getReadyTriggeredForThisSession = true;
                         currentGameState.SessionData.triggerStartWarning = true;
