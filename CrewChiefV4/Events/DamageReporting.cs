@@ -168,6 +168,13 @@ namespace CrewChiefV4.Events
                         Console.WriteLine(string.Format("Message no longer valid: level {0} component {1} because last reported damage level is {2}", dmgLevel, component, lastReporteDmgLevel));
                         return false;
                     }
+                    if (engineDamage == DamageLevel.NONE && trannyDamage == DamageLevel.NONE && aeroDamage == DamageLevel.NONE && maxSuspensionDamage == DamageLevel.NONE && maxBrakeDamage == DamageLevel.NONE
+                        && component != Component.NONE && dmgLevel != DamageLevel.NONE)
+                    {
+                        // the state has probably been reset
+                        Console.WriteLine(string.Format("Message no longer valid: level {0} component {1} because damage state has been reset", dmgLevel, component));
+                        return false;
+                    }
                 }
 
                 return true;
