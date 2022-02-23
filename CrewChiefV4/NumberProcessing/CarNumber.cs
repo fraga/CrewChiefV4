@@ -1,9 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using CrewChiefV4.Audio;
+using System.Collections.Generic;
 
 namespace CrewChiefV4.NumberProcessing
 {
     public class CarNumber
     {
+        private const string zerozero = "numbers/zerozero";
+        private const string doubleoh = "numbers/double_oh";
+
         private int number;
         private string numberString;
         public CarNumber(int carNumber)
@@ -19,20 +23,47 @@ namespace CrewChiefV4.NumberProcessing
         public List<MessageFragment> getMessageFragments()
         {
             List<MessageFragment> fragments = new List<MessageFragment>();
+            // if we're not English, read the car number with the default number reader
+            if (!NumberReaderFactory.IS_ENGLISH)
+            {
+                fragments.Add(MessageFragment.Integer(this.number));
+                return fragments;
+            }
             // some edge cases - 0, 00 and 000
             if (numberString == "0")
             {
                 fragments.Add(MessageFragment.Integer(0));
                 return fragments;
             }
-            if (numberString == "00")
+            else if (numberString == "00")
             {
-                fragments.Add(MessageFragment.Text("numbers/zerozero"));
+                if (SoundCache.availableSounds.Contains(zerozero))
+                {
+                    fragments.Add(MessageFragment.Text(zerozero));
+                }
+                else
+                {
+                    fragments.Add(MessageFragment.Integer(0));
+                    fragments.Add(MessageFragment.Integer(0));
+                }
                 return fragments;
             }
             else if (numberString == "000")
             {
-                fragments.Add(MessageFragment.Text("numbers/zerozero"));
+                if (SoundCache.availableSounds.Contains(doubleoh))
+                {
+                    fragments.Add(MessageFragment.Text(doubleoh));
+                }
+                else if (SoundCache.availableSounds.Contains(zerozero))
+                {
+                    fragments.Add(MessageFragment.Text(zerozero));
+                }
+                else
+                {
+                    fragments.Add(MessageFragment.Integer(0));
+                    fragments.Add(MessageFragment.Integer(0));
+                }
+                fragments.Add(MessageFragment.Integer(0));
                 return fragments;
             }
             if (number < 0 || number > 1000 || number % 100 == 0)
@@ -51,7 +82,14 @@ namespace CrewChiefV4.NumberProcessing
                 {
                     if (numberString.Length == 3 && numberString[0] == '0' && numberString[1] == '0')
                     {
-                        fragments.Add(MessageFragment.Text("numbers/zerozero"));
+                        if (SoundCache.availableSounds.Contains(doubleoh))
+                        {
+                            fragments.Add(MessageFragment.Text(doubleoh));
+                        }
+                        else
+                        {
+                            fragments.Add(MessageFragment.Text(zerozero));
+                        }
                         addedLeadingZeros = true;
                     }
                     else if ((numberString.Length == 2 || numberString.Length == 3) && numberString[0] == '0')
