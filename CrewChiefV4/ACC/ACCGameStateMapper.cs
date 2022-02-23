@@ -718,11 +718,11 @@ namespace CrewChiefV4.ACC
                 }
                 currentGameState.SessionData.IsNewSector = previousGameState == null || currentGameState.SessionData.SectorNumber != previousGameState.SessionData.SectorNumber;
 
-                currentGameState.SessionData.LapTimeCurrent = mapToFloatTime(playerVehicle.currentLapTimeMS);
+                currentGameState.SessionData.LapTimeCurrent = convertMillisecondsToSeconds(playerVehicle.currentLapTimeMS);
 
                 currentGameState.SessionData.CurrentLapIsValid = playerVehicle.currentLapInvalid == 0;
                 bool hasCrossedSFLine = currentGameState.SessionData.IsNewSector && currentGameState.SessionData.SectorNumber == 1;
-                float lastLapTime = mapToFloatTime(playerVehicle.lastLapTimeMS);
+                float lastLapTime = convertMillisecondsToSeconds(playerVehicle.lastLapTimeMS);
                 currentGameState.SessionData.IsNewLap = (playerVehicle.isCarInPitlane == 0 && hasCrossedSFLine)
                     || ((lastSessionPhase == SessionPhase.Countdown)
                     && (currentGameState.SessionData.SessionPhase == SessionPhase.Green || currentGameState.SessionData.SessionPhase == SessionPhase.FullCourseYellow));
@@ -819,9 +819,9 @@ namespace CrewChiefV4.ACC
                 }
 
                 if (currentGameState.SessionData.SessionFastestLapTimeFromGamePlayerClass == -1 ||
-                    (playerVehicle.bestLapMS > 0 && currentGameState.SessionData.SessionFastestLapTimeFromGamePlayerClass > mapToFloatTime(playerVehicle.bestLapMS)))
+                    (playerVehicle.bestLapMS > 0 && currentGameState.SessionData.SessionFastestLapTimeFromGamePlayerClass > convertMillisecondsToSeconds(playerVehicle.bestLapMS)))
                 {
-                    currentGameState.SessionData.SessionFastestLapTimeFromGamePlayerClass = mapToFloatTime(playerVehicle.bestLapMS);
+                    currentGameState.SessionData.SessionFastestLapTimeFromGamePlayerClass = convertMillisecondsToSeconds(playerVehicle.bestLapMS);
                 }
 
                 HashSet<string> driversWhoMayHaveDisconnected = new HashSet<string>();
@@ -924,8 +924,8 @@ namespace CrewChiefV4.ACC
                                     currentOpponentRacePosition,
                                     currentOpponentLapsCompleted,
                                     currentOpponentSector,
-                                    mapToFloatTime(participantStruct.currentLapTimeMS),
-                                    mapToFloatTime(participantStruct.lastLapTimeMS),
+                                    convertMillisecondsToSeconds(participantStruct.currentLapTimeMS),
+                                    convertMillisecondsToSeconds(participantStruct.lastLapTimeMS),
                                     participantStruct.isCarInPitlane == 1,
                                     participantStruct.currentLapInvalid == 0,
                                     currentGameState.SessionData.SessionRunningTime,
@@ -958,9 +958,9 @@ namespace CrewChiefV4.ACC
                                     currentOpponentData.trackLandmarksTiming = new TrackLandmarksTiming();
                                 }
                                 if (currentGameState.SessionData.SessionFastestLapTimeFromGamePlayerClass == -1 ||
-                                        (participantStruct.bestLapMS > 0 && currentGameState.SessionData.SessionFastestLapTimeFromGamePlayerClass > mapToFloatTime(participantStruct.bestLapMS)))
+                                        (participantStruct.bestLapMS > 0 && currentGameState.SessionData.SessionFastestLapTimeFromGamePlayerClass > convertMillisecondsToSeconds(participantStruct.bestLapMS)))
                                 {
-                                    currentGameState.SessionData.SessionFastestLapTimeFromGamePlayerClass = mapToFloatTime(participantStruct.bestLapMS);
+                                    currentGameState.SessionData.SessionFastestLapTimeFromGamePlayerClass = convertMillisecondsToSeconds(participantStruct.bestLapMS);
                                 }
                                 if (currentOpponentData.IsNewLap)
                                 {
@@ -1593,10 +1593,9 @@ namespace CrewChiefV4.ACC
             gameState.OpponentData.Add(name, opponentData);
         }
 
-        public float mapToFloatTime(int time)
+        public float convertMillisecondsToSeconds(int timeInMilliseconds)
         {
-            TimeSpan ts = TimeSpan.FromTicks(time);
-            return (float)ts.TotalMilliseconds * 10;
+            return timeInMilliseconds < 0 ? -1f : timeInMilliseconds / 1000f;
         }
 
         private FlagEnum mapToFlagEnum(bool checkered, bool green, bool red, bool white, bool yellow, bool black, bool blue)
@@ -1633,25 +1632,6 @@ namespace CrewChiefV4.ACC
             return FlagEnum.UNKNOWN;
         }
 
-        private float mapToPercentage(float level, float minimumIn, float maximumIn, float minimumOut, float maximumOut)
-        {
-            return (level - minimumIn) * (maximumOut - minimumOut) / (maximumIn - minimumIn) + minimumOut;
-        }
-
-        private float getTyreWearPercentage(float wearLevel, float minimumLevel)
-        {
-            if (wearLevel == -1)
-            {
-                return -1;
-            }
-            return Math.Min(100, mapToPercentage((minimumLevel / wearLevel) * 100, minimumLevel, 100, 0, 100));
-        }
-
-        public SessionType mapToSessionType(Object memoryMappedFileStruct)
-        {
-            return SessionType.Unavailable;
-        }
-
         private SessionType mapToSessionState(AC_SESSION_TYPE sessionState)
         {
             if (sessionState == AC_SESSION_TYPE.AC_RACE || sessionState == AC_SESSION_TYPE.AC_DRIFT || sessionState == AC_SESSION_TYPE.AC_DRAG)
@@ -1674,17 +1654,6 @@ namespace CrewChiefV4.ACC
             {
                 return SessionType.Unavailable;
             }
-
-        }
-
-        private TyreType mapToTyreType(int r3eTyreType, CarData.CarClassEnum carClass)
-        {
-            return TyreType.Unknown_Race;
-        }
-
-        private ControlType mapToControlType(int controlType)
-        {
-            return ControlType.Player;
         }
 
         private DamageLevel mapToEngineDamageLevel(float engineDamage)
