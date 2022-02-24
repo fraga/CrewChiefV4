@@ -772,18 +772,7 @@ namespace CrewChiefV4
                                 }
                                 audioPlayer.wakeMonitorThreadForRegularMessages(currentGameState.Now);
                             }
-                            else if (previousGameState != null &&
-                                        (gameDefinition.gameEnum == GameEnum.F1_2018 || gameDefinition.gameEnum == GameEnum.F1_2019 || gameDefinition.gameEnum == GameEnum.F1_2020 || gameDefinition.gameEnum == GameEnum.F1_2021 ||
-                                        ((((gameDefinition.gameEnum == GameEnum.PCARS2 || gameDefinition.gameEnum == GameEnum.AMS2 || gameDefinition.gameEnum == GameEnum.PCARS3) && currentGameState.SessionData.SessionPhase == SessionPhase.Countdown) ||
-                                            currentGameState.SessionData.SessionRunningTime > previousGameState.SessionData.SessionRunningTime) ||
-                                        (previousGameState.SessionData.SessionPhase != currentGameState.SessionData.SessionPhase) ||
-                                        // for ACC the game timer doesn't tick until we start but we need data during formation laps:
-                                        (gameDefinition.gameEnum == GameEnum.ACC && (currentGameState.SessionData.SessionPhase == SessionPhase.Formation || currentGameState.SessionData.SessionPhase == SessionPhase.Countdown)) ||
-                                        (gameDefinition.gameEnum == GameEnum.RF2_64BIT && currentGameState.SessionData.SessionPhase == SessionPhase.Gridwalk)) ||  // Need to process warnings during rF2's gridwalk
-                                        ((gameDefinition.gameEnum == GameEnum.PCARS_32BIT || gameDefinition.gameEnum == GameEnum.PCARS_64BIT ||
-                                                gameDefinition.gameEnum == GameEnum.PCARS2 || gameDefinition.gameEnum == GameEnum.PCARS_NETWORK || gameDefinition.gameEnum == GameEnum.PCARS3 ||
-                                                gameDefinition.gameEnum == GameEnum.PCARS2_NETWORK || gameDefinition.gameEnum == GameEnum.AMS2) &&
-                                            currentGameState.SessionData.SessionHasFixedTime && currentGameState.SessionData.SessionTotalRunTime == -1)))
+                            else if (shouldTriggerEvents(previousGameState, currentGameState))
                             {
                                 if (!sessionFinished)
                                 {
@@ -1065,6 +1054,55 @@ namespace CrewChiefV4
             }
 
             return true;
+        }
+
+        private bool shouldTriggerEvents(GameStateData previousGameState, GameStateData currentGameState)
+        {
+            // basic checks:
+            if (previousGameState == null)
+            {
+                return false;
+            }
+            // time has advanced or session phase has changed so the session is running
+            if (currentGameState.SessionData.SessionRunningTime > previousGameState.SessionData.SessionRunningTime
+                || previousGameState.SessionData.SessionPhase != currentGameState.SessionData.SessionPhase)
+            {
+                return true;
+            }
+            // the AccGameClock has ticked forwards so the session is running (ACC only, obviously)
+            if (previousGameState.AccGameClock > 0 && previousGameState.AccGameClock < currentGameState.AccGameClock)
+            {
+                return true;
+            }
+
+            // game-specific workarounds where the session is advancing and we want to trigger our events, but the game time / clock isn't advancing
+            switch (gameDefinition.gameEnum)
+            {
+                case GameEnum.F1_2018:
+                case GameEnum.F1_2019:
+                case GameEnum.F1_2020:
+                case GameEnum.F1_2021:
+                    // F1 games have no session timer data so we have to allow the events to process:
+                    return true;
+                case GameEnum.PCARS2:
+                case GameEnum.AMS2:
+                case GameEnum.PCARS3:
+                case GameEnum.PCARS2_NETWORK:
+                case GameEnum.PCARS_64BIT:
+                case GameEnum.PCARS_32BIT:
+                    // undocumented hack from previous impl recreated here for consistency:
+                    return currentGameState.SessionData.SessionPhase == SessionPhase.Countdown
+                        || currentGameState.SessionData.SessionHasFixedTime && currentGameState.SessionData.SessionTotalRunTime == -1;
+                case GameEnum.ACC:
+                    // for ACC the game timer doesn't tick until we start and the clock doesn't tick until countdown, but we need data during formation laps. It never ticks in hotlap mode:
+                    return currentGameState.SessionData.SessionPhase == SessionPhase.Formation
+                        || currentGameState.SessionData.SessionType == SessionType.HotLap;
+                case GameEnum.RF2_64BIT:
+                    // Need to process warnings during rF2's gridwalk
+                    return currentGameState.SessionData.SessionPhase == SessionPhase.Gridwalk;
+                default:
+                    return false;
+            }
         }
 
         private void triggerEvent(String eventName, AbstractEvent abstractEvent, GameStateData previousGameState, GameStateData currentGameState)
