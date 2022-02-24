@@ -244,6 +244,8 @@ namespace CrewChiefV4.ACC
             {
                 return previousGameState;
             }
+            // note this doesn't tick in hotlap / hotstint and during Formation phase
+            currentGameState.AccGameClock = shared.accGraphic.Clock;
 
             Boolean isOnline = shared.accStatic.isOnline == 1;
             Boolean isSinglePlayerPracticeSession = shared.accChief.vehicle.Length == 1 && !isOnline && shared.accGraphic.session == AC_SESSION_TYPE.AC_PRACTICE;

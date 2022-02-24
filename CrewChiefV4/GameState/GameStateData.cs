@@ -3872,6 +3872,9 @@ namespace CrewChiefV4.GameState
 
         public DateTime Now;
 
+        // ACC has a Clock field which is the time of day in the game world, in milliseconds
+        public float AccGameClock;
+
         public object rawGameData = null;
         // lazily initialised only when we're using trace playback:
         public String CurrentTimeStr;
