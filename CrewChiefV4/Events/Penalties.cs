@@ -702,6 +702,8 @@ namespace CrewChiefV4.Events
             else
             {
                 clearPenaltyState();
+                // always keep the local cut count up to date even if we've not triggered any warnings.
+                cutTrackWarningsCount = currentGameState.PenaltiesData.CutTrackWarnings;
             }
             if ((currentGameState.SessionData.SessionType == SessionType.Race ||
                 currentGameState.SessionData.SessionType == SessionType.Qualify ||
