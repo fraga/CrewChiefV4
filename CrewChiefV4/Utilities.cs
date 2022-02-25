@@ -279,6 +279,7 @@ namespace CrewChiefV4
             // ProcessStartInfo() is happy with the escaped " version: "\"c:\pa th\game.exe\""
             // GetDirectoryName() wants "c:\pa th\game.exe"
             // Neither is happy if the user enters "c:\pa th\game.exe" with quotes
+            launchExe = launchExe.Trim().Trim('"').Trim('\'').Trim();
             try
             {
                 Console.WriteLine("Attempting to run game using " + launchExe + " " + launchParams);
@@ -293,11 +294,11 @@ namespace CrewChiefV4
             }
             catch (InvalidOperationException e)
             {
-                Console.WriteLine("InvalidOperationException starting game: " + e.Message);
+                Console.WriteLine("InvalidOperationException starting game with path " + launchExe + " and params " + launchParams + ": " + e.Message);
             }
             catch (Exception e)
             {
-                Console.WriteLine("Exception starting game: " + e.Message);
+                Console.WriteLine("Exception starting game with path " + launchExe + " and params " + launchParams + ": " + e.Message);
             }
         }
 
