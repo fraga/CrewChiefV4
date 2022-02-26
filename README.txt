@@ -431,6 +431,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.16.1.3: Clear fuel data in race session when starting from the pit lane (should prevent unrealistic fuel consumption figures in such circumstances); ACC - improved session restart detection; ACC - fix cut tracks playing after an invalidated out lap; ACC - recalculate car to follow and grid side at the start of double-file formation if drivers have dropped out
+
 Version 4.16.1.2: Fix issues launching games; ACC - wired up more pre-start messages and some pit window and session transition fixes
 
 Version 4.16.1.1: ACC - major improvements to data synchronization and stability work arounds. This should improve the ACC experience significantly, bringing it to a similar level to other games; AMS2 & R3E - open shared memory with read-access only. This should address some startup issues when using the app with other tools that access the games' shared memory files; GTR2 - plugin update; ARCA Sim Racing - added basic support for this game using the existing Rfactor1 plugin and classes; A few minor bug fixes
