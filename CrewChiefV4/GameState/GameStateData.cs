@@ -309,6 +309,20 @@ namespace CrewChiefV4.GameState
 
         // Meters/s.  If -1, SC either left or not present.
         public float SafetyCarSpeed = -1.0f;
+
+        public Dictionary<int, string> OpponentPositionsAtStartOfFormationLap = new Dictionary<int, string>();
+
+        public void swapSides()
+        {
+            if (this.AssignedColumn == FrozenOrderColumn.Left)
+            {
+                this.AssignedColumn = FrozenOrderColumn.Right;
+            }
+            if (this.AssignedColumn == FrozenOrderColumn.Right)
+            {
+                this.AssignedColumn = FrozenOrderColumn.Left;
+            }
+        }
     }
 
     public class TimingData

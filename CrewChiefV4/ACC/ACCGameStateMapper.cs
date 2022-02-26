@@ -1409,6 +1409,10 @@ namespace CrewChiefV4.ACC
                             currentGameState.FrozenOrderData.CarNumberToFollowRaw = carFront.CarNumber;
                             currentGameState.FrozenOrderData.DriverToFollowRaw = carFront.DriverRawName;
                         }
+                        foreach (OpponentData opponent in currentGameState.OpponentData.Values)
+                        {
+                            currentGameState.FrozenOrderData.OpponentPositionsAtStartOfFormationLap[opponent.OverallPosition] = opponent.DriverRawName;
+                        }
                         // note that we don't set an 'action' here - this comes when we hit the countdown phase (it's single file until then)
                     }
                 }
@@ -1417,6 +1421,66 @@ namespace CrewChiefV4.ACC
                     && currentGameState.FrozenOrderData.Phase == FrozenOrderPhase.Rolling
                     && currentGameState.FrozenOrderData.AssignedPosition > 0)
                 {
+                    // if a car has been removed during the formation lap the grid positioning will be reshuffled. If a car is removed during the countdown phase there'll be a gap
+                    // but the grid slots won't change. So for online races, compare the opponents list at the start of Countdown to see if we need update our grid data
+                    if (previousGameState.SessionData.SessionPhase == SessionPhase.Formation
+                        && shared.accStatic.isOnline == 1
+                        && currentGameState.OpponentData.Count < currentGameState.FrozenOrderData.OpponentPositionsAtStartOfFormationLap.Count)
+                    {
+                        // someone's missing, see if we need to reshuffle
+                        int numMissingAhead = 0;
+                        bool carToFollowHasChanged = false;
+                        foreach (var formationDriver in currentGameState.FrozenOrderData.OpponentPositionsAtStartOfFormationLap)
+                        {
+                            if (formationDriver.Key < currentGameState.FrozenOrderData.AssignedPosition)    // someone ahead has dropped out so might need a reshuffle
+                            {
+                                bool stillHasDriver = false;
+                                foreach (OpponentData opponent in currentGameState.OpponentData.Values)
+                                {
+                                    if (opponent.DriverRawName == formationDriver.Value)
+                                    {
+                                        stillHasDriver = true;
+                                        break;
+                                    }
+                                }
+                                if (!stillHasDriver)
+                                {
+                                    numMissingAhead++;
+                                    // swap columns each time a driver has dropped out ahead of us
+                                    currentGameState.FrozenOrderData.swapSides();
+                                    // if the driver who's dropped out is 1 or 2 places ahead of us, we'll need to follow a different driver
+                                    carToFollowHasChanged = currentGameState.FrozenOrderData.AssignedPosition - formationDriver.Key <= 2;
+                                }
+                            }
+                        }
+                        if (numMissingAhead > 0)
+                        {
+                            if (carToFollowHasChanged)
+                            {
+                                int originalPositionOfNewCarToFollow = currentGameState.FrozenOrderData.AssignedPosition - 3;
+                                for (; originalPositionOfNewCarToFollow > 0; originalPositionOfNewCarToFollow--)
+                                {
+                                    if (currentGameState.OpponentData.TryGetValue(currentGameState.FrozenOrderData.OpponentPositionsAtStartOfFormationLap[originalPositionOfNewCarToFollow], out var opponent))
+                                    {
+                                        Console.WriteLine("grid reshuffle, we're now following car " + opponent.DriverRawName);
+                                        currentGameState.FrozenOrderData.CarNumberToFollowRaw = opponent.CarNumber;
+                                        currentGameState.FrozenOrderData.DriverToFollowRaw = opponent.DriverRawName;
+                                        break;
+                                    }
+                                }
+                            }
+                            currentGameState.FrozenOrderData.AssignedPosition = currentGameState.FrozenOrderData.AssignedPosition - numMissingAhead;
+                            if (currentGameState.FrozenOrderData.AssignedPosition < 3)
+                            {
+                                // moved to front row
+                                currentGameState.FrozenOrderData.CarNumberToFollowRaw = "";
+                                currentGameState.FrozenOrderData.DriverToFollowRaw = "";
+                            }
+                            bool leaderCol = currentGameState.FrozenOrderData.AssignedPosition % 2 != 0;
+                            currentGameState.FrozenOrderData.AssignedGridPosition = leaderCol ? (currentGameState.FrozenOrderData.AssignedPosition / 2) + 1 : currentGameState.FrozenOrderData.AssignedPosition / 2;
+                            Console.WriteLine(numMissingAhead + " cars have dropped out ahead of us during the formation phase, new grid side is now " + currentGameState.FrozenOrderData.AssignedColumn);
+                        }
+                    }
                     if (playerPosition > currentGameState.FrozenOrderData.AssignedPosition)
                     {
                         currentGameState.FrozenOrderData.Action = playerPosition == 1 ? FrozenOrderAction.MoveToPole : FrozenOrderAction.CatchUp;
