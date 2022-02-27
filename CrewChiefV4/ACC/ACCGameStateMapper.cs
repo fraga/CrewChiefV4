@@ -533,6 +533,7 @@ namespace CrewChiefV4.ACC
                 }
                 currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, distanceRoundTrack,
                     playerVehicle.speedMS, currentGameState.Now);
+                currentGameState.SessionData.StartedRaceFromPitLane = currentGameState.SessionData.SessionType == SessionType.Race && playerVehicle.isCarInPitlane == 1;
             }
             else
             {
@@ -555,6 +556,7 @@ namespace CrewChiefV4.ACC
                             }
                             currentGameState.SessionData.SessionStartTime = currentGameState.Now;
                             currentGameState.SessionData.SessionNumberOfLaps = numberOfLapsInSession;
+                            currentGameState.SessionData.StartedRaceFromPitLane = playerVehicle.isCarInPitlane == 1;
                         }
                         currentGameState.SessionData.LeaderHasFinishedRace = false;
                         sectorSplinePointsFromGame = new float[] { 0, -1, -1 };
@@ -678,6 +680,7 @@ namespace CrewChiefV4.ACC
                     currentGameState.TimingData = previousGameState.TimingData;
 
                     currentGameState.SessionData.JustGoneGreenTime = previousGameState.SessionData.JustGoneGreenTime;
+                    currentGameState.SessionData.StartedRaceFromPitLane = previousGameState.SessionData.StartedRaceFromPitLane;
 
                     currentGameState.FrozenOrderData = previousGameState.FrozenOrderData;
                 }
@@ -846,7 +849,7 @@ namespace CrewChiefV4.ACC
                         && currentGameState.SessionData.TrackDefinition.trackLength - participantStruct.spLineLength * currentGameState.SessionData.TrackDefinition.trackLength < 125)
                     {
                         getReadyTriggeredForThisSession = true;
-                        currentGameState.SessionData.triggerStartWarning = true;
+                        currentGameState.SessionData.TriggerStartWarning = true;
                     }
                     if (participantName != null && participantName.Length > 0)
                     {
@@ -1355,7 +1358,8 @@ namespace CrewChiefV4.ACC
             {
                 // 'has' actually means 'the session has a mandatory stop', we might have completed it but this will remain true
                 currentGameState.PitData.HasMandatoryPitStop = true;
-                if (windowLength > 0)
+                if (windowLength > 0
+                    && !currentGameState.SessionData.StartedRaceFromPitLane) /* When starting a race from the pit lane we can't know how long the race was originally for so can't get the pit window */
                 {
                     // use the session run time and pit window length to figure out the correct start and end times. The middle of the window should be the middle of the race
                     int sessionLengthMinutes = (int)Math.Ceiling(currentGameState.SessionData.SessionTotalRunTime / 60f);
@@ -1371,8 +1375,8 @@ namespace CrewChiefV4.ACC
                 // case we'll immediately map to Closed. It should really be Unavailable but there's no sane way to tell the difference. Closed is probably OK anyway
                 if (currentGameState.SessionData.SessionHasFixedTime && currentGameState.SessionData.SessionRunningTime < currentGameState.SessionData.SessionTotalRunTime)
                 {
-                    bool beforeWindow = currentGameState.SessionData.SessionRunningTime < currentGameState.PitData.PitWindowStart * 60;
-                    bool afterWindow = currentGameState.SessionData.SessionRunningTime > currentGameState.PitData.PitWindowEnd * 60;
+                    bool beforeWindow = currentGameState.PitData.PitWindowStart > 0 && currentGameState.SessionData.SessionRunningTime < currentGameState.PitData.PitWindowStart * 60;
+                    bool afterWindow = currentGameState.PitData.PitWindowEnd > 0 && currentGameState.SessionData.SessionRunningTime > currentGameState.PitData.PitWindowEnd * 60;
                     if ((beforeWindow || afterWindow) && !currentGameState.PitData.MandatoryPitStopCompleted)
                     {
                         currentGameState.PitData.PitWindow = PitWindow.Closed;

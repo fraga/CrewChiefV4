@@ -380,7 +380,7 @@ namespace CrewChiefV4.Events
                                 // Some games hold the brake at '1' automatically on the grid, so this can't be used
                                 //
                                 // ACC switches from formation to countdown when we're on the last part of the rolling start but we need to wait a while longer - there's a separate ACC specific variable for this
-                                purgePreLightsMessages = currentGameState.SessionData.triggerStartWarning
+                                purgePreLightsMessages = currentGameState.SessionData.TriggerStartWarning
                                      || (CrewChief.gameDefinition.gameEnum != GameEnum.ACC && currentGameState.ControlData.ThrottlePedal > 0.2 && previousGameState.ControlData.ThrottlePedal > 0.2);
                             }
                             else
