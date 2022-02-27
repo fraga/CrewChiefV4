@@ -1449,7 +1449,8 @@ namespace CrewChiefV4.ACC
                             correctFrozenOrderDataForDisconnectedOpponents(currentGameState);
                         }
                     }
-                    if (playerPosition > currentGameState.FrozenOrderData.AssignedPosition)
+                    // suppress the 'catch up to and 'allow to pass' until they work reliably (or remove them)
+                    /*if (playerPosition > currentGameState.FrozenOrderData.AssignedPosition)
                     {
                         currentGameState.FrozenOrderData.Action = playerPosition == 1 ? FrozenOrderAction.MoveToPole : FrozenOrderAction.CatchUp;
                     }
@@ -1457,7 +1458,7 @@ namespace CrewChiefV4.ACC
                     {
                         currentGameState.FrozenOrderData.Action = FrozenOrderAction.AllowToPass;
                     }
-                    else if (previousGameState.SessionData.SessionPhase == SessionPhase.Formation)
+                    else*/ if (previousGameState.SessionData.SessionPhase == SessionPhase.Formation)
                     {
                         // only allow the follow action to be trigger on transition from formation to countdown (when we have to form up)
                         currentGameState.FrozenOrderData.Action = currentGameState.FrozenOrderData.AssignedPosition == 1 ? FrozenOrderAction.StayInPole : FrozenOrderAction.Follow;
@@ -1483,7 +1484,7 @@ namespace CrewChiefV4.ACC
             bool carToFollowHasChanged = false;
             foreach (var formationDriver in currentGameState.FrozenOrderData.OpponentPositionsAtStartOfFormationLap)
             {
-                if (formationDriver.Key < currentGameState.FrozenOrderData.AssignedPosition)    // someone ahead has dropped out so might need a reshuffle
+                if (formationDriver.Key < currentGameState.FrozenOrderData.AssignedPosition)
                 {
                     bool stillHasDriver = false;
                     foreach (OpponentData opponent in currentGameState.OpponentData.Values)
@@ -1494,7 +1495,7 @@ namespace CrewChiefV4.ACC
                             break;
                         }
                     }
-                    if (!stillHasDriver)
+                    if (!stillHasDriver)    // someone ahead has dropped out so might need a reshuffle
                     {
                         numMissingAhead++;
                         // swap columns each time a driver has dropped out ahead of us
