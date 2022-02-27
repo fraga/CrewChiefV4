@@ -1342,25 +1342,28 @@ namespace CrewChiefV4.ACC
             currentGameState.PositionAndMotionData.WorldPosition = new float[] { playerVehicle.worldPosition.x, playerVehicle.worldPosition.y, playerVehicle.worldPosition.z };
 
             // note on the window stuff... It only matches what's in the session options (offline) if you skip P and Q. Otherwise it's based on the last session length prior to the
-            // race. In many cases this means the values will fail the sanity checks here, so that's good. There may be cases where it's nonsense but not nonsense enough to prevent
-            // us accepting the numbers and calling the nonsense
+            // race.
             currentGameState.PitData.PitWindow = PitWindow.Unavailable;
             currentGameState.PitData.PitWindowStart = -1;
             currentGameState.PitData.PitWindowEnd = -1;
+            // where there's no pit window, the game sends data where start is after end so this will be negative
+            // Note that the length is generally correct but the start / end values are not
+            float windowLength = (shared.accStatic.PitWindowEnd - shared.accStatic.PitWindowStart) / 60000f;
             if (currentGameState.SessionData.SessionType == SessionType.Race
                 && shared.accGraphic.missingMandatoryPits < 255 /* 255 means nothing to miss, so no mandatory stop */
                 && (shared.accGraphic.missingMandatoryPits > 0 || shared.accGraphic.MandatoryPitDone > 0)) /* 0 missing and 0 done means no mandatory stop */
             {
                 // 'has' actually means 'the session has a mandatory stop', we might have completed it but this will remain true
                 currentGameState.PitData.HasMandatoryPitStop = true;
-                // where there's no pit window, the game sends data where start is after end, so check this:
-                if (shared.accStatic.PitWindowStart > 0
-                        && shared.accStatic.PitWindowEnd > 0
-                        && shared.accStatic.PitWindowStart < shared.accStatic.PitWindowEnd
-                        && shared.accStatic.PitWindowEnd / 1000f < currentGameState.SessionData.SessionTotalRunTime)
+                if (windowLength > 0)
                 {
-                    currentGameState.PitData.PitWindowStart = (float)shared.accStatic.PitWindowStart / (60000f);
-                    currentGameState.PitData.PitWindowEnd = (float)shared.accStatic.PitWindowEnd / (60000f);
+                    // use the session run time and pit window length to figure out the correct start and end times. The middle of the window should be the middle of the race
+                    int sessionLengthMinutes = (int)Math.Ceiling(currentGameState.SessionData.SessionTotalRunTime / 60f);
+                    if (sessionLengthMinutes > windowLength)
+                    {
+                        currentGameState.PitData.PitWindowStart = (sessionLengthMinutes - windowLength) / 2;
+                        currentGameState.PitData.PitWindowEnd = currentGameState.PitData.PitWindowStart + windowLength;
+                    }
                 }
                 currentGameState.PitData.MandatoryPitStopCompleted = shared.accGraphic.missingMandatoryPits == 0;
 
