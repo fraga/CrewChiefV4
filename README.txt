@@ -431,7 +431,7 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
-Version 4.16.1.3: Clear fuel data in race session when starting from the pit lane (should prevent unrealistic fuel consumption figures in such circumstances); ACC - improved session restart detection; ACC - fix cut tracks playing after an invalidated out lap; ACC - recalculate car to follow and grid side at the start of double-file formation if drivers have dropped out
+Version 4.16.1.3: Clear fuel data in race session when starting from the pit lane (should prevent unrealistic fuel consumption figures in such circumstances); ACC - improved session restart detection; ACC - fix cut tracks playing after an invalidated out lap; ACC - recalculate car to follow and grid side at the start of double-file formation if drivers have dropped out; ACC - derive the pit window start and end times from the total pit window length, rather than the game-provided start and end times (should fix the incorrect window calls). Note that this may result in incorrect pit window calls if you enter a race session some time after the race has started
 
 Version 4.16.1.2: Fix issues launching games; ACC - wired up more pre-start messages and some pit window and session transition fixes
 
