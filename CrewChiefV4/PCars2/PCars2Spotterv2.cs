@@ -70,9 +70,12 @@ namespace CrewChiefV4.PCars2
             float playerRotation = latestRawData.mOrientation[1];
             if (playerRotation < 0)
             {
-                playerRotation = (float)(2 * Math.PI) + playerRotation;
+                playerRotation = playerRotation * -1;
             }
-            playerRotation = (float)(2 * Math.PI) - playerRotation;
+            else
+            {
+                playerRotation = twoPi - playerRotation;
+            }
             float playerXPosition = playerData.mWorldPosition[0];
             float playerZPosition = playerData.mWorldPosition[2];
             int playerStartingPosition = (int) playerData.mRacePosition;

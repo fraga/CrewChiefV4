@@ -49,7 +49,12 @@ namespace CrewChiefV4.ACC
             float playerZPosition = playerData.worldPosition.z;
             int playerStartingPosition = playerData.carLeaderboardPosition;
             int numCars = latestRawData.accChief.vehicle.Length;
-            return getGridSideInternal(latestRawData, latestRawData.accPhysics.heading, playerXPosition, playerZPosition, playerStartingPosition, numCars);
+            float playerRotation = latestRawData.accPhysics.heading;
+            if (playerRotation < 0)
+            {
+                playerRotation = playerRotation = twoPi + playerRotation;
+            }
+            return getGridSideInternal(latestRawData, playerRotation, playerXPosition, playerZPosition, playerStartingPosition, numCars);
         }
 
         protected override float[] getWorldPositionOfDriverAtPosition(Object currentStateObj, int position)
@@ -79,7 +84,7 @@ namespace CrewChiefV4.ACC
             ACCShared currentState = ((ACCSharedMemoryReader.ACCStructWrapper)currentStateObj).data;
             ACCShared lastState = ((ACCSharedMemoryReader.ACCStructWrapper)lastStateObj).data;
 
-            if (!enabled || currentState.accChief.vehicle.Length <= 1 ||
+            if (!enabled || currentState.accChief.vehicle.Length <= 1 || currentState.accGraphic.status == AC_STATUS.AC_PAUSE ||
                 currentState.accGraphic.status == AC_STATUS.AC_REPLAY || currentState.accGraphic.status == AC_STATUS.AC_OFF
                 /* currentLapTime looks like it gets reset to 0 so don't check this
                  * || (mapToFloatTime(currentState.accChief.vehicle[0].currentLapTimeMS) < timeAfterRaceStartToActivate &&

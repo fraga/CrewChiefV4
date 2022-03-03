@@ -12,6 +12,7 @@ namespace CrewChiefV4.assetto
 {
     class ACSSpotter : Spotter
     {
+        private float twoPi = (float)(2 * Math.PI);
         // how long is a car? we use 3.5 meters by default here. Too long and we'll get 'hold your line' messages
         // when we're clearly directly behind the car
         private float carLength =  UserSettings.GetUserSettings().getFloat("acs_spotter_car_length");
@@ -49,9 +50,8 @@ namespace CrewChiefV4.assetto
             float playerRotation = latestRawData.acsPhysics.heading;
             if (playerRotation < 0)
             {
-                playerRotation = (float)(2 * Math.PI) + playerRotation;
+                playerRotation = playerRotation = twoPi + playerRotation;
             }
-            playerRotation = (float)(2 * Math.PI) - playerRotation;
             float playerXPosition = playerData.worldPosition.x;
             float playerZPosition = playerData.worldPosition.y;
             int playerStartingPosition = playerData.carLeaderboardPosition;
@@ -145,7 +145,7 @@ namespace CrewChiefV4.assetto
                 
                 if (playerRotation < 0)
                 {
-                    playerRotation = (float)(2 * Math.PI) + playerRotation;
+                    playerRotation = twoPi + playerRotation;
                 }
                 internalSpotter.triggerInternal(playerRotation, currentPlayerPosition, playerVelocityData, currentOpponentPositions);
             }
