@@ -84,11 +84,7 @@ namespace CrewChiefV4.ACC
             ACCShared currentState = ((ACCSharedMemoryReader.ACCStructWrapper)currentStateObj).data;
             ACCShared lastState = ((ACCSharedMemoryReader.ACCStructWrapper)lastStateObj).data;
 
-            if (!enabled || currentState.accChief.vehicle.Length <= 1 || currentState.accGraphic.status == AC_STATUS.AC_PAUSE ||
-                currentState.accGraphic.status == AC_STATUS.AC_REPLAY || currentState.accGraphic.status == AC_STATUS.AC_OFF
-                /* currentLapTime looks like it gets reset to 0 so don't check this
-                 * || (mapToFloatTime(currentState.accChief.vehicle[0].currentLapTimeMS) < timeAfterRaceStartToActivate &&
-                currentState.accChief.vehicle[0].lapCount <= 0)*/)
+            if (!enabled || currentState.accChief.vehicle.Length <= 1 || currentState.accGraphic.status != AC_STATUS.AC_LIVE)
             {
                 return;
             }
