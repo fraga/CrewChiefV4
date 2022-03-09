@@ -204,28 +204,6 @@
 					"waitBetweenEachCommand": 30
 				},
 				{
-					"description": "This is an attempt to automate the fuel process for pCARS2 using the app's current fuel estimate. Navigates to the adjust stratgey option, then fuel, then reduces the amount to 0 and then adds however many litres the app calculated",
-					"gameDefinition": "AMS2",
-					"actionSequence": [
-						"KEY_E",
-						"KEY_W",
-						"KEY_D",
-						"{MULTIPLE,3}KEY_W",
-						"{MULTIPLE,2}KEY_S",
-						"KEY_D",
-						"{MULTIPLE,2}KEY_S",
-						"{MULTIPLE,150}KEY_A",
-						"{MULTIPLE,Fuel}KEY_D",
-						"{MULTIPLE,2}KEY_W",
-						"KEY_D",
-						"{MULTIPLE,2}KEY_W",
-						"KEY_D",
-						"KEY_S",
-						"KEY_D"
-					],
-					"waitBetweenEachCommand": 30
-				},
-				{
 					"description": "This is an attempt to automate the fuel process for ACC using the app's current fuel estimate. Navigates to the adjust stratgey option, then fuel, then reduces the amount to 0 and then adds however many litres the app calculated",
 					"gameDefinition": "ACC",
 					"actionSequence": [
@@ -265,28 +243,6 @@
 				{
 					"description": "navigates to the fuel amount, de-selects it, presses left (decrease) 150 times to ensure it's at zero, then adds the number of litres parsed from the voice command",
 					"gameDefinition": "PCARS2",
-					"actionSequence": [
-						"KEY_E",
-						"KEY_W",
-						"KEY_D",
-						"{MULTIPLE,3}KEY_W",
-						"{MULTIPLE,2}KEY_S",
-						"KEY_D",
-						"{MULTIPLE,2}KEY_S",
-						"{MULTIPLE,150}KEY_A",
-						"{MULTIPLE,VOICE_TRIGGER}KEY_D",
-						"{MULTIPLE,2}KEY_W",
-						"KEY_D",
-						"{MULTIPLE,2}KEY_W",
-						"KEY_D",
-						"KEY_S",
-						"KEY_D"
-					],
-					"waitBetweenEachCommand": 30
-				},
-				{
-					"description": "navigates to the fuel amount, de-selects it, presses left (decrease) 150 times to ensure it's at zero, then adds the number of litres parsed from the voice command",
-					"gameDefinition": "AMS2",
 					"actionSequence": [
 						"KEY_E",
 						"KEY_W",
@@ -384,41 +340,8 @@
 			]
 		},
 		{
-			"name": "next tyre compound",
-			"description": "selects the next tyre compound from the AMS2 ICM",
-			"confirmationMessage": "acknowledge/OK",
-			"voiceTriggers": [
-				"next tire compound"
-			],
-			"commandSets": [
-				{
-					"description": "AMS2 next tire compound",
-					"gameDefinition": "AMS2",
-					"actionSequence": [
-						"KEY_E",
-						"KEY_W",
-						"KEY_D",
-						"{MULTIPLE,5}KEY_W",
-						"KEY_S",
-						"KEY_S",
-						"KEY_D",
-						"KEY_S",
-						"KEY_D",
-						"KEY_W",
-						"KEY_D",
-						"KEY_W",
-						"KEY_W",
-						"KEY_D",
-						"KEY_S",
-						"KEY_D"
-					],
-					"waitBetweenEachCommand": 100
-				}
-			]
-		},
-		{
 			"name": "select race strategy 1",
-			"description": "selects strategy 1 from the pCARS2 / AMS2 ICM",
+			"description": "selects strategy 1 from the pCARS2",
 			"confirmationMessage": "acknowledge/pit_strategy_1",
 			"voiceTriggers": [
 				"strategy one",
@@ -428,27 +351,6 @@
 				{
 					"description": "pcars2 select strat 1",
 					"gameDefinition": "PCARS2",
-					"actionSequence": [
-						"KEY_E",
-						"KEY_W",
-						"KEY_D",
-						"{MULTIPLE,5}KEY_W",
-						"KEY_S",
-						"KEY_D",
-						"KEY_S",
-						"KEY_D",
-						"{MULTIPLE,5}KEY_W",
-						"KEY_D",
-						"KEY_W",
-						"KEY_D",
-						"KEY_S",
-						"KEY_D"
-					],
-					"waitBetweenEachCommand": 100
-				},
-				{
-					"description": "AMS2 select strat 1",
-					"gameDefinition": "AMS2",
 					"actionSequence": [
 						"KEY_E",
 						"KEY_W",
@@ -481,28 +383,6 @@
 				{
 					"description": "pcars2 select strat 2",
 					"gameDefinition": "PCARS2",
-					"actionSequence": [
-						"KEY_E",
-						"KEY_W",
-						"KEY_D",
-						"{MULTIPLE,5}KEY_W",
-						"KEY_S",
-						"KEY_D",
-						"KEY_S",
-						"KEY_S",
-						"KEY_D",
-						"{MULTIPLE,5}KEY_W",
-						"KEY_D",
-						"KEY_W",
-						"KEY_D",
-						"KEY_S",
-						"KEY_D"
-					],
-					"waitBetweenEachCommand": 100
-				},
-				{
-					"description": "AMS2 select strat 2",
-					"gameDefinition": "AMS2",
 					"actionSequence": [
 						"KEY_E",
 						"KEY_W",
@@ -555,29 +435,6 @@
 						"KEY_D"
 					],
 					"waitBetweenEachCommand": 100
-				},
-				{
-					"description": "AMS2 select strat 3",
-					"gameDefinition": "AMS2",
-					"actionSequence": [
-						"KEY_E",
-						"KEY_W",
-						"KEY_D",
-						"{MULTIPLE,5}KEY_W",
-						"KEY_S",
-						"KEY_D",
-						"KEY_S",
-						"KEY_S",
-						"KEY_S",
-						"KEY_D",
-						"{MULTIPLE,5}KEY_W",
-						"KEY_D",
-						"KEY_W",
-						"KEY_D",
-						"KEY_S",
-						"KEY_D"
-					],
-					"waitBetweenEachCommand": 100
 				}
 			]
 		},
@@ -593,30 +450,6 @@
 				{
 					"description": "pcars2 select strat 4",
 					"gameDefinition": "PCARS2",
-					"actionSequence": [
-						"KEY_E",
-						"KEY_W",
-						"KEY_D",
-						"{MULTIPLE,5}KEY_W",
-						"KEY_S",
-						"KEY_D",
-						"KEY_S",
-						"KEY_S",
-						"KEY_S",
-						"KEY_S",
-						"KEY_D",
-						"{MULTIPLE,5}KEY_W",
-						"KEY_D",
-						"KEY_W",
-						"KEY_D",
-						"KEY_S",
-						"KEY_D"
-					],
-					"waitBetweenEachCommand": 100
-				},
-				{
-					"description": "AMS2 select strat 4",
-					"gameDefinition": "AMS2",
 					"actionSequence": [
 						"KEY_E",
 						"KEY_W",
@@ -673,31 +506,6 @@
 						"KEY_D"
 					],
 					"waitBetweenEachCommand": 100
-				},
-				{
-					"description": "AMS2 select strat 5",
-					"gameDefinition": "AMS2",
-					"actionSequence": [
-						"KEY_E",
-						"KEY_W",
-						"KEY_D",
-						"{MULTIPLE,5}KEY_W",
-						"KEY_S",
-						"KEY_D",
-						"KEY_S",
-						"KEY_S",
-						"KEY_S",
-						"KEY_S",
-						"KEY_S",
-						"KEY_D",
-						"{MULTIPLE,6}KEY_W",
-						"KEY_D",
-						"KEY_W",
-						"KEY_D",
-						"KEY_S",
-						"KEY_D"
-					],
-					"waitBetweenEachCommand": 100
 				}
 			]
 		},
@@ -713,32 +521,6 @@
 				{
 					"description": "pcars2 select strat 6",
 					"gameDefinition": "PCARS2",
-					"actionSequence": [
-						"KEY_E",
-						"KEY_W",
-						"KEY_D",
-						"{MULTIPLE,5}KEY_W",
-						"KEY_S",
-						"KEY_D",
-						"KEY_S",
-						"KEY_S",
-						"KEY_S",
-						"KEY_S",
-						"KEY_S",
-						"KEY_S",
-						"KEY_D",
-						"{MULTIPLE,7}KEY_W",
-						"KEY_D",
-						"KEY_W",
-						"KEY_D",
-						"KEY_S",
-						"KEY_D"
-					],
-					"waitBetweenEachCommand": 100
-				},
-				{
-					"description": "AMS2 select strat 6",
-					"gameDefinition": "AMS2",
 					"actionSequence": [
 						"KEY_E",
 						"KEY_W",
@@ -1448,132 +1230,6 @@
 					],
 					"keyPressTime": 1100,
 					"waitBetweenEachCommand": 200
-				}
-			]
-		},
-		{
-			"name": "Fix all damage (AMS2 only)",
-			"description": "Selects 'Fix All' in the AMS2 ICM",
-			"voiceTriggers": [
-				"fix all damage",
-				"box, fix all damage"
-			],
-			"commandSets": [
-				{
-					"description": "Select ICM Fix All",
-					"gameDefinition": "AMS2",
-					"actionSequence": [
-						"KEY_E",
-						"KEY_W",
-						"KEY_D",
-						"{MULTIPLE,3}KEY_W",
-						"{MULTIPLE,2}KEY_S",
-						"KEY_D",
-						"{MULTIPLE,3}KEY_S",
-						"{MULTIPLE,4}KEY_D",
-						"KEY_S",
-						"KEY_D",
-						"{MULTIPLE,2}KEY_W",
-						"KEY_D",
-						"KEY_S",
-						"KEY_D"
-					],
-					"waitBetweenEachCommand": 30
-				}
-			]
-		},
-		{
-			"name": "Fix no damage (AMS2 only)",
-			"description": "Selects 'OFF' in the AMS2 ICM",
-			"voiceTriggers": [
-				"don't fix damage",				
-				"box, don't fix damage"
-			],
-			"commandSets": [
-				{
-					"description": "Select ICM damage, OFF",
-					"gameDefinition": "AMS2",
-					"actionSequence": [
-						"KEY_E",
-						"KEY_W",
-						"KEY_D",
-						"{MULTIPLE,3}KEY_W",
-						"{MULTIPLE,2}KEY_S",
-						"KEY_D",
-						"{MULTIPLE,3}KEY_S",
-						"{MULTIPLE,4}KEY_A",
-						"KEY_S",
-						"KEY_D",
-						"{MULTIPLE,2}KEY_W",
-						"KEY_D",
-						"KEY_S",
-						"KEY_D"
-					],
-					"waitBetweenEachCommand": 30
-				}
-			]
-		},
-		{
-			"name": "Fix aero damage (AMS2 only)",
-			"description": "Selects 'Aero' in the AMS2 ICM",
-			"voiceTriggers": [
-				"fix aero damage",
-				"box, fix aero damage"
-			],
-			"commandSets": [
-				{
-					"description": "Select ICM damage, Aero",
-					"gameDefinition": "AMS2",
-					"actionSequence": [
-						"KEY_E",
-						"KEY_W",
-						"KEY_D",
-						"{MULTIPLE,3}KEY_W",
-						"{MULTIPLE,2}KEY_S",
-						"KEY_D",
-						"{MULTIPLE,3}KEY_S",
-						"{MULTIPLE,4}KEY_A",
-						"KEY_D",
-						"KEY_S",
-						"KEY_D",
-						"{MULTIPLE,2}KEY_W",
-						"KEY_D",
-						"KEY_S",
-						"KEY_D"
-					],
-					"waitBetweenEachCommand": 30
-				}
-			]
-		},
-		{
-			"name": "Fix mechanical damage (AMS2 only)",
-			"description": "Selects 'Mech' in the AMS2 ICM",
-			"voiceTriggers": [
-				"fix mechanical damage",
-				"box, fix mechanical damage"
-			],
-			"commandSets": [
-				{
-					"description": "Select ICM damage, Mech",
-					"gameDefinition": "AMS2",
-					"actionSequence": [
-						"KEY_E",
-						"KEY_W",
-						"KEY_D",
-						"{MULTIPLE,3}KEY_W",
-						"{MULTIPLE,2}KEY_S",
-						"KEY_D",
-						"{MULTIPLE,3}KEY_S",
-						"{MULTIPLE,4}KEY_A",
-						"{MULTIPLE,2}KEY_D",
-						"KEY_S",
-						"KEY_D",
-						"{MULTIPLE,2}KEY_W",
-						"KEY_D",
-						"KEY_S",
-						"KEY_D"
-					],
-					"waitBetweenEachCommand": 30
 				}
 			]
 		}
