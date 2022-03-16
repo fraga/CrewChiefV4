@@ -37,7 +37,7 @@ namespace rF2SharedMemory
       this.BUFFER_NAME = buffName;
       this.partial = partial;
       this.skipUnchanged = skipUnchanged;
-            Console.WriteLine($"Creating buffer: {buffName}  size: {this.BUFFER_SIZE_BYTES} bytes");
+      Console.WriteLine($"Creating buffer: {buffName}  size: {this.BUFFER_SIZE_BYTES} bytes");
     }
 
     // Write buffer ctor.

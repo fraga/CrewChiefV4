@@ -309,6 +309,20 @@ namespace CrewChiefV4.GameState
 
         // Meters/s.  If -1, SC either left or not present.
         public float SafetyCarSpeed = -1.0f;
+
+        public Dictionary<int, string> OpponentPositionsAtStartOfFormationLap = new Dictionary<int, string>();
+
+        public void swapSides()
+        {
+            if (this.AssignedColumn == FrozenOrderColumn.Left)
+            {
+                this.AssignedColumn = FrozenOrderColumn.Right;
+            }
+            if (this.AssignedColumn == FrozenOrderColumn.Right)
+            {
+                this.AssignedColumn = FrozenOrderColumn.Left;
+            }
+        }
     }
 
     public class TimingData
@@ -864,7 +878,7 @@ namespace CrewChiefV4.GameState
         public int SessionNumberOfLaps;
 
         // some timed sessions have an extra lap added after the timer reaches zero
-        public Boolean HasExtraLap;
+        public int ExtraLapsAfterTimedSessionComplete;
 
         public int SessionStartClassPosition;
 
@@ -964,6 +978,12 @@ namespace CrewChiefV4.GameState
         public Boolean IsRacingSameCarBehind = true;
 
         public Boolean HasLeadChanged;
+
+        public float Clock = 0;   // ACC only, used to catch session restart
+
+        public Boolean TriggerStartWarning = false; // ACC only - this happens when the leader gets to within 125m of the start line in 'countdown' phase and is true for 1 tick only
+
+        public Boolean StartedRaceFromPitLane = false;  // ACC only
 
         // this is the expected finish position based only on ratings, and the number of cars in the player class.
         // For games which make this data available, it's expected to be updated regularly during Q and P sessions
@@ -1246,7 +1266,7 @@ namespace CrewChiefV4.GameState
 
         public void playerCompleteLapWithProvidedLapTime(int overallPosition, float gameTimeAtLapEnd, float providedLapTime,
             Boolean lapIsValid /*IMPORTANT: this is 'current lap is valid'*/, Boolean inPitLane, Boolean isRaining, float trackTemp,
-            float airTemp, Boolean sessionLengthIsTime, float sessionTimeRemaining, int numberOfSectors, TimingData timingData)
+            float airTemp, Boolean sessionLengthIsTime, float sessionTimeRemaining, int numberOfSectors, TimingData timingData, float? overriddenS1, float? overriddenS2)
         {
             if (PlayerLapData.Count == 0)
             {
@@ -1262,6 +1282,16 @@ namespace CrewChiefV4.GameState
             if (SessionTimesAtEndOfSectors.TryGetValue(numberOfSectors, out sessionTimeAtEndOfLastLap) && sessionTimeAtEndOfLastLap > 0)
             {
                 LapTimePreviousEstimateForInvalidLap = SessionRunningTime - sessionTimeAtEndOfLastLap;
+            }
+            // override the internal timing for S1 and S2. This is a ACC-only hack, our internal timing for these sectors is wildly 'off'
+            if (overriddenS1 != null)
+            {
+                PlayerLapData[PlayerLapData.Count - 1].SectorTimes[0] = overriddenS1.Value;
+            }
+            if (overriddenS2 != null)
+            {
+                PlayerLapData[PlayerLapData.Count - 1].SectorTimes[1] = overriddenS2.Value;
+                // we could also override the S3 time here but the cumulative calulation below will be correct anyway as it'll be driven entirely from the game data
             }
             playerAddCumulativeSectorData(numberOfSectors, overallPosition, providedLapTime, gameTimeAtLapEnd, lapIsValid, isRaining, trackTemp, airTemp);
             lapData.LapTime = providedLapTime;
@@ -1300,8 +1330,7 @@ namespace CrewChiefV4.GameState
                 }
             }
         }
-
-
+        
         public void playerAddCumulativeSectorData(int sectorNumberJustCompleted, int overallPosition, float cumulativeSectorTime,
             float gameTimeAtSectorEnd, Boolean lapIsValid, Boolean isRaining, float trackTemp, float airTemp)
         {
@@ -1566,7 +1595,7 @@ namespace CrewChiefV4.GameState
             }
         }
 
-        public Boolean HasStartedExtraLap ;
+        public int LapsStartedAfterRaceTimeEnd = 0;
 
         public TyreType CurrentTyres = TyreType.Unknown_Race;
 
@@ -1914,16 +1943,25 @@ namespace CrewChiefV4.GameState
                 InvalidateCurrentLap();
             }
             CompleteLapWithProvidedLapTime(position, gameTimeAtLapEnd, providedLapTime, InPits, isRaining, trackTemp, airTemp, sessionLengthIsTime,
-                sessionTimeRemaining, numberOfSectors, timingData, isPlayerCarClass);
+                sessionTimeRemaining, numberOfSectors, timingData, isPlayerCarClass, null, null);
         }
 
         public void CompleteLapWithProvidedLapTime(int position, float gameTimeAtLapEnd, float providedLapTime, Boolean inPits,
             Boolean isRaining, float trackTemp, float airTemp, Boolean sessionLengthIsTime, float sessionTimeRemaining, int numberOfSectors,
-            TimingData timingData, Boolean isPlayerCarClass)
+            TimingData timingData, Boolean isPlayerCarClass, float? overriddenS1, float? overriddenS2)
         {
             if (OpponentLapData.Count > 0)
             {
                 LapData lapData = OpponentLapData[OpponentLapData.Count - 1];
+                // override the internal timing for S1 and S2. This is a ACC-only hack, our internal timing for these sectors is wildly 'off'
+                if (overriddenS1 != null)
+                {
+                    lapData.SectorTimes[0] = overriddenS1.Value;
+                }
+                if (overriddenS2 != null)
+                { 
+                    lapData.SectorTimes[1] = overriddenS2.Value;
+                }
                 if (OpponentLapData.Count == 1 || !lapData.hasMissingSectors)
                 {
                     AddCumulativeSectorData(numberOfSectors, position, providedLapTime, gameTimeAtLapEnd, lapData.IsValid, isRaining, trackTemp, airTemp);
@@ -1953,6 +1991,17 @@ namespace CrewChiefV4.GameState
             {
                 isProbablyLastLap = true;
             }
+        }
+        public void overwriteOpponentSectorTimes(float providedS1Time, float providedS2Time, float providedS3Time)
+        {
+            if (OpponentLapData.Count == 0)
+            {
+                return;
+            }
+            LapData lapData = OpponentLapData[OpponentLapData.Count - 1];
+            lapData.SectorTimes[0] = providedS1Time == 0 ? -1 : providedS1Time;
+            lapData.SectorTimes[1] = providedS2Time == 0 ? -1 : providedS2Time;
+            lapData.SectorTimes[2] = providedS3Time == 0 ? -1 : providedS3Time;
         }
         public void CompleteLapThatMightHaveMissingSectorTimes(int position, float gameTimeAtLapEnd, float providedLapTime, Boolean lapWasValid,
             Boolean isRaining, float trackTemp, float airTemp, Boolean sessionLengthIsTime, float sessionTimeRemaining, int numberOfSectors,
@@ -2778,6 +2827,7 @@ namespace CrewChiefV4.GameState
         // RF1/RF2 hack for mandatory pit stop windows, which are used to trigger 'box now' messages
         public Boolean ResetEvents;
 
+        // this is the number of pitstops the player has completed
         public int NumPitStops;
 
         public Boolean IsPitCrewDone;
@@ -3123,10 +3173,11 @@ namespace CrewChiefV4.GameState
             public float WindDirectionX;
             public float WindDirectionY;
             public float CloudBrightness;
+            public ConditionsMonitor.TrackStatus TrackStatus;
             public Boolean atStartLine;
 
             public ConditionsSample(DateTime time, int lapCount, int sectorNumber, float AmbientTemperature, float TrackTemperature, float RainDensity,
-                float WindSpeed, float WindDirectionX, float WindDirectionY, float CloudBrightness, Boolean atStartLine)
+                float WindSpeed, float WindDirectionX, float WindDirectionY, float CloudBrightness, Boolean atStartLine, ConditionsMonitor.TrackStatus TrackStatus)
             {
                 this.Time = time;
                 this.LapCount = lapCount;
@@ -3139,14 +3190,15 @@ namespace CrewChiefV4.GameState
                 this.WindDirectionY = WindDirectionY;
                 this.CloudBrightness = CloudBrightness;
                 this.atStartLine = atStartLine;
+                this.TrackStatus = TrackStatus;
             }
         }
 
         public void addSample(DateTime time, int lapCount, int sectorNumber, float AmbientTemperature, float TrackTemperature, float RainDensity,
-                float WindSpeed, float WindDirectionX, float WindDirectionY, float CloudBrightness, Boolean atStartLine)
+                float WindSpeed, float WindDirectionX, float WindDirectionY, float CloudBrightness, Boolean atStartLine, ConditionsMonitor.TrackStatus TrackStatus)
         {
             samples.Add(new ConditionsSample(time, lapCount, sectorNumber, AmbientTemperature, TrackTemperature, RainDensity,
-                WindSpeed, WindDirectionX, WindDirectionY, CloudBrightness, atStartLine));
+                WindSpeed, WindDirectionX, WindDirectionY, CloudBrightness, atStartLine, TrackStatus));
         }
 
         public ConditionsSample getMostRecentConditions()
@@ -3183,9 +3235,10 @@ namespace CrewChiefV4.GameState
         public Single PushToPassEngagedTimeLeft;
         public Single PushToPassWaitTimeLeft;
 
-        public Boolean DrsEnabled;
-        public Boolean DrsAvailable;
-        public Boolean DrsEngaged;
+        public Boolean DrsEnabled; // Track/car supports DRS
+        public Boolean DrsDetected; // DRS detected for upcoming zone
+        public Boolean DrsAvailable; // DRS available now, needs to be engaged by player
+        public Boolean DrsEngaged; // DRS engaged by player
         public Single DrsRange;
         public Single DrsActivationsRemaining = -1; // -1 means no limit
     }
@@ -3834,6 +3887,9 @@ namespace CrewChiefV4.GameState
         public long Ticks;
 
         public DateTime Now;
+
+        // ACC has a Clock field which is the time of day in the game world, in milliseconds
+        public float AccGameClock;
 
         public object rawGameData = null;
         // lazily initialised only when we're using trace playback:

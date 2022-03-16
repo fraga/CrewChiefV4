@@ -1726,12 +1726,25 @@ namespace CrewChiefV4
             if (!VROverlayController.vrUpdateThreadRunning)
                 return;
 
-            if (UserSettings.GetUserSettings().getBoolean("force_seated_on_vr_view_reset"))
-                OpenVR.Chaperone.ResetZeroPose(ETrackingUniverseOrigin.TrackingUniverseSeated);
-            else
-                OpenVR.Chaperone.ResetZeroPose(OpenVR.Compositor.GetTrackingSpace());
+            try
+            {
 
-            Log.Commentary("Reset VR view");
+                if (UserSettings.GetUserSettings().getBoolean("force_seated_on_vr_view_reset"))
+                    OpenVR.Chaperone.ResetZeroPose(ETrackingUniverseOrigin.TrackingUniverseSeated);
+                else
+                    OpenVR.Chaperone.ResetZeroPose(OpenVR.Compositor.GetTrackingSpace());
+
+                Log.Commentary("Reset VR view");
+            }
+            catch (Exception ex)
+            {
+                // What happens is for some reason CC loses connection to SVR objects, in particularly while alt-tabbing.
+                // It then recovers nicely (although slowly), but in between, OVR references are invalid.
+                // One of the reasons I know for sure is security: for example, one window running elevated while SVR is not. Etc.
+                //
+                // So just ignore, but log until better times when we understand the problem and the correct solution.
+                Utilities.ReportException(ex, "resetSteamVRTrackingPose exception.", needReport: false);
+            }
         }
 
         private void consoleUpdateThreadWorker()
@@ -2221,16 +2234,6 @@ namespace CrewChiefV4
             IsAppRunning = !IsAppRunning;
             if (_IsAppRunning)
             {
-                if (CrewChief.gameDefinition != null && CrewChief.gameDefinition.gameEnum == GameEnum.ACC)
-                {
-                    Console.WriteLine("The data exposed by ACC has numerous data synchronization issues and inaccuracies (bugs). These, along with the requirement to combine shared memory " +
-                        "and UDP data, present significant technical challenges. \n\n" +
-                        "Despite our best efforts the Crew Chief team have been unable to implement effective work-arounds for these issues, " +
-                        "resulting in misleading and inaccurate information from the app. " +
-                        "We aren't planning any further work to improve ACC integration and it's likely that ACC support will be removed entirely in a future version. \n\n" +
-                        "We advise using ACC's built in crew chief / spotter", "ACC Support deprecated");
-                }
-
                 startApplicationButton.Enabled = false;
 
 #if !DEBUG
@@ -3725,7 +3728,7 @@ namespace CrewChiefV4
                     {
                         writeMessage("Skipped " + repetitionCount + " copies of previous message\n");
                     }
-                    else if (repetitionCount >= 20 && MainWindow.instance.crewChief.mapped)
+                    else if (repetitionCount >= 20 && MainWindow.instance.crewChief.mapped && !value.Contains("ValidationException"))
                     {
                         writeMessage("++++++++++++ Skipped " + repetitionCount + " copies of previous message. Please report this error to the CC dev team ++++++++++++\n");
                     }

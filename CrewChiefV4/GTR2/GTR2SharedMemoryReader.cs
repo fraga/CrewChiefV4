@@ -200,7 +200,7 @@ namespace CrewChiefV4.GTR2
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("rFactor 2 Shared Memory connection failed.");
+                    Console.WriteLine("GTR2 Shared Memory connection failed.");
                     this.DisconnectInternal();
                     throw new GameDataReadException(ex.Message, ex);
                 }

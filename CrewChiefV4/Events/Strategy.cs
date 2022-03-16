@@ -433,7 +433,7 @@ namespace CrewChiefV4.Events
                                 else if (entry.Value.CarNumber != "-1")
                                 {
                                     audioPlayer.playMessage(new QueuedMessage("watched_opponent_pitting", 10,
-                                            messageFragments: MessageContents(Opponents.folderCarNumber, int.Parse(entry.Value.CarNumber), folderIsPittingFromPosition, entry.Value.ClassPosition),
+                                            messageFragments: MessageContents(Opponents.folderCarNumber, new CarNumber(entry.Value.CarNumber), folderIsPittingFromPosition, entry.Value.ClassPosition),
                                             abstractEvent: this, priority: 10));
                                 }
                             }

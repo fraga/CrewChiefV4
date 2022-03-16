@@ -135,6 +135,16 @@ namespace CrewChiefV4
         private static float maxWarmCarbonBrakeTemp = 1200;
         private static float maxHotCarbonBrakeTemp = 1500;
 
+        // some ACC tyre pressure ranges
+        public static float accDryVeryHighPressureThreshold = 28.8f * 6.894f;
+        public static float accWetVeryHighPressureThreshold = 33.0f * 6.894f;
+        public static float accDryHighPressureThreshold = 28.3f * 6.894f;
+        public static float accWetHighPressureThreshold = 32.0f * 6.894f;
+        public static float accDryLowPressureThreshold = 27.2f * 6.894f;
+        public static float accWetLowPressureThreshold = 29.0f * 6.894f;
+        public static float accDryVeryLowPressureThreshold = 26.0f * 6.894f;
+        public static float accWetVeryLowPressureThreshold = 27.5f * 6.894f;
+
         public enum CarClassEnum
         {
             G2, G3, GT, GT1X, GT1, GTE, GT2, GTC, GTLM, GT3, GT4, GT5, GT300, GT500, NGT, Kart_1, Kart_2, KART_JUNIOR, KART_F1, KART_X30_SENIOR, KART_X30_RENTAL, SUPERKART, LMP1, LMP2, LMP3, LMP900, ROAD_A, ROAD_B, ROAD_C1,
@@ -146,7 +156,7 @@ namespace CrewChiefV4
             MEGANE_TROPHY, NSU_TT, KTM_RR, INDYCAR, HYPER_CAR, HYPER_CAR_RACE, UNKNOWN_RACE, STOCK_V8, STOCK_V8_2020, BOXER_CUP, NASCAR_2016, ISI_STOCKCAR_2015, RADICAL_SR3, USER_CREATED,
             RS01_TROPHY, TRACKDAY_A, TRACKDAY_B, BMW_235I, CARRERA_CUP, R3E_SILHOUETTE, SPEC_MIATA, SKIP_BARBER, CAYMAN_CLUBSPORT, CAN_AM, FORMULA_RENAULT20, INDYCAR_DALLARA_2011, INDYCAR_DALLARA_DW12,
             M1_PROCAR, PORSCHE_964_CUP, PALATOV_D4_TRACKDAY, PALATOV_D4_HILLCLIMB, PALATOV_D4_CUSTOM, PORSCHE_GT2RS, MCR_2000, F1_2000S, F1_2010S, F1_80S_TURBO, F1_80S_NA,
-            ARC_CAMERO, CATERHAM_620R, CATERHAM_ACADAMY, CATERHAM_SUPERLIGHT, CATERHAM_SUPERSPORT, E_TCR,
+            ARC_CAMERO, CATERHAM_620R, CATERHAM_ACADAMY, CATERHAM_SUPERLIGHT, CATERHAM_SUPERSPORT, E_TCR, STOCK_V8_PRO,
             /* AMS2 odd-ball classes: */
             COPA_CLASSIC_A, COPA_CLASSIC_B, COPA_FUSCA, COPA_HOT_CARS, TRUCK, COPA_UNO, REIZA_FV12, LANCER_CUP, MINI_CHALLENGE, COPA_MONTANA, OPALA_STOCK_OLD, OPALA_STOCK_79, OPALA_STOCK_86,
             SPRINT_RACE, F_VEE, GT55_SUPERCUP

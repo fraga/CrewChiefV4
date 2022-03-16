@@ -965,7 +965,7 @@ namespace CrewChiefV4.assetto
                 {
                     currentGameState.SessionData.SessionTotalRunTime = sessionTimeRemaining;
                     currentGameState.SessionData.SessionTimeRemaining = sessionTimeRemaining;
-                    currentGameState.SessionData.HasExtraLap = shared.acsStatic.hasExtraLap == 1;
+                    currentGameState.SessionData.ExtraLapsAfterTimedSessionComplete = shared.acsStatic.hasExtraLap == 1 ? 1 : 0;
                     if (currentGameState.SessionData.SessionTotalRunTime == 0)
                     {
                         Console.WriteLine("Setting session run time to 0");
@@ -1148,7 +1148,7 @@ namespace CrewChiefV4.assetto
                     currentGameState.SessionData.SessionStartTime = previousGameState.SessionData.SessionStartTime;
                     currentGameState.SessionData.SessionTotalRunTime = previousGameState.SessionData.SessionTotalRunTime;
                     currentGameState.SessionData.SessionNumberOfLaps = previousGameState.SessionData.SessionNumberOfLaps;
-                    currentGameState.SessionData.HasExtraLap = previousGameState.SessionData.HasExtraLap;
+                    currentGameState.SessionData.ExtraLapsAfterTimedSessionComplete = previousGameState.SessionData.ExtraLapsAfterTimedSessionComplete;
                     currentGameState.SessionData.NumCarsOverallAtStartOfSession = previousGameState.SessionData.NumCarsOverallAtStartOfSession;
                     currentGameState.SessionData.TrackDefinition = previousGameState.SessionData.TrackDefinition;
                     currentGameState.SessionData.EventIndex = previousGameState.SessionData.EventIndex;
@@ -1256,7 +1256,7 @@ namespace CrewChiefV4.assetto
                     currentGameState.SessionData.playerCompleteLapWithProvidedLapTime(currentGameState.SessionData.OverallPosition, currentGameState.SessionData.SessionRunningTime,
                         lastLapTime, currentGameState.SessionData.CurrentLapIsValid, currentGameState.PitData.InPitlane, false,
                         shared.acsPhysics.roadTemp, shared.acsPhysics.airTemp, currentGameState.SessionData.SessionHasFixedTime,
-                        currentGameState.SessionData.SessionTimeRemaining, ACSGameStateMapper.numberOfSectorsOnTrack, currentGameState.TimingData);
+                        currentGameState.SessionData.SessionTimeRemaining, ACSGameStateMapper.numberOfSectorsOnTrack, currentGameState.TimingData, null, null);
                     currentGameState.SessionData.playerStartNewLap(currentGameState.SessionData.CompletedLaps + 1,
                         currentGameState.SessionData.OverallPosition, currentGameState.PitData.InPitlane, currentGameState.SessionData.SessionRunningTime);
                 }
@@ -1411,26 +1411,17 @@ namespace CrewChiefV4.assetto
                                     //Using same approach here as in R3E
                                     Boolean finishedAllottedRaceLaps = currentGameState.SessionData.SessionNumberOfLaps > 0 && currentGameState.SessionData.SessionNumberOfLaps == currentOpponentLapsCompleted;
                                     Boolean finishedAllottedRaceTime = false;
-                                    if (currentGameState.SessionData.HasExtraLap &&
-                                        currentGameState.SessionData.SessionType == SessionType.Race)
+
+                                    if (currentGameState.SessionData.SessionType == SessionType.Race
+                                        && currentGameState.SessionData.SessionTotalRunTime > 0 && currentGameState.SessionData.SessionTimeRemaining <= 0)
                                     {
-                                        if (currentGameState.SessionData.SessionTotalRunTime > 0 && currentGameState.SessionData.SessionTimeRemaining <= 0 &&
-                                            previousOpponentCompletedLaps < currentOpponentLapsCompleted)
+                                        if (previousOpponentCompletedLaps < currentOpponentLapsCompleted)
                                         {
-                                            if (!currentOpponentData.HasStartedExtraLap)
-                                            {
-                                                currentOpponentData.HasStartedExtraLap = true;
-                                            }
-                                            else
-                                            {
-                                                finishedAllottedRaceTime = true;
-                                            }
+                                            // timed session, he's started a new lap after the time has reached zero. Where there's no extra lap this means we've finished. If there's 1 or more
+                                            // extras he's finished when he's started more than the extra laps number
+                                            currentOpponentData.LapsStartedAfterRaceTimeEnd++;
                                         }
-                                    }
-                                    else if (currentGameState.SessionData.SessionTotalRunTime > 0 && currentGameState.SessionData.SessionTimeRemaining <= 0 &&
-                                        previousOpponentCompletedLaps < currentOpponentLapsCompleted)
-                                    {
-                                        finishedAllottedRaceTime = true;
+                                        finishedAllottedRaceTime = currentOpponentData.LapsStartedAfterRaceTimeEnd > currentGameState.SessionData.ExtraLapsAfterTimedSessionComplete;
                                     }
 
                                     if (currentOpponentRacePosition == 1 && (finishedAllottedRaceTime || finishedAllottedRaceLaps))
@@ -1767,7 +1758,7 @@ namespace CrewChiefV4.assetto
             {
                 nextConditionsSampleDue = currentGameState.Now.Add(ConditionsMonitor.ConditionsSampleFrequency);
                 currentGameState.Conditions.addSample(currentGameState.Now, currentGameState.SessionData.CompletedLaps, currentGameState.SessionData.SectorNumber,
-                    shared.acsPhysics.airTemp, shared.acsPhysics.roadTemp, 0, 0, 0, 0, 0, currentGameState.SessionData.IsNewLap);
+                    shared.acsPhysics.airTemp, shared.acsPhysics.roadTemp, 0, 0, 0, 0, 0, currentGameState.SessionData.IsNewLap, ConditionsMonitor.TrackStatus.UNKNOWN);
             }
 
             if (currentGameState.SessionData.TrackDefinition != null)
@@ -1961,7 +1952,7 @@ namespace CrewChiefV4.assetto
                         {
                             opponentData.CompleteLapWithProvidedLapTime(leaderBoardPosition, sessionRunningTime, lastLapTime, isInPits,
                                 false, trackTempreture, airTemperature, sessionLengthIsTime, sessionTimeRemaining, ACSGameStateMapper.numberOfSectorsOnTrack,
-                                timingData, CarData.IsCarClassEqual(opponentData.CarClass, playerCarClass));
+                                timingData, CarData.IsCarClassEqual(opponentData.CarClass, playerCarClass), null, null);
                         }
                     }
 

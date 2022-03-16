@@ -275,35 +275,30 @@ namespace CrewChiefV4
 
         public static void runGame(String launchExe, String launchParams)
         {
+            // Inconsistent handling of spaces in paths
+            // ProcessStartInfo() is happy with the escaped " version: "\"c:\pa th\game.exe\""
+            // GetDirectoryName() wants "c:\pa th\game.exe"
+            // Neither is happy if the user enters "c:\pa th\game.exe" with quotes
+            launchExe = launchExe.Trim().Trim('"').Trim('\'').Trim();
             try
             {
                 Console.WriteLine("Attempting to run game using " + launchExe + " " + launchParams);
-                if (launchExe.Contains(" "))
-                {
-                    if (!launchExe.StartsWith("\""))
-                    {
-                        launchExe = "\"" + launchExe;
-                    }
-                    if (!launchExe.EndsWith("\""))
-                    {
-                        launchExe = launchExe + "\"";
-                    }
-                }
                 using (Process process = new Process())
                 {
                     ProcessStartInfo startInfo = new ProcessStartInfo(launchExe);
                     startInfo.Arguments = launchParams;
+                    startInfo.WorkingDirectory = Path.GetDirectoryName(launchExe);
                     process.StartInfo = startInfo;
                     process.Start();
                 }
             }
             catch (InvalidOperationException e)
             {
-                Console.WriteLine("InvalidOperationException starting game: " + e.Message);
+                Console.WriteLine("InvalidOperationException starting game with path " + launchExe + " and params " + launchParams + ": " + e.Message);
             }
             catch (Exception e)
             {
-                Console.WriteLine("Exception starting game: " + e.Message);
+                Console.WriteLine("Exception starting game with path " + launchExe + " and params " + launchParams + ": " + e.Message);
             }
         }
 

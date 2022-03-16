@@ -78,7 +78,7 @@ namespace ksBroadcastingNetwork
 
         #region optional failsafety - detect when we have a desync and need a new entry list
 
-        DateTime lastEntrylistRequest = DateTime.Now;
+        DateTime lastEntrylistRequest = DateTime.UtcNow;
 
         #endregion
 
@@ -107,7 +107,7 @@ namespace ksBroadcastingNetwork
                         var isReadonly = br.ReadByte() == 0;
                         var errMsg = ReadString(br);
 
-                        System.Diagnostics.Debug.WriteLine("REGISTRATION_RESULT: " + connectionSuccess  + " : " + errMsg + " : " + DateTime.Now.ToString("HH:mm:ss.fff"));
+                        System.Diagnostics.Debug.WriteLine("REGISTRATION_RESULT: " + connectionSuccess  + " : " + errMsg + " : " + DateTime.UtcNow.ToString("HH:mm:ss.fff"));
 
                         OnConnectionStateChanged?.Invoke(ConnectionId, connectionSuccess, isReadonly, errMsg);
                         // In case this was successful, we will request the initial data
@@ -117,7 +117,7 @@ namespace ksBroadcastingNetwork
                     break;
                 case InboundMessageTypes.ENTRY_LIST:
                     {
-                        System.Diagnostics.Debug.WriteLine("ENTRY_LIST: " + DateTime.Now.ToString("HH:mm:ss.fff"));
+                        System.Diagnostics.Debug.WriteLine("ENTRY_LIST: " + DateTime.UtcNow.ToString("HH:mm:ss.fff"));
                         _entryListCars.Clear();
 
                         var connectionId = br.ReadInt32();
@@ -130,7 +130,7 @@ namespace ksBroadcastingNetwork
                     break;
                 case InboundMessageTypes.ENTRY_LIST_CAR:
                     {
-                        System.Diagnostics.Debug.WriteLine("ENTRY_LIST_CAR: " + DateTime.Now.ToString("HH:mm:ss.fff"));
+                        System.Diagnostics.Debug.WriteLine("ENTRY_LIST_CAR: " + DateTime.UtcNow.ToString("HH:mm:ss.fff"));
                         var carId = br.ReadUInt16();
 
                         var carInfo = _entryListCars.SingleOrDefault(x => x.CarIndex == carId);
@@ -229,9 +229,9 @@ namespace ksBroadcastingNetwork
                         var carEntry = _entryListCars.FirstOrDefault(x => x.CarIndex == carUpdate.CarIndex);
                         if (carEntry == null || carEntry.Drivers.Count != carUpdate.DriverCount)
                         {
-                            if ((DateTime.Now - lastEntrylistRequest).TotalSeconds > 5)
+                            if ((DateTime.UtcNow - lastEntrylistRequest).TotalSeconds > 5)
                             {
-                                lastEntrylistRequest = DateTime.Now;
+                                lastEntrylistRequest = DateTime.UtcNow;
                                 RequestEntryList();
                                 System.Diagnostics.Debug.WriteLine($"CarUpdate {carUpdate.CarIndex}|{carUpdate.DriverIndex} not known, will ask for new EntryList");
                             }

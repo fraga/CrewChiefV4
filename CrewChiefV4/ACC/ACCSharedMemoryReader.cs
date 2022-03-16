@@ -48,15 +48,19 @@ namespace CrewChiefV4.ACC
 
         private SPageFileCrewChief mostRecentUDPData = null;
 
-        private Dictionary<int, int> lapsCompletedByCarId = new Dictionary<int, int>();
-        private Dictionary<int, float> splinePositionByCarId = new Dictionary<int, float>();
-        private HashSet<int> carIdsWaitingForSplineReset = new HashSet<int>();
-        private HashSet<int> carIdsWithForcedLapIncrement = new HashSet<int>();
+        // carId is typically 0 - 50 in offline session, and 1000+ in online sessions. Allow 10000 entries in this array
+        private const int MAX_CAR_ID = 9999;
+        private static DataForSync[] syncData = new DataForSync[MAX_CAR_ID + 1];
 
         public class ACCStructWrapper
         {
             public long ticksWhenRead;
             public ACCShared data;
+        }
+
+        public static void clearSyncData()
+        {
+            Array.Clear(ACCSharedMemoryReader.syncData, 0, MAX_CAR_ID + 1);
         }
 
         public override void DumpRawGameData()
@@ -110,15 +114,15 @@ namespace CrewChiefV4.ACC
                 {
                     try
                     {
-                        memoryMappedPhysicsFile = MemoryMappedFile.OpenExisting(accConstant.SharedMemoryNamePhysics);
+                        memoryMappedPhysicsFile = MemoryMappedFile.OpenExisting(accConstant.SharedMemoryNamePhysics, MemoryMappedFileRights.Read);
                         sharedmemoryPhysicssize = Marshal.SizeOf(typeof(SPageFilePhysics));
                         sharedMemoryPhysicsReadBuffer = new byte[sharedmemoryPhysicssize];
 
-                        memoryMappedGraphicFile = MemoryMappedFile.OpenExisting(accConstant.SharedMemoryNameGraphic);
+                        memoryMappedGraphicFile = MemoryMappedFile.OpenExisting(accConstant.SharedMemoryNameGraphic, MemoryMappedFileRights.Read);
                         sharedmemoryGraphicsize = Marshal.SizeOf(typeof(SPageFileGraphic));
                         sharedMemoryGraphicReadBuffer = new byte[sharedmemoryGraphicsize];
 
-                        memoryMappedStaticFile = MemoryMappedFile.OpenExisting(accConstant.SharedMemoryNameStatic);
+                        memoryMappedStaticFile = MemoryMappedFile.OpenExisting(accConstant.SharedMemoryNameStatic, MemoryMappedFileRights.Read);
                         sharedmemoryStaticsize = Marshal.SizeOf(typeof(SPageFileStatic));
                         sharedMemoryStaticReadBuffer = new byte[sharedmemoryStaticsize];
 
@@ -154,7 +158,7 @@ namespace CrewChiefV4.ACC
                 }
                 try
                 {
-                    using (var sharedMemoryStreamView = memoryMappedStaticFile.CreateViewStream())
+                    using (var sharedMemoryStreamView = memoryMappedStaticFile.CreateViewStream(0, sharedmemoryStaticsize, MemoryMappedFileAccess.Read))
                     {
                         BinaryReader _SharedMemoryStream = new BinaryReader(sharedMemoryStreamView);
                         sharedMemoryStaticReadBuffer = _SharedMemoryStream.ReadBytes(sharedmemoryStaticsize);
@@ -162,7 +166,7 @@ namespace CrewChiefV4.ACC
                         accShared.accStatic = (SPageFileStatic)Marshal.PtrToStructure(handleStatic.AddrOfPinnedObject(), typeof(SPageFileStatic));
                         handleStatic.Free();
                     }
-                    using (var sharedMemoryStreamView = memoryMappedGraphicFile.CreateViewStream())
+                    using (var sharedMemoryStreamView = memoryMappedGraphicFile.CreateViewStream(0, sharedmemoryGraphicsize, MemoryMappedFileAccess.Read))
                     {
                         BinaryReader _SharedMemoryStream = new BinaryReader(sharedMemoryStreamView);
                         sharedMemoryGraphicReadBuffer = _SharedMemoryStream.ReadBytes(sharedmemoryGraphicsize);
@@ -171,7 +175,7 @@ namespace CrewChiefV4.ACC
                         handleGraphic.Free();
                     }
 
-                    using (var sharedMemoryStreamView = memoryMappedPhysicsFile.CreateViewStream())
+                    using (var sharedMemoryStreamView = memoryMappedPhysicsFile.CreateViewStream(0, sharedmemoryPhysicssize, MemoryMappedFileAccess.Read))
                     {
                         BinaryReader _SharedMemoryStream = new BinaryReader(sharedMemoryStreamView);
                         sharedMemoryPhysicsReadBuffer = _SharedMemoryStream.ReadBytes(sharedmemoryPhysicssize);
@@ -185,26 +189,28 @@ namespace CrewChiefV4.ACC
                     ACCStructWrapper structWrapper = new ACCStructWrapper();
                     DateTime now = DateTime.UtcNow;
                     structWrapper.ticksWhenRead = now.Ticks;
-                    Boolean isFetchingCars = false;
                     
                     if (now > nextScheduleRequestCars && !forSpotter)
                     {
-                        isFetchingCars = true;
                         System.Diagnostics.Debug.WriteLine("Requesting new car list.");
-                    }
-                    if (isFetchingCars)
-                    {
                         nextScheduleRequestCars = now.AddSeconds(10);
                         udpUpdateViewModel.ClientPanelVM.RequestEntryList();
+                        return previousAACStructWrapper ?? structWrapper;
                     }
 
-                    // Send the previous state if the game is paused to prevent bogus track temp and other warnings on unpausing
-                    if (isFetchingCars || (accShared.accPhysics.airTemp == 0 && accShared.accPhysics.roadTemp == 0 && 
-                        accShared.accPhysics.fuel == 0 && accShared.accPhysics.heading == 0 && accShared.accPhysics.pitch == 0))
-                        return previousAACStructWrapper ?? structWrapper;
-
                     structWrapper.data = accShared;
-                    
+                    // Send the previous state for accPhysics if the game is paused to prevent bogus track temp and other warnings on unpausing
+                    // see if we have any non-zero data from the physics MMF
+                    Boolean hasPhysicsData = accShared.accPhysics.airTemp != 0
+                        || accShared.accPhysics.roadTemp != 0
+                        || accShared.accPhysics.fuel != 0
+                        || accShared.accPhysics.heading != 0
+                        || accShared.accPhysics.pitch != 0;
+                    if (!hasPhysicsData && previousAACStructWrapper != null && previousAACStructWrapper.data != null)
+                    {
+                        structWrapper.data.accPhysics = previousAACStructWrapper.data.accPhysics;
+                    }
+
                     structWrapper.data.accStatic.SET_FROM_UDP_isTimedRace = udpUpdateViewModel.SessionInfoVM.RemainingTime.TotalMilliseconds > 0 ? 1 : 0;
 
                     // New penality?
@@ -232,112 +238,97 @@ namespace CrewChiefV4.ACC
                     else
                     {
                         // Populate data from the ACC UDP info. We have to lock it because data can be updated while we read it
-                        udpUpdateViewModel.LockForReadingAsync(() =>
+                        BroadcastingEvent[] events = udpUpdateViewModel.BroadcastingVM.EventVM.GetEvents();
+
+                        AC_SESSION_TYPE sessionType;
+                        switch (udpUpdateViewModel.SessionInfoVM.SessionType)
                         {
-                            BroadcastingEvent[] events = udpUpdateViewModel.BroadcastingVM.EventVM.GetEvents();
+                            case RaceSessionType.Practice:
+                                sessionType = AC_SESSION_TYPE.AC_PRACTICE;
+                                break;
+                            case RaceSessionType.Qualifying:
+                                sessionType = AC_SESSION_TYPE.AC_QUALIFY;
+                                break;
+                            case RaceSessionType.Race:
+                                sessionType = AC_SESSION_TYPE.AC_RACE;
+                                break;
+                            case RaceSessionType.Hotlap:
+                            case RaceSessionType.HotlapSuperpole:
+                            case RaceSessionType.Hotstint:
+                            case RaceSessionType.Superpole:
+                                sessionType = AC_SESSION_TYPE.AC_HOTLAP;
+                                break;
+                            default:
+                                sessionType = AC_SESSION_TYPE.AC_HOTLAP;
+                                break;
+                        }
+                        structWrapper.data.accGraphic.session = sessionType;
+                        switch (udpUpdateViewModel.SessionInfoVM.Phase)
+                        {
+                            case SessionPhase.SessionOver:
+                                structWrapper.data.accChief.SessionPhase = GameState.SessionPhase.Checkered;
+                                break;
+                            case SessionPhase.PreSession:
+                                structWrapper.data.accChief.SessionPhase = GameState.SessionPhase.Countdown;
+                                break;
+                            case SessionPhase.PostSession:
+                                structWrapper.data.accChief.SessionPhase = GameState.SessionPhase.Finished;
+                                break;
+                            case SessionPhase.PreFormation:
+                            case SessionPhase.FormationLap:
+                                structWrapper.data.accChief.SessionPhase = GameState.SessionPhase.Formation;
+                                break;
+                            case SessionPhase.Session:
+                                structWrapper.data.accChief.SessionPhase = GameState.SessionPhase.Green;
+                                break;
+                            default:
+                                structWrapper.data.accChief.SessionPhase = GameState.SessionPhase.Unavailable;
+                                break;
+                        }
+                        structWrapper.data.accChief.isInternalMemoryModuleLoaded = 1;
+                        structWrapper.data.accChief.trackLength = udpUpdateViewModel.BroadcastingVM.TrackVM?.TrackMeters ?? 0;
+                        structWrapper.data.accChief.rainLevel = udpUpdateViewModel.SessionInfoVM.RainLevel;
 
-                            //foreach (var evt in events)
-                            //{
-                            //GreenFlag = 1,
-                            //SessionOver = 2,
-                            //PenaltyCommMsg = 3,
-                            //Accident = 4,
-                            //LapCompleted = 5,
-                            //BestSessionLap = 6,
-                            //BestPersonalLap = 7
+                        // until we check that a driver's carId is also in the accGraphic.carIDs array, we don't know how long this list will be:
+                        LinkedList<accVehicleInfo> activeVehicles = new LinkedList<accVehicleInfo>();
+                        structWrapper.data.accChief.vehicle = new accVehicleInfo[udpUpdateViewModel.BroadcastingVM.Cars.Count];
+                        List<float> distancesTravelled = new List<float>();
+                        // get the player vehicle first and put this at the front of the list
+                        var playerVehicle = getPlayerVehicle(udpUpdateViewModel.BroadcastingVM.Cars, accShared.accGraphic.playerCarID,
+                            accShared.accStatic, accShared.accGraphic.position);
+                        if (playerVehicle != null)
+                        {
+                            accVehicleInfo playerCar = createCar(1, playerVehicle, structWrapper.data.accGraphic.carIDs, structWrapper.data.accGraphic.carCoordinates);
+                            activeVehicles.AddFirst(playerCar);
+                            distancesTravelled.Add(playerCar.lapCount + playerCar.spLineLength);
 
-                            //Console.WriteLine($"Event: {evt.Type.ToString()} - {evt.Msg}");
-                            //}
-
-                            switch (udpUpdateViewModel.SessionInfoVM.SessionType)
+                            // only add a car to our data set if it exists in the UDP data and the shared memory car IDs array
+                            foreach (CarViewModel car in udpUpdateViewModel.BroadcastingVM.Cars)
                             {
-                                case RaceSessionType.Practice:
-                                    structWrapper.data.accGraphic.session = AC_SESSION_TYPE.AC_PRACTICE;
-                                    break;
-                                case RaceSessionType.Qualifying:
-                                    structWrapper.data.accGraphic.session = AC_SESSION_TYPE.AC_QUALIFY;
-                                    break;
-                                case RaceSessionType.Race:
-                                    structWrapper.data.accGraphic.session = AC_SESSION_TYPE.AC_RACE;
-                                    break;
-                                case RaceSessionType.Hotlap:
-                                case RaceSessionType.HotlapSuperpole:
-                                case RaceSessionType.Hotstint:
-                                case RaceSessionType.Superpole:
-                                    structWrapper.data.accGraphic.session = AC_SESSION_TYPE.AC_HOTLAP;
-                                    break;
-                                default:
-                                    structWrapper.data.accGraphic.session = AC_SESSION_TYPE.AC_HOTLAP;
-                                    break;
-                            }
-
-                            switch (udpUpdateViewModel.SessionInfoVM.Phase)
-                            {
-                                case SessionPhase.SessionOver:
-                                    structWrapper.data.accChief.SessionPhase = GameState.SessionPhase.Checkered;
-                                    break;
-                                case SessionPhase.PreSession:
-                                case SessionPhase.Starting:
-                                case SessionPhase.PreFormation:
-                                    structWrapper.data.accChief.SessionPhase = GameState.SessionPhase.Countdown;
-                                    break;
-                                case SessionPhase.PostSession:
-                                    structWrapper.data.accChief.SessionPhase = GameState.SessionPhase.Finished;
-                                    break;
-                                case SessionPhase.FormationLap:
-                                    structWrapper.data.accChief.SessionPhase = GameState.SessionPhase.Formation;
-                                    break;
-                                case SessionPhase.Session:
-                                    structWrapper.data.accChief.SessionPhase = GameState.SessionPhase.Green;
-                                    break;
-                                default:
-                                    structWrapper.data.accChief.SessionPhase = GameState.SessionPhase.Unavailable;
-                                    break;
-                            }
-
-                            structWrapper.data.accChief.serverName = ""; // udpUpdateViewModel.BroadcastingVM.EventVM.Evt.;
-
-                            structWrapper.data.accChief.isInternalMemoryModuleLoaded = 1;
-                            structWrapper.data.accChief.trackLength = udpUpdateViewModel.BroadcastingVM.TrackVM?.TrackMeters ?? 0;
-                            structWrapper.data.accChief.rainLevel = udpUpdateViewModel.SessionInfoVM.RainLevel;
-                            structWrapper.data.accChief.cloudCoverPercent = udpUpdateViewModel.SessionInfoVM.CloudCoverPercent;
-
-                            // until we check that a driver's carId is also in the accGraphic.carIDs array, we don't know how long this list will be:
-                            LinkedList<accVehicleInfo> activeVehicles = new LinkedList<accVehicleInfo>();
-                            structWrapper.data.accChief.vehicle = new accVehicleInfo[udpUpdateViewModel.BroadcastingVM.Cars.Count];
-
-                            List<float> distancesTravelled = new List<float>();
-                            // get the player vehicle first and put this at the front of the list
-                            var playerVehicle = getPlayerVehicle(udpUpdateViewModel.BroadcastingVM.Cars, accShared.accGraphic.playerCarID,
-                                accShared.accStatic, accShared.accGraphic.position);
-                            if (playerVehicle != null)
-                            {
-                                activeVehicles.AddFirst(createCar(1, playerVehicle, structWrapper.data.accGraphic.carIDs, structWrapper.data.accGraphic.carCoordinates));
-                                distancesTravelled.Add(playerVehicle.Laps + playerVehicle.SplinePosition);
-
-                                // only add a car to our data set if it exists in the UDP data and the shared memory car IDs array
-                                foreach (CarViewModel car in udpUpdateViewModel.BroadcastingVM.Cars)
+                                if (car != playerVehicle && structWrapper.data.accGraphic.carIDs.Contains(car.CarIndex))
                                 {
-                                    if (car != playerVehicle && structWrapper.data.accGraphic.carIDs.Contains(car.CarIndex))
-                                    {
-                                        activeVehicles.AddLast(createCar(0, car, structWrapper.data.accGraphic.carIDs, structWrapper.data.accGraphic.carCoordinates));
-                                        distancesTravelled.Add(car.Laps + car.SplinePosition);
-                                    }
+                                    accVehicleInfo opponentCar = createCar(0, car, structWrapper.data.accGraphic.carIDs, structWrapper.data.accGraphic.carCoordinates);
+                                    activeVehicles.AddLast(opponentCar);
+                                    distancesTravelled.Add(opponentCar.lapCount + opponentCar.spLineLength);
                                 }
-                                // now set the accVehicle array from our list of vehicles that we've deemed to be 'active'
-                                structWrapper.data.accChief.vehicle = activeVehicles.ToArray();
+                            }
+                            // now set the accVehicle array from our list of vehicles that we've deemed to be 'active'
+                            structWrapper.data.accChief.vehicle = activeVehicles.ToArray();
+
+                            if (sessionType == AC_SESSION_TYPE.AC_RACE)
+                            {
                                 List<float> sortedDistances = new List<float>(distancesTravelled);
                                 sortedDistances.Sort();
                                 sortedDistances.Reverse();
-                                for (var i=0; i < distancesTravelled.Count; i++)
+                                for (var i = 0; i < distancesTravelled.Count; i++)
                                 {
                                     int positionFromSpline = sortedDistances.IndexOf(distancesTravelled[i]) + 1;
                                     structWrapper.data.accChief.vehicle[i].carRealTimeLeaderboardPosition = positionFromSpline;
                                 }
-                                // save the populated driver data so we can reuse it when reading for the spotter
-                                this.mostRecentUDPData = structWrapper.data.accChief;
                             }
-                        }).Wait();
+                            // save the populated driver data so we can reuse it when reading for the spotter
+                            this.mostRecentUDPData = structWrapper.data.accChief;
+                        }
                     }
 
                     if (!forSpotter && dumpToFile && dataToDump != null)
@@ -406,93 +397,269 @@ namespace CrewChiefV4.ACC
                 x_coord = carPosition.x;
                 z_coord = carPosition.z;
             }
-            int correctedLapCount = correctLapCount(car.Laps, car.SplinePosition, car.CarIndex);
+
+            int carIndex = car.CarIndex;
+            int bestLapTime = (bestLap?.IsValid ?? false) ? bestLap.LaptimeMS ?? 0 : 0;
+            int bestSplit1Time = bestLap?.Split1MS ?? 0;
+            int bestSplit2Time = bestLap?.Split2MS ?? 0;
+            int bestSplit3Time = bestLap?.Split3MS ?? 0;
+            int currentLapInvalid = (currentLap?.IsValid ?? false) ? 0 : 1;
+            int currentLapTime = currentLap?.LaptimeMS ?? 0;
+            int lastLapTime = (lastLap?.IsValid ?? false) ? lastLap.LaptimeMS ?? 0 : 0;
+            int lastSplit1Time = lastLap?.Split1MS ?? 0;
+            int lastSplit2Time = lastLap?.Split2MS ?? 0;
+            int lastSplit3Time = lastLap?.Split3MS ?? 0;
+            float splineLength = car.SplinePosition;
+            int lapsCompleted = car.Laps;
+
+            if (carIndex > MAX_CAR_ID)
+            {
+                // can't do the data sync on car IDs ouside the array, want if we're in debug (this will spam)
+                if (CrewChief.Debugging)
+                {
+                    Console.WriteLine("CarID " + carIndex + " exceeds max dataSync size of " + MAX_CAR_ID);
+                }
+            }
+            else if (syncStartlineData(car.CarIndex, lapsCompleted, splineLength,
+                bestLapTime, bestSplit1Time, bestSplit2Time, bestSplit3Time,
+                lastLapTime, lastSplit1Time, lastSplit2Time, lastSplit3Time,
+                currentLapTime, currentLapInvalid))
+            {
+                // ask the syncData for the correct values:
+                DataForSync dataForSync = syncData[carIndex];
+                bestLapTime = dataForSync.getCorrectedBestLapTime(bestLapTime);
+                bestSplit1Time = dataForSync.getCorrectedBestSplit1Time(bestSplit1Time);
+                bestSplit2Time = dataForSync.getCorrectedBestSplit2Time(bestSplit2Time);
+                bestSplit3Time = dataForSync.getCorrectedBestSplit3Time(bestSplit3Time);
+                lastLapTime = dataForSync.getCorrectedLastLapTime(lastLapTime);
+                lastSplit1Time = dataForSync.getCorrectedLastSplit1Time(lastSplit1Time);
+                lastSplit2Time = dataForSync.getCorrectedLastSplit2Time(lastSplit2Time);
+                lastSplit3Time = dataForSync.getCorrectedLastSplit3Time(lastSplit3Time);
+                lapsCompleted = dataForSync.getCorrectedLapCount(lapsCompleted);
+                splineLength = dataForSync.getCorrectedSpline(splineLength);
+                currentLapInvalid = dataForSync.getCurrentLapInvalid(currentLapInvalid);
+            }
             return new accVehicleInfo
             {
-                bestLapMS = (bestLap?.IsValid ?? false) ? bestLap.LaptimeMS ?? 0 : 0,
-                carId = car.CarIndex,
+                bestLapMS = bestLapTime,
+                bestSplit1TimeMS = bestSplit1Time,
+                bestSplit2TimeMS = bestSplit2Time,
+                bestSplit3TimeMS = bestSplit3Time,
+                carId = carIndex,
                 carLeaderboardPosition = car.Position,
                 carModel = getCarModel(car.CarModelEnum),
-                carRealTimeLeaderboardPosition = car.Position,  /* don't be tempted to use TrackPosition here, it's always zero */    
-                currentLapInvalid = (currentLap?.IsValid ?? false) ? 0 : 1,
-                currentLapTimeMS = currentLap?.LaptimeMS ?? 0,
+                carRealTimeLeaderboardPosition = car.Position,  /* don't be tempted to use TrackPosition here, it's always zero */
+                currentLapInvalid = currentLapInvalid,
+                currentLapTimeMS = currentLapTime,
                 isPlayerVehicle = carIsPlayerVehicle,
                 driverName = carDriverName,
-                isCarInPit = (car.CarLocation == CarLocationEnum.PitEntry || car.CarLocation == CarLocationEnum.PitExit || car.CarLocation == CarLocationEnum.Pitlane) ? 1 : 0,
-                isCarInPitline = (car.CarLocation == CarLocationEnum.Pitlane) ? 1 : 0,
+                isCarInPitEntry = car.CarLocation == CarLocationEnum.PitEntry ? 1 : 0,
+                isCarInPitExit = car.CarLocation == CarLocationEnum.PitExit ? 1 : 0,
+                isCarInPitlane = (car.CarLocation == CarLocationEnum.Pitlane) ? 1 : 0,
                 isConnected = 1,
-                lapCount = correctedLapCount,
-                lastLapTimeMS = (lastLap?.IsValid ?? false) ? lastLap.LaptimeMS ?? 0 : 0,
+                lapCount = lapsCompleted,
+                lastLapTimeMS = lastLapTime,
+                lastSplit1TimeMS = lastSplit1Time,
+                lastSplit2TimeMS = lastSplit2Time,
+                lastSplit3TimeMS = lastSplit3Time,
                 speedMS = car.Kmh * 0.277778f,
-                spLineLength = car.SplinePosition,
+                spLineLength = splineLength,
                 worldPosition = new accVec3 { x = x_coord, z = z_coord },
                 raceNumber = car.RaceNumber
             };            
         }
-        
-        private int correctLapCount(int lapCountFromData, float splineFromData, int carId)
+
+        // returns true if we're in the magic sync zone and we're waiting for data
+        private bool syncStartlineData(int carId, int lapCountFromData, float splineFromData, 
+            int bestLapFromData, int bestSplit1TimeFromData, int bestSplit2TimeFromData, int bestSplit3TimeFromData,
+            int lastLapFromData, int lastSplit1TimeFromData, int lastSplit2TimeFromData, int lastSplit3TimeFromData,
+            int currentLapFromData, int currentLapInvalid)
         {
-            int correctedLapCount = lapCountFromData;
-            // 2 cases: one where the spline position is small (<0.1) and one where it's large (> 0.9). This is a bit arbitrary but it should be
-            // enough to catch the 2 possible cases
-            int previousLapsCompleted;
-            float previousSplinePosition;
-            // only proceed if we have data and we've completed 1 or more laps. Can't apply this correction
-            // on lap 1 because we don't know the difference between crossing the startline at the race start and crossing it after lap 1
-            if (lapCountFromData > 0 && lapsCompletedByCarId.TryGetValue(carId, out previousLapsCompleted) && splinePositionByCarId.TryGetValue(carId, out previousSplinePosition))
+            if (splineFromData >= 0.93 || splineFromData <= 0.07)
             {
-                if (splineFromData > 0.9 && lapCountFromData > previousLapsCompleted && !carIdsWaitingForSplineReset.Contains(carId))
+                DataForSync currentCarSyncData = ACCSharedMemoryReader.syncData[carId];
+                if (currentCarSyncData == null)
                 {
-                    // we've not yet crossed the line according to the spline position but the lap count has been incremented so we're waiting for the spline position to reset
-                    carIdsWaitingForSplineReset.Add(carId);
-                    carIdsWithForcedLapIncrement.Remove(carId);
-                    correctedLapCount = previousLapsCompleted;
-                    Console.WriteLine("Car " + carId + " lapcount increment blocked, waiting for spline to reset from " + splineFromData);
-                }
-                else if (splineFromData < 0.1 && splineFromData > 0)
-                {
-                    if (carIdsWithForcedLapIncrement.Contains(carId))
-                    {
-                        // we're in the early part of the lap and we've already established that the game was late sending the lap increment so use
-                        // the corrected value we saved
-                        correctedLapCount = lapsCompletedByCarId[carId];
-                    }
-                    else if (previousSplinePosition > 0.9)
-                    {
-                        // we've just crossed the line, see if we're waiting to increment or if we're late incrementing
-                        if (carIdsWaitingForSplineReset.Contains(carId))
-                        {
-                            // we can now allow the game's updated lap count to be used
-                            carIdsWaitingForSplineReset.Remove(carId);
-                            carIdsWithForcedLapIncrement.Remove(carId);
-                            lapsCompletedByCarId[carId] = lapCountFromData;
-                            Console.WriteLine("Car " + carId + " lapcount incremented after spline to reset");
-                        }
-                        else if (lapCountFromData == previousLapsCompleted && !carIdsWithForcedLapIncrement.Contains(carId))
-                        {
-                            // we've just crossed the line, our lap count should have been incremented but hasn't
-                            correctedLapCount = lapCountFromData + 1;
-                            carIdsWaitingForSplineReset.Remove(carId);
-                            carIdsWithForcedLapIncrement.Add(carId);
-                            lapsCompletedByCarId[carId] = correctedLapCount;
-                            Console.WriteLine("Car " + carId + " spline reset but lapcount hasn't incremented, forcing increment");
-                        }
-                    }
+                    syncData[carId] = new DataForSync(lapCountFromData, splineFromData,
+                        bestLapFromData, bestSplit1TimeFromData, bestSplit2TimeFromData, bestSplit3TimeFromData,
+                        lastLapFromData, lastSplit1TimeFromData, lastSplit2TimeFromData, lastSplit3TimeFromData,
+                        currentLapFromData, currentLapInvalid);
+                    return true;
                 }
                 else
                 {
-                    // we're not in the interesting area of the lap so reset all the cached stuff
-                    carIdsWaitingForSplineReset.Remove(carId);
-                    carIdsWithForcedLapIncrement.Remove(carId);
-                    lapsCompletedByCarId[carId] = lapCountFromData;
+                    return currentCarSyncData.update(lapCountFromData, splineFromData, bestLapFromData, lastLapFromData, currentLapFromData, currentLapInvalid);
                 }
             }
             else
             {
-                lapsCompletedByCarId[carId] = lapCountFromData;
+                // clear the cached sync data for cars which are out of the zone
+                ACCSharedMemoryReader.syncData[carId] = null;
+                return false;
             }
-            splinePositionByCarId[carId] = splineFromData;
-            return correctedLapCount;
+        }
+
+        class DataForSync
+        {
+            int lapCountBefore;
+            float splineBefore;
+
+            int bestLapTimeBefore;
+            int bestSplit1TimeBefore;
+            int bestSplit2TimeBefore;
+            int bestSplit3TimeBefore;
+
+            int lastLapTimeBefore;
+            int lastSplit1TimeBefore;
+            int lastSplit2TimeBefore;
+            int lastSplit3TimeBefore;
+
+            int currentLapTimeBefore;
+
+            int currentLapInvalid;
+
+            bool waitingForSpline = true;
+            bool waitingForLapCount = true;
+            bool waitingForLaptimes = true;
+
+            public DataForSync(int lapCountBefore, float splineBefore,
+                int bestLapTimeBefore,
+                int bestSplit1TimeBefore,
+                int bestSplit2TimeBefore,
+                int bestSplit3TimeBefore,
+                int lastLapTimeBefore,
+                int lastSplit1TimeBefore,
+                int lastSplit2TimeBefore,
+                int lastSplit3TimeBefore,
+                int currentLapTimeBefore,
+                int currentLapInvalid)
+            {
+                this.lapCountBefore = lapCountBefore;
+                this.splineBefore = splineBefore;
+                this.bestLapTimeBefore = bestLapTimeBefore;
+                this.bestSplit1TimeBefore = bestSplit1TimeBefore;
+                this.bestSplit2TimeBefore = bestSplit2TimeBefore;
+                this.bestSplit3TimeBefore = bestSplit3TimeBefore;
+
+                this.lastLapTimeBefore = lastLapTimeBefore;
+                this.lastSplit1TimeBefore = lastSplit1TimeBefore;
+                this.lastSplit2TimeBefore = lastSplit2TimeBefore;
+                this.lastSplit3TimeBefore = lastSplit3TimeBefore;
+
+                this.currentLapTimeBefore = currentLapTimeBefore;
+
+                this.currentLapInvalid = currentLapInvalid;
+
+                if (currentLapInvalid == 1 && lastLapTimeBefore == 0)
+                {
+                    // if we're on an invalid lap and our lastLapTime is zero then finishing this lap won't update any of the laptime data,
+                    // so don't wait for new lap data in this case:
+                    this.waitingForLaptimes = false;
+                }
+            }
+            public bool update(int lapCountFromTick, float splineFromTick, int bestLapTimeFromTick, int lastLapTimeFromTick, int currentLapTimeFromTick, int currentLapInvalid)
+            {
+                // special case: if our lap is still valid but we've got no currentLap time, and it's lap zero, we're on the formation lap
+                bool onFormationLap = lapCountFromTick == 0 && currentLapTimeFromTick == 0 && currentLapInvalid == 0;
+                if (onFormationLap)
+                {
+                    waitingForSpline = false;
+                    waitingForLapCount = false;
+                    waitingForLaptimes = false;
+                }
+                // don't do any work if we're not waiting. This instance will hang around in the syncData until the car is passed spline position 0.07,
+                // it'll be checked on each tick until then.
+                if (!waitingForAnyUpdates())
+                {
+                    return false;
+                }
+                if (this.waitingForLapCount && this.lapCountBefore < lapCountFromTick)
+                {
+                    // trivial case - lap count has incremented
+                    this.waitingForLapCount = false;
+                }
+                if (this.waitingForSpline && splineFromTick < 0.93)
+                {
+                    // 0.93 cause that's our cutoff but the splineFromTick will typically be 0.0-something in this case
+                    this.waitingForSpline = false;
+                }
+                if (this.waitingForLaptimes)
+                {
+                    if (currentLapInvalid == 1)
+                    {
+                        // save this if it's true, allows us to prevent transition from invalid to valid before we cross the line
+                        this.currentLapInvalid = currentLapInvalid;
+                    }
+                    // any change in the best or last means we have new laptime data (here we assume best / last lap updates happen in the same tick)
+                    // any reduction in the current laptime means we've reset
+                    if (bestLapTimeFromTick != this.bestLapTimeBefore
+                        || lastLapTimeFromTick != this.lastLapTimeBefore
+                        || this.currentLapTimeBefore > currentLapTimeFromTick)
+                    {
+                        this.waitingForLaptimes = false;
+                    }
+                }
+                return waitingForAnyUpdates();
+            }
+            public float getCorrectedSpline(float splineFromTick)
+            {
+                if (waitingForAnyUpdates())
+                {
+                    // allow spline position to update until it starts to decrease. It'll typically be a small number but anything lower than the
+                    // magic zone start point is a decrease, so we check for that. This means we effectively pause the spline updates at 1 once that.
+                    // reset to 0.something
+                    return splineFromTick >= 0.93 ? splineFromTick : 1;
+                }
+                return splineFromTick;
+            }
+            public bool waitingForAnyUpdates()
+            {
+                // this is the guard - if any of the synchronized data items haven't been updated (or reset to zero in the case of the spline),
+                // return false so the caller can ask this instance what the corrected values should be.
+                return waitingForLapCount || waitingForLaptimes || waitingForSpline;
+            }
+            public int getCurrentLapInvalid(int currentLapInvalidFromTick)
+            {
+                // if we're waiting for updates, return the saved value so we don't allow this to reset before the new lap starts
+                return waitingForAnyUpdates() ? this.currentLapInvalid : currentLapInvalidFromTick;
+            }
+            // laptime / lapcount stuff is trivial - get the previous best / last if we're waiting for any updates
+            public int getCorrectedLapCount(int lapCountFromTick)
+            {
+                return waitingForAnyUpdates() ? this.lapCountBefore : lapCountFromTick;
+            }
+            public int getCorrectedLastLapTime(int lastLapTimeFromTick)
+            {
+                return waitingForAnyUpdates() ? this.lastLapTimeBefore : lastLapTimeFromTick;
+            }
+            public int getCorrectedLastSplit1Time(int lastSplit1TimeFromTick)
+            {
+                return waitingForAnyUpdates() ? this.lastSplit1TimeBefore : lastSplit1TimeFromTick;
+            }
+            public int getCorrectedLastSplit2Time(int lastSplit2TimeFromTick)
+            {
+                return waitingForAnyUpdates() ? this.lastSplit2TimeBefore : lastSplit2TimeFromTick;
+            }
+            public int getCorrectedLastSplit3Time(int lastSplit3TimeFromTick)
+            {
+                return waitingForAnyUpdates() ? this.lastSplit3TimeBefore : lastSplit3TimeFromTick;
+            }
+            public int getCorrectedBestLapTime(int bestLapTimeFromTick)
+            {
+                return waitingForAnyUpdates() ? this.bestLapTimeBefore : bestLapTimeFromTick;
+            }
+            public int getCorrectedBestSplit1Time(int bestSplit1TimeFromTick)
+            {
+                return waitingForAnyUpdates() ? this.bestSplit1TimeBefore : bestSplit1TimeFromTick;
+            }
+            public int getCorrectedBestSplit2Time(int bestSplit2TimeFromTick)
+            {
+                return waitingForAnyUpdates() ? this.bestSplit2TimeBefore : bestSplit2TimeFromTick;
+            }
+            public int getCorrectedBestSplit3Time(int bestSplit3TimeFromTick)
+            {
+                return waitingForAnyUpdates() ? this.bestSplit3TimeBefore : bestSplit3TimeFromTick;
+            }
         }
 
         private CarViewModel getPlayerVehicle(List<CarViewModel> cars, int carId, SPageFileStatic accStatic, int positionFromSharedMem)

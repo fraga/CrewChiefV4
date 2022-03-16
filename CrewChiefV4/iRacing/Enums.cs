@@ -140,5 +140,13 @@ namespace CrewChiefV4.iRacing
         irsdk_PitSvBadAngle,
         irsdk_PitSvCantFixThat,
     };
-
+    /// 0=no drs available, 1=drs detected, 2=drs available, 3=drs enabled
+    public enum DrsStatus
+    {
+        // status
+        DrsNotAvailable = 0,
+        DrsDetected,
+        DrsAvailable,
+        DrsEnabled
+    };
 }

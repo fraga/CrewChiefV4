@@ -45,16 +45,15 @@ namespace CrewChiefV4.ACC
         {
             ACCShared latestRawData = ((ACCSharedMemoryReader.ACCStructWrapper)currentStateObj).data;
             accVehicleInfo playerData = latestRawData.accChief.vehicle[0];
+            float playerXPosition = playerData.worldPosition.x;
+            float playerZPosition = playerData.worldPosition.z;
+            int playerStartingPosition = playerData.carLeaderboardPosition;
+            int numCars = latestRawData.accChief.vehicle.Length;
             float playerRotation = latestRawData.accPhysics.heading;
             if (playerRotation < 0)
             {
-                playerRotation = (float)(2 * Math.PI) + playerRotation;
+                playerRotation = playerRotation = twoPi + playerRotation;
             }
-            playerRotation = (float)(2 * Math.PI) - playerRotation;
-            float playerXPosition = playerData.worldPosition.x;
-            float playerZPosition = playerData.worldPosition.y;
-            int playerStartingPosition = playerData.carLeaderboardPosition;
-            int numCars = latestRawData.accChief.vehicle.Length;
             return getGridSideInternal(latestRawData, playerRotation, playerXPosition, playerZPosition, playerStartingPosition, numCars);
         }
 
@@ -65,7 +64,7 @@ namespace CrewChiefV4.ACC
             {
                 if (vehicleInfo.carLeaderboardPosition == position)
                 {
-                    return new float[] { vehicleInfo.worldPosition.x, vehicleInfo.worldPosition.y };
+                    return new float[] { vehicleInfo.worldPosition.x, vehicleInfo.worldPosition.z };
                 }
             }
             return new float[] { 0, 0 };
@@ -85,11 +84,7 @@ namespace CrewChiefV4.ACC
             ACCShared currentState = ((ACCSharedMemoryReader.ACCStructWrapper)currentStateObj).data;
             ACCShared lastState = ((ACCSharedMemoryReader.ACCStructWrapper)lastStateObj).data;
 
-            if (!enabled || currentState.accChief.vehicle.Length <= 1 ||
-                currentState.accGraphic.status == AC_STATUS.AC_REPLAY || currentState.accGraphic.status == AC_STATUS.AC_OFF
-                /* currentLapTime looks like it gets reset to 0 so don't check this
-                 * || (mapToFloatTime(currentState.accChief.vehicle[0].currentLapTimeMS) < timeAfterRaceStartToActivate &&
-                currentState.accChief.vehicle[0].lapCount <= 0)*/)
+            if (!enabled || currentState.accChief.vehicle.Length <= 1 || currentState.accGraphic.status != AC_STATUS.AC_LIVE)
             {
                 return;
             }
@@ -124,7 +119,9 @@ namespace CrewChiefV4.ACC
             }
             float[] currentPlayerPosition = new float[] { currentPlayerData.worldPosition.x, currentPlayerData.worldPosition.z };
 
-            if (currentPlayerData.isCarInPitline == 0 || currentPlayerData.isCarInPit == 0)
+            // most tracks have a separated pit approach lane. Don't spot for cars in this lane. Pit exit lanes tend to be more open so spot there:
+            if (currentGameState.SessionData.SessionPhase != SessionPhase.Formation && currentGameState.SessionData.SessionPhase != SessionPhase.Countdown
+                && (currentPlayerData.isCarInPitlane == 0 || currentPlayerData.isCarInPitEntry == 0))
             {
                 List<float[]> currentOpponentPositions = new List<float[]>();
                 float[] playerVelocityData = new float[3];
@@ -136,7 +133,7 @@ namespace CrewChiefV4.ACC
                 for (int i = 1; i < currentState.accChief.vehicle.Length; i++)
                 {
                     accVehicleInfo vehicle = currentState.accChief.vehicle[i];
-                    if (vehicle.isCarInPit == 1 || vehicle.isCarInPitline == 1 || vehicle.isConnected != 1)
+                    if (vehicle.isCarInPitlane == 1 || vehicle.isCarInPitEntry == 1 || vehicle.isConnected != 1)
                     {
                         continue;
                     }

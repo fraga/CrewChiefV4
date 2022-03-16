@@ -68,6 +68,12 @@
     <Exec Command="copy ..\CrewChiefV4\bin\$(Configuration)\CrewChiefV4.pdb ..\CrewChiefV4\bin\PublishedComponents\CrewChiefV4.pdb" />
     <Exec Command="copy ..\CrewChiefV4\bin\$(Configuration)\MathNet.Numerics.dll ..\CrewChiefV4\bin\PublishedComponents\MathNet.Numerics.dll" />
     <Exec Command="copy ..\CrewChiefV4\bin\$(Configuration)\NAudio.dll ..\CrewChiefV4\bin\PublishedComponents\NAudio.dll" />
+    <Exec Command="copy ..\CrewChiefV4\bin\$(Configuration)\NAudio.Core.dll ..\CrewChiefV4\bin\PublishedComponents\NAudio.Core.dll" />
+    <Exec Command="copy ..\CrewChiefV4\bin\$(Configuration)\NAudio.Asio.dll ..\CrewChiefV4\bin\PublishedComponents\NAudio.Asio.dll" />
+    <Exec Command="copy ..\CrewChiefV4\bin\$(Configuration)\NAudio.Midi.dll ..\CrewChiefV4\bin\PublishedComponents\NAudio.Midi.dll" />
+    <Exec Command="copy ..\CrewChiefV4\bin\$(Configuration)\NAudio.Wasapi.dll ..\CrewChiefV4\bin\PublishedComponents\NAudio.Wasapi.dll" />
+    <Exec Command="copy ..\CrewChiefV4\bin\$(Configuration)\NAudio.WinForms.dll ..\CrewChiefV4\bin\PublishedComponents\NAudio.WinForms.dll" />
+    <Exec Command="copy ..\CrewChiefV4\bin\$(Configuration)\NAudio.WinMM.dll ..\CrewChiefV4\bin\PublishedComponents\NAudio.WinMM.dll" />
     <Exec Command="copy ..\CrewChiefV4\bin\$(Configuration)\Newtonsoft.Json.dll ..\CrewChiefV4\bin\PublishedComponents\Newtonsoft.Json.dll" />
     <Exec Command="copy ..\CrewChiefV4\bin\$(Configuration)\SharpDX.DirectInput.dll ..\CrewChiefV4\bin\PublishedComponents\SharpDX.DirectInput.dll" />
     <Exec Command="copy ..\CrewChiefV4\bin\$(Configuration)\SharpDX.dll ..\CrewChiefV4\bin\PublishedComponents\SharpDX.dll" />

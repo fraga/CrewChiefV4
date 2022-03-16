@@ -349,9 +349,9 @@ PIT_STOP_ULTRASOFT_TYRES = pitstop ultra soft tires:box, ultra soft tires
 PIT_STOP_HYPERSOFT_TYRES = pitstop hyper soft tires:box, hyper soft tires
 PIT_STOP_PRIME_TYRES = pitstop prime tires:box, prime tires:pitstop primary tires:box, primary tyres
 PIT_STOP_OPTION_TYRES = pitstop option tires:box, option tires
+PIT_STOP_ALTERNATE_TYRES = pitstop alternate tyres:box, alternate tires
 
 // ACC specific pit commands
-PIT_STOP_ALTERNATE_TYRES = pitstop alternate tyres:box, alternate tires
 PIT_STOP_CHANGE_FRONT_PRESSURES = pitstop change front pressures:box change front pressures
 PIT_STOP_CHANGE_REAR_PRESSURES = pitstop change rear pressures:box change rear pressures
 PIT_STOP_SELECT_TYRE_SET = pitstop tire set:box tire set

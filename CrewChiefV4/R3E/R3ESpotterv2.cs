@@ -61,12 +61,15 @@ namespace CrewChiefV4.RaceRoom
         {
             RaceRoomShared latestRawData = ((CrewChiefV4.RaceRoom.R3ESharedMemoryReader.R3EStructWrapper)currentStateObj).data;
             DriverData playerData = getDriverData(latestRawData, latestRawData.VehicleInfo.SlotId);
-            float playerRotation = latestRawData.CarOrientation.Yaw;                
+            float playerRotation = latestRawData.CarOrientation.Yaw;
             if (playerRotation < 0)
             {
-                playerRotation = (float)(2 * Math.PI) + playerRotation;
+                playerRotation = playerRotation * -1;
             }
-            playerRotation = (float)(2 * Math.PI) - playerRotation;
+            else
+            {
+                playerRotation = twoPi - playerRotation;
+            }
             float playerXPosition = playerData.Position.X;
             float playerZPosition = playerData.Position.Z;
             int playerStartingPosition = latestRawData.Position;

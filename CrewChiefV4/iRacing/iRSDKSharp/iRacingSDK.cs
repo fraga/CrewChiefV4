@@ -267,6 +267,10 @@ namespace iRSDKSharp
                     {
                         return (Skies)FileMapView.ReadInt32(Header.Buffer + varOffset);
                     }
+                    else if (header.Name == "DRS_Status")
+                    {
+                        return (DrsStatus)FileMapView.ReadInt32(Header.Buffer + varOffset);
+                    }
                     else if (header.Type == CVarHeader.VarType.irChar)
                     {
                         byte[] data = new byte[count];

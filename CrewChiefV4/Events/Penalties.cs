@@ -627,7 +627,7 @@ namespace CrewChiefV4.Events
                     outstandingPenaltyCause = currentGameState.PenaltiesData.PenaltyCause;
 
                     var message = getPenaltyMessge(outstandingPenaltyType, outstandingPenaltyCause);
-                    audioPlayer.playMessage(new QueuedMessage(message, delay1 + 6, secondsDelay: delay1, abstractEvent: this, priority: 15));
+                    audioPlayer.playMessage(new QueuedMessage(message, delay1 + 10, secondsDelay: delay1, abstractEvent: this, priority: 15));
 
                     // queue a '3 laps to serve penalty' message - this might not get played if player crosses s/f line before
                     audioPlayer.playMessage(new QueuedMessage(folderThreeLapsToServe, delay2 + 6, secondsDelay: delay2, abstractEvent: this, priority: 12));
@@ -702,6 +702,8 @@ namespace CrewChiefV4.Events
             else
             {
                 clearPenaltyState();
+                // always keep the local cut count up to date even if we've not triggered any warnings.
+                cutTrackWarningsCount = currentGameState.PenaltiesData.CutTrackWarnings;
             }
             if ((currentGameState.SessionData.SessionType == SessionType.Race ||
                 currentGameState.SessionData.SessionType == SessionType.Qualify ||

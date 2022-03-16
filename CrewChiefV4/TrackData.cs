@@ -476,6 +476,12 @@ namespace CrewChiefV4
             return null;
         }
 
+#if DEBUG
+        #region DuplicateTrackNamesCheck
+        /// <summary>
+        /// This is only called in debug builds and just reports any duplicate
+        /// track names, it doesn't do anything to trackLandmarksData
+        /// </summary>
         internal void checkForDuplicates()
         {
             var acTracks = new Dictionary<string, float>();
@@ -585,6 +591,8 @@ namespace CrewChiefV4
                 }
             }
         }
+        #endregion DuplicateTrackNamesCheck
+#endif
 
     }
 

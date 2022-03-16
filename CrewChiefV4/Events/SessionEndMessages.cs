@@ -144,7 +144,7 @@ namespace CrewChiefV4.Events
                             (startPosition > position &&
                             ((startPosition <= 6 && position <= 5) ||
                              (startPosition <= 10 && position <= 6) ||
-                             (startPosition - position >= 6))))
+                             (startPosition - position >= 4))))
                         {
                             audioPlayer.playMessage(new QueuedMessage(sessionEndMessageIdentifier, 0,
                                 messageFragments: AbstractEvent.MessageContents(Position.folderStub + position, folderGoodFinish), priority: 10));

@@ -37,7 +37,7 @@ namespace ksBroadcastingTestClient.Broadcasting
 
         private void MessageHandler_OnConnectionStateChanged(int connectionId, bool connectionSuccess, bool isReadonly, string error)
         {
-            System.Diagnostics.Debug.WriteLine("CARS CLEARED: " + DateTime.Now.ToString("HH:mm:ss.fff"));
+            System.Diagnostics.Debug.WriteLine("CARS CLEARED: " + DateTime.UtcNow.ToString("HH:mm:ss.fff"));
 
             Cars.Clear();
         }

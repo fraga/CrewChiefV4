@@ -1202,6 +1202,18 @@ namespace CrewChiefV4.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool enable_drs_beeps {
+            get {
+                return ((bool)(this["enable_drs_beeps"]));
+            }
+            set {
+                this["enable_drs_beeps"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool UpdateSettings {
             get {
                 return ((bool)(this["UpdateSettings"]));
@@ -5372,6 +5384,54 @@ namespace CrewChiefV4.Properties {
             }
             set {
                 this["just_the_facts"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("UTF-8")]
+        public string ams2_character_encoding {
+            get {
+                return ((string)(this["ams2_character_encoding"]));
+            }
+            set {
+                this["ams2_character_encoding"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string asr_launch_exe {
+            get {
+                return ((string)(this["asr_launch_exe"]));
+            }
+            set {
+                this["asr_launch_exe"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool launch_asr {
+            get {
+                return ((bool)(this["launch_asr"]));
+            }
+            set {
+                this["launch_asr"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string asr_install_path {
+            get {
+                return ((string)(this["asr_install_path"]));
+            }
+            set {
+                this["asr_install_path"] = value;
             }
         }
     }

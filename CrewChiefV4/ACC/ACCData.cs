@@ -283,7 +283,7 @@ namespace CrewChiefV4.ACC
             public int idealLineOn;
             public int isInPitLane;
 
-            public float surfaceGrip;
+            public float NOT_SET_surfaceGrip;
             public int MandatoryPitDone;
             public float windSpeed;
             public float windDirection;
@@ -324,7 +324,8 @@ namespace CrewChiefV4.ACC
 
             [MarshalAsAttribute(UnmanagedType.ByValTStr, SizeConst = 33)]
             public string trackStatus; // (Green, Fast, Optimum, Damp, Wet)
-            public int missingMandatoryPits;//  Mandatory pitstops the player still has to do
+            public int missingMandatoryPits; // Mandatory pitstops the player still has to do, may be 255 in sessions with no mandatory stop, 
+                                             // probably zero when the stops have been completed
             public float Clock; // Time of day in seconds
             public int directionLightsLeft; // Is Blinker left on (WTF? There's no usable race position but we have blinker status?)
             public int directionLightsRight; // Is Blinker right on
@@ -447,15 +448,22 @@ namespace CrewChiefV4.ACC
             public string carModel;
             public float speedMS;
             public int bestLapMS;
+            public int bestSplit1TimeMS;
+            public int bestSplit2TimeMS;
+            public int bestSplit3TimeMS;
             public int lapCount;
             public int currentLapInvalid;
             public int currentLapTimeMS;
             public int lastLapTimeMS;
+            public int lastSplit1TimeMS;
+            public int lastSplit2TimeMS;
+            public int lastSplit3TimeMS;
             public accVec3 worldPosition;
-            public int isCarInPitline;
-            public int isCarInPit;
+            public int isCarInPitlane;  // car is inside the pit limiter region
+            public int isCarInPitEntry; // car is within the pit entry region
+            public int isCarInPitExit;  // car is within the pit exit region
             public int carLeaderboardPosition;
-            public int carRealTimeLeaderboardPosition;
+            public int carRealTimeLeaderboardPosition; // for race sessions this is derived from the total distance travelled, for other sessions it's the carLeaderboardPosition
             public float spLineLength;
             public int isConnected; // NOT USED, IS ALWAYS 1
             public int raceNumber;
@@ -464,7 +472,6 @@ namespace CrewChiefV4.ACC
         public class SPageFileCrewChief
         {
             public int focusVehicle;
-            public string serverName;
             public accVehicleInfo[] vehicle = new accVehicleInfo[0];
             public byte[] acInstallPath;
             public int isInternalMemoryModuleLoaded;
@@ -472,7 +479,6 @@ namespace CrewChiefV4.ACC
             public SessionPhase SessionPhase;
             public float trackLength;
             public float rainLevel;
-            public float cloudCoverPercent;
         }
 
         public class ACCShared

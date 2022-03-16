@@ -43,6 +43,7 @@ gamestockcar = Stock Car Extreme
 automobilista = Automobilista
 marcas = Copa Petrobras de Marcas
 ftruck = Formula Truck
+asr = ARCA Sim Racing
 assetto_64_bit = Assetto Corsa (64 bit)
 assetto_64_bit_rally_mode = Assetto Corsa Rally (64 bit)
 assetto_32_bit = Assetto Corsa (32 bit)
@@ -402,42 +403,49 @@ no_help_provided = No help provided
 
 # Property: ACS install path
 acs_install_path = ACS install path
-acs_install_path_help = ACS installation path for plugin installation and updating
+acs_install_path_help = ACS installation path (without quotes) for plugin installation and updating 
 acs_install_path_filter = ASSETTO_64BIT;ASSETTO_32BIT
 acs_install_path_category = UI_STARTUP_AND_PATHS
 acs_install_path_metadata = RESTART_REQUIRED
 
 # Property: AMS install path
 ams_install_path = AMS install path
-ams_install_path_help = AMS installation path for plugin installation and updating
+ams_install_path_help = AMS installation path (without quotes) for plugin installation and updating
 ams_install_path_filter = RF1
 ams_install_path_category = UI_STARTUP_AND_PATHS
 ams_install_path_metadata = RESTART_REQUIRED
 
 # Property: rF1 install path
 rf1_install_path = rF1 install path
-rf1_install_path_help = rF1 installation path for plugin installation and updating
+rf1_install_path_help = rF1 installation path (without quotes) for plugin installation and updating
 rf1_install_path_filter = RF1
 rf1_install_path_category = UI_STARTUP_AND_PATHS
 rf1_install_path_metadata = RESTART_REQUIRED
 
+# Property: ASR install path
+asr_install_path = ASR install path
+asr_install_path_help = ASR installation path (without quotes) for plugin installation and updating
+asr_install_path_filter = RF1
+asr_install_path_category = UI_STARTUP_AND_PATHS
+asr_install_path_metadata = RESTART_REQUIRED
+
 # Property: rF2 install path
 rf2_install_path = rF2 install path
-rf2_install_path_help = rF2 installation path for plugin installation and updating
+rf2_install_path_help = rF2 installation path (without quotes) for plugin installation and updating
 rf2_install_path_filter = RF2_64BIT
 rf2_install_path_category = UI_STARTUP_AND_PATHS
 rf2_install_path_metadata = RESTART_REQUIRED
 
 # Property: RBR install path
 rbr_install_path = RBR install path
-rbr_install_path_help = RBR installation path for plugin installation and updating
+rbr_install_path_help = RBR installation path (without quotes) for plugin installation and updating
 rbr_install_path_filter = RBR
 rbr_install_path_category = UI_STARTUP_AND_PATHS
 rbr_install_path_metadata = RESTART_REQUIRED
 
 # Property: GTR 2 install path
 gtr2_install_path = GTR 2 install path
-gtr2_install_path_help = GTR 2 installation path for plugin installation and updating
+gtr2_install_path_help = GTR 2 installation path (without quotes) for plugin installation and updating
 gtr2_install_path_filter = GTR2
 gtr2_install_path_category = UI_STARTUP_AND_PATHS
 gtr2_install_path_metadata = RESTART_REQUIRED
@@ -507,8 +515,14 @@ enable_driver_names_help = Chief uses all names, not just personalised ones
 
 # Property: Enable DRS messages
 enable_drs_messages = Enable DRS messages
-enable_drs_messages_filter = !IRACING
+enable_drs_messages_filter = RACE_ROOM;RF2_64BIT
 enable_drs_messages_category = FLAGS_AND_RULES
+
+# Property: Enable DRS beeps
+enable_drs_beeps = Enable DRS beeps
+enable_drs_beeps_filter = IRACING;RACE_ROOM;RF2_64BIT
+enable_drs_beeps_category = FLAGS_AND_RULES
+enable_drs_beeps_help = Beep for DRS detection (iRacing only) and availability
 
 # Property: Enable fuel messages
 enable_fuel_messages = Enable fuel messages
@@ -961,28 +975,28 @@ f1_2021_launch_params_category = UI_STARTUP_AND_PATHS
 
 # Property: R3E launch exe
 r3e_launch_exe = R3E launch exe
-r3e_launch_exe_help = This is the location of Steam.exe or the direct path to RRRE.exe. Use forward slashes to separate paths.
+r3e_launch_exe_help = This is the location of Steam.exe or the direct path (without quotes) to RRRE.exe.
 r3e_launch_exe_filter = RACE_ROOM
 r3e_launch_exe_category = UI_STARTUP_AND_PATHS
 r3e_launch_exe_metadata = RESTART_REQUIRED
 
 # Property: RBR launch exe
 rbr_launch_exe = RBR launch exe
-rbr_launch_exe_help = This is the direct path to RichardBurnsRally_SSE.exe. Use forward slashes to separate paths.
+rbr_launch_exe_help = This is the direct path (without quotes) to RichardBurnsRally_SSE.exe.
 rbr_launch_exe_filter = RBR
 rbr_launch_exe_category = UI_STARTUP_AND_PATHS
 rbr_launch_exe_metadata = RESTART_REQUIRED
 
 # Property: GTR 2 launch exe
 gtr2_launch_exe = GTR 2 launch exe
-gtr2_launch_exe_help = This is the direct path to GTR2.exe. Use forward slashes to separate paths.
+gtr2_launch_exe_help = This is the direct path (without quotes) to GTR2.exe.
 gtr2_launch_exe_filter = GTR2
 gtr2_launch_exe_category = UI_STARTUP_AND_PATHS
 gtr2_launch_exe_metadata = RESTART_REQUIRED
 
 # Property: Dirt Rally launch exe
 dirt_launch_exe = Dirt Rally launch exe
-dirt_launch_exe_help = This is the location of Steam.exe or the direct path to dirtrally.exe. Use forward slashes to separate paths.
+dirt_launch_exe_help = This is the location of Steam.exe or the direct path (without quotes) to dirtrally.exe.
 dirt_launch_exe_filter = DIRT
 dirt_launch_exe_category = UI_STARTUP_AND_PATHS
 dirt_launch_exe_metadata = RESTART_REQUIRED
@@ -995,7 +1009,7 @@ dirt_launch_params_category = UI_STARTUP_AND_PATHS
 
 # Property: Dirt Rally 2 launch exe
 dirt2_launch_exe = Dirt Rally 2 launch exe
-dirt2_launch_exe_help = This is the location of Steam.exe or the direct path to dirtrally2.exe. Use forward slashes to separate paths.
+dirt2_launch_exe_help = This is the location of Steam.exe or the direct path (without quotes) to dirtrally2.exe.
 dirt2_launch_exe_filter = DIRT_2
 dirt2_launch_exe_category = UI_STARTUP_AND_PATHS
 dirt2_launch_exe_metadata = RESTART_REQUIRED
@@ -1008,96 +1022,103 @@ dirt2_launch_params_category = UI_STARTUP_AND_PATHS
 
 # Property: ACC launch exe
 acc_launch_exe = ACC launch exe
-acc_launch_exe_help = This is the location of Steam.exe or the direct path to acc.exe. Use forward slashes to separate paths.
+acc_launch_exe_help = This is the location of Steam.exe or the direct path (without quotes) to acc.exe.
 acc_launch_exe_filter = ACC
 acc_launch_exe_category = UI_STARTUP_AND_PATHS
 acc_launch_exe_metadata = RESTART_REQUIRED
 
 # Property: rF1 launch exe
 rf1_launch_exe = rF1 launch exe
-rf1_launch_exe_help = This is the location of Steam.exe or the direct path to rFactor.exe. Use forward slashes to separate paths.
+rf1_launch_exe_help = This is the location of Steam.exe or the direct path (without quotes) to rFactor.exe.
 rf1_launch_exe_filter = RF1
 rf1_launch_exe_category = UI_STARTUP_AND_PATHS
 rf1_launch_exe_metadata = RESTART_REQUIRED
 
+# Property: ASR launch exe
+asr_launch_exe = ASR launch exe
+asr_launch_exe_help = This is the direct path (without quotes) to ARCA.exe.
+asr_launch_exe_filter = RF1
+asr_launch_exe_category = UI_STARTUP_AND_PATHS
+asr_launch_exe_metadata = RESTART_REQUIRED
+
 # Property: rF2 launch exe
 rf2_launch_exe = rF2 launch exe
-rf2_launch_exe_help = This is the location of Steam.exe or the direct path to rFactor2.exe. Use forward slashes to separate paths.
+rf2_launch_exe_help = This is the location of Steam.exe or the direct path (without quotes) to rFactor2.exe.
 rf2_launch_exe_filter = RF2_64BIT
 rf2_launch_exe_category = UI_STARTUP_AND_PATHS
 rf2_launch_exe_metadata = RESTART_REQUIRED
 
 # Property: GSC launch exe
 gsc_launch_exe = GSC launch exe
-gsc_launch_exe_help = This is the location of Steam.exe or the direct path to GSC.exe. Use forward slashes to separate paths.
+gsc_launch_exe_help = This is the location of Steam.exe or the direct path (without quotes) to GSC.exe.
 gsc_launch_exe_filter = RF1
 gsc_launch_exe_category = UI_STARTUP_AND_PATHS
 gsc_launch_exe_metadata = RESTART_REQUIRED
 
 # Property: AMS launch exe
 ams_launch_exe = AMS launch exe
-ams_launch_exe_help = This is the location of Steam.exe or the direct path to AMS.exe. Use forward slashes to separate paths.
+ams_launch_exe_help = This is the location of Steam.exe or the direct path (without quotes) to AMS.exe.
 ams_launch_exe_filter = RF1
 ams_launch_exe_category = UI_STARTUP_AND_PATHS
 ams_launch_exe_metadata = RESTART_REQUIRED
 
 # Property: ACS launch exe
 acs_launch_exe = ACS launch exe
-acs_launch_exe_help = This is the location of Steam.exe or the direct path to ACS.exe. Use forward slashes to separate paths.
+acs_launch_exe_help = This is the location of Steam.exe or the direct path (without quotes) to ACS.exe.
 acs_launch_exe_filter = ASSETTO_64BIT;ASSETTO_32BIT
 acs_launch_exe_category = UI_STARTUP_AND_PATHS
 acs_launch_exe_metadata = RESTART_REQUIRED
 
 # Property: Marcas launch exe
 marcas_launch_exe = Marcas launch exe
-marcas_launch_exe_help = This is the location of Steam.exe or the direct path to marcas.exe. Use forward slashes to separate paths.
+marcas_launch_exe_help = This is the location of Steam.exe or the direct path (without quotes) to marcas.exe.
 marcas_launch_exe_filter = RF1
 marcas_launch_exe_category = UI_STARTUP_AND_PATHS
 marcas_launch_exe_metadata = RESTART_REQUIRED
 
 # Property: FTruck launch exe
 ftruck_launch_exe = FTruck launch exe
-ftruck_launch_exe_help = This is the location of Steam.exe or the direct path to FTruck.exe. Use forward slashes to separate paths.
+ftruck_launch_exe_help = This is the location of Steam.exe or the direct path (without quotes) to FTruck.exe.
 ftruck_launch_exe_filter = RF1
 ftruck_launch_exe_category = UI_STARTUP_AND_PATHS
 ftruck_launch_exe_metadata = RESTART_REQUIRED
 
 # Property: pCARS 32bit launch exe
 pcars32_launch_exe = pCARS 32bit launch exe
-pcars32_launch_exe_help = This is the location of Steam.exe or the direct path to pcars32.exe. Use forward slashes to separate paths.
+pcars32_launch_exe_help = This is the location of Steam.exe or the direct path (without quotes) to pcars32.exe.
 pcars32_launch_exe_filter = PCARS_32BIT
 pcars32_launch_exe_category = UI_STARTUP_AND_PATHS
 pcars32_launch_exe_metadata = RESTART_REQUIRED
 
 # Property: pCARS 64bit launch exe
 pcars64_launch_exe = pCARS 64bit launch exe
-pcars64_launch_exe_help = This is the location of Steam.exe or the direct path to pcars64.exe. Use forward slashes to separate paths.
+pcars64_launch_exe_help = This is the location of Steam.exe or the direct path (without quotes) to pcars64.exe.
 pcars64_launch_exe_filter = PCARS_64BIT
 pcars64_launch_exe_category = UI_STARTUP_AND_PATHS
 pcars64_launch_exe_metadata = RESTART_REQUIRED
 
 # Property: F1 2018 launch exe
 f1_2018_launch_exe = F1 2018 launch exe
-f1_2018_launch_exe_help = This is the location of Steam.exe or the direct path to f1_2018.exe. Use forward slashes to separate paths.
+f1_2018_launch_exe_help = This is the location of Steam.exe or the direct path (without quotes) to f1_2018.exe.
 f1_2018_launch_exe_filter = F1_2018
 f1_2018_launch_exe_category = UI_STARTUP_AND_PATHS
 f1_2018_launch_exe_metadata = RESTART_REQUIRED
 
 # Property: F1 2019 launch exe
 f1_2019_launch_exe = F1 2019 launch exe
-f1_2019_launch_exe_help = This is the location of Steam.exe or the direct path to f1_2019.exe. Use forward slashes to separate paths.
+f1_2019_launch_exe_help = This is the location of Steam.exe or the direct path (without quotes) to f1_2019.exe.
 f1_2019_launch_exe_filter = F1_2019
 f1_2019_launch_exe_category = UI_STARTUP_AND_PATHS
 
 # Property: F1 2020 launch exe
 f1_2020_launch_exe = F1 2020 launch exe
-f1_2020_launch_exe_help = This is the location of Steam.exe or the direct path to f1_2020.exe. Use forward slashes to separate paths.
+f1_2020_launch_exe_help = This is the location of Steam.exe or the direct path (without quotes) to f1_2020.exe.
 f1_2020_launch_exe_filter = F1_2020
 f1_2020_launch_exe_category = UI_STARTUP_AND_PATHS
 
 # Property: F1 2021 launch exe
 f1_2021_launch_exe = F1 2021 launch exe
-f1_2021_launch_exe_help = This is the location of Steam.exe or the direct path to f1_2021.exe. Use forward slashes to separate paths.
+f1_2021_launch_exe_help = This is the location of Steam.exe or the direct path (without quotes) to f1_2021.exe.
 f1_2021_launch_exe_filter = F1_2021
 f1_2021_launch_exe_category = UI_STARTUP_AND_PATHS
 
@@ -1107,6 +1128,13 @@ launch_rfactor1_help = If this is true the application will attempt to launch rF
 launch_rfactor1_filter = RF1
 launch_rfactor1_category = UI_STARTUP_AND_PATHS
 launch_rfactor1_metadata = RESTART_REQUIRED
+
+# Property: Launch ASR
+launch_asr = Launch ASR
+launch_asr_help = If this is true the application will attempt to launch ASR when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
+launch_asr_filter = RF1
+launch_asr_category = UI_STARTUP_AND_PATHS
+launch_asr_metadata = RESTART_REQUIRED
 
 # Property: Launch rFactor 2
 launch_rfactor2 = Launch rFactor 2
@@ -1124,7 +1152,7 @@ launch_rbr_metadata = RESTART_REQUIRED
 
 # Property: Launch GTR 2
 launch_gtr2 = Launch GTR 2
-launch_gtr2_help = If this is true the application will attempt to launch Richard Burns Rally when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
+launch_gtr2_help = If this is true the application will attempt to launch GTR 2 when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
 launch_gtr2_filter = GTR2
 launch_gtr2_category = UI_STARTUP_AND_PATHS
 launch_gtr2_metadata = RESTART_REQUIRED
@@ -1212,14 +1240,14 @@ launch_acc_metadata = RESTART_REQUIRED
 
 # Property: pCARS 2 launch exe
 pcars2_launch_exe = pCARS 2 launch exe
-pcars2_launch_exe_help = This is the location of Steam.exe or the direct path to pCARS2AVX.exe. Use forward slashes to separate paths.
+pcars2_launch_exe_help = This is the location of Steam.exe or the direct path (without quotes) to pCARS2AVX.exe.
 pcars2_launch_exe_filter = PCARS2
 pcars2_launch_exe_category = UI_STARTUP_AND_PATHS
 pcars2_launch_exe_metadata = RESTART_REQUIRED
 
 # Property: pCARS 3 launch exe
 pcars3_launch_exe = pCARS 3 launch exe
-pcars3_launch_exe_help = This is the location of Steam.exe or the direct path to pCARS3.exe. Use forward slashes to separate paths.
+pcars3_launch_exe_help = This is the location of Steam.exe or the direct path (without quotes) to pCARS3.exe.
 pcars3_launch_exe_filter = PCARS3
 pcars3_launch_exe_category = UI_STARTUP_AND_PATHS
 pcars3_launch_exe_metadata = RESTART_REQUIRED
@@ -1240,7 +1268,7 @@ pcars3_launch_params_metadata = RESTART_REQUIRED
 
 # Property: AMS 2 launch exe
 ams2_launch_exe = AMS 2 launch exe
-ams2_launch_exe_help = This is the location of Steam.exe or the direct path to AMS2.exe. Use forward slashes to separate paths.
+ams2_launch_exe_help = This is the location of Steam.exe or the direct path (without quotes) to AMS2.exe.
 ams2_launch_exe_filter = AMS2
 ams2_launch_exe_category = UI_STARTUP_AND_PATHS
 ams2_launch_exe_metadata = RESTART_REQUIRED
@@ -1282,7 +1310,7 @@ launch_ams2_metadata = RESTART_REQUIRED
 
 # Property: iRacing launch exe
 iracing_launch_exe = iRacing launch exe
-iracing_launch_exe_help = This is the path to iRacingSim64DX11.exe. Use forward slashes to separate paths.
+iracing_launch_exe_help = This is the path (without quotes) to iRacingSim64DX11.exe.
 iracing_launch_exe_filter = IRACING
 iracing_launch_exe_category = UI_STARTUP_AND_PATHS
 iracing_launch_exe_metadata = RESTART_REQUIRED
@@ -1501,6 +1529,12 @@ pcars_character_encoding = pCARS character encoding
 pcars_character_encoding_help = For PS4 always use UTF-8. For PC and XBox this will usually be windows-1252 (Windows Western European).
 pcars_character_encoding_filter = PCARS_64BIT;PCARS_32BIT;PCARS_NETWORK
 pcars_character_encoding_metadata = RESTART_REQUIRED
+
+# Property: AMS2 character encoding
+ams2_character_encoding = AMS2 character encoding
+ams2_character_encoding_help = Should usually be UTF-8
+ams2_character_encoding_filter = AMS2
+ams2_character_encoding_metadata = RESTART_REQUIRED
 
 # Property: Enable pCARS pit window messages
 enable_pcars_pit_window_messages = Enable pCARS pit window messages

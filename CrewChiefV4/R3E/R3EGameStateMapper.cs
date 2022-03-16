@@ -340,6 +340,7 @@ namespace CrewChiefV4.RaceRoom
                         }
                         else
                         {
+                            // Note that the R3E SafetyCar is car class ID 10743
                             currentGameState.carClass = CarData.getCarClassForRaceRoomId(participantStruct.DriverInfo.ClassId);
                             currentGameState.SessionData.PlayerCarNr = participantStruct.DriverInfo.CarNumber.ToString();
                             CarData.RACEROOM_CLASS_ID = participantStruct.DriverInfo.ClassId;
@@ -390,7 +391,7 @@ namespace CrewChiefV4.RaceRoom
                             currentGameState.SessionData.SessionTotalRunTime = shared.SessionTimeRemaining;
                             if (shared.SessionLengthFormat == 2)
                             {
-                                currentGameState.SessionData.HasExtraLap = true;
+                                currentGameState.SessionData.ExtraLapsAfterTimedSessionComplete = 1;
                             }
                             currentGameState.SessionData.SessionHasFixedTime = true;
                         }
@@ -509,7 +510,7 @@ namespace CrewChiefV4.RaceRoom
                     currentGameState.SessionData.SessionTotalRunTime = previousGameState.SessionData.SessionTotalRunTime;
                     currentGameState.SessionData.SessionNumberOfLaps = previousGameState.SessionData.SessionNumberOfLaps;
                     currentGameState.SessionData.SessionHasFixedTime = previousGameState.SessionData.SessionHasFixedTime;
-                    currentGameState.SessionData.HasExtraLap = previousGameState.SessionData.HasExtraLap;
+                    currentGameState.SessionData.ExtraLapsAfterTimedSessionComplete = previousGameState.SessionData.ExtraLapsAfterTimedSessionComplete;
                     currentGameState.SessionData.NumCarsOverallAtStartOfSession = previousGameState.SessionData.NumCarsOverallAtStartOfSession;
                     currentGameState.SessionData.NumCarsInPlayerClassAtStartOfSession = previousGameState.SessionData.NumCarsInPlayerClassAtStartOfSession;
                     currentGameState.SessionData.EventIndex = previousGameState.SessionData.EventIndex;
@@ -741,7 +742,7 @@ namespace CrewChiefV4.RaceRoom
 
                         currentGameState.SessionData.playerCompleteLapWithProvidedLapTime(currentGameState.SessionData.OverallPosition, currentGameState.SessionData.SessionRunningTime,
                             shared.LapTimePreviousSelf, currentGameState.SessionData.CurrentLapIsValid, currentGameState.PitData.InPitlane, false,
-                            30, 25, currentGameState.SessionData.SessionHasFixedTime, currentGameState.SessionData.SessionTimeRemaining, 3, currentGameState.TimingData);
+                            30, 25, currentGameState.SessionData.SessionHasFixedTime, currentGameState.SessionData.SessionTimeRemaining, 3, currentGameState.TimingData, null, null);
                         currentGameState.SessionData.playerStartNewLap(currentGameState.SessionData.CompletedLaps + 1,
                             currentGameState.SessionData.OverallPosition, currentGameState.PitData.InPitlane, currentGameState.SessionData.SessionRunningTime);
                     }
@@ -927,26 +928,17 @@ namespace CrewChiefV4.RaceRoom
 
                         Boolean finishedAllottedRaceLaps = currentGameState.SessionData.SessionNumberOfLaps > 0 && currentGameState.SessionData.SessionNumberOfLaps == currentOpponentLapsCompleted;
                         Boolean finishedAllottedRaceTime = false;
-                        if (currentGameState.SessionData.HasExtraLap &&
-                            currentGameState.SessionData.SessionType == SessionType.Race)
+
+                        if (currentGameState.SessionData.SessionType == SessionType.Race
+                            && currentGameState.SessionData.SessionTotalRunTime > 0 && currentGameState.SessionData.SessionTimeRemaining <= 0)
                         {
-                            if (currentGameState.SessionData.SessionTotalRunTime > 0 && currentGameState.SessionData.SessionTimeRemaining <= 0 &&
-                                previousOpponentCompletedLaps < currentOpponentLapsCompleted)
+                            if (previousOpponentCompletedLaps < currentOpponentLapsCompleted)
                             {
-                                if (!currentOpponentData.HasStartedExtraLap)
-                                {
-                                    currentOpponentData.HasStartedExtraLap = true;
-                                }
-                                else
-                                {
-                                    finishedAllottedRaceTime = true;
-                                }
+                                // timed session, we've started a new lap after the time has reached zero. Where there's no extra lap this means we've finished. If there's 1 or more
+                                // extras he's finished when he's started more than the extra laps number
+                                currentOpponentData.LapsStartedAfterRaceTimeEnd++;
                             }
-                        }
-                        else if (currentGameState.SessionData.SessionTotalRunTime > 0 && currentGameState.SessionData.SessionTimeRemaining <= 0 &&
-                            previousOpponentCompletedLaps < currentOpponentLapsCompleted)
-                        {
-                            finishedAllottedRaceTime = true;
+                            finishedAllottedRaceTime = currentOpponentData.LapsStartedAfterRaceTimeEnd > currentGameState.SessionData.ExtraLapsAfterTimedSessionComplete;
                         }
 
                         if (currentOpponentRacePosition == 1 && (finishedAllottedRaceTime || finishedAllottedRaceLaps))
@@ -1274,7 +1266,7 @@ namespace CrewChiefV4.RaceRoom
             currentGameState.PitData.PitSpeedLimit = shared.SessionPitSpeedLimit;
 
             //------------------------ Pit menu -----------------------------
-            R3EPitMenuManager.map(shared.PitMenuSelection, shared.PitMenuState);
+            R3EPitMenuManager.map(shared.PitMenuSelection, shared.PitMenuState, shared.PitState);
 
             //------------------------ Car position / motion data -----------------------
             currentGameState.PositionAndMotionData.CarSpeed = shared.CarSpeed;
@@ -1491,8 +1483,10 @@ namespace CrewChiefV4.RaceRoom
             {
                 return TyreType.R3E_2017_F5;
             }
-            // bias ply cars
-            if (carClass == CarData.CarClassEnum.GROUP4 || carClass == CarData.CarClassEnum.GROUP5 || carClass == CarData.CarClassEnum.M1_PROCAR)
+            // bias ply cars - Note that procar and gr5 are using the newer tyre model and have multiple compounds - mapping to a single
+            // 'ply' tyre isn't sufficient here. The game-provided thresholds should be OK, so it should be safe to allow these to map
+            // to the 2017 tyres
+            if (carClass == CarData.CarClassEnum.GROUP4)
             {
                 return TyreType.Bias_Ply;
             }
@@ -1927,7 +1921,7 @@ namespace CrewChiefV4.RaceRoom
                             completedLapTime = sessionRunningTime - currentLapData.GameTimeAtLapStart;
                         }
                         opponentData.CompleteLapWithProvidedLapTime(racePosition, sessionRunningTime, currentLapData.IsValid ? completedLapTime : -1,
-                            isInPits, false, 20, 20, sessionLengthIsTime, sessionTimeRemaining, 3, timingData, isPlayerCarClass);
+                            isInPits, false, 20, 20, sessionLengthIsTime, sessionTimeRemaining, 3, timingData, isPlayerCarClass, null, null);
                     }
                     opponentData.StartNewLap(completedLaps + 1, racePosition, isInPits, sessionRunningTime, false, 20, 20);
                     opponentData.IsNewLap = true;

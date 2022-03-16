@@ -146,6 +146,10 @@ namespace CrewChiefV4.Events
             {
                 messageFragments.Add(MessageFragment.Opponent((OpponentData)o));
             }
+            else if (o.GetType() == typeof(CarNumber))
+            {
+                messageFragments.AddRange(((CarNumber)o).getMessageFragments());
+            }
             else if (o.GetType() == typeof(int) || o.GetType() == typeof(short) || o.GetType() == typeof(long) || o.GetType() == typeof(uint))
             {
                 messageFragments.Add(MessageFragment.Integer(Convert.ToInt32(o)));
@@ -154,19 +158,25 @@ namespace CrewChiefV4.Events
             {
                 double d = Convert.ToDouble(o);
                 string str = d.ToString("0.00", CultureInfo.InvariantCulture);
-                int integral = int.Parse(str.Substring(0, str.IndexOf('.')));
-                int fraction = int.Parse(str.Substring(str.IndexOf('.') + 1));
-                Console.WriteLine("Converted real number " + o + " to " + integral + ", " + NumberReader.folderPoint + ", " + fraction);
-                if (fraction == 0)
+                int dpPosition = str.IndexOf('.');
+                int integral = int.Parse(str.Substring(0, dpPosition));
+                int fraction1 = int.Parse(str.Substring(dpPosition + 1, 1));
+                int fraction2 = int.Parse(str.Substring(dpPosition + 2, 1));
+                Console.WriteLine("Converted real number " + o + " to " + integral + ", " + NumberReader.folderPoint + ", " + fraction1 + fraction2);
+                if (fraction1 == 0 && fraction2 == 0)
                 {
                     // there's no 'right' answer here - do we read it as "x point zero" or just "x"? Really this is an issue in the event - it should be
                     // doing the work to convert a real number to 'int point int' in accordance with its own requirements, so this is just a fallback.
                     // So warn and read it anyway
-                    Console.WriteLine("Real number " + integral + ".0" + " will be read with a trailing \"point zero\"");
+                    Console.WriteLine("Real number " + integral + ".00" + " will be read with a trailing \"point zero\"");
                 }
                 messageFragments.Add(MessageFragment.Integer(Convert.ToInt32(integral)));
                 messageFragments.Add(MessageFragment.Text(NumberReader.folderPoint));
-                messageFragments.Add(MessageFragment.Integer(Convert.ToInt32(fraction)));
+                messageFragments.Add(MessageFragment.Integer(Convert.ToInt32(fraction1)));
+                if (fraction2 != 0)
+                {
+                    messageFragments.Add(MessageFragment.Integer(Convert.ToInt32(fraction2)));
+                }
             }
             else
             {
@@ -307,7 +317,7 @@ namespace CrewChiefV4.Events
 
         public String getPressureUnit()
         {
-            return usePSI ? folderPSI : folderBar;
+            return CrewChief.gameDefinition.gameEnum == GameEnum.ACC || usePSI ? folderPSI : folderBar;
         }
 
         public int convertTemp(float temp)
@@ -328,7 +338,7 @@ namespace CrewChiefV4.Events
 
         public float convertPressure(float pressure, int decimalPlaces)
         {
-            return usePSI ? kpaToPsi(pressure, decimalPlaces) : kpaToBar(pressure, decimalPlaces);
+            return CrewChief.gameDefinition.gameEnum == GameEnum.ACC || usePSI ? kpaToPsi(pressure, decimalPlaces) : kpaToBar(pressure, decimalPlaces);
         }
 
         private static float kpaToPsi(float kpa, int decimalPlaces)

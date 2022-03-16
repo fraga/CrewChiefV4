@@ -14,7 +14,7 @@ namespace CrewChiefV4.Events
         // allow condition messages during caution periods
         public override List<SessionPhase> applicableSessionPhases
         {
-            get { return new List<SessionPhase> { SessionPhase.Green, SessionPhase.Checkered, SessionPhase.FullCourseYellow }; }
+            get { return new List<SessionPhase> { SessionPhase.Green, SessionPhase.Checkered, SessionPhase.FullCourseYellow, SessionPhase.Formation, SessionPhase.Countdown }; }
         }
 
         private static float drizzleMin = 0.01f;
@@ -26,6 +26,11 @@ namespace CrewChiefV4.Events
         public enum RainLevel
         {
             NONE, DRIZZLE, LIGHT, MID, HEAVY, STORM
+        }
+
+        public enum TrackStatus
+        {
+            GREEN, FAST, OPTIMUM, GREASY, DAMP, WET, FLOODED, UNKNOWN
         }
 
         private Boolean enableTrackAndAirTempReports = UserSettings.GetUserSettings().getBoolean("enable_track_and_air_temp_reports");
@@ -167,12 +172,36 @@ namespace CrewChiefV4.Events
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
         {
             currentConditions = currentGameState.Conditions.getMostRecentConditions();
+            // ACC specific - if we didn't have conditions to announce at the session start, announce them now
+            if (CrewChief.gameDefinition.gameEnum == GameEnum.ACC
+                && currentConditions != null
+                && (currentGameState.SessionData.SessionPhase == SessionPhase.Formation || currentGameState.SessionData.SessionPhase == SessionPhase.Countdown)
+                && !LapCounter.preStartTempsAnnounced)
+            {
+                audioPlayer.playMessage(new QueuedMessage("trackAndAirTemp", 15, messageFragments: MessageContents(
+                    ConditionsMonitor.folderTrackTempIs,
+                    convertTemp(currentConditions.TrackTemperature),
+                    ConditionsMonitor.folderAirTempIs,
+                    convertTemp(currentConditions.AmbientTemperature),
+                    getTempUnit()), abstractEvent: this, priority: 10, secondsDelay: 10));
+                LapCounter.preStartTempsAnnounced = true;
+            }
+            // the above is the only pre-start trigger that's valid for this event so don't allow any of the other gubbins to trigger in formation or countdown:
+            if (currentGameState.SessionData.SessionPhase == SessionPhase.Formation || currentGameState.SessionData.SessionPhase == SessionPhase.Countdown)
+            {
+                return;
+            }
             if (currentGameState.SessionData.IsNewLap)
             {
                 conditionsAtStartOfThisLap = currentConditions;
             }
             if (CrewChief.gameDefinition.gameEnum == GameEnum.ACC)
             {
+                if (currentGameState.SessionData.JustGoneGreen)
+                {
+                    next10MinuteForecastReportDue = currentGameState.Now.AddMinutes(1);
+                    next30MinuteForecastReportDue = currentGameState.Now.AddMinutes(2);
+                }
                 if (currentGameState.Now > next10MinuteForecastReportDue)
                 {
                     string forecastFolder = getForecastFolder(currentGameState.Conditions.rainLevelNow, currentGameState.Conditions.rainLevelIn10Mins, this.rainLevelFor10MinuteForecast);
@@ -204,7 +233,7 @@ namespace CrewChiefV4.Events
                         }
                         if ((int)Math.Ceiling(minutes) > 0)
                         {
-                            audioPlayer.playMessage(new QueuedMessage("acc_10_min_forecast", 10, messageFragments: MessageContents(forecastFolder,
+                            audioPlayer.playMessage(new QueuedMessage("acc_30_min_forecast", 10, messageFragments: MessageContents(forecastFolder,
                                             new TimeSpanWrapper(TimeSpan.FromMinutes((int)Math.Ceiling(minutes)), Precision.MINUTES)), abstractEvent: this));
                         }
                     }

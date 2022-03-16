@@ -94,7 +94,7 @@ namespace CrewChiefV4.RaceRoom
                 {
                     try
                     {
-                        memoryMappedFile = MemoryMappedFile.OpenExisting(RaceRoomConstant.SharedMemoryName);
+                        memoryMappedFile = MemoryMappedFile.OpenExisting(RaceRoomConstant.SharedMemoryName, MemoryMappedFileRights.Read);
                         sharedmemorysize = Marshal.SizeOf(typeof(RaceRoomShared));
                         sharedMemoryReadBuffer = new byte[sharedmemorysize];
                         initialised = true;
@@ -123,7 +123,7 @@ namespace CrewChiefV4.RaceRoom
                 }
                 try
                 {
-                    using (var sharedMemoryStreamView = memoryMappedFile.CreateViewStream())
+                    using (var sharedMemoryStreamView = memoryMappedFile.CreateViewStream(0, sharedmemorysize, MemoryMappedFileAccess.Read))
                     {
                         BinaryReader _SharedMemoryStream = new BinaryReader(sharedMemoryStreamView);
                         sharedMemoryReadBuffer = _SharedMemoryStream.ReadBytes(sharedmemorysize);

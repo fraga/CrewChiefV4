@@ -168,6 +168,13 @@ namespace CrewChiefV4.Events
                         Console.WriteLine(string.Format("Message no longer valid: level {0} component {1} because last reported damage level is {2}", dmgLevel, component, lastReporteDmgLevel));
                         return false;
                     }
+                    if (engineDamage == DamageLevel.NONE && trannyDamage == DamageLevel.NONE && aeroDamage == DamageLevel.NONE && maxSuspensionDamage == DamageLevel.NONE && maxBrakeDamage == DamageLevel.NONE
+                        && component != Component.NONE && dmgLevel != DamageLevel.NONE)
+                    {
+                        // the state has probably been reset
+                        Console.WriteLine(string.Format("Message no longer valid: level {0} component {1} because damage state has been reset", dmgLevel, component));
+                        return false;
+                    }
                 }
 
                 return true;
@@ -366,7 +373,7 @@ namespace CrewChiefV4.Events
                         // if we're subject to > 40G (400m/s2), this is considered dangerous. If we've stopped (or nearly stopped) immediately
                         // after the impact, assume it's a bad 'un. If we're still moving after the impact, track the speed for 3 seconds and 
                         // if it doesn't increase in that time, we can assume it's a bad 'un
-                        if (calculatedAcceleration > 400)
+                        if (calculatedAcceleration > 400 || (CrewChief.gameDefinition.gameEnum == GameEnum.ACC && calculatedAcceleration > 270))
                         {
                             Console.WriteLine("Massive impact. Current speed = " + currentGameState.PositionAndMotionData.CarSpeed.ToString("0.000") +
                                 " previous speed = " + previousGameState.PositionAndMotionData.CarSpeed.ToString("0.000") + " acceleration = " + (calculatedAcceleration / 9.8f).ToString("0.0000") + "g");

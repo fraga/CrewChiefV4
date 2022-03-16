@@ -224,7 +224,7 @@ namespace CrewChiefV4.Events
                                     else if(opponentData.CarNumber != "-1")
                                     {
                                         audioPlayer.playMessage(new QueuedMessage("watched opponent laptime", 10,
-                                            messageFragments: MessageContents(Opponents.folderCarNumber, int.Parse(opponentData.CarNumber), folderHasJustDoneA,
+                                            messageFragments: MessageContents(Opponents.folderCarNumber, new CarNumber(opponentData.CarNumber), folderHasJustDoneA,
                                             TimeSpanWrapper.FromSeconds(opponentData.LastLapTime, Precision.AUTO_LAPTIMES))));
                                     }
                                     else
@@ -259,7 +259,7 @@ namespace CrewChiefV4.Events
                                     else if (opponentData.CarNumber != "-1")
                                     {
                                         audioPlayer.playMessage(new QueuedMessage("watched opponent exiting pit", 10,
-                                            messageFragments: MessageContents(Opponents.folderCarNumber, int.Parse(opponentData.CarNumber), folderIsLeavingThePit)));
+                                            messageFragments: MessageContents(Opponents.folderCarNumber, new CarNumber(opponentData.CarNumber), folderIsLeavingThePit)));
                                     }
                                     else
                                     {
@@ -292,7 +292,7 @@ namespace CrewChiefV4.Events
                                     else if (opponentData.CarNumber != "-1")
                                     {
                                         audioPlayer.playMessage(new QueuedMessage("watched opponent position change", 10,
-                                            messageFragments: MessageContents(Opponents.folderCarNumber, int.Parse(opponentData.CarNumber), folderIsNowInPosition, opponentData.ClassPosition)));
+                                            messageFragments: MessageContents(Opponents.folderCarNumber, new CarNumber(opponentData.CarNumber), folderIsNowInPosition, opponentData.ClassPosition)));
                                     }
                                     else
                                     {
@@ -444,7 +444,7 @@ namespace CrewChiefV4.Events
                 {
                     // eewwww
                     messageFragments.Add(MessageFragment.Text(Opponents.folderCarNumber));
-                    messageFragments.Add(MessageFragment.Integer(int.Parse(opponent.CarNumber)));
+                    messageFragments.AddRange((new CarNumber(opponent.CarNumber)).getMessageFragments());
                 }
                 messageFragments.Add(triggeredFromPitExit ? MessageFragment.Text(folderIsInPosition) : MessageFragment.Text(folderIsNowInPosition));
                 messageFragments.Add(MessageFragment.Integer(opponentClassPosition));
@@ -536,7 +536,7 @@ namespace CrewChiefV4.Events
                             {
                                 watchedOpponentKeys.Add(opponentKey);
                                 audioPlayer.playMessageImmediately(new QueuedMessage("add watch acknowledge with driver number", 0,
-                                    messageFragments: MessageContents(folderAcknowledgeWatchOpponentWithCarNumber, int.Parse(opponent.CarNumber))));
+                                    messageFragments: MessageContents(folderAcknowledgeWatchOpponentWithCarNumber, new CarNumber(opponent.CarNumber))));
                             }
                             else
                             {
@@ -576,7 +576,7 @@ namespace CrewChiefV4.Events
                         else if (opponent.CarNumber != "-1")
                         {
                             audioPlayer.playMessageImmediately(new QueuedMessage("stop watching car number", 0,
-                                    messageFragments: MessageContents(folderAcknowledgeStopWatchingCarNumber, int.Parse(opponent.CarNumber))));
+                                    messageFragments: MessageContents(folderAcknowledgeStopWatchingCarNumber, new CarNumber(opponent.CarNumber))));
                         }
                         else
                         {

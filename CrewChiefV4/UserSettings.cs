@@ -413,24 +413,27 @@ namespace CrewChiefV4
 
         public String getString(String name)
         {
-            try
+            if (!string.IsNullOrWhiteSpace(name))
             {
-                if (currentActiveProfile.userSettings.TryGetValue(name, out object value))
+                try
                 {
-                    return (String)value;
+                    if (currentActiveProfile.userSettings.TryGetValue(name, out object value))
+                    {
+                        return (String)value;
+                    }
+                    else if (currentApplicationSettings.TryGetValue(name, out value))
+                    {
+                        return (String)value;
+                    }
+                    else
+                    {
+                        return (String)Properties.Settings.Default[name];
+                    }
                 }
-                else if (currentApplicationSettings.TryGetValue(name, out value))
+                catch (Exception)
                 {
-                    return (String)value;
+                    Console.WriteLine("PROPERTY " + name + " NOT FOUND");
                 }
-                else
-                {
-                    return (String)Properties.Settings.Default[name];
-                }
-            }
-            catch (Exception)
-            {
-                Console.WriteLine("PROPERTY " + name + " NOT FOUND");
             }
 
             return "";

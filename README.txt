@@ -4,7 +4,7 @@ Written by Jim Britton, Morten Roslev, Vytautas Leonavičius, Paul Burgess, Tony
 
 Additional material from Scoops (fantastic track layout mapping work), Nolan Bates (conversion of thousands of phrases from speech to text for subtitle support) and Longtomjr (F1 2018 UDP data format structs). Fantastic alternate spotter sounds by Geoffrey Lessel, Matt Orr (aka EmptyBox), Clare Britton, Mike Schreiner, Phil Linden, Lee Taylor and Micha (last name?). Also a thank you to Nick Thissen for his work on iRacingSdkWrapper.  Rally mode was created in collaboration with Janne Laahanen, who contributed his codriver pack and helped in understanding of the RBR pacenotes.
 
-The source code for Crew Chief is available here: https://github.com/mrbelowski/CrewChiefV4
+The source code for Crew Chief is available at https://gitlab.com/mr_belowski/CrewChiefV4
 
 For support and discussions about Crew Chief we have our very own forum here: https://thecrewchief.org/
 
@@ -13,7 +13,7 @@ The full changelog is now at the end of this file.
 
 Quick start
 -----------
-You need to install .net 4.5 or above to use the app. Download the CrewChiefV4.msi installer and run it. Start the app. Click the "Download sound pack" button and the "Download driver names" button to get the latest sounds and driver names. Select a game from the list at the top right. When the sounds and driver names have finished downloading, click the "Start Application" button. Then fire up the game. Note that the app comes with swearing 'off' by default - if you want to be sworn at you need to enable this in the Properties UI.
+You need to install .net 4.7.2 or above to use the app. Download the CrewChiefV4.msi installer and run it. Start the app. Click the "Download sound pack" button and the "Download driver names" button to get the latest sounds and driver names. Select a game from the list at the top right. When the sounds and driver names have finished downloading, click the "Start Application" button. Then fire up the game. Note that the app comes with swearing 'off' by default - if you want to be sworn at you need to enable this in the Properties UI.
 
 
 Running with voice recognition
@@ -431,7 +431,17 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
-Version 4.15.3.11: Allow start and end chat actions to be disabled per macro; iRacing - fix for mapping errors when the game doesn't send us a player name; R3E - fix GTO pit menu tyre compound selection
+Version 4.16.1.3: Clear fuel data in race session when starting from the pit lane (should prevent unrealistic fuel consumption figures in such circumstances); ACC - improved session restart detection; ACC - fix cut tracks playing after an invalidated out lap; ACC - recalculate car to follow and grid side at the start of double-file formation if drivers have dropped out; ACC - derive the pit window start and end times from the total pit window length, rather than the game-provided start and end times (should fix the incorrect window calls). Note that this may result in incorrect pit window calls if you enter a race session some time after the race has started
+
+Version 4.16.1.2: Fix issues launching games; ACC - wired up more pre-start messages and some pit window and session transition fixes
+
+Version 4.16.1.1: ACC - major improvements to data synchronization and stability work arounds. This should improve the ACC experience significantly, bringing it to a similar level to other games; AMS2 & R3E - open shared memory with read-access only. This should address some startup issues when using the app with other tools that access the games' shared memory files; GTR2 - plugin update; ARCA Sim Racing - added basic support for this game using the existing Rfactor1 plugin and classes; A few minor bug fixes
+
+Version 4.16.0.1: Change target Dot Net version to 4.7.2. This should have no effect on users, it's required to support new collaborators on the project as the development tooling for the old 4.5 target version is very difficult to find; AMS2 - updated to latest shared memory version (includes IMO tyre temps and support for extra lap after timed races); iRacing - added DRS bleeps (enable with the "Enable DRS beeps" property); R3E - fix tyre type mapping for Gr5 cars; R3E - fix pit menu nagivation (note that this fix is required to keep up with changes to the game, and the 'fix body work' command is no longer available); GTR2 - plugin update
+
+Version 4.15.3.12: Suppress "defend you position" type messages when we have a slowdown penalty; R3E - fix broken 'request pit' command and a couple of pit menu nagivation issues; R3E - added repair all and repair none voice commands ('pitstop fix all' / 'box, fix all' / 'pitstop repair all' / 'box, repair all' and 'pitstop fix none' / 'box, fix none' / 'pitstop repair none' / 'box, repair none'); GTR2 - plugin update
+
+Version 4.15.3.11: Allow start and end chat actions to be disabled per macro; iRacing - fix for mapping errors when the game doesn't send us a player name; R3E - fix GTO pit menu tyre compound selection; Rf2 - pit menu refuelling bug fixes; AMS2 - added repair pit menu macros; GTR2 - plugin update
 
 Version 4.15.3.10: Optionally block all complaining and negative messages - to implement this we've updated how we handle the "Max complaints per session" variable - this limits the maximum number of times the app can complain at or make a negative comment to the player in a single session. If you're happy to have the app complain when you do badly (by the app's occasionally unattainable standards) then set this to a higher number. If you don't want the app to complain at all set it to 0. The default value of 60 is intended to prevent the app's grumbling from getting tiresome in endurance or very long races; Added an option to limit the app's messages to information only ("Disable commentary" property, default false). This setting blocks the app's general 'advice' and encouragement / grumbling messages; GTR2 - updated plugin
 
