@@ -561,6 +561,7 @@ namespace CrewChiefV4
         public static string getNonDefaultUserSettings()
         {
             string changes = null;
+            string value = null;
             foreach (SettingsProperty prop in getProperties())
             {
                 if (prop.PropertyType == typeof(string))
@@ -569,6 +570,8 @@ namespace CrewChiefV4
                     {
                         continue;
                     }
+                    // Quote strings to show up any white space
+                    value = $"'{currentActiveProfile.userSettings[prop.Name]}'";
                 }
                 else
                 {
@@ -576,8 +579,9 @@ namespace CrewChiefV4
                     {
                         continue;
                     }
+                    value = $"{currentActiveProfile.userSettings[prop.Name]}";
                 }
-                changes += $"{prop.Name}: {currentActiveProfile.userSettings[prop.Name]}\n";
+                changes += $"{prop.Name}: {value}\n";
             }
             return changes;
         }

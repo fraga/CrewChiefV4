@@ -2607,7 +2607,11 @@ namespace CrewChiefV4
                         fi.Delete();
                     }
                     path = System.IO.Path.Combine(path, filename);
-                    File.WriteAllText(path, $"{filename}\n\nNon-default Properties:\n" + 
+                    File.WriteAllText(path, $"{filename}\nProfile: " +
+                        UserSettings.currentUserProfileFileName +
+                        "\nVOICE_OPTION: " +
+                        UserSettings.GetUserSettings().getString("VOICE_OPTION") +
+                        "\n\nNon-default Properties:\n" + 
                         UserSettings.getNonDefaultUserSettings() + "\n" +
                         consoleTextBox.Text);
                     Console.WriteLine("Console output saved to " + path);
