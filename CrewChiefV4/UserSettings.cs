@@ -553,5 +553,33 @@ namespace CrewChiefV4
                 }
             }
         }
+
+        /// <summary>
+        /// Return the settings that have been changed
+        /// </summary>
+        /// <returns>String of lines, one per changed setting</returns>
+        public static string getNonDefaultUserSettings()
+        {
+            string changes = null;
+            foreach (SettingsProperty prop in getProperties())
+            {
+                if (prop.PropertyType == typeof(string))
+                {
+                    if (prop.DefaultValue.Equals(currentActiveProfile.userSettings[prop.Name]))
+                    {
+                        continue;
+                    }
+                }
+                else
+                {
+                    if (prop.DefaultValue.Equals(currentActiveProfile.userSettings[prop.Name].ToString()))
+                    {
+                        continue;
+                    }
+                }
+                changes += $"{prop.Name}: {currentActiveProfile.userSettings[prop.Name]}\n";
+            }
+            return changes;
+        }
     }
 }
