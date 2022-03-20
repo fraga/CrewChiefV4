@@ -52,7 +52,7 @@ namespace CrewChiefV4.ACC
             float playerRotation = latestRawData.accPhysics.heading;
             if (playerRotation < 0)
             {
-                playerRotation = playerRotation = twoPi + playerRotation;
+                playerRotation = twoPi + playerRotation;
             }
             return getGridSideInternal(latestRawData, playerRotation, playerXPosition, playerZPosition, playerStartingPosition, numCars);
         }
