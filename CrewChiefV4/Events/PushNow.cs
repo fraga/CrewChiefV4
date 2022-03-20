@@ -210,6 +210,10 @@ namespace CrewChiefV4.Events
                 {
                     return true;
                 }
+                /*
+                JB: I don't think this check will work. The SignedDelta will approach the laptime (positive) as the opponent approaches the line, then it'll go small and negative
+                    until he passes our current position
+
                 if (opponent.Value.Speed > 0 &&
                     !opponent.Value.isEnteringPits() && !opponent.Value.isOnOutLap() && !opponent.Value.InPits)
                 {
@@ -221,6 +225,7 @@ namespace CrewChiefV4.Events
                         return true;
                     }
                 }
+                */
             }
             return false;
         }           
