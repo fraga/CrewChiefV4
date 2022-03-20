@@ -2583,24 +2583,37 @@ namespace CrewChiefV4
             doRestart(Configuration.getUIString("the_application_must_be_restarted_to_check_for_updates"), Configuration.getUIString("check_for_updates_title"), true);
         }
 
+        /// <summary>
+        /// Save the console window text in a timestamped log file.
+        /// Keep the last 25 log files, don't delete any that have been renamed.
+        /// </summary>
         private void saveConsoleOutputText()
         {
+            string timestamp =           "yyyy_MM_dd-HH-mm-ss";
+            string matchString = "console_???????????????????.txt";
+            int numberFilesToKeep = 25;
             try
             {
                 if (consoleTextBox.Text.Length > 0)
                 {
-                    String filename = "console_" + DateTime.Now.ToString("yyyy_MM_dd-HH-mm-ss") + ".txt";
+                    String filename = "console_" + DateTime.Now.ToString(timestamp) + ".txt";
                     String path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4", "debugLogs");
                     if (!Directory.Exists(path))
                     {
                         Directory.CreateDirectory(path);
                     }
-                    foreach (var fi in new DirectoryInfo(path).GetFiles().Where(f => f.Extension == ".txt").OrderByDescending(x => x.LastWriteTime).Skip(25))
+                    foreach (var fi in new DirectoryInfo(path).GetFiles(matchString).OrderByDescending(x => x.LastWriteTime).Skip(numberFilesToKeep))
                     {
                         fi.Delete();
                     }
                     path = System.IO.Path.Combine(path, filename);
-                    File.WriteAllText(path, consoleTextBox.Text);
+                    File.WriteAllText(path, $"{filename}\nProfile: " +
+                        UserSettings.currentUserProfileFileName +
+                        "\nVOICE_OPTION: " +
+                        UserSettings.GetUserSettings().getString("VOICE_OPTION") +
+                        "\n\nNon-default Properties:\n" + 
+                        UserSettings.getNonDefaultUserSettings() + "\n" +
+                        consoleTextBox.Text);
                     Console.WriteLine("Console output saved to " + path);
                 }
             }
