@@ -52,6 +52,8 @@ namespace CrewChiefV4.ACC
         private const int MAX_CAR_ID = 9999;
         private static DataForSync[] syncData = new DataForSync[MAX_CAR_ID + 1];
 
+        private DateTime nextUDPDebugDueAt = DateTime.MinValue;
+
         public class ACCStructWrapper
         {
             public long ticksWhenRead;
@@ -338,6 +340,13 @@ namespace CrewChiefV4.ACC
 
                     previousAACStructWrapper = structWrapper;
 
+                    if (now > nextUDPDebugDueAt)
+                    {
+                        Console.WriteLine("UDP stats:\n Incoming - " + 
+                            string.Join(" ", BroadcastingNetworkProtocol.inboundMessageTypeCounts) + "\n Outgoing - " +
+                            string.Join(" ", BroadcastingNetworkProtocol.outboundMessageTypeCounts));
+                        nextUDPDebugDueAt = now.AddSeconds(20);
+                    }
                     return structWrapper;
                 }
                 catch (AggregateException e1)
