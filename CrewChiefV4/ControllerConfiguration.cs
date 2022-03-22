@@ -218,9 +218,14 @@ namespace CrewChiefV4
                 {
                     Console.WriteLine("Error parsing " + filename + ": " + e.Message);
                     ControllerConfiguration.usersConfigFileIsBroken = true;
-                    MessageBox.Show(Configuration.getUIString("controller_mappings_file_error_details_1") + " " + filename + " " +
-                            Configuration.getUIString("controller_mappings_file_error_details_2") + " " + e.Message,
-                            Configuration.getUIString("controller_mappings_file_error_title"),
+                    string errorMsg = Configuration.getUIString("controller_mappings_file_error_details_1") + " " + filename + " " +
+                            Configuration.getUIString("controller_mappings_file_error_details_2") + " " + e.Message;
+                    if (filename.Contains("OneDrive"))
+                    {
+                        errorMsg = "(Probably a problem with OneDrive on your PC)\n" + errorMsg;
+                    }
+                    MessageBox.Show(errorMsg,
+                        Configuration.getUIString("controller_mappings_file_error_title"),
                         MessageBoxButtons.OK);
                 }
             }
