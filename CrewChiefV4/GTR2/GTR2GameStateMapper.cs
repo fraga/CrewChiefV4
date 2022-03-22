@@ -180,7 +180,7 @@ namespace CrewChiefV4.GTR2
             this.tyreDirtPickupThresholds.Add(new CornerData.EnumWithThresholds(TyreDirtPickupState.MAJOR, 0.7f, 1.1f));
         }
 
-        private int[] minimumSupportedVersionParts = new int[] { 1, 4, 0, 0 };
+        private int[] minimumSupportedVersionParts = new int[] { 2, 0, 0, 0 };
         public static bool pluginVerified = false;
         private static int reinitWaitAttempts = 0;
         public override void versionCheck(Object memoryMappedFileStruct)
@@ -1332,6 +1332,28 @@ namespace CrewChiefV4.GTR2
                     (float)shared.scoring.mScoringInfo.mAmbientTemp, (float)shared.scoring.mScoringInfo.mTrackTemp, (float)shared.scoring.mScoringInfo.mRaining,
                     (float)Math.Sqrt((double)(shared.scoring.mScoringInfo.mWind.x * shared.scoring.mScoringInfo.mWind.x + shared.scoring.mScoringInfo.mWind.y * shared.scoring.mScoringInfo.mWind.y + shared.scoring.mScoringInfo.mWind.z * shared.scoring.mScoringInfo.mWind.z)),
                     0, 0, 0, csd.IsNewLap, ConditionsMonitor.TrackStatus.UNKNOWN);
+            }
+
+            // --------------------------------
+            // DRS data
+            if (shared.extended.mActiveDRSRuleSet == (char)GTR2DRSRuleSet.DTM18)
+            {
+                cgs.OvertakingAids.DrsEnabled = shared.extended.mCurrDRSSystemState == (char)GTR2DRSSystemState.Enabled;
+                // cgs.OvertakingAids.DrsDetected = F1 specific
+                var ledState = (GTR2DTM18DRSState)shared.extended.mCurrDRSLEDState;
+
+                cgs.OvertakingAids.DrsAvailable = ledState == GTR2DTM18DRSState.Available1
+                    || ledState == GTR2DTM18DRSState.Available2
+                    || ledState == GTR2DTM18DRSState.Available3;
+
+                cgs.OvertakingAids.DrsEngaged = ledState == GTR2DTM18DRSState.Active1
+                    || ledState == GTR2DTM18DRSState.Active2
+                    || ledState == GTR2DTM18DRSState.Active3;
+
+                cgs.OvertakingAids.DrsRange = shared.extended.mActiveDRSActivationThresholdSeconds;
+
+                if (cgs.SessionData.SessionType == SessionType.Race)
+                    cgs.OvertakingAids.DrsActivationsRemaining = shared.extended.mActiveDRSDTM18ActivationsPerRace - shared.extended.mCurrActivationsInRace;
             }
 
             // --------------------------------

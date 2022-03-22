@@ -10815,6 +10815,7 @@
 			},
 			{
 				"rf2TrackNames": [ "Lausitzring" ],
+				"gtr2TrackNames": [ "Lausitzring DTM, Klettwitz", "Lausitzring GP Sprint" ],
 				"raceroomLayoutId": 2468,
 				"raceroomRollingStartLapDistance": 2467,
 				"approximateTrackLength": 3356,

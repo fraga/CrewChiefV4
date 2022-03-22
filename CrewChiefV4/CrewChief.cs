@@ -1167,6 +1167,9 @@ namespace CrewChiefV4
             Console.WriteLine("SessionIteration: " + currentGameState.SessionData.SessionIteration);
             String trackName = currentGameState.SessionData.TrackDefinition == null ? "unknown" : currentGameState.SessionData.TrackDefinition.name;
             Console.WriteLine("TrackName: \"" + trackName + "\"");
+
+            if (currentGameState.SessionData.TrackDefinition != null)
+                Console.WriteLine($"TrackLength: {currentGameState.SessionData.TrackDefinition.trackLength.ToString("0.000")}m");
         }
 
         public static Boolean isPCars()

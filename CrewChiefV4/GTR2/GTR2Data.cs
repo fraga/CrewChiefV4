@@ -191,6 +191,30 @@ namespace GTR2SharedMemory
             Electronics = 8,
             Fuel = 9
         }
+
+        public enum GTR2DRSRuleSet
+        {
+            None = 0,
+            DTM18,
+            F1
+        }
+
+        public enum GTR2DTM18DRSState
+        {
+            Inactive = 0,
+            Available3,
+            Active3,
+            Available2,
+            Active2,
+            Available1,
+            Active1
+        }
+
+        public enum GTR2DRSSystemState
+        {
+            Disabled = 0,
+            Enabled
+        }
     }
 
     namespace GTR2Data
@@ -585,6 +609,18 @@ namespace GTR2SharedMemory
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 8)]
             public double[] mPerGearDamage;
             public double mTotalGearboxDamage;
+
+            public byte mAntistallActive;
+
+            // DRS stuff.
+            public byte mActiveDRSRuleSet;
+            public float mActiveDRSActivationThresholdSeconds;
+            public byte mActiveDRSDTM18ActivationsPerLap;
+            public byte mActiveDRSDTM18ActivationsPerRace;
+
+            public byte mCurrDRSSystemState;
+            public byte mCurrDRSLEDState;
+            public byte mCurrActivationsInRace;
 
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 256)]
             [JsonIgnore] public byte[] mReserved;
