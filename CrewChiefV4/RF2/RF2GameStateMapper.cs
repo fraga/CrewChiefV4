@@ -1285,7 +1285,7 @@ namespace CrewChiefV4.rFactor2
 
             // --------------------------------
             // DRS data
-            cgs.OvertakingAids.DrsAvailable = playerTelemetry.mRearFlapLegalStatus == (int)rFactor2Constants.rF2RearFlapLegalStatus.Alllowed;
+            cgs.OvertakingAids.DrsAvailable = playerTelemetry.mRearFlapLegalStatus == (int)rFactor2Constants.rF2RearFlapLegalStatus.Allowed;
 
             // Many of rF2 tracks have no DRS zones defined.  One of the symptoms is DRS alloweved immediately on race start.
             // Disallow DRS messages in such case.

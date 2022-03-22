@@ -180,7 +180,7 @@ namespace rF2SharedMemory
         {
             Disallowed = 0,
             DetectedButNotAllowedYet = 1,
-            Alllowed = 2
+            Allowed = 2
         }
 
         // 0=off 1=ignition 2=ignition+starter
