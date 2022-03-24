@@ -20,6 +20,7 @@ using CrewChiefV4.Overlay;
 using Valve.VR;
 using CrewChiefV4.ScreenCapture;
 using CrewChiefV4.VirtualReality;
+using System.Globalization;
 
 namespace CrewChiefV4
 {
@@ -2589,20 +2590,37 @@ namespace CrewChiefV4
         /// </summary>
         private void saveConsoleOutputText()
         {
-            string timestamp =           "yyyy_MM_dd-HH-mm-ss";
-            string matchString = "console_???????????????????.txt";
+            String prefix = "console_";
+            String timestamp =            "yyyy_MM_dd-HH-mm-ss";
+            String matchString = prefix + "????_??_??-??-??-??.txt";
             int numberFilesToKeep = 25;
             try
             {
                 if (consoleTextBox.Text.Length > 0)
                 {
-                    String filename = "console_" + DateTime.Now.ToString(timestamp) + ".txt";
+                    String filename = prefix + DateTime.Now.ToString(timestamp) + ".txt";
                     String path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4", "debugLogs");
                     if (!Directory.Exists(path))
                     {
                         Directory.CreateDirectory(path);
                     }
-                    foreach (var fi in new DirectoryInfo(path).GetFiles(matchString).OrderByDescending(x => x.LastWriteTime).Skip(numberFilesToKeep))
+                    // Get the list of console_*.txt log files in the log folder
+                    // then DateTime.TryParse the timestamp bit to filter the
+                    // ones with just the timestamp CC gave them (i.e. not
+                    // renamed by user because they want to keep them). Sort
+                    // into LastWriteTime order and keep the most recent 'numberFilesToKeep'
+                    DateTime __; // (To discard result of DateTime.TryParse)
+                    CultureInfo enGB = new CultureInfo("en-GB");
+                    foreach (var fi in new DirectoryInfo(path).GetFiles(matchString)
+                        .Where(file => DateTime.TryParseExact(
+                            file.Name.Substring(prefix.Length, 
+                                file.Name.Length - file.Extension.Length - prefix.Length),
+                            timestamp,
+                            enGB,
+                            DateTimeStyles.None,
+                            out __) )
+                        .OrderByDescending(x => x.LastWriteTime)
+                        .Skip(numberFilesToKeep))
                     {
                         fi.Delete();
                     }
