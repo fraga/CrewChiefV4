@@ -345,7 +345,7 @@ namespace CrewChiefV4.ACC
                         Console.WriteLine("UDP stats:\n Incoming - " + 
                             string.Join(" ", BroadcastingNetworkProtocol.inboundMessageTypeCounts) + "\n Outgoing - " +
                             string.Join(" ", BroadcastingNetworkProtocol.outboundMessageTypeCounts));
-                        nextUDPDebugDueAt = now.AddSeconds(20);
+                        nextUDPDebugDueAt = now.AddSeconds(60);
                     }
                     return structWrapper;
                 }
