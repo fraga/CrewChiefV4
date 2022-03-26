@@ -431,6 +431,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.16.1.4: Added some additional logging for non-standard property values; Fix some incorrect 'opponent approaching' pit exit calls; ACC - wait a little longer for stable opponent positions before deriving player grid side and car-to-follow (should fix issues with occasionally incorrect formation lap calls); GTR2 - plugin update; A few minor bug fixes
+
 Version 4.16.1.3: Clear fuel data in race session when starting from the pit lane (should prevent unrealistic fuel consumption figures in such circumstances); ACC - improved session restart detection; ACC - fix cut tracks playing after an invalidated out lap; ACC - recalculate car to follow and grid side at the start of double-file formation if drivers have dropped out; ACC - derive the pit window start and end times from the total pit window length, rather than the game-provided start and end times (should fix the incorrect window calls). Note that this may result in incorrect pit window calls if you enter a race session some time after the race has started
 
 Version 4.16.1.2: Fix issues launching games; ACC - wired up more pre-start messages and some pit window and session transition fixes
