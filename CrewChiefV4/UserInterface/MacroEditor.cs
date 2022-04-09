@@ -120,6 +120,10 @@ namespace CrewChiefV4
             // try to select the CME game matching the main window game
             var selectionIndexFromPosition = Math.Min(MainWindow.instance.gameDefinitionList.SelectedIndex,
                 listBoxGames.Items.Count-1);
+            if (MainWindow.instance.gameDefinitionList.SelectedItem == null)
+            {   // No game has been selected, select the first one
+                MainWindow.instance.gameDefinitionList.SelectedIndex = 0;
+            }
             var selectionIndexFromName = listBoxGames.Items.IndexOf(MainWindow.instance.gameDefinitionList.SelectedItem);
 
             if (selectionIndexFromName != -1)
