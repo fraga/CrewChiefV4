@@ -2588,7 +2588,7 @@ namespace CrewChiefV4
         /// Save the console window text in a timestamped log file.
         /// Keep the last 25 log files, don't delete any that have been renamed.
         /// </summary>
-        private void saveConsoleOutputText()
+        internal string saveConsoleOutputText()
         {
             String prefix = "console_";
             String timestamp =            "yyyy_MM_dd-HH-mm-ss";
@@ -2633,12 +2633,14 @@ namespace CrewChiefV4
                         UserSettings.getNonDefaultUserSettings() + "\n" +
                         consoleTextBox.Text);
                     Console.WriteLine("Console output saved to " + path);
+                    return path;
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Unable to save console output, message = " + ex.Message);
             }
+            return null;
         }
 
         private void reacquireControllerList()
