@@ -221,25 +221,32 @@ namespace CrewChiefV4
             return dict;
         }
 
-        private static void LoadAndMerge(Dictionary<string, string> dict, string language)
+        private static void LoadAndMerge(Dictionary<string, string> dict, string languageFilepath)
         {
-            using (var file = new StreamReader(language))
+            try
             {
-                try
+                using (var file = new StreamReader(languageFilepath))
                 {
-
-                    merge(file, dict);
-                }
-                catch (Exception)
-                {
-                }
-                finally
-                {
-                    if (file != null)
+                    try
                     {
-                        file.Close();
+
+                        merge(file, dict);
+                    }
+                    catch (Exception)
+                    {
+                    }
+                    finally
+                    {
+                        if (file != null)
+                        {
+                            file.Close();
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                Utilities.ReportException(ex, $"Couldn't find language file {languageFilepath}", false);
             }
         }
 

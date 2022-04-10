@@ -133,21 +133,7 @@ namespace CrewChiefV4
             }
             catch (Exception e)
             {
-                String message = "Error message: " + e.Message + "\nStack trace: " + String.Join(",", e.StackTrace);
-                int innerExceptionCount = 0;
-                int maxReportableInnerExceptions = 5;   // in case we have a circular set of inner exception references
-                Exception innerException = e.InnerException;
-                while (innerException != null && innerExceptionCount < maxReportableInnerExceptions)
-                {
-                    message += "\n\nInner exception " + innerExceptionCount + " message: " + e.InnerException.Message +
-                        "\nInner exception " + innerExceptionCount + " stack trace: " + String.Join(",", e.InnerException.StackTrace);
-                    innerException = innerException.InnerException;
-                    innerExceptionCount++;
-                }
-                MessageBox.Show("The following text will be copied to the clipboard, please report this to the Crew Chief team.\n\n" + message,
-                    "Fatal error",
-                    MessageBoxButtons.OK);
-                Clipboard.SetText(message);
+                Utilities.ReportException(e, "UNKNOWN EXCEPTION", true);
             }
 #endif
 

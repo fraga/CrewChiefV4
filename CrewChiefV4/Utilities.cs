@@ -10,6 +10,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
+using System.Windows.Forms;
 using WebSocketSharp;
 using WebSocketSharp.Server;
 
@@ -577,27 +578,55 @@ namespace CrewChiefV4
 
         internal static void ReportException(Exception e, string msg, bool needReport)
         {
-            Console.WriteLine(
-                Environment.NewLine + "==================================================================" + Environment.NewLine
-                + (needReport ? ("PLEASE REPORT THIS ERROR TO CC DEV TEAM." + Environment.NewLine) : "")
-                + "Error message: " + msg + Environment.NewLine
-                + e.ToString() + Environment.NewLine
-                + e.Message + Environment.NewLine
-                + e.StackTrace + Environment.NewLine
-            );
-
-            if (e.InnerException != null)
+            String message = "Error message copied to clipboard:\n"
+                + e.Message + "\nStack trace: "
+                + String.Join(",", e.StackTrace);
+            int innerExceptionCount = 0;
+            int maxReportableInnerExceptions = 5;   // in case we have a circular set of inner exception references
+            Exception innerException = e.InnerException;
+            while (innerException != null && innerExceptionCount < maxReportableInnerExceptions)
             {
-                Console.WriteLine(
-                    "Inner exception: " + e.InnerException.ToString() + Environment.NewLine
-                    + e.InnerException.Message + Environment.NewLine
-                    + e.InnerException.StackTrace + Environment.NewLine
-                );
+                message += "\n\nInner exception " + innerExceptionCount + " message: " + e.InnerException.Message +
+                    "\nInner exception " + innerExceptionCount + " stack trace: " + String.Join(",", e.InnerException.StackTrace);
+                innerException = innerException.InnerException;
+                innerExceptionCount++;
             }
-
+            // Write it to the console window if it's live
+            Console.WriteLine(
+                "==================================================================" + Environment.NewLine
+                );
+            Console.WriteLine(message);
             Console.WriteLine(
                 "==================================================================" + Environment.NewLine
             );
+
+            string consoleLogFilename = null;
+            try
+            {
+                consoleLogFilename = MainWindow.instance.saveConsoleOutputText();
+            }
+            catch (Exception ex)
+            {
+            }
+            if (consoleLogFilename == null)
+            {
+                // Console window not live yet
+                MessageBox.Show("The following text will be COPIED TO THE CLIPBOARD\n"
+                    + (needReport ? "Please PASTE the report to the Crew Chief team via the forum or Discord." : "")
+                    + "\n\n" + message,
+                    "Fatal error",
+                    MessageBoxButtons.OK);
+            }
+            else if (needReport)
+            {
+                MessageBox.Show($"The following text should be found in {consoleLogFilename}\n"
+                    + "but will be COPIED TO THE CLIPBOARD too\n"
+                    + "Please send the log file to the Crew Chief team via the forum or Discord."
+                    + "\n\n" + message,
+                    "Fatal error",
+                    MessageBoxButtons.OK);
+            }
+            Clipboard.SetText(message);
         }
 
         internal static bool InterruptedSleep(int totalWaitMillis, int waitWindowMillis, Func<bool> keepWaitingPredicate)
