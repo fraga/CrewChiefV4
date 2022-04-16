@@ -134,7 +134,9 @@ namespace CrewChiefV4.Events
                     }
                     else if (litresNeeded <= 0)
                     {
+                        ClearFuel();
                         audioPlayer.playMessage(new QueuedMessage(Fuel.folderPlentyOfFuel, 0));
+                        
                     }
                     else if (litresNeeded > 0)
                     {
