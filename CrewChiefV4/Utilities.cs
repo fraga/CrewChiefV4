@@ -476,11 +476,52 @@ namespace CrewChiefV4
             // If debugging then carry on regardless
             return false;
         }
+        /// <summary>
+        /// If 'text' is longer than 'maxLength' insert a newline near
+        /// the middle after a word break
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="maxLength"></param>
+        /// <returns></returns>
+        public static string SplitString(string text, int maxLength)
+        {
+            if (text.Length <= maxLength)
+            {
+                return text;
+            }
+            //Degenerate case with only 1 word
+            if (!text.Any(Char.IsWhiteSpace))
+            {
+                return text;
+            }
 
-    /// <summary>
-    /// Read the command line arguments into a dictionary
-    /// </summary>
-    public class CommandLineParametersReader
+            int mid = text.Length / 2;
+            if (!Char.IsWhiteSpace(text[mid]))
+            {
+                for (int i = 1; i < mid; i += i)
+                {
+                    if (Char.IsWhiteSpace(text[mid + i]))
+                    {
+                        mid = mid + i;
+                        break;
+                    }
+                    if (Char.IsWhiteSpace(text[mid - i]))
+                    {
+                        mid = mid - i;
+                        break;
+                    }
+                }
+            }
+
+            return text.Substring(0, mid)
+                   + Environment.NewLine + text.Substring(mid + 1);
+        }
+
+
+        /// <summary>
+        /// Read the command line arguments into a dictionary
+        /// </summary>
+        public class CommandLineParametersReader
         {
             private string[] _args
             {
