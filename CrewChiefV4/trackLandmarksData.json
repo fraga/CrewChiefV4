@@ -3356,86 +3356,87 @@
 					}
 				]
 			},
-			{
-				"rf2TrackNames": [ "Circuit de la Sarthe" ],
-				"gtr2TrackNames": [ "Le Mans 2019" ],
-				"pcarsTrackName": "Le Mans:Circuit des 24 Heures du Mans",
-				"pcars2TrackName": "Le_Mans:24_Hours_of_Le_Mans_Circuit",
-				"trackLandmarks": [
-					{
-						"landmarkName": "dunlop_curve",
-						"distanceRoundLapStart": 380,
-						"distanceRoundLapEnd": 770,
-						"isCommonOvertakingSpot": false
-					},
-					{
-						"landmarkName": "dunlop_chicane",
-						"distanceRoundLapStart": 815,
-						"distanceRoundLapEnd": 985,
-						"isCommonOvertakingSpot": true
-					},
-					{
-						"landmarkName": "the_esses",
-						"distanceRoundLapStart": 1060,
-						"distanceRoundLapEnd": 1700,
-						"isCommonOvertakingSpot": false
-					},
-					{
-						"landmarkName": "tetre_rouge",
-						"distanceRoundLapStart": 1920,
-						"distanceRoundLapEnd": 2050,
-						"isCommonOvertakingSpot": true
-					},
-					{
-						"landmarkName": "playstation_chicane",
-						"distanceRoundLapStart": 4090,
-						"distanceRoundLapEnd": 4425,
-						"isCommonOvertakingSpot": true
-					},
-					{
-						"landmarkName": "michelin_chicane",
-						"distanceRoundLapStart": 6100,
-						"distanceRoundLapEnd": 6450,
-						"isCommonOvertakingSpot": false
-					},
-					{
-						"landmarkName": "mulsanne",
-						"distanceRoundLapStart": 7890,
-						"distanceRoundLapEnd": 8020,
-						"isCommonOvertakingSpot": true
-					},
-					{
-						"landmarkName": "indianapolis",
-						"distanceRoundLapStart": 10040,
-						"distanceRoundLapEnd": 10200,
-						"isCommonOvertakingSpot": true
-					},
-					{
-						"landmarkName": "arnage",
-						"distanceRoundLapStart": 10380,
-						"distanceRoundLapEnd": 10470,
-						"isCommonOvertakingSpot": true
-					},
-					{
-						"landmarkName": "porsche_curves",
-						"distanceRoundLapStart": 11695,
-						"distanceRoundLapEnd": 12820,
-						"isCommonOvertakingSpot": false
-					},
-					{
-						"landmarkName": "the_first_ford_chicane",
-						"distanceRoundLapStart": 13505,
-						"distanceRoundLapEnd": 13650,
-						"isCommonOvertakingSpot": true
-					},
-					{
-						"landmarkName": "the_second_ford_chicane",
-						"distanceRoundLapStart": 13680,
-						"distanceRoundLapEnd": 13800,
-						"isCommonOvertakingSpot": false
-					}
-				]
-			},
+		{
+			"rf2TrackNames": [ "Circuit de la Sarthe" ],
+			"gtr2TrackNames": [ "Le Mans 2019" ],
+			"pcarsTrackName": "Le Mans:Circuit des 24 Heures du Mans",
+			"pcars2TrackName": "Le_Mans:24_Hours_of_Le_Mans_Circuit",
+			"irTrackName": "lemans full",
+			"trackLandmarks": [
+				{
+					"landmarkName": "dunlop_curve",
+					"distanceRoundLapStart": 380,
+					"distanceRoundLapEnd": 770,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "dunlop_chicane",
+					"distanceRoundLapStart": 815,
+					"distanceRoundLapEnd": 985,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "the_esses",
+					"distanceRoundLapStart": 1060,
+					"distanceRoundLapEnd": 1700,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "tetre_rouge",
+					"distanceRoundLapStart": 1920,
+					"distanceRoundLapEnd": 2050,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "playstation_chicane",
+					"distanceRoundLapStart": 4090,
+					"distanceRoundLapEnd": 4425,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "michelin_chicane",
+					"distanceRoundLapStart": 6100,
+					"distanceRoundLapEnd": 6450,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "mulsanne",
+					"distanceRoundLapStart": 7890,
+					"distanceRoundLapEnd": 8020,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "indianapolis",
+					"distanceRoundLapStart": 10040,
+					"distanceRoundLapEnd": 10200,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "arnage",
+					"distanceRoundLapStart": 10380,
+					"distanceRoundLapEnd": 10470,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "porsche_curves",
+					"distanceRoundLapStart": 11695,
+					"distanceRoundLapEnd": 12820,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "the_first_ford_chicane",
+					"distanceRoundLapStart": 13505,
+					"distanceRoundLapEnd": 13650,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "the_second_ford_chicane",
+					"distanceRoundLapStart": 13680,
+					"distanceRoundLapEnd": 13800,
+					"isCommonOvertakingSpot": false
+				}
+			]
+		},
 		{
 			"rf2TrackNames": [ "LeMans91" ],
 			"acTrackNames": [ "sx_lemans:chicane" ],
