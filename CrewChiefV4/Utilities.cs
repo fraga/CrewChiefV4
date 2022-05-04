@@ -619,8 +619,8 @@ namespace CrewChiefV4
 
         internal static void ReportException(Exception e, string msg, bool needReport)
         {
-            String message = "Error message copied to clipboard:\n"
-                + e.Message + "\nStack trace: "
+            String message = needReport ? "Error message copied to clipboard:\n" : ""
+                + e.Message + "Stack trace: "
                 + String.Join(",", e.StackTrace);
             int innerExceptionCount = 0;
             int maxReportableInnerExceptions = 5;   // in case we have a circular set of inner exception references
@@ -641,33 +641,36 @@ namespace CrewChiefV4
                 "==================================================================" + Environment.NewLine
             );
 
-            string consoleLogFilename = null;
-            try
+            if (needReport)
             {
-                consoleLogFilename = MainWindow.instance.saveConsoleOutputText();
+                string consoleLogFilename = null;
+                try
+                {
+                    consoleLogFilename = MainWindow.instance.saveConsoleOutputText();
+                }
+                catch (Exception ex)
+                {
+                }
+                if (consoleLogFilename == null)
+                {
+                    // Console window not live yet
+                    MessageBox.Show("The following text will be COPIED TO THE CLIPBOARD\n"
+                        + (needReport ? "Please PASTE the report to the Crew Chief team via the forum or Discord." : "")
+                        + "\n\n" + message,
+                        "Fatal error",
+                        MessageBoxButtons.OK);
+                }
+                else
+                {
+                    MessageBox.Show($"The following text should be found in {consoleLogFilename}\n"
+                        + "but will be COPIED TO THE CLIPBOARD too\n"
+                        + "Please send the log file to the Crew Chief team via the forum or Discord."
+                        + "\n\n" + message,
+                        "Fatal error",
+                        MessageBoxButtons.OK);
+                }
+                Clipboard.SetText(message);
             }
-            catch (Exception ex)
-            {
-            }
-            if (consoleLogFilename == null)
-            {
-                // Console window not live yet
-                MessageBox.Show("The following text will be COPIED TO THE CLIPBOARD\n"
-                    + (needReport ? "Please PASTE the report to the Crew Chief team via the forum or Discord." : "")
-                    + "\n\n" + message,
-                    "Fatal error",
-                    MessageBoxButtons.OK);
-            }
-            else if (needReport)
-            {
-                MessageBox.Show($"The following text should be found in {consoleLogFilename}\n"
-                    + "but will be COPIED TO THE CLIPBOARD too\n"
-                    + "Please send the log file to the Crew Chief team via the forum or Discord."
-                    + "\n\n" + message,
-                    "Fatal error",
-                    MessageBoxButtons.OK);
-            }
-            Clipboard.SetText(message);
         }
 
         internal static bool InterruptedSleep(int totalWaitMillis, int waitWindowMillis, Func<bool> keepWaitingPredicate)

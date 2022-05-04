@@ -3058,7 +3058,7 @@ namespace CrewChiefV4
                                 }
                                 catch (Exception e)
                                 {
-                                    Utilities.ReportException(e, "Exception in SpeechRecognitionEngine.RecognizeAsync.", true /*needReport*/);
+                                    Utilities.ReportException(e, "Exception in SpeechRecognitionEngine.RecognizeAsync.", false /*needReport*/);
                                 }
                             }
                             StopNAudioWaveIn();
@@ -3113,7 +3113,7 @@ namespace CrewChiefV4
                         }
                         catch (Exception e)
                         {
-                            Utilities.ReportException(e, "Exception in SpeechRecognitionEngine.RecognizeAsync.", true /*needReport*/);
+                            Utilities.ReportException(e, "Exception in SpeechRecognitionEngine.RecognizeAsync.", false /*needReport*/);
                         }
                     }
                 }
