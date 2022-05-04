@@ -576,7 +576,7 @@ namespace GTR2SharedMemory
             public GTR2SessionTransitionCapture mSessionTransitionCapture;// Contains partial internals capture at session transition time.
 
             // Direct Memory access stuff
-            public byte mUnofficialFeaturesEnabled;
+            public byte mUnused;
 
             public Int64 mTicksFirstHistoryMessageUpdated;                // Ticks when first message history message was updated;
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = GTR2Constants.MAX_STATUS_MSG_LEN)]
