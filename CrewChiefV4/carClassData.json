@@ -262,6 +262,7 @@
 		{
 			"carClassEnum": "BMW_235I",
 			"raceroomClassIds": [ 6344 ],
+			"acClassNames": [ "ks_bmw_m2_cup" ],
 			"timesInHundredths": true,
 			"maxSafeWaterTemp": 100,
 			"maxSafeOilTemp": 106,
@@ -990,7 +991,7 @@
 		},
 		{
 			"carClassEnum": "HYPER_CAR_RACE",
-			"acClassNames": [ "ferrari_599xxevo", "pagani_zonda_r", "ks_ferrari_fxx_k" ],
+			"acClassNames": [ "ferrari_599xxevo", "pagani_zonda_r", "ks_ferrari_fxx_k", "ks_acc_488_challenge" ],
 			"brakeType": "Carbon",
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL"

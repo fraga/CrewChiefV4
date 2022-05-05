@@ -364,17 +364,25 @@ namespace CrewChiefV4.ACC
         public string getCarModel(int carModelEnum)
         {
             // 4 classes in ACC - GT4 (class enum 50 - 61), Porsche Cup (class enum 9) and Huracan Super Trofeo (class enum 18). Everything else is GT3
-            if (carModelEnum == 9)
+            if (carModelEnum == 9 || carModelEnum == 28)
             {
                 return "porsche_911_cup";
             }
-            else if (carModelEnum == 18)
+            else if (carModelEnum == 18 || carModelEnum == 29)
             {
                 return "ks_lamborghini_huracan_st"; // this puts the ST in the GTE class
             }
             else if (carModelEnum >= 50 && carModelEnum <= 61)
             {
                 return "GT4";
+            }
+            else if (carModelEnum == 27)
+            {
+                return "ks_acc_488_challenge";
+            }
+            else if (carModelEnum == 26)
+            {
+                return "ks_bmw_m2_cup";
             }
             return "GT3";
         }
