@@ -42,18 +42,18 @@ namespace CrewChiefV4
             {
                 if (CrewChief.CommandLine.Get(affinity.Key) != null)
                 {
-                        try
-                        {
-                            var process = System.Diagnostics.Process.GetCurrentProcess();
-                            // Set Core
-                            process.ProcessorAffinity = affinity.Value;
-                            Console.WriteLine("Set process core affinity to " + affinity.Key);
-                        }
-                        catch (Exception)
-                        {
-                            Console.WriteLine("Failed to set process affinity");
-                        }
+                    try
+                    {
+                        var process = System.Diagnostics.Process.GetCurrentProcess();
+                        // Set Core
+                        process.ProcessorAffinity = affinity.Value;
+                        Console.WriteLine("Set process core affinity to " + affinity.Key);
                     }
+                    catch (Exception)
+                    {
+                        Console.WriteLine("Failed to set process affinity");
+                    }
+                }
             }
             MainWindow.soundTestMode = CrewChief.CommandLine.Get("sound_test") != null;
             MainWindow.disableControllerReacquire = CrewChief.CommandLine.Get("nodevicescan") != null;
@@ -65,7 +65,7 @@ namespace CrewChiefV4
             if (!allowMultipleInst)
             {
                 String commandPassed = CrewChief.CommandLine.GetCommandArg();
-				if (commandPassed != null)
+                if (commandPassed != null)
                 {
                     if (CommandManager.ProcesssCommand(commandPassed))
                         return;  // This is execution to perform command, exit.
@@ -125,6 +125,9 @@ namespace CrewChiefV4
 #if !DEBUG
             try
             {
+                SharpDX.Configuration.EnableObjectTracking = true;
+                SharpDX.ComObject.LogMemoryLeakWarning = msg => Console.Write(msg);
+                
 #endif
                 MainWindow mw = new MainWindow();
                 mw.MenuStrip(mw.exemplarFont); // Add the menu strip to the main window
@@ -189,7 +192,7 @@ namespace CrewChiefV4
                 {
                     File.Delete(Loading.tempSplashImagePath);
                 }
-                catch (Exception e) {Log.Exception(e);}
+                catch (Exception e) { Log.Exception(e); }
             }
             new Thread(() =>
             {

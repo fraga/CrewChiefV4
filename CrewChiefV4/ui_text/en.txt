@@ -342,7 +342,7 @@ additional_available_actions = &Additional available actions
 reload_actions = &Restore user defaults.
 
 ###################################### SteamVR Overlay Settings ######################################################
-enable_in_vr = &Show in VR
+enable_in_vr = Show in &VR
 vr_overlay_position = Overlay &position
 vr_position_x = Left / Right (X)
 vr_position_y = Up / Down (Y)
@@ -355,18 +355,42 @@ vr_overlay_scale_trans_curve = S&cale / Transparency / Curvature
 vr_scale = Scale
 vr_transparency = Transparency
 vr_curvature = Curvature
-vr_enable_gazing = Enable gazing
+vr_enable_gazing = Enable &Gazing
 vr_gaze_scale = Gazing scale
 vr_gaze_transparency = Gazing transparency
 vr_force_topmost_window = Force window on top
 vr_toggle_key = Toggle Key(s)
 vr_tracking_universe_overwrite = Overwrite VR tracking universe
 vr_recenter_pose = Reset VR view
+vr_transparent_background = Transparent &Background
+vr_transparent_color = Transparent Color
+vr_transparent_tolerance = Tolerance
 
 vr_tracking_space_seated = Seated
 vr_tracking_space_standing = Standing
 vr_tracking_space_followhead = Follow Head
 vr_tracking_space = Tracking space
+
+vr_decrement_x_position = Decrement X Position
+vr_increment_x_position = Increment X Position
+vr_decrement_y_position = Decrement Y Position
+vr_increment_y_position = Increment Y Position
+vr_decrement_z_position = Decrement Z Position 
+vr_increment_z_position = Increment Z Position 
+vr_decrement_x_rotation = Decrement X Rotation 
+vr_increment_x_rotation = Increment X Rotation 
+vr_decrement_y_rotation = Decrement Y Rotation 
+vr_increment_y_rotation = Increment Y Rotation 
+vr_decrement_z_rotation = Decrement Z Rotation 
+vr_increment_z_rotation = Increment Z Rotation 
+vr_decrement_scale = Increase Scale 
+vr_increment_scale = Decrease Scale
+vr_decrement_transparency = Increase Transparency
+vr_increment_transparency = Decrease Transparency
+vr_reset_overlay_position_and_rotation = Reset Position and Rotation
+vr_previous_visible_overlay = Select Next Enabled Window
+vr_next_visible_overlay = Select Previous Enabled Window
+
 
 ###################################### Preferences ######################################################
 # to change the name of the property title in the properties screen, just use the property name like this:

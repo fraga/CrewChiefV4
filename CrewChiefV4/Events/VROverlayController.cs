@@ -21,10 +21,10 @@ namespace CrewChiefV4.Events
         public static bool vrUpdateThreadRunning = false;
 
         public VROverlayController(AudioPlayer audioPlayer)
-        {}
+        { }
 
         public override void clearState()
-        {}
+        { }
 
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
         {
@@ -32,39 +32,35 @@ namespace CrewChiefV4.Events
 
         public override void respond(String voiceMessage)
         {
-            if (!VROverlayController.vrUpdateThreadRunning)
+            if (!vrUpdateThreadRunning)
                 return;
 
             if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.TOGGLE_VR_OVERLAYS))
             {
-                if (VROverlayController.vrOverlayRenderThreadSuspended)
-                    VROverlayController.resumeVROverlayRenderThread();
+                if (vrOverlayRenderThreadSuspended)
+                    resumeVROverlayRenderThread();
                 else
-                    VROverlayController.suspendVROverlayRenderThread();
+                    suspendVROverlayRenderThread();
             }
+
             if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.SHOW_VR_SETTING))
             {
                 lock (MainWindow.instanceLock)
                 {
                     if (MainWindow.instance != null)
                     {
-                        MainWindow.instance.Invoke((MethodInvoker)delegate
-                        {
-                            MainWindow.instance.vrOverlayForm.ShowDialog();                        
-                        });
+                        MainWindow.instance.Invoke(() => MainWindow.instance.vrOverlayForm.ShowDialog(MainWindow.instance));
                     }
                 }
             }
+
             if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HIDE_VR_SETTING))
             {
                 lock (MainWindow.instanceLock)
                 {
                     if (MainWindow.instance != null)
                     {
-                        MainWindow.instance.Invoke((MethodInvoker)delegate
-                        {
-                            MainWindow.instance.vrOverlayForm.Close();                        
-                        });
+                        MainWindow.instance.Invoke(() => MainWindow.instance.vrOverlayForm.Close());
                     }
                 }
             }
@@ -72,17 +68,17 @@ namespace CrewChiefV4.Events
 
         public static void suspendVROverlayRenderThread()
         {
-            lock (VROverlayController.suspendStateLock)
+            lock (suspendStateLock)
             {
-                VROverlayController.vrOverlayRenderThreadSuspended = true;
+                vrOverlayRenderThreadSuspended = true;
             }
         }
 
         public static void resumeVROverlayRenderThread()
         {
-            lock (VROverlayController.suspendStateLock)
+            lock (suspendStateLock)
             {
-                VROverlayController.vrOverlayRenderThreadSuspended = false;
+                vrOverlayRenderThreadSuspended = false;
             }
         }
     }
