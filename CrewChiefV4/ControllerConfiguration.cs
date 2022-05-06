@@ -1162,6 +1162,7 @@ namespace CrewChiefV4
             }
         }
 
+        [DebuggerDisplay("{action} {uiText}")]
         public class ButtonAssignment
         {
             public ButtonAssignment()

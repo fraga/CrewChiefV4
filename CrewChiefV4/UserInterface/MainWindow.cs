@@ -194,6 +194,7 @@ namespace CrewChiefV4
         internal static bool playingBackTrace = false;
 
         public VROverlaySettings vrOverlayForm = null;
+        VROverlayConfiguration _VRConfig = VROverlayConfiguration.FromFile();
 
         private DeviceManager deviceManager = null;
         private Direct3D11CaptureSource captureSource = null;
@@ -1505,20 +1506,21 @@ namespace CrewChiefV4
         {
             return Win32Stuff.FindWindowsWithText("SteamVR").FirstOrDefault() != IntPtr.Zero;
         }
+
         private bool initSteamVR()
         {
             if (SteamVR.instance != null)
             {
                 try
                 {
-                    deviceManager = new DeviceManager();
-                    captureSource = new Direct3D11CaptureSource(deviceManager);
+                    deviceManager = new DeviceManager(OpenVR.System);
+                    captureSource = new Direct3D11CaptureSource(deviceManager, _VRConfig, OpenVR.System);
 
-                    this.Invoke((MethodInvoker)delegate
+                    this.Invoke(() =>
                     {
                         if (MainWindow.instance != null)
                         {
-                            vrOverlayForm = new VROverlaySettings();
+                            vrOverlayForm = new VROverlaySettings(_VRConfig);
                             buttonVRWindowSettings.Enabled = true;
                         }
                     });
@@ -1591,8 +1593,7 @@ namespace CrewChiefV4
                                     VROverlayWindow[] currentItemsToHide = null;
                                     lock (VROverlaySettings.instanceLock)
                                     {
-                                        currentItemsToHide = new VROverlayWindow[vrOverlayForm.listBoxWindows.Items.Count];
-                                        vrOverlayForm.listBoxWindows.Items.CopyTo(currentItemsToHide, 0);
+                                        currentItemsToHide = vrOverlayForm.listBoxWindows.Items.OfType<VROverlayWindow>().ToArray();
                                     }
                                     currentItemsToHide.Where(wnd => wnd.enabled).ToList().ForEach(w => w.SetOverlayEnabled(false));
                                     vrOverlayForceDisabledDrawing = true;
@@ -1638,8 +1639,7 @@ namespace CrewChiefV4
                             VROverlayWindow[] currentItems = null;
                             lock (VROverlaySettings.instanceLock)
                             {
-                                currentItems = new VROverlayWindow[vrOverlayForm.listBoxWindows.Items.Count];
-                                vrOverlayForm.listBoxWindows.Items.CopyTo(currentItems, 0);
+                                currentItems = vrOverlayForm.listBoxWindows.Items.OfType<VROverlayWindow>().ToArray();
                             }
 
                             foreach (var wnd in currentItems)
@@ -1649,7 +1649,7 @@ namespace CrewChiefV4
 
                             var windowBatch = currentItems.Where(wnd => wnd.enabled).ToList();
 
-                            captureSource.Capture(ref windowBatch);
+                            captureSource.Capture(windowBatch);
                             foreach (var wnd in windowBatch)
                             {
                                 wnd.hmdMatrix = hmdMatrix;
@@ -1687,7 +1687,7 @@ namespace CrewChiefV4
                     if (VROverlayController.vrUpdateThreadRunning  // Shutting down.
                         && MainWindow.instance != null)
                     {
-                        this.Invoke((MethodInvoker)delegate
+                        this.Invoke(() =>
                         {
                             if (MainWindow.instance != null)
                             {
@@ -1701,8 +1701,9 @@ namespace CrewChiefV4
                     // Shutdown.
                 }
 
-                if (Application.OpenForms.OfType<VROverlaySettings>().Count() == 1)
-                    Application.OpenForms.OfType<VROverlaySettings>().First().Close();
+                Application.OpenForms.OfType<VROverlaySettings>()
+                                    .ToList()
+                                    .ForEach(v => v.Close());
 
                 OpenVR.System?.AcknowledgeQuit_Exiting();
 
@@ -1722,6 +1723,7 @@ namespace CrewChiefV4
                 Utilities.ReportException(ex, "handleVRQuit exited with exception.", needReport: false);
             }
         }
+
         public void resetSteamVRTrackingPose()
         {
             if (!VROverlayController.vrUpdateThreadRunning)
@@ -1729,7 +1731,6 @@ namespace CrewChiefV4
 
             try
             {
-
                 if (UserSettings.GetUserSettings().getBoolean("force_seated_on_vr_view_reset"))
                     OpenVR.Chaperone.ResetZeroPose(ETrackingUniverseOrigin.TrackingUniverseSeated);
                 else
@@ -3721,8 +3722,9 @@ namespace CrewChiefV4
 
         public void buttonVRWindowSettings_Click(object sender, EventArgs e)
         {
-            vrOverlayForm.ShowDialog();
+            vrOverlayForm.ShowDialog(this);
         }
+
         public static string Base64Decode(string base64EncodedData)
         {
             var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);

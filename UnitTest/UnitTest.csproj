@@ -56,6 +56,8 @@
     <Compile Include="UnitTestCommandLineParametersReader.cs" />
     <Compile Include="UnitTestPitMenuEventHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="VROverlayWindow\OverlayDecoratorTests.cs" />
+    <Compile Include="VROverlayWindow\Direct3D11CaptureSourceTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CrewChiefV4\CrewChiefV4.csproj">
