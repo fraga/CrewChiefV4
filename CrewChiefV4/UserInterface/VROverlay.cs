@@ -149,7 +149,7 @@ namespace CrewChiefV4
                     isDisplay = true;
                 }
 
-                var existingWindowFromConfig = _Config.Windows.FirstOrDefault(s => s.Name == windowName);
+                var existingWindowFromConfig = _Config.Windows == null ? null : _Config.Windows.FirstOrDefault(s => s.Name == windowName);
                 if (existingWindowFromConfig != null)
                 {
                     bool isVRForm = existingWindowFromConfig.Text == this.Text;
@@ -393,23 +393,26 @@ namespace CrewChiefV4
 
                 // find the windows that the user interacted with
                 // also try to match with an existing instance from the config 
-                var currWasEnabled = listBoxWindows.Items.OfType<VROverlayWindow>()
-                                                         .Where(s => s.wasEnabled)
-                                                         .Select(currentWindow => new { currentWindow, windowFromConfig = _Config.Windows.FirstOrDefault(w => w.Text == currentWindow.Text) })
-                                                         .ToList();
-
-                foreach (var pair in currWasEnabled)
+                if (_Config.Windows != null)
                 {
-                    // add new windows
-                    if (pair.windowFromConfig == null)
+                    var currWasEnabled = listBoxWindows.Items.OfType<VROverlayWindow>()
+                                                             .Where(s => s.wasEnabled)
+                                                             .Select(currentWindow => new { currentWindow, windowFromConfig = _Config.Windows.FirstOrDefault(w => w.Text == currentWindow.Text) })
+                                                             .ToList();
+
+                    foreach (var pair in currWasEnabled)
                     {
-                        _Config.Windows.Add(pair.currentWindow);
-                    }
-                    else
-                    {
-                        // otherwise update existing
-                        Debug.Assert(pair.currentWindow.Name == pair.windowFromConfig.Name);
-                        pair.windowFromConfig.Copy(pair.currentWindow);
+                        // add new windows
+                        if (pair.windowFromConfig == null)
+                        {
+                            _Config.Windows.Add(pair.currentWindow);
+                        }
+                        else
+                        {
+                            // otherwise update existing
+                            Debug.Assert(pair.currentWindow.Name == pair.windowFromConfig.Name);
+                            pair.windowFromConfig.Copy(pair.currentWindow);
+                        }
                     }
                 }
 

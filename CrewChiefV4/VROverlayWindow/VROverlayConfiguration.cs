@@ -75,9 +75,14 @@ namespace CrewChiefV4.VirtualReality
             if (!fileInfo.Exists)
             {
                 // migrate the old setting file to the new format
+                var oldWindows = OldSettingsFile.TryDeserializeJson<List<VROverlayWindow>>(Console.WriteLine);
+                if (oldWindows == null)
+                {
+                    oldWindows = new List<VROverlayWindow>();
+                }
                 new VROverlayConfiguration
                 {
-                    Windows = OldSettingsFile.TryDeserializeJson<List<VROverlayWindow>>(Console.WriteLine),
+                    Windows = oldWindows,
                     HotKeys = VROverlaySettings.HotKeyMapping.Default().ToList()
                 }
                 .Save(fileInfo);
@@ -85,7 +90,14 @@ namespace CrewChiefV4.VirtualReality
             }
 
             var config = fileInfo.TryDeserializeJson<VROverlayConfiguration>(Console.WriteLine);
-
+            if (config.HotKeys == null)
+            {
+                config.HotKeys = new List<VROverlaySettings.HotKeyMapping>();
+            }
+            if (config.Windows == null)
+            {
+                config.Windows = new List<VROverlayWindow>();
+            }
             // remove any hotkeys with an unrecognized action
             foreach (VROverlaySettings.HotKeyMapping hotKeyMapping in config.HotKeys.Where(m => !m.IsValid()).ToList())
             {
