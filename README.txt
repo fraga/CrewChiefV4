@@ -431,6 +431,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.16.2.2: Fix a potential crash bug in the VR settings initialisation where config files are missing or corrupt
+
 Version 4.16.2.1: Added transparency support to VR overlays; Some error handling improvements; iRacing - clear fuel when we don't actually need any and we're set to auto-fuel; GTR2 - plugin update; ACC - mapped some of the newer content; AMS2 - reinstate refuelling and next / previous pit strategy macros (note these assume that Q is bound to 'ICM Cycle' and the ICM Reset On Exit mode (under Gameplay) is set to 'Default Page'); A few minor bug fixes
 
 Version 4.16.1.4: Added some additional logging for non-standard property values; Fix some incorrect 'opponent approaching' pit exit calls; ACC - wait a little longer for stable opponent positions before deriving player grid side and car-to-follow (should fix issues with occasionally incorrect formation lap calls); GTR2 - plugin update; A few minor bug fixes
