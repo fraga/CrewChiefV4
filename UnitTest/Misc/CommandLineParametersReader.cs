@@ -2,10 +2,10 @@
 using System;
 using CrewChiefV4;
 
-namespace UnitTest
+namespace UnitTestCommandLineParametersReader
 {
     [TestClass]
-    public class UnitTestCommandLineParametersReader
+    public class CommandLineParametersReader
     {
         [TestMethod]
         public void TestMethod1()

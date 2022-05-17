@@ -5,7 +5,7 @@ using CrewChiefV4.NumberProcessing;
 using CrewChiefV4;
 
 
-namespace UnitTest
+namespace UnitTestTimePrecision
 {
     public class UnitTestTimePrecision
     {
