@@ -87,7 +87,16 @@ namespace CrewChiefV4
         {
             if ((logType & _logMask) != 0)
             {
-                Console.WriteLine(logPrefixes[logType] + log);
+                if (logType == LogType.FatalError)
+                {
+                    Console.WriteLine(new string('*', (logPrefixes[logType] + log).Length));
+                    Console.WriteLine(logPrefixes[logType] + log);
+                    Console.WriteLine(new string('*', (logPrefixes[logType] + log).Length));
+                }
+                else
+                {
+                    Console.WriteLine(logPrefixes[logType] + log);
+                }
             }
             // tbd: Also write to log whatever the logMask
         }

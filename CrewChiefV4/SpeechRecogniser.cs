@@ -3033,7 +3033,18 @@ namespace CrewChiefV4
                     Console.WriteLine("Getting audio from nAudio input stream");
                     if (MainWindow.voiceOption == MainWindow.VoiceOptionEnum.HOLD)
                     {
-                        waveIn.StartRecording();
+                        try
+                        {
+                            waveIn.StartRecording();
+                        }
+                        catch (NAudio.MmException e)
+                        {
+                            Log.Fatal("Not getting audio from nAudio device - is the microphone connected?");
+                        }
+                        catch (Exception e)
+                        {
+                            Utilities.ReportException(e, "Exception in SpeechRecognitionEngine.RecognizeAsync.", false /*needReport*/);
+                        }
                     }
                     else if (MainWindow.voiceOption == MainWindow.VoiceOptionEnum.ALWAYS_ON)
                     {
@@ -3043,7 +3054,18 @@ namespace CrewChiefV4
                         // This thread is manually synchronized in recongizeAsyncCancel
                         nAudioAlwaysOnListenerThread = new Thread(() =>
                         {
-                            waveIn.StartRecording();
+                            try
+                            {
+                                waveIn.StartRecording();
+                            }
+                            catch (NAudio.MmException e)
+                            {
+                                Log.Fatal("Not getting audio from nAudio device - is the microphone connected?");
+                            }
+                            catch (Exception e)
+                            { 
+                                Utilities.ReportException(e, "Exception in SpeechRecognitionEngine.RecognizeAsync.", false /*needReport*/);
+                            }
                             while (nAudioAlwaysOnkeepRecording
                                 && crewChief.running)  // Exit as soon as we begin shutting down.
                             {
@@ -3075,6 +3097,10 @@ namespace CrewChiefV4
                     try
                     {
                         sreWrapper.RecognizeAsync();
+                    }
+                    catch (System.InvalidOperationException e)
+                    {
+                        Log.Fatal("Not getting audio from default device - is the microphone connected?");
                     }
                     catch (Exception e)
                     {
