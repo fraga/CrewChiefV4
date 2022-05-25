@@ -675,7 +675,7 @@ namespace CrewChiefV4.Audio
                     {
                         singleSound.Play(soundMetadata);
                     }
-                    // can add a pause after the first sound, skipping a prefix or suffix (personalisation)
+                    // can add a pause between sounds (so not at the start or end of the list), skipping a prefix or suffix (personalisation)
                     bool addPause = SoundCache.pauseBetweenFragments > 0 && i > firstSoundPosition && i < lastSoundPosition;
                     if (addPause)
                     {
