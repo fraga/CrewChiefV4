@@ -5434,5 +5434,17 @@ namespace CrewChiefV4.Properties {
                 this["asr_install_path"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int pause_between_message_fragments {
+            get {
+                return ((int)(this["pause_between_message_fragments"]));
+            }
+            set {
+                this["pause_between_message_fragments"] = value;
+            }
+        }
     }
 }

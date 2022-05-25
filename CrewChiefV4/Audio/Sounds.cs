@@ -33,6 +33,7 @@ namespace CrewChiefV4.Audio
         public static int ttsTrimStartMilliseconds = UserSettings.GetUserSettings().getInt("tts_trim_start_milliseconds");
         public static int ttsTrimEndMilliseconds = UserSettings.GetUserSettings().getInt("tts_trim_end_milliseconds");
         public static Boolean lazyLoadSubtitles = UserSettings.GetUserSettings().getBoolean("lazy_load_subtitles");
+        public static int pauseBetweenFragments = UserSettings.GetUserSettings().getInt("pause_between_message_fragments");
         private static LinkedList<String> dynamicLoadedSounds = new LinkedList<String>();
         public static Dictionary<String, SoundSet> soundSets = new Dictionary<String, SoundSet>();
         private static Dictionary<String, SingleSound> singleSounds = new Dictionary<String, SingleSound>();
@@ -661,16 +662,24 @@ namespace CrewChiefV4.Audio
                 }
 
                 SoundCache.IS_PLAYING = true;
-                foreach (SingleSound singleSound in singleSoundsToPlay)
+                int firstSoundPosition = prefix == null ? 0 : 1;
+                int lastSoundPosition = suffix == null ? singleSoundsToPlay.Count - 1 : singleSoundsToPlay.Count - 2;
+                for (int i=0; i<singleSoundsToPlay.Count; i++)
                 {
+                    SingleSound singleSound = singleSoundsToPlay[i];
                     if (singleSound.isPause)
                     {
                         Thread.Sleep(singleSound.pauseLength);
                     }
                     else
                     {
-
                         singleSound.Play(soundMetadata);
+                    }
+                    // can add a pause after the first sound, skipping a prefix or suffix (personalisation)
+                    bool addPause = SoundCache.pauseBetweenFragments > 0 && i > firstSoundPosition && i < lastSoundPosition;
+                    if (addPause)
+                    {
+                        Thread.Sleep(SoundCache.pauseBetweenFragments);
                     }
                 }
             }

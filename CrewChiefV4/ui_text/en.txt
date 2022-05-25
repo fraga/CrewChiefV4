@@ -1544,6 +1544,12 @@ pause_between_messages_help = Time pause between messages (in seconds) when read
 pause_between_messages_category = MESSAGE_FREQUENCIES
 pause_between_messages_metadata = RESTART_REQUIRED
 
+# Property: Pause between message fragments
+pause_between_message_fragments = Pause between message fragments
+pause_between_message_fragments_help = Time pause between individual message fragments (sounds) in milliseconds.
+pause_between_message_fragments_category = MESSAGE_FREQUENCIES
+pause_between_message_fragments_metadata = RESTART_REQUIRED
+
 # Property: Load sound files on startup
 load_sound_files_on_startup = Load sound files on startup
 load_sound_files_on_startup_help = Load all the sounds when the app starts up. This may make app start times quite long, but prevents the app having to load stuff while you're racing.
