@@ -268,7 +268,7 @@ namespace CrewChiefV4
         /// If the command line profile file does not exist use the default
         /// (not the current) profile instead.
         /// </summary>
-        private UserSettings()
+        internal UserSettings()
         {
             // Set profile from command line '-profile "file name without extension" ...'.  This needs to be
             // done here, because this executes before Main.
@@ -401,13 +401,17 @@ namespace CrewChiefV4
             return props.OrderBy(x => x.Name).ToList();
         }
 
-        private static readonly UserSettings _userSettings = new UserSettings();
+        private static UserSettings _userSettings = new UserSettings();
 
         private Boolean propertiesUpdated = false;
         private Boolean userProfilePropertiesUpdated = false;
 
         public static UserSettings GetUserSettings()
         {
+            if (_userSettings == null)
+            {
+                _userSettings = new UserSettings();
+            }
             return _userSettings;
         }
 
