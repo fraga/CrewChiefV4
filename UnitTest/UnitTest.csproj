@@ -55,6 +55,7 @@
     </Compile>
     <None Include="GrammarFiles\TDD\TDD_GetGrammars.cs" />
     <Compile Include="Misc\CommandLineParametersReader.cs" />
+    <Compile Include="Misc\TDD_ParseTimeInput.cs" />
     <Compile Include="PitMenu\PitMenuEventHandler.cs" />
     <None Include="GrammarFiles\NUnitTestSpeechGrammar.cs" />
     <None Include="GrammarFiles\TestSpeechGrammar.cs" />
