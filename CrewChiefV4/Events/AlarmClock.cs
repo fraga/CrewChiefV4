@@ -45,7 +45,7 @@ namespace CrewChiefV4.Events
 
         private void setFromProperties()
         {
-            if (preSetAlarms != null && preSetAlarms.Length > 0)
+            if (preSetAlarms?.Length > 0)
             {
                 String[] alarms = preSetAlarms.Split(';');
                 foreach (String alarm in alarms)
