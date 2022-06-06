@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Timers;
 using CrewChiefV4.GameState;
 using CrewChiefV4.Audio;
+using System.Globalization;
 
 namespace CrewChiefV4.Events
 {
@@ -50,49 +51,33 @@ namespace CrewChiefV4.Events
                 String[] alarms = preSetAlarms.Split(';');
                 foreach (String alarm in alarms)
                 {
-                    int hours = -1;
-                    int minutes = -1;
-                    int index = alarm.IndexOf(":");
-                    if (index == -1)
+                    DateTime alarmTime = ParseTimeInput(alarm);
+                    if (alarmTime != DateTime.MinValue)
                     {
-                        Console.WriteLine("Invalid alarm time value " + alarm);
-                        continue;
+                        SetAlarm(alarmTime);
+                        Console.WriteLine("Alarm has been set to " + alarmTime.ToString());
                     }
-                    String hourString = alarm.Substring(0, index);
-                    if (hourString.Length == 0)
+                    else
                     {
-                        // empty string succesfully parses to 0 but we don't want this
-                        Console.WriteLine("Invalid alarm time value " + alarm);
-                        continue;
-                    }
-                    Int32.TryParse(hourString, out hours);
-                    String minutesString = alarm.Substring(index + 1);
-                    if (minutesString.ToLower().Contains("pm"))
-                    {
-                        hours = hours + 12;
-                        minutesString = minutesString.Substring(0, minutesString.Length - 2);
-                    }
-                    else if (minutesString.ToLower().Contains("am"))
-                    {
-                        minutesString = minutesString.Substring(0, minutesString.Length - 2);
-                    }
-                    if (minutesString.Length == 0)
-                    {
-                        // empty string succesfully parses to 0 but we don't want this
-                        Console.WriteLine("Invalid alarm time value " + alarm);
-                        continue;
-                    }
-                    Int32.TryParse(minutesString, out minutes);
-                    if (hours != -1 && minutes != -1)
-                    {
-                        DateTime now = DateTime.Now;
-                        SetAlarm(new DateTime(now.Year, now.Month, now.Day, hours, minutes, 00));
-                        Console.WriteLine("Alarm has been set to " + new DateTime(now.Year, now.Month, now.Day, hours, minutes, 00).ToString());
+                        Console.WriteLine($"Invalid alarm time value '{alarm}'");
                     }
                 }
             }
-
         }
+
+        public static DateTime ParseTimeInput(string alarm)
+        {
+            CultureInfo enGB = new CultureInfo("en-GB");
+            DateTime alarmTime = DateTime.MinValue;
+
+            if (DateTime.TryParse(alarm, enGB, DateTimeStyles.None, out alarmTime))
+            {
+                DateTime now = DateTime.Now;
+                alarmTime = new DateTime(now.Year, now.Month, now.Day, alarmTime.Hour, alarmTime.Minute, 00);
+            }
+            return alarmTime;
+        }
+
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
         {
             if (!initialised)

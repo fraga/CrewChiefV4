@@ -2,7 +2,7 @@
 using System;
 using CrewChiefV4;
 
-namespace UnitTestCommandLineParametersReader
+namespace UnitTest.Misc
 {
     [TestClass]
     public class CommandLineParametersReader
