@@ -11,8 +11,7 @@ using CrewChiefV4.Overlay;
 
 namespace CrewChiefV4.Events
 {
-    // WIP control class for interpreting SRE command and whatever to manage the overlay
-    // Just a collection of ideas at the moment
+    // Control class for interpreting SRE commands and whatever to manage the overlay
 
     class VROverlayController : AbstractEvent
     {
@@ -47,9 +46,13 @@ namespace CrewChiefV4.Events
             {
                 lock (MainWindow.instanceLock)
                 {
-                    if (MainWindow.instance != null)
+                    if (MainWindow.instance?.vrOverlayForm != null)
                     {
                         MainWindow.instance.Invoke(() => MainWindow.instance.vrOverlayForm.ShowDialog(MainWindow.instance));
+                    }
+                    else
+                    {
+                        Log.Error("vrOverlayForm not available");
                     }
                 }
             }
@@ -58,7 +61,7 @@ namespace CrewChiefV4.Events
             {
                 lock (MainWindow.instanceLock)
                 {
-                    if (MainWindow.instance != null)
+                    if (MainWindow.instance?.vrOverlayForm != null)
                     {
                         MainWindow.instance.Invoke(() => MainWindow.instance.vrOverlayForm.Close());
                     }
