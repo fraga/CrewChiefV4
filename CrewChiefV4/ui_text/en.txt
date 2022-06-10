@@ -1545,7 +1545,7 @@ pause_between_messages_category = MESSAGE_FREQUENCIES
 pause_between_messages_metadata = RESTART_REQUIRED
 
 # Property: Pause between message fragments
-pause_between_message_fragments = Pause between message fragments
+pause_between_message_fragments = Pause between message fragments (ms)
 pause_between_message_fragments_help = Time pause between individual message fragments (sounds) in milliseconds.
 pause_between_message_fragments_category = MESSAGE_FREQUENCIES
 pause_between_message_fragments_metadata = RESTART_REQUIRED

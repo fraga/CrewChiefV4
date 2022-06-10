@@ -431,6 +431,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.16.2.3: Added an option to insert a pause between sounds ('Pause between sound fragments (ms)' in the Properties screen, units milliseconds). If you find that the app sometimes misses off the start or end of some sounds, try setting this to 50 or 100; iRacing - added new car class mappings; some internal rework and error handling improvements
+
 Version 4.16.2.2: Fix a potential crash bug in the VR settings initialisation where config files are missing or corrupt
 
 Version 4.16.2.1: Added transparency support to VR overlays; Some error handling improvements; iRacing - clear fuel when we don't actually need any and we're set to auto-fuel; GTR2 - plugin update; ACC - mapped some of the newer content; AMS2 - reinstate refuelling and next / previous pit strategy macros (note these assume that Q is bound to 'ICM Cycle' and the ICM Reset On Exit mode (under Gameplay) is set to 'Default Page'); A few minor bug fixes
