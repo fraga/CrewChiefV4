@@ -458,7 +458,7 @@ namespace CrewChiefV4
                     {
                         // no UDP node, create it and it's motion_platform parent, with the attributes we need
                         save = true;
-                        CreateDirtRallyUDPElement(doc, root);
+                        CreateDirtRallyUDPElement(doc, root, udpPort);
                     }
                     else
                     {
@@ -504,7 +504,7 @@ namespace CrewChiefV4
             return save;
         }
 
-        private void CreateDirtRallyUDPElement(XmlDocument doc, XmlNode root)
+        private void CreateDirtRallyUDPElement(XmlDocument doc, XmlNode root, int udpPort)
         {
             // try to create it
             XmlNode motionPlatform = root.SelectSingleNode("descendant::motion_platform");
@@ -524,8 +524,7 @@ namespace CrewChiefV4
             ipAttrib.Value = "127.0.0.1";
             udpNode.Attributes.Append(ipAttrib);
             XmlAttribute portAttrib = doc.CreateAttribute("port");
-            portAttrib.Value = CrewChief.gameDefinition.gameEnum == GameEnum.DIRT ?
-                UserSettings.GetUserSettings().getInt("dirt_rally_udp_data_port").ToString() : UserSettings.GetUserSettings().getInt("dirt_rally_2_udp_data_port").ToString();
+            portAttrib.Value = udpPort.ToString();
             udpNode.Attributes.Append(portAttrib);
             XmlAttribute delayAttrib = doc.CreateAttribute("delay");
             delayAttrib.Value = "1";
