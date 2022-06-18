@@ -289,9 +289,9 @@ namespace CrewChiefV4
             }
             else if (gameDefinition.gameEnum == GameEnum.DIRT_2)
             {
-                UpdateDirtRallyXML(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + @"\My Games\DiRT Rally\hardwaresettings\hardware_settings_config.xml",
+                UpdateDirtRallyXML(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + @"\My Games\DiRT Rally 2.0\hardwaresettings\hardware_settings_config.xml",
                     UserSettings.GetUserSettings().getInt("dirt_rally_2_udp_data_port"));
-                UpdateDirtRallyXML(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + @"\My Games\DiRT Rally\hardwaresettings\hardware_settings_config_vr.xml",
+                UpdateDirtRallyXML(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + @"\My Games\DiRT Rally 2.0\hardwaresettings\hardware_settings_config_vr.xml",
                     UserSettings.GetUserSettings().getInt("dirt_rally_2_udp_data_port"));
                 return;
             }
