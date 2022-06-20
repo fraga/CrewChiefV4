@@ -2600,7 +2600,7 @@ namespace CrewChiefV4
                 if (consoleTextBox.Text.Length > 0)
                 {
                     String filename = prefix + DateTime.Now.ToString(timestamp) + ".txt";
-                    String path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4", "debugLogs");
+                    String path = logFilePath();
                     if (!Directory.Exists(path))
                     {
                         Directory.CreateDirectory(path);
@@ -2626,12 +2626,7 @@ namespace CrewChiefV4
                         fi.Delete();
                     }
                     path = System.IO.Path.Combine(path, filename);
-                    File.WriteAllText(path, $"{filename}\nProfile: " +
-                        UserSettings.currentUserProfileFileName +
-                        "\nVOICE_OPTION: " +
-                        UserSettings.GetUserSettings().getString("VOICE_OPTION") +
-                        "\n\nNon-default Properties:\n" + 
-                        UserSettings.getNonDefaultUserSettings() + "\n" +
+                    File.WriteAllText(path, prefixLogfile(path) +
                         consoleTextBox.Text);
                     Console.WriteLine("Console output saved to " + path);
                     return path;
@@ -2642,6 +2637,31 @@ namespace CrewChiefV4
                 Console.WriteLine("Unable to save console output, message = " + ex.Message);
             }
             return null;
+        }
+        /// <summary>
+        /// Returns "c:\Users\NAME\Documents\CrewChiefV4\debugLogs"
+        /// </summary>
+        private string logFilePath()
+        {
+            return System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4", "debugLogs");
+        }
+        /// <summary>
+        /// Returns the log file prefix - path, VOICE_OPTION, non-default Properties
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns>String with \n</returns>
+        private string prefixLogfile(string path = null)
+        {
+            if (path == null)
+            {
+                path = logFilePath();
+            }
+            return $"{path}\nProfile: " +
+                    UserSettings.currentUserProfileFileName +
+                    "\nVOICE_OPTION: " +
+                    UserSettings.GetUserSettings().getString("VOICE_OPTION") +
+                    "\n\nNon-default Properties:\n" +
+                    UserSettings.getNonDefaultUserSettings() + "\n";
         }
 
         private void reacquireControllerList()
