@@ -953,6 +953,8 @@
 			"pcarsTrackName": "Donington Park:Grand Prix",
 			"pcars2TrackName": "Donington_Park:GP",
 			"ams2TrackName": "Donington:Donington_GP",
+			"accTrackName": "donington:track config",
+
 			"trackLandmarks": [
 				{
 					"landmarkName": "redgate",
