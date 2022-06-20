@@ -212,7 +212,7 @@ namespace CrewChiefV4
         {
             if (!string.IsNullOrWhiteSpace(consoleTextBox.Text))
             {
-                System.Windows.Forms.Clipboard.SetText(consoleTextBox.Text);
+                System.Windows.Forms.Clipboard.SetText(prefixLogfile() + consoleTextBox.Text);
             }
         }
 
@@ -225,7 +225,7 @@ namespace CrewChiefV4
         {
             if (!string.IsNullOrWhiteSpace(consoleTextBox.SelectedText))
             {
-                System.Windows.Forms.Clipboard.SetText(consoleTextBox.SelectedText);
+                System.Windows.Forms.Clipboard.SetText(prefixLogfile() + consoleTextBox.SelectedText);
             }
         }
 
