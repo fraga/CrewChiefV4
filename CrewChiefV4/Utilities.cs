@@ -619,9 +619,8 @@ namespace CrewChiefV4
 
         internal static void ReportException(Exception e, string msg, bool needReport)
         {
-            String message = needReport ? "Error message copied to clipboard:\n" : ""
-                + e.Message + "Stack trace: "
-                + String.Join(",", e.StackTrace);
+            String message = needReport ? "Error message copied to clipboard:\n" : "";
+            message += e.Message + "Stack trace: " + String.Join(",", e.StackTrace);
             int innerExceptionCount = 0;
             int maxReportableInnerExceptions = 5;   // in case we have a circular set of inner exception references
             Exception innerException = e.InnerException;

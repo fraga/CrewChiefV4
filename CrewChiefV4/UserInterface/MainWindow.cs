@@ -3771,48 +3771,55 @@ namespace CrewChiefV4
 
         public override void WriteLine(string value)
         {
-            if (MainWindow.instance != null && (enable || MainWindow.instance.recordSession.Checked))
+            try
             {
-                if (value == previousMessage)
+                if (MainWindow.instance != null && (enable || MainWindow.instance.recordSession.Checked))
                 {
-                    repetitionCount++;
-                }
-                else
-                {
-                    if (repetitionCount > 0 && repetitionCount < 20)
+                    if (value == previousMessage)
                     {
-                        writeMessage("Skipped " + repetitionCount + " copies of previous message\n");
+                        repetitionCount++;
                     }
-                    else if (repetitionCount >= 20 && MainWindow.instance.crewChief.mapped && !value.Contains("ValidationException"))
+                    else
                     {
-                        writeMessage("++++++++++++ Skipped " + repetitionCount + " copies of previous message. Please report this error to the CC dev team ++++++++++++\n");
-                    }
-                    repetitionCount = 0;
+                        if (repetitionCount > 0 && repetitionCount < 20)
+                        {
+                            writeMessage("Skipped " + repetitionCount + " copies of previous message\n");
+                        }
+                        else if (repetitionCount >= 20 && MainWindow.instance.crewChief.mapped && !value.Contains("ValidationException"))
+                        {
+                            writeMessage("++++++++++++ Skipped " + repetitionCount + " copies of previous message. Please report this error to the CC dev team ++++++++++++\n");
+                        }
+                        repetitionCount = 0;
 #if !DEBUG  // Do not swallow duplicates in the debug build.
                     previousMessage = value;
 #endif
-                    Boolean gotDateStamp = false;
-                    StringBuilder sb = new StringBuilder();
-                    DateTime now = DateTime.Now;
-                    if (CrewChief.loadDataFromFile)
-                    {
-                        if (CrewChief.currentGameState != null)
+                        Boolean gotDateStamp = false;
+                        StringBuilder sb = new StringBuilder();
+                        DateTime now = DateTime.Now;
+                        if (CrewChief.loadDataFromFile)
                         {
-                            if (CrewChief.currentGameState.CurrentTimeStr == null || CrewChief.currentGameState.CurrentTimeStr == "")
+                            if (CrewChief.currentGameState != null)
                             {
-                                CrewChief.currentGameState.CurrentTimeStr = GameStateData.CurrentTime.ToString("HH:mm:ss.fff");
+                                if (CrewChief.currentGameState.CurrentTimeStr == null || CrewChief.currentGameState.CurrentTimeStr == "")
+                                {
+                                    CrewChief.currentGameState.CurrentTimeStr = GameStateData.CurrentTime.ToString("HH:mm:ss.fff");
+                                }
+                                sb.Append(now.ToString("HH:mm:ss.fff")).Append(" (").Append(CrewChief.currentGameState.CurrentTimeStr).Append(")");
+                                gotDateStamp = true;
                             }
-                            sb.Append(now.ToString("HH:mm:ss.fff")).Append(" (").Append(CrewChief.currentGameState.CurrentTimeStr).Append(")");
-                            gotDateStamp = true;
                         }
+                        if (!gotDateStamp)
+                        {
+                            sb.Append(now.ToString("HH:mm:ss.fff"));
+                        }
+                        sb.Append(" : ").Append(value).AppendLine();
+                        writeMessage(sb.ToString());
                     }
-                    if (!gotDateStamp)
-                    {
-                        sb.Append(now.ToString("HH:mm:ss.fff"));
-                    }
-                    sb.Append(" : ").Append(value).AppendLine();
-                    writeMessage(sb.ToString());
                 }
+            }
+            catch (Exception e)
+            {
+                // not much we can do here
             }
         }
 
