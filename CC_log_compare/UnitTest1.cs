@@ -5,6 +5,7 @@ using System.Collections.Generic;
 namespace CC_log_compare
 {
     [TestClass]
+    [Ignore]
     public class UnitTest1
     {
         [TestMethod]
