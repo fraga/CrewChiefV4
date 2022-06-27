@@ -59,7 +59,7 @@
 # Public Access Token giving AppVeyor write access to https://gitlab.com/mr_belowski/CrewChiefV4
   environment:
     access_token:
-      secure: hn932XqaLSiyTGxBTK5FbUiHSO58gsQKdQGp0JOU1a4=
+      secure: glpat-5DzRsExYuyxfWfFBoGbC=
 
   on_success:
     # Push any new files in public/ so they're published to
@@ -87,7 +87,7 @@
 # Public Access Token giving AppVeyor write access to https://gitlab.com/mr_belowski/CrewChiefV4
   environment:
     access_token:
-      secure: hn932XqaLSiyTGxBTK5FbUiHSO58gsQKdQGp0JOU1a4=
+      secure: glpat-5DzRsExYuyxfWfFBoGbC=
 
   # Empty build script to avoid error "Specify which project or solution file to use because the folder contains more than one project or solution file"
   build_script:
