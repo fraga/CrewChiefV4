@@ -33,7 +33,9 @@ namespace HelpFiles
                 "VoiceRecognition_FreeDictationChatMessages",
                 "VoiceRecognition_CommandMacros",
                 "VoiceRecognition_RallyStageNotes",
+                "VoiceRecognition_OtherLanguages",
                 "Overlays_InGame",
+                "Overlays_Subtitles",
                 "Overlays_VR",
                 //"GameSpecific_ForEachGame",
                 "GameSpecific_CommandLineSwitches",
@@ -42,11 +44,13 @@ namespace HelpFiles
                 "About_Updating",
                 "About_Contact",
                 "About_KnownIssues",
+                "About_ReportingIssues",
                 "About_Customising_TrackLandmarks",
                 "About_Customising_VoicePacks",
                 "About_Customising_NameRequests",
                 "About_Customising_CarClasses",
                 "About_Credits",
+                "About_History",
                 "About_Donations",
                 "About_Licenses"
                 };
