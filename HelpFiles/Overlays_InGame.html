@@ -11,9 +11,9 @@
   </head>
   <body link="#0000EE" vlink="#551A8B" text="#000000" bgcolor="#dddddd" alink="#EE0000">
 <div style="font-family:'Lucida Sans Unicode';font-size:13px;" class="main">
-Crew Chief can render in-game overlays to show the app's console output or user-configurable telemetry charts controlled by voice commands. This only works with the game running in windowed (or borderless windowed) mode.<br>
+Crew Chief can render in-game overlays to show Crew Chief's console output or user-configurable telemetry charts controlled by voice commands. This only works with the game running in windowed (or borderless windowed) mode.<br>
 <br>
-These can also be shown in VR and positioned in the game world using 3rd party apps like "OVR Overlay". Enable this functionality with the 'Enable overlay window' property. By default the app will record the telemetry data specified in Documents/CrewChiefV4/chart_subscriptions.json - this file can be edited to include new data channels but it requires some understanding of the internal game data format and / or the internal Crew Chief data format - we're still working in this. The telemetry recording is not active during race sessions - you can enable this by selecting with the 'Enable chart telemetry in race session' property.<br>
+These can also be shown in VR and positioned in the game world using 3rd party apps like "OVR Overlay". Enable this functionality with the 'Enable overlay window' property. By default Crew Chief will record the telemetry data specified in Documents/CrewChiefV4/chart_subscriptions.json - this file can be edited to include new data channels but it requires some understanding of the internal game data format and / or the internal Crew Chief data format - we're still working in this. The telemetry recording is not active during race sessions - you can enable this by selecting with the 'Enable chart telemetry in race session' property.<br>
 <br>
 Telemetry is available for the previous completed lap (excluding out laps), the player's best lap in the session (excluding invalid or incomplete laps) and in some limited cases, the best opponent lap in the session (opponent data is limited to car speed, and is only available for some games at the moment). Typically, you'd drive a few laps in practice and pit, then ask the Chief "show me last lap car speed" or something like that.<br>
 <br>
@@ -47,7 +47,7 @@ The charts can be zoomed in to show a particular sector, or zoomed and panned wi
 "show me..." - add a series to the chart<br>
 "chart, remove..." - remove a series from the chart<br>
 "best lap..." - add player best lap to the chart<br>
-"last lap..." - add player last lap to the chart (can be omitted - the app will assume you mean last lap if you don't specify it)<br>
+"last lap..." - add player last lap to the chart (can be omitted - Crew Chief will assume you mean last lap if you don't specify it)<br>
 "opponent best lap.." - add opponent best lap (over all opponents in the player's class) to the chart<br>
 <br>
 e.g. to show a single chart for car speed, with your best lap and your opponents's overall best lap overlaid on the same chart with x-axis as distance (metres):<br>
@@ -78,7 +78,7 @@ Note that data for the same series (e.g. car speed) will always be overlaid on t
 <br>
 The definition of a "series" is held in Documents/CrewChiefV4/chart_subscriptions.json. You can add to this as you wish but bear in mind that opponent data is very limited - for some games no suitable data is available at all, for some only car speed is available. We'll add more here and documentation as we go along. The rawDataFieldName refers to a field in the raw game data (the shared memory block), use this to access unmapped data or use "mappedDataFieldName" to access data that CrewChief has mapped from the raw data. In both cases dot-notation is supported. For example, car speed can be obtained from R3E by using rawDataFieldName=CarSpeed, or from the mapped data (for all games) using mappedDataFieldName=PositionAndMotionData.CarSpeed. All opponent data comes from mapped data, and the only available fields are Speed, RPM and Gear.<br>
 <br>
-The voice command fragments for each series are also in this json file. The voice command is constructed by the app, prefixing "show me best lap..." / "show me last lap..." / "show me opponent best lap..." as appropriate (e.g. "show me last lap car speed").<br>
+The voice command fragments for each series are also in this json file. The voice command is constructed by Crew Chief, prefixing "show me best lap..." / "show me last lap..." / "show me opponent best lap..." as appropriate (e.g. "show me last lap car speed").<br>
 <br>
 <br>
 The overlay can also be controlled with the mouse. Enable the "Enable input" checkbox on the overlay to show controls for the various chart and overlay functions. The overlay can also be moved around by dragging the title bar when Enable input is checked.<br>

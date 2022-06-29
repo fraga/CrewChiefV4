@@ -88,6 +88,7 @@
     <Content Include="index.html" />
     <Content Include="menu.html" />
     <Content Include="Overlays_InGame.html" />
+    <Content Include="Overlays_Subtitles.html" />
     <Content Include="Overlays_VR.html" />
     <Content Include="Properties_Profiles.html" />
     <Content Include="Properties_Properties.html" />
