@@ -628,7 +628,7 @@ namespace CrewChiefV4
                             }
                             catch (GameDataReadException e)
                             {
-                                Console.WriteLine("Error reading game data " + e.Message + ", " + e.cause.StackTrace);
+                                Console.WriteLine("Error reading game data " + e.cause.Message + ", " + e.cause.StackTrace);
                                 continue;
                             }
                         }
