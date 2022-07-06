@@ -341,7 +341,10 @@ namespace CrewChiefV4
                                 if (!AdditionalDataProvider.additionalData.Contains(s))
                                 {
                                     string cleanedData = s.Trim('\r', '\n');
-                                    AdditionalDataProvider.additionalData.Add(cleanedData);
+                                    if (cleanedData.Length > 0)
+                                    {
+                                        AdditionalDataProvider.additionalData.Add(cleanedData);
+                                    }
                                 }
                             }
                         }
