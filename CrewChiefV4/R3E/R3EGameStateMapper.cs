@@ -209,7 +209,7 @@ namespace CrewChiefV4.RaceRoom
             for (int i = 0; i < shared.DriverData.Length; i++)
             {
                 DriverData participantStruct = shared.DriverData[i];
-                String driverName = getNameFromBytes(participantStruct.DriverInfo.Name).ToLower();
+                String driverName = getNameFromBytes(participantStruct.DriverInfo.Name).ToLower().Trim();
                 driverNames[i] = driverName;
                 if (driverName.Equals(currentGameState.SessionData.DriverRawName))
                 {
@@ -327,8 +327,10 @@ namespace CrewChiefV4.RaceRoom
                     {
                         currentGameState.SessionData.IsNewSector = previousGameState == null || participantStruct.TrackSector != previousGameState.SessionData.SectorNumber;
                         currentGameState.SessionData.SectorNumber = participantStruct.TrackSector;
-                        AdditionalDataProvider.validate(driverName);
-
+                        if (driverName.Length > 0)
+                        {
+                            AdditionalDataProvider.validate(driverName);
+                        }
                         currentGameState.PitData.InPitlane = participantStruct.InPitlane == 1;
                         currentGameState.PositionAndMotionData.DistanceRoundTrack = participantStruct.LapDistance;
                         // sanity check the car class data before using it - retain the previous state's class if we need to
