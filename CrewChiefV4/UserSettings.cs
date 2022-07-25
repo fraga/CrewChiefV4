@@ -568,24 +568,31 @@ namespace CrewChiefV4
             string value = null;
             foreach (SettingsProperty prop in getProperties())
             {
-                if (prop.PropertyType == typeof(string))
+                if (currentActiveProfile.userSettings.ContainsKey(prop.Name))
                 {
-                    if (prop.DefaultValue.Equals(currentActiveProfile.userSettings[prop.Name]))
+                    if (prop.PropertyType == typeof(string))
                     {
-                        continue;
+                        if (prop.DefaultValue.Equals(currentActiveProfile.userSettings[prop.Name]))
+                        {
+                            continue;
+                        }
+                        // Quote strings to show up any white space
+                        value = $"'{currentActiveProfile.userSettings[prop.Name]}'";
                     }
-                    // Quote strings to show up any white space
-                    value = $"'{currentActiveProfile.userSettings[prop.Name]}'";
+                    else
+                    {
+                        if (prop.DefaultValue.Equals(currentActiveProfile.userSettings[prop.Name].ToString()))
+                        {
+                            continue;
+                        }
+                        value = $"{currentActiveProfile.userSettings[prop.Name]}";
+                    }
+                    changes += $"{prop.Name}: {value}\n";
                 }
                 else
                 {
-                    if (prop.DefaultValue.Equals(currentActiveProfile.userSettings[prop.Name].ToString()))
-                    {
-                        continue;
-                    }
-                    value = $"{currentActiveProfile.userSettings[prop.Name]}";
+                    changes += $"Error: '{prop.Name}' not in userSettings\n";
                 }
-                changes += $"{prop.Name}: {value}\n";
             }
             return changes;
         }
