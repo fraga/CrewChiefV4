@@ -518,7 +518,7 @@ namespace CrewChiefV4
             this.saveActiveProfile();
             if (requiresRestart)
             {
-                if (Utilities.RestartApp())
+                if (Utilities.RestartApp()) // Why not (app_restart:true)?
                 {
                     parent.Close(); //to turn off current app
                 }

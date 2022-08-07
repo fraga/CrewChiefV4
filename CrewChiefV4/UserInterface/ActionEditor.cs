@@ -152,7 +152,7 @@ namespace CrewChiefV4
         {
             ControllerConfiguration.saveControllerConfigurationDataFile(controllerConfigurationData);
             hasChanges = false;
-            if (Utilities.RestartApp())
+            if (Utilities.RestartApp()) // Why not (app_restart:true)?
             {
                 MainWindow.instance.Close(); //to turn off current app
             }

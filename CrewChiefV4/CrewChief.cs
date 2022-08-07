@@ -26,6 +26,7 @@ namespace CrewChiefV4
     {
         public enum RacingType
         {
+            Undefined,
             Circuit,
             Rally
         }
@@ -46,7 +47,6 @@ namespace CrewChiefV4
         bool isGameProcessRunning = false;
 
         public static Boolean loadDataFromFile = false;
-        public static GameDefinition gameDefinition;
         public static string gameExeParentDirectory = null;
 
         public static Boolean readOpponentDeltasForEveryLap = false;
@@ -58,6 +58,8 @@ namespace CrewChiefV4
 
         public static Utilities.CommandLineParametersReader CommandLine =
             new Utilities.CommandLineParametersReader();
+
+        public static GameDefinition gameDefinition = new GameDefinition(); // Init to Undefined
 
         private const int IRACING_INTERVAL = 16;               // always use 60Hz for iracing
         private const int DEFAULT_START_LIGHTS_INTERVAL = 10;  // default 10ms during race countdown
@@ -228,7 +230,11 @@ namespace CrewChiefV4
             alarmClock = new AlarmClock(audioPlayer);
         }
 
-        public void setGameDefinition(GameDefinition gameDefinition)
+        /// <summary>
+        /// Set the active gameDefinition and load its plugin if necessary
+        /// Also sets UserSetting "last_game_definition"
+        /// </summary>
+        public void setGameDefinition(in GameDefinition gameDefinition)
         {
             spotter = null;
             mapped = false;
@@ -239,7 +245,7 @@ namespace CrewChiefV4
             else
             {
                 Console.WriteLine("Using game definition " + gameDefinition.friendlyName);
-                UserSettings.GetUserSettings().setProperty("last_game_definition", gameDefinition.gameEnum.ToString());
+                UserSettings.GetUserSettings().setProperty("last_game_definition", gameDefinition.commandLineName);
                 UserSettings.GetUserSettings().saveUserSettings();
                 CrewChief.gameDefinition = gameDefinition;
                 if (UserSettings.GetUserSettings().getBoolean("enable_automatic_plugin_update"))

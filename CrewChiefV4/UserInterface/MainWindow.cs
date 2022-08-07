@@ -811,7 +811,12 @@ namespace CrewChiefV4
             }
         }
 
-        private void setSelectedGameType()
+        /// <summary>
+        /// Set gameDefinitionList.Text
+        /// from command line or the one used last time CC ran
+        /// (failing that, the first one in the list)
+        /// </summary>
+        private void setSelectedGameDefinition()
         {
             Boolean setFromCommandLine = false;
 
@@ -849,7 +854,7 @@ namespace CrewChiefV4
                 {
                     try
                     {
-                        GameDefinition gameDefinition = GameDefinition.getGameDefinitionForEnumName(lastDef);
+                        GameDefinition gameDefinition = GameDefinition.getGameDefinitionForCommandLineName(lastDef);
                         if (gameDefinition != null)
                         {
                             Console.WriteLine("Set " + gameDefinition.friendlyName + " mode from previous launch");
@@ -862,6 +867,11 @@ namespace CrewChiefV4
                     }
                 }
             }
+            if (this.gameDefinitionList.Text.Length == 0)
+            {   // Nothing selected, pick the first
+                this.gameDefinitionList.SetSelected(0, true);
+            }
+
             if (this.gameDefinitionList.Text.Length > 0)
             {
                 try
@@ -1170,7 +1180,7 @@ namespace CrewChiefV4
                 }
             }
 
-            setSelectedGameType();
+            setSelectedGameDefinition();
 
             this.app_version.Text = Configuration.getUIString("version") + ": " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
             Console.WriteLine("Starting app.  " + this.app_version.Text);
@@ -3052,19 +3062,23 @@ namespace CrewChiefV4
                 updateControllersUi();
             }
         }
+        /// <summary>
+        /// Side effect: sets GlobalBehaviourSettings.racingType
+        /// Side effect: restarts CC if switching between race and rally game
+        /// </summary>
         private void updateSelectedGameDefinition(object sender, EventArgs e)
         {
             if (this.gameDefinitionList.Text.Length > 0)
             {
                 try
                 {
-                    var prevRacingType = UserSettings.GetUserSettings().getInt("racing_type");
+                    var prevRacingType = CrewChief.gameDefinition.racingType;
                     CrewChief.gameDefinition = GameDefinition.getGameDefinitionForFriendlyName(this.gameDefinitionList.Text);
 
-                    if (prevRacingType != (int)CrewChief.gameDefinition.racingType)
+                    if (prevRacingType != CrewChief.RacingType.Undefined &&
+                        prevRacingType != CrewChief.gameDefinition.racingType)
                     {
-                        UserSettings.GetUserSettings().setProperty("racing_type", (int)CrewChief.gameDefinition.racingType);
-                        UserSettings.GetUserSettings().setProperty("last_game_definition", CrewChief.gameDefinition.gameEnum.ToString());
+                        UserSettings.GetUserSettings().setProperty("last_game_definition", CrewChief.gameDefinition.commandLineName);
                         UserSettings.GetUserSettings().saveUserSettings();
 
                         doRestart(Configuration.getUIString("the_application_must_be_restarted_to_switch_between_circuit_and_rally_racing"), Configuration.getUIString("switch_racing_type"), removeSkipUpdates: false, mandatory: true);
@@ -3606,6 +3620,13 @@ namespace CrewChiefV4
             }
         }
 
+        /// <summary>
+        /// Warn the user then restart CC
+        /// </summary>
+        /// <param name="warningMessage"></param>
+        /// <param name="warningTitle"></param>
+        /// <param name="removeSkipUpdates"></param>
+        /// <param name="mandatory">Switching between race and rally modes</param>
         private void doRestart(String warningMessage, String warningTitle, Boolean removeSkipUpdates = false, Boolean mandatory = false)
         {
             if (CrewChief.Debugging)
@@ -3619,7 +3640,10 @@ namespace CrewChiefV4
             if (MessageBox.Show(warningMessage, warningTitle,
                 CrewChief.Debugging || mandatory ? MessageBoxButtons.OK : MessageBoxButtons.OKCancel) == DialogResult.OK)
             {
-                if (Utilities.RestartApp(app_restart:true, removeSkipUpdates:removeSkipUpdates))
+                if (Utilities.RestartApp(app_restart: true, 
+                                         removeSkipUpdates: removeSkipUpdates,
+                                         removeProfile: mandatory,
+                                         removeGame: mandatory))
                 {
                     this.Close(); //to turn off current app
                 }

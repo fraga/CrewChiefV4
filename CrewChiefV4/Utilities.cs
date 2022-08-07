@@ -431,43 +431,21 @@ namespace CrewChiefV4
         }
 
         /// <summary>
-        /// Restart CC with new args
+        /// Restart CC with edited args
         /// </summary>
-        /// <param name="newArgs"></param>
-        /// <param name="removeSkipUpdates"></param>
         /// <returns>true if app restarted</returns>
         public static bool RestartApp(
             bool app_restart = false,
             bool removeSkipUpdates = false,
-            bool removeProfile = false)
+            bool removeProfile = false,
+            bool removeGame = false)
         {
             if (!CrewChief.Debugging)
             {
-                if (app_restart)
-                {
-                    CrewChief.CommandLine.Add("app_restart", "");
-                }
-                // if we're restarting because the 'force update check'
-                // was clicked, remove the '-skip_updates' arg
-                if (removeSkipUpdates)
-                {
-                    CrewChief.CommandLine.Remove("skip_updates");
-                    CrewChief.CommandLine.Remove("SKIP_UPDATES");
-                }
-                if (removeProfile)
-                {
-                    CrewChief.CommandLine.Remove("profile");
-                }
-                // Always have to add "-multi" to the start args so the app can restart
-                CrewChief.CommandLine.Add("multi", "");
-
-                // Translate the dict back into a command line
-                var newArgs = new List<string>();
-                foreach (var arg in CrewChief.CommandLine._dict)
-                {
-                    newArgs.Add("-" + arg.Key);
-                    newArgs.Add(arg.Value);
-                }
+                var newArgs = RestartAppCommandLine(app_restart,
+                                                    removeSkipUpdates,
+                                                    removeProfile,
+                                                    removeGame);
                 System.Diagnostics.Process.Start(    // to start new instance of application
                     System.Windows.Forms.Application.ExecutablePath,
                     String.Join(" ", newArgs.ToArray()));
@@ -476,6 +454,51 @@ namespace CrewChiefV4
             // If debugging then carry on regardless
             return false;
         }
+        /// <summary>
+        /// Edit the current command line
+        /// </summary>
+        /// <param name="app_restart"></param>
+        /// <param name="removeSkipUpdates">We're restarting because the 'force update check'</param>
+        /// <param name="removeProfile">-profile [profile name]</param>
+        /// <param name="removeGame">=game [game name]</param>
+        /// <returns></returns>
+        // (Extracted so it can be tested)
+        internal static List<string> RestartAppCommandLine(
+            bool app_restart = false,
+            bool removeSkipUpdates = false,
+            bool removeProfile = false,
+            bool removeGame = false)
+        {
+            if (app_restart)
+            {
+                CrewChief.CommandLine.Add("app_restart", "");
+            }
+            if (removeSkipUpdates)
+            {
+                CrewChief.CommandLine.Remove("skip_updates");
+                CrewChief.CommandLine.Remove("SKIP_UPDATES");
+            }
+            if (removeProfile)
+            {
+                CrewChief.CommandLine.Remove("profile");
+            }
+            if (removeGame)
+            {
+                CrewChief.CommandLine.Remove("game");
+            }
+            // Always have to add "-multi" to the start args so the app can restart
+            CrewChief.CommandLine.Add("multi", "");
+
+            // Translate the dict back into a command line
+            var newArgs = new List<string>();
+            foreach (var arg in CrewChief.CommandLine._dict)
+            {
+                newArgs.Add("-" + arg.Key);
+                newArgs.Add(arg.Value);
+            }
+            return newArgs;
+        }
+    
         /// <summary>
         /// If 'text' is longer than 'maxLength' insert a newline near
         /// the middle after a word break
@@ -518,104 +541,104 @@ namespace CrewChiefV4
         }
 
 
-        /// <summary>
-        /// Read the command line arguments into a dictionary
-        /// </summary>
-        public class CommandLineParametersReader
+    /// <summary>
+    /// Read the command line arguments into a dictionary
+    /// </summary>
+    public class CommandLineParametersReader
+    {
+        private string[] _args
         {
-            private string[] _args
-            {
-                get;
-            }
-            public Dictionary<string, string> _dict
-            {
-                get;
-            }
+            get;
+        }
+        public Dictionary<string, string> _dict
+        {
+            get;
+        }
 
-            private bool CaseSensitive
-            {
-                get;
-            }
+        private bool CaseSensitive
+        {
+            get;
+        }
 
-            public CommandLineParametersReader(string[] args = null, bool isCaseSensitive = false)
+        public CommandLineParametersReader(string[] args = null, bool isCaseSensitive = false)
+        {
+            if (args == null)
             {
-                if (args == null)
+                args = Environment.GetCommandLineArgs();
+            }
+            _args = args;
+            CaseSensitive = isCaseSensitive;
+            _dict = new Dictionary<string, string>();
+            Process();
+        }
+
+        // Process Arguments into KeyPairs
+        private void Process()
+        {
+            string currentKey = null;
+            foreach (var arg in _args)
+            {
+                var s = arg.Trim();
+                if (s.StartsWith("-"))
                 {
-                    args = Environment.GetCommandLineArgs();
-                }
-                _args = args;
-                CaseSensitive = isCaseSensitive;
-                _dict = new Dictionary<string, string>();
-                Process();
-            }
-
-            // Process Arguments into KeyPairs
-            private void Process()
-            {
-                string currentKey = null;
-                foreach (var arg in _args)
-                {
-                    var s = arg.Trim();
-                    if (s.StartsWith("-"))
+                    currentKey = s.Substring(1);
+                    if (!CaseSensitive)
                     {
-                        currentKey = s.Substring(1);
-                        if (!CaseSensitive)
-                        {
-                            currentKey = currentKey.ToLower();
-                        }
-                        _dict[currentKey] = "";
+                        currentKey = currentKey.ToLower();
                     }
-                    else
+                    _dict[currentKey] = "";
+                }
+                else
+                {
+                    if (currentKey != null)
                     {
-                        if (currentKey != null)
-                        {
-                            _dict[currentKey] = s;
-                            currentKey = null;
-                        }
+                        _dict[currentKey] = s;
+                        currentKey = null;
                     }
                 }
-            }
-
-            // Return the Key with a default value
-            public string Get(string key, string defaultvalue = null)
-            {
-                if (!CaseSensitive)
-                {
-                    key = key.ToLower();
-                }
-                return _dict.ContainsKey(key) ? _dict[key] : defaultvalue;
-            }
-
-            public void Add(string key, string value)
-            {
-                _dict[key] = value;
-            }
-            public void Remove(string key)
-            {
-                if (_dict.ContainsKey(key))
-                {
-                    _dict.Remove(key);
-                }
-            }
-            /// <summary>
-            /// Return a -c_[command] argument
-            /// </summary>
-            /// <returns>
-            /// The command or "" if none
-            /// </returns>
-            public string GetCommandArg()
-            {
-                string cmd = "";
-                foreach (var arg in _dict)
-                {
-                    if (arg.Key.StartsWith("c_"))
-                    {
-                        cmd = "-" + arg.Key;
-                    }
-                }
-                return cmd;
             }
         }
+
+        // Return the Key with a default value
+        public string Get(string key, string defaultvalue = null)
+        {
+            if (!CaseSensitive)
+            {
+                key = key.ToLower();
+            }
+            return _dict.ContainsKey(key) ? _dict[key] : defaultvalue;
+        }
+
+        public void Add(string key, string value)
+        {
+            _dict[key] = value;
+        }
+        public void Remove(string key)
+        {
+            if (_dict.ContainsKey(key))
+            {
+                _dict.Remove(key);
+            }
+        }
+        /// <summary>
+        /// Return a -c_[command] argument
+        /// </summary>
+        /// <returns>
+        /// The command or "" if none
+        /// </returns>
+        public string GetCommandArg()
+        {
+            string cmd = "";
+            foreach (var arg in _dict)
+            {
+                if (arg.Key.StartsWith("c_"))
+                {
+                    cmd = "-" + arg.Key;
+                }
+            }
+            return cmd;
+        }
+    }
 
         internal static void ReportException(Exception e, string msg, bool needReport)
         {
