@@ -134,6 +134,11 @@ namespace CrewChiefV4
                 Application.Run(mw);
 #if !DEBUG
             }
+            catch (System.ObjectDisposedException e) 
+            {
+                // 'Cannot access a disposed object' after doRestart() has closed CC down
+                Log.Error("This shouldn't happen");
+            }
             catch (Exception e)
             {
                 Utilities.ReportException(e, "UNKNOWN EXCEPTION", true);

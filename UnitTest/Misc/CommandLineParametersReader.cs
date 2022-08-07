@@ -56,5 +56,22 @@ namespace UnitTest.Misc
             param = new Utilities.CommandLineParametersReader(args2);
             Assert.AreEqual("", param.GetCommandArg());
         }
+        [TestMethod]
+        /// Check that -profile and  -game are stripped from command args
+        public void TestMethodRestart()
+        {
+            string[] args = { "-c_exit", "-profile", "ams", "-game", "automobilista", "-nodevicescan", "-skip_updates", "-debug" };
+            CrewChief.CommandLine = new Utilities.CommandLineParametersReader(args);
+            var newArgs = Utilities.RestartAppCommandLine(app_restart: true,
+                                                    removeSkipUpdates: true,
+                                                    removeProfile: true,
+                                                    removeGame: true);
+
+            Assert.AreEqual(-1, newArgs.IndexOf("-profile"));
+            Assert.AreEqual(-1, newArgs.IndexOf("ams"));
+            Assert.AreEqual(-1, newArgs.IndexOf("-game"));
+            Assert.AreEqual(-1, newArgs.IndexOf("automobilista"));
+            Assert.AreNotEqual(-1, newArgs.IndexOf("-app_restart"));
+        }
     }
 }

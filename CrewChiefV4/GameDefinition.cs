@@ -221,12 +221,12 @@ namespace CrewChiefV4
             return null;
         }
 
-        public static GameDefinition getGameDefinitionForEnumName(String enumName)
+        public static GameDefinition getGameDefinitionForCommandLineName(String commandLineName)
         {
             List<GameDefinition> definitions = getAllAvailableGameDefinitions(false);
             foreach (GameDefinition def in definitions)
             {
-                if (def.gameEnum.ToString() == enumName)
+                if (def.commandLineName == commandLineName)
                 {
                     return def;
                 }
@@ -248,7 +248,7 @@ namespace CrewChiefV4
         public GameEnum gameEnum;
         public String friendlyName;
         public String macroEditorName;
-        public readonly CrewChief.RacingType racingType;
+        public readonly CrewChief.RacingType racingType = CrewChief.RacingType.Undefined;
         public String lookupName;
         public String processName;
         public String spotterName;
@@ -283,7 +283,13 @@ namespace CrewChiefV4
             this.commandLineName = commandLineName == null ? gameEnum.ToString() : commandLineName;
             this.alternativeFilterNames = approxFilterNames;
         }
-
+        /// <summary>
+        /// ctor to initialise gameDefinition
+        /// </summary>
+        public GameDefinition()
+        {
+            racingType = CrewChief.RacingType.Undefined;
+        }
         public bool HasAnyProcessNameAssociated()
         {
             return processName != null
