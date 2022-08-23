@@ -72,7 +72,7 @@ namespace CrewChiefV4.VirtualReality
         /// <returns></returns>
         public static VROverlayConfiguration FromFile(FileInfo fileInfo)
         {
-            if (!fileInfo.Exists)
+            if (OldSettingsFile.Exists)
             {
                 // migrate the old setting file to the new format
                 var oldWindows = OldSettingsFile.TryDeserializeJson<List<VROverlayWindow>>(Console.WriteLine);
@@ -88,8 +88,18 @@ namespace CrewChiefV4.VirtualReality
                 .Save(fileInfo);
                 OldSettingsFile.Delete();
             }
+            if (!fileInfo.Exists)
+            {
+                new VROverlayConfiguration
+                {
+                    Windows = new List<VROverlayWindow>(),
+                    HotKeys = VROverlaySettings.HotKeyMapping.Default().ToList()
+                }
+                .Save(fileInfo);
+            }
 
-            var config = fileInfo.TryDeserializeJson<VROverlayConfiguration>(Console.WriteLine);
+           var config = fileInfo.TryDeserializeJson<VROverlayConfiguration>(Console.WriteLine);
+            
             if (config.HotKeys == null)
             {
                 config.HotKeys = new List<VROverlaySettings.HotKeyMapping>();
