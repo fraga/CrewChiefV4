@@ -431,6 +431,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.16.2.4: Revised audio device re-indexing to better handle cases where audio devices are changed while the app is running; fix some crash bugs on start up; assorted other minor fixes and tweaks; GTR2 - plugin update; iRacing - speculative workaround to prevent the app trying to auto-fuel on driver change when it shouldn't; AMS2 - marked some tracks of Ovals
+
 Version 4.16.2.3: Added an option to insert a pause between sounds ('Pause between sound fragments (ms)' in the Properties screen, units milliseconds). If you find that the app sometimes misses off the start or end of some sounds, try setting this to 50 or 100; iRacing - added new car class mappings; some internal rework and error handling improvements
 
 Version 4.16.2.2: Fix a potential crash bug in the VR settings initialisation where config files are missing or corrupt
