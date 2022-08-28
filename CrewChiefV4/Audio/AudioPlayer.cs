@@ -167,6 +167,8 @@ namespace CrewChiefV4.Audio
         // any messages with this magic string in their ID will not be purged on session end
         public static string RETAIN_ON_SESSION_END = "retain_on_session_end";
 
+        private static Thread disposeAndRecreateThread = null;
+
         public struct WaveDevice
         {
             public int WaveDeviceId;
@@ -285,6 +287,9 @@ namespace CrewChiefV4.Audio
             private AudioPlayer audioPlayer;
             private bool playbackEnabled = false;
             private bool speechEnabled = false;
+
+            private bool processingDeviceChanges = false;
+
             // Windows is stupid, if default device is changed the index in WaveOut devices changes, so we need to update the indecies(I think it's called) in playbackDevices
             // Find our currently selected devices for both backgoundplayer and messageplayer.
             private void ReloadBackgroundPlayer()
@@ -311,18 +316,9 @@ namespace CrewChiefV4.Audio
                 }
             }
 
-            void ReIndexAudioOutputDevices(bool stopMonitorAndWaitOnThreads = false)
+            void ReIndexAudioOutputDevices()
             {
                 Debug.Assert(MainWindow.instance.InvokeRequired);
-
-                if (stopMonitorAndWaitOnThreads)
-                {
-                    // Those will be allowed again when we re-create the SoundCache.
-                    SoundCache.cancelLazyLoading = true;
-                    SoundCache.cancelDriverNameLoading = true;
-
-                    Console.WriteLine("Requesting caching thread cancellation...");
-                }
 
                 Console.WriteLine("Re-indexing audio output devices...");
                 lock (MainWindow.instanceLock)
@@ -333,26 +329,6 @@ namespace CrewChiefV4.Audio
                         {
                             string messageDeviceGuid = UserSettings.GetUserSettings().getString("NAUDIO_DEVICE_GUID_MESSAGES");
                             string backgroundDeviceGuid = UserSettings.GetUserSettings().getString("NAUDIO_DEVICE_GUID_BACKGROUND");
-
-                            // stopMonitorAndWaitOnThreads is true when this is a response to device state change.  Give nAudio time to correctly clean up.
-                            if (stopMonitorAndWaitOnThreads)
-                            {
-                                if (MainWindow.instance.crewChief.running)
-                                    audioPlayer.stopMonitor();
-
-                                // Safe to check here because we are on the main thread.
-                                if (stopMonitorAndWaitOnThreads && SoundCache.cacheSoundsThread != null)
-                                {
-                                    Console.WriteLine("Waiting for sound caching thread to stop...");
-                                    if (!SoundCache.cacheSoundsThread.Join(30000))
-                                        Console.WriteLine($"Failed to wait for cacheSoundsThread while re-indexing audio devices.  Hide and hope for the best.");
-                                    else
-                                        Console.WriteLine($"Sound caching thread stopped.");
-                                }
-
-                                // Wait for various short lived caching threads to exit.
-                                ThreadManager.WaitForTemporaryThreadsExit(waitMillis: 5000);
-                            }
 
                             playbackDevices.Clear();
                             foreach (var dev in GetWaveOutDevices())
@@ -455,6 +431,24 @@ namespace CrewChiefV4.Audio
 
             public void OnDeviceStateChanged(string deviceId, DeviceState newState)
             {
+                // this will be invoked once for each device in the audio device list. For me, this means 4 or 5 invocations when I start SteamVR.
+                // It's OK to update the UI for each callback but we only want to recreate the sounds cache once. We can't know when the state change
+                // callbacks will be completed, so just wait a short time after we get one before triggering the sound cache work
+                if (!processingDeviceChanges)
+                {
+                    ThreadManager.UnregisterTemporaryThread(disposeAndRecreateThread);
+                    processingDeviceChanges = true;
+                    disposeAndRecreateThread = new Thread(() =>
+                    {
+                        Console.WriteLine("Sound cache will be reinitialised");
+                        Thread.Sleep(300);
+                        disposeAndRecreateSoundCache();
+                        processingDeviceChanges = false;
+                    });
+                    ThreadManager.RegisterTemporaryThread(disposeAndRecreateThread);
+                    disposeAndRecreateThread.Start();
+                }
+
                 // TODO_REMOVE: on first time we hit this and CC does not hang.
                 Debug.Assert(MainWindow.instance.InvokeRequired);
                 Console.WriteLine($"Processing audio device state changes...");
@@ -482,7 +476,7 @@ namespace CrewChiefV4.Audio
 
                 if (this.playbackEnabled)
                 {
-                    this.ReIndexAudioOutputDevices(stopMonitorAndWaitOnThreads: true);
+                    this.ReIndexAudioOutputDevices();
                     lock (MainWindow.instanceLock)
                     {
                         if (MainWindow.instance != null)
@@ -503,77 +497,101 @@ namespace CrewChiefV4.Audio
                 }
             }
 
+            private void disposeAndRecreateSoundCache()
+            {
+                lock (MainWindow.instanceLock)
+                {
+                    if (MainWindow.instance != null)
+                    {
+                        audioPlayer.mainThreadContext.Post(delegate
+                        {
+                            // clean up and dispose the current cache:
+
+                            // Those will be allowed again when we re-create the SoundCache.
+                            SoundCache.cancelLazyLoading = true;
+                            SoundCache.cancelDriverNameLoading = true;
+                            if (MainWindow.instance.crewChief.running)
+                                audioPlayer.stopMonitor();
+
+                            // Safe to check here because we are on the main thread.
+                            if (SoundCache.cacheSoundsThread != null)
+                            {
+                                Console.WriteLine("Waiting for sound caching thread to stop...");
+                                if (!SoundCache.cacheSoundsThread.Join(30000))
+                                    Console.WriteLine($"Failed to wait for cacheSoundsThread while re-indexing audio devices.  Hide and hope for the best.");
+                                else
+                                    Console.WriteLine($"Sound caching thread stopped.");
+                            }
+
+                            // Wait for various short lived caching threads to exit.
+                            ThreadManager.WaitForTemporaryThreadsExit(waitMillis: 5000);
+
+                            Console.WriteLine("Clearing sound cache");
+                            if (audioPlayer.backgroundPlayer != null)
+                                audioPlayer.backgroundPlayer.dispose();
+
+                            audioPlayer.disposeSoundCache();
+
+                            // create a new cache:
+                            SoundCache.cancelLazyLoading = false;
+                            SoundCache.cancelDriverNameLoading = false;
+                            Console.WriteLine("Recreating sound cache");
+                            audioPlayer.soundCache = new SoundCache(new DirectoryInfo(soundFilesPath), new DirectoryInfo(soundFilesPathNoChiefOverride),
+                                new String[] { "spotter", "acknowledge" }, audioPlayer.sweary, audioPlayer.useMaleSounds, audioPlayer.allowCaching, audioPlayer.selectedPersonalisation, false);
+                            ReloadBackgroundPlayer();
+
+                            if (MainWindow.instance.crewChief.running)
+                                audioPlayer.startMonitor(smokeTest: false);
+                        }, null);
+                    }
+                }
+            }
+
             private void ProcessOutputDeviceStateChange(string deviceId, DeviceState newState)
             {
-                try
+                string messageDeviceGuid = UserSettings.GetUserSettings().getString("NAUDIO_DEVICE_GUID_MESSAGES");
+                string backgroundDeviceGuid = UserSettings.GetUserSettings().getString("NAUDIO_DEVICE_GUID_BACKGROUND");
+
+                if (backgroundDeviceGuid == deviceId || deviceId == messageDeviceGuid)
                 {
-                    string messageDeviceGuid = UserSettings.GetUserSettings().getString("NAUDIO_DEVICE_GUID_MESSAGES");
-                    string backgroundDeviceGuid = UserSettings.GetUserSettings().getString("NAUDIO_DEVICE_GUID_BACKGROUND");
-
-                    if (backgroundDeviceGuid == deviceId || deviceId == messageDeviceGuid)
+                    if (newState == DeviceState.Disabled || newState == DeviceState.Unplugged || newState == DeviceState.NotPresent)
                     {
-                        if (audioPlayer.backgroundPlayer != null)
-                            audioPlayer.backgroundPlayer.dispose();
-
-                        audioPlayer.disposeSoundCache();
-
-                        if (newState == DeviceState.Disabled || newState == DeviceState.Unplugged || newState == DeviceState.NotPresent)
+                        if (backgroundDeviceGuid == deviceId)
                         {
-                            if (backgroundDeviceGuid == deviceId)
+                            naudioBackgroundPlaybackDeviceId = 0;
+                            naudioBackgroundPlaybackDeviceGuid = GetDefaultOutputDeviceID();
+                            Console.WriteLine($"Selected background audio device removed, setting background playback to default device--> {GetDefaultOutputDeviceName()}");
+                        }
+                        if (messageDeviceGuid == deviceId)
+                        {
+                            naudioMessagesPlaybackDeviceId = 0;
+                            naudioMessagesPlaybackDeviceGuid = GetDefaultOutputDeviceID();
+                            Console.WriteLine($"Selected message audio device removed, setting voice playback to default device--> {GetDefaultOutputDeviceName()}");
+                        }
+                    }
+                    else if (newState == DeviceState.Active)
+                    {
+                        foreach (var device in playbackDevices)
+                        {
+                            if (backgroundDeviceGuid == device.Value.Item1)
                             {
-                                naudioBackgroundPlaybackDeviceId = 0;
-                                naudioBackgroundPlaybackDeviceGuid = GetDefaultOutputDeviceID();
-                                Console.WriteLine($"Selected background audio device removed, setting background playback to default device--> {GetDefaultOutputDeviceName()}");
+                                Console.WriteLine($"Saved background audio device added, setting sound playback to saved device--> {device.Key}");
+                                naudioBackgroundPlaybackDeviceId = device.Value.Item2;
+                                naudioBackgroundPlaybackDeviceGuid = device.Value.Item1;
                             }
-                            if (messageDeviceGuid == deviceId)
+                            if (messageDeviceGuid == device.Value.Item1)
                             {
-                                naudioMessagesPlaybackDeviceId = 0;
-                                naudioMessagesPlaybackDeviceGuid = GetDefaultOutputDeviceID();
-                                Console.WriteLine($"Selected message audio device removed, setting voice playback to default device--> {GetDefaultOutputDeviceName()}");
+                                Console.WriteLine($"Saved message audio device added, setting sound playback to saved device--> {device.Key}");
+                                naudioMessagesPlaybackDeviceId = device.Value.Item2;
+                                naudioMessagesPlaybackDeviceGuid = device.Value.Item1;
                             }
                         }
-                        else if (newState == DeviceState.Active)
-                        {
-                            foreach (var device in playbackDevices)
-                            {
-                                if (backgroundDeviceGuid == device.Value.Item1)
-                                {
-                                    Console.WriteLine($"Saved background audio device added, setting sound playback to saved device--> {device.Key}");
-                                    naudioBackgroundPlaybackDeviceId = device.Value.Item2;
-                                    naudioBackgroundPlaybackDeviceGuid = device.Value.Item1;
-                                }
-                                if (messageDeviceGuid == device.Value.Item1)
-                                {
-                                    Console.WriteLine($"Saved message audio device added, setting sound playback to saved device--> {device.Key}");
-                                    naudioMessagesPlaybackDeviceId = device.Value.Item2;
-                                    naudioMessagesPlaybackDeviceGuid = device.Value.Item1;
-                                }
-                            }
-                        }
-
-                        SoundCache.cancelLazyLoading = false;
-                        SoundCache.cancelDriverNameLoading = false;
-                        Console.WriteLine("Recreating sound cache.");
-                        audioPlayer.soundCache = new SoundCache(new DirectoryInfo(soundFilesPath), new DirectoryInfo(soundFilesPathNoChiefOverride),
-                            new String[] { "spotter", "acknowledge" }, audioPlayer.sweary, audioPlayer.useMaleSounds, audioPlayer.allowCaching, audioPlayer.selectedPersonalisation, false);
-
-                        ReloadBackgroundPlayer();
-
-                        UpdateUI();
                     }
-                    else
-                    {
-                        Console.WriteLine("Output audio device state change is ignored.");
-                    }
-
-                    // We stopped monitor during device ReIndexAudioOutputDevices, so make sure to re-start it.
-                    if (MainWindow.instance.crewChief.running)
-                        audioPlayer.startMonitor(smokeTest: false);
+                    UpdateUI();
                 }
-                finally
+                else
                 {
-                    SoundCache.cancelLazyLoading = false;
-                    SoundCache.cancelDriverNameLoading = false;
+                    Console.WriteLine("Output audio device state change is ignored.");
                 }
             }
 

@@ -25,7 +25,7 @@ namespace CrewChiefV4.Audio
 
         public virtual void dispose()
         {
-
+            this.initialised = false;
         }
 
         public abstract void setBackgroundSound(String backgroundSoundName);

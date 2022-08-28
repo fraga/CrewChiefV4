@@ -1922,6 +1922,14 @@ namespace CrewChiefV4.Audio
                     unloaded = true;
                     SoundCache.activeSoundPlayerObjects--;
                 }
+                if (this.reader != null)
+                {
+                    try
+                    {
+                        this.reader.Dispose();
+                    }
+                    catch (Exception e) { Log.Exception(e); }
+                }
                 if (this.nAudioOut != null)
                 {
                     try
