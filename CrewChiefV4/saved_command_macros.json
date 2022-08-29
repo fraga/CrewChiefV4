@@ -1299,6 +1299,24 @@
 					"waitBetweenEachCommand": 200
 				}
 			]
+		},
+		{
+			"name": "good pass car nr",
+			"description": "opens chat, types 'good pass car {CAR NUMBER}', presses enter. An action sequence item starting with {FREE_TEXT} tells the app to press each of the following keys in sequence. {VOICE_TRIGGER} is the numeric value to use. This action type can be used for issuing admin commands in iRacing",
+			"voiceTriggers": null,
+			"commandSets": [
+				{
+					"description": "iRacing version",
+					"gameDefinition": "IRACING",
+					"actionSequence": [
+						"{FREE_TEXT}good pass car {VOICE_TRIGGER} keep going"
+					],
+					"waitBetweenEachCommand": 60,
+					"autoExecuteStartChatMacro": true,
+					"autoExecuteEndChatMacro": true
+				}
+			],
+			"integerVariableVoiceTrigger": "good pass car {0,998}"
 		}
 	]
 }
