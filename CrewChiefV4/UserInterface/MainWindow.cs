@@ -867,7 +867,7 @@ namespace CrewChiefV4
                     }
                 }
             }
-            if (this.gameDefinitionList.Text.Length == 0)
+            if (this.gameDefinitionList.Text.Length == 0 && this.gameDefinitionList.Items.Count > 0)
             {   // Nothing selected, pick the first
                 this.gameDefinitionList.SetSelected(0, true);
             }
