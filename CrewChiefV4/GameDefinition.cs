@@ -118,7 +118,7 @@ namespace CrewChiefV4
                 {
                     string[] filters = showOnlyTheseGames.Split(',');
                     HashSet<GameDefinition> filtered = new HashSet<GameDefinition>();
-
+                    bool anyMatch = false;
                     foreach (string filterItem in filters)
                     {
                         Boolean matched = false;
@@ -132,6 +132,7 @@ namespace CrewChiefV4
                                 {
                                     filtered.Add(gameDefinition);
                                     matched = true;
+                                    anyMatch = true;
                                     break;
                                 }
                             }
@@ -146,6 +147,7 @@ namespace CrewChiefV4
                                     {
                                         filtered.Add(gameDefinition);
                                         matched = true;
+                                        anyMatch = true;
                                         Log.Warning($"Limit available games filter '{filter}' should be '{gameDefinition.lookupName}'");
                                         break;
                                     }
@@ -157,7 +159,10 @@ namespace CrewChiefV4
                             }
                         }
                     }
-                    return filtered.ToList();
+                    if (anyMatch)
+                    {
+                        return filtered.ToList();
+                    }
                 }
                 catch (Exception e) { Log.Exception(e); }
             }
