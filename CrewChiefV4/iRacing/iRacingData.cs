@@ -74,11 +74,17 @@ namespace CrewChiefV4.iRacing
             PitsOpen = (System.Boolean)sdk.GetData("PitsOpen");
 			IsInGarage = (System.Boolean)sdk.GetData("IsInGarage");
 			EngineWarnings = (CrewChiefV4.iRacing.EngineWarnings)sdk.GetData("EngineWarnings");
+
 			FuelLevel = (System.Single)sdk.GetData("FuelLevel");
-			WaterTemp = (System.Single)sdk.GetData("WaterTemp");
-			WaterLevel = (System.Single)sdk.GetData("WaterLevel");
-			FuelPress = (System.Single)sdk.GetData("FuelPress");
-			OilTemp = (System.Single)sdk.GetData("OilTemp");
+            if(sdk.VarHeaders.ContainsKey("WaterTemp"))
+			    WaterTemp = (System.Single)sdk.GetData("WaterTemp");
+            if (sdk.VarHeaders.ContainsKey("WaterLevel"))
+                WaterLevel = (System.Single)sdk.GetData("WaterLevel");
+            if (sdk.VarHeaders.ContainsKey("FuelPress"))
+                FuelPress = (System.Single)sdk.GetData("FuelPress");
+            if (sdk.VarHeaders.ContainsKey("OilTemp"))
+                OilTemp = (System.Single)sdk.GetData("OilTemp");
+
 			Voltage = (System.Single)sdk.GetData("Voltage");
 			RRcoldPressure = (System.Single)sdk.GetData("RRcoldPressure");
 			LRcoldPressure = (System.Single)sdk.GetData("LRcoldPressure");

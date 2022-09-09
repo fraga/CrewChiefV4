@@ -11,6 +11,8 @@ namespace CrewChiefV4.iRacing
             this.DriverCarFuelMaxLtr = -1;
             this.DriverCarMaxFuelPct = -1;
             this.DriverPitTrkPct = -1;
+            this.DriverCarFuelMaxKWh = -1;
+            this.CarIsElectric = false;
         }
         public string CarNumber { get; set; }
         public int CarId { get; set; }
@@ -19,5 +21,7 @@ namespace CrewChiefV4.iRacing
         public float DriverCarFuelMaxLtr { get; set; }
         public float DriverCarMaxFuelPct { get; set; }
         public float DriverPitTrkPct { get; set; }
+        public bool CarIsElectric { get; set; }
+        public float DriverCarFuelMaxKWh { get; set; }
     }
 }

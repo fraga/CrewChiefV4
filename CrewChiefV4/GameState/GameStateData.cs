@@ -213,6 +213,8 @@ namespace CrewChiefV4.GameState
         public Single BatteryPercentageLeft;
 
         public Boolean BatteryUseActive;
+
+        public Single BatteryCapacity;
     }
 
 
