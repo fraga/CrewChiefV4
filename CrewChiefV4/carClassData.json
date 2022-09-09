@@ -1390,6 +1390,11 @@
 			"carClassEnum": "E_TCR",
 			"raceroomClassIds": [ 8682 ],
 			"isBatteryPowered": true
+		},
+		{
+			"carClassEnum": "PORSCHE_MISSION_R",
+			"iracingCarIds": [ 158 ],
+			"isBatteryPowered": true
 		}
 	]
 }
