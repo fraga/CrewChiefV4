@@ -431,6 +431,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.16.2.6: Added 'listen if not pressed' as a speech recognition mode - the app will always listen for voice commands unless the assigned button is held down (useful for cases where that button activates some other program's voice input); iRacing - fix the app not working with electric vehicles. Note that there's more work still to do here, the existing CC support for electric vehicles makes some assumptions about charging / vehicle swap rules that may not apply
+
 Version 4.16.2.5: Revised audio device re-indexing to better handle cases where audio devices are changed while the app is running; fix some crash bugs on start up; assorted other minor fixes and tweaks; GTR2 - plugin update; iRacing - speculative workaround to prevent the app trying to auto-fuel on driver change when it shouldn't; AMS2 - marked some tracks of Ovals
 
 Version 4.16.2.3: Added an option to insert a pause between sounds ('Pause between sound fragments (ms)' in the Properties screen, units milliseconds). If you find that the app sometimes misses off the start or end of some sounds, try setting this to 50 or 100; iRacing - added new car class mappings; some internal rework and error handling improvements
