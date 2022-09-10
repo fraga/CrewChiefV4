@@ -291,6 +291,7 @@
 						"{HOLD_TIME,200}KEY_P",
 						"{WAIT,300}",
 						"DOWN",
+						"DOWN",
 						"{MULTIPLE,100}LEFT",
 						"{MULTIPLE,VOICE_TRIGGER}RIGHT"
 					],
