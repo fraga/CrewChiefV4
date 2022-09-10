@@ -1030,6 +1030,9 @@ namespace CrewChiefV4
             voiceRecognitionToggleButtonToolTip.SetToolTip(this.toggleButton, Configuration.getUIString("voice_recognition_toggle_button_help"));
             this.holdButton.Text = Configuration.getUIString("hold_button");
             voiceRecognitionHoldButtonToolTip.SetToolTip(this.holdButton, Configuration.getUIString("voice_recognition_hold_button_help"));
+            this.listenIfNotPressedButton.Text = Configuration.getUIString("voice_recognition_listen_if_not_pressed");
+            listenIfNotPressedButtonToolTip.SetToolTip(this.listenIfNotPressedButton, Configuration.getUIString("voice_recognition_release_button_help"));
+
             this.voiceDisableButton.Text = Configuration.getUIString("disabled");
             voiceRecognitionDisabledToolTip.SetToolTip(this.voiceDisableButton, Configuration.getUIString("voice_recognition_disabled_help"));
             this.triggerWordButton.Text = Configuration.getUIString("trigger_word") + " (\"" + UserSettings.GetUserSettings().getString("trigger_word_for_always_on_sre") + "\")";
@@ -1454,28 +1457,29 @@ namespace CrewChiefV4
             }
             Console.WriteLine("Load controller settings complete");
             voiceOption = getVoiceOptionEnum(UserSettings.GetUserSettings().getString("VOICE_OPTION"));
-            if (voiceOption == VoiceOptionEnum.DISABLED)
+            switch (voiceOption)
             {
-                this.voiceDisableButton.Checked = true;
-            }
-            else if (voiceOption == VoiceOptionEnum.ALWAYS_ON)
-            {
-                this.alwaysOnButton.Checked = true;
-            }
-            else if (voiceOption == VoiceOptionEnum.HOLD)
-            {
-                this.holdButton.Checked = true;
-            }
-            else if (voiceOption == VoiceOptionEnum.TOGGLE)
-            {
-                this.toggleButton.Checked = true;
-            }
-            else if (voiceOption == VoiceOptionEnum.TRIGGER_WORD)
-            {
-                this.triggerWordButton.Checked = true;
+                case VoiceOptionEnum.DISABLED:
+                    voiceDisableButton.Checked = true;
+                    break;
+                case VoiceOptionEnum.ALWAYS_ON:
+                    alwaysOnButton.Checked = true;
+                    break;
+                case VoiceOptionEnum.HOLD:
+                    holdButton.Checked = true;
+                    break;
+                case VoiceOptionEnum.TOGGLE:
+                    toggleButton.Checked = true;
+                    break;
+                case VoiceOptionEnum.TRIGGER_WORD:
+                    triggerWordButton.Checked = true;
+                    break;
+                case VoiceOptionEnum.NOT_PRESSED:
+                    listenIfNotPressedButton.Checked = true;
+                    break;
             }
 
-            // don't allow trigger word or always on if using nAudio
+            // don't allow trigger word or toggle if using nAudio
             if (UserSettings.GetUserSettings().getBoolean("use_naudio_for_speech_recognition"))
             {
                 if (voiceOption == VoiceOptionEnum.TOGGLE || voiceOption == VoiceOptionEnum.TRIGGER_WORD)
@@ -1900,14 +1904,22 @@ namespace CrewChiefV4
         private void thread_listenForChannelOpen()
         {
             Boolean channelOpen = false;
-            if (crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised && voiceOption == VoiceOptionEnum.HOLD)
+            if (crewChief.speechRecogniser != null &&
+                crewChief.speechRecogniser.initialised &&
+                (voiceOption == VoiceOptionEnum.HOLD ||
+                voiceOption == VoiceOptionEnum.NOT_PRESSED))
             {
-                Console.WriteLine("Running speech recognition in 'hold button' mode");
+                string mode = (voiceOption == VoiceOptionEnum.HOLD) ? "held" : "released";
+                Console.WriteLine($"Running speech recognition in 'while button {mode}' mode");
                 crewChief.speechRecogniser.voiceOptionEnum = VoiceOptionEnum.HOLD;
                 while (runListenForChannelOpenThread)
                 {
+                    // open means button is pressed in HOLD mode
+                    // or released in NOT_PRESSED mode
+                    var open = controllerConfiguration.isChannelOpen() ^ 
+                                    voiceOption == VoiceOptionEnum.NOT_PRESSED;
                     Thread.Sleep(this.holdButtonPollFrequency);
-                    if (!channelOpen && controllerConfiguration.isChannelOpen())
+                    if (!channelOpen && open)
                     {
                         channelOpen = true;
                         PlaybackModerator.holdModeTalkingToChief = true;
@@ -1937,7 +1949,7 @@ namespace CrewChiefV4
                             muteVolumes();
                         }
                     }
-                    else if (channelOpen && !controllerConfiguration.isChannelOpen())
+                    else if (channelOpen && !open)
                     {
                         if (this.rejectMessagesWhenTalking)
                         {
@@ -2209,9 +2221,13 @@ namespace CrewChiefV4
             {
                 this.Invoke((MethodInvoker)delegate
                 {
-                    runListenForChannelOpenThread = controllerConfiguration.listenForChannelOpen()
-                                && voiceOption == VoiceOptionEnum.HOLD && crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised;
-                    if (runListenForChannelOpenThread && voiceOption == VoiceOptionEnum.HOLD && crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised)
+                    bool holdOrReleaseButtonToListen = (voiceOption == VoiceOptionEnum.HOLD ||
+                                voiceOption == VoiceOptionEnum.NOT_PRESSED) &&
+                                crewChief.speechRecogniser != null &&
+                                crewChief.speechRecogniser.initialised;
+                    
+                    runListenForChannelOpenThread = controllerConfiguration.listenForChannelOpen() && holdOrReleaseButtonToListen;
+                    if (runListenForChannelOpenThread && holdOrReleaseButtonToListen)
                     {
                         Console.WriteLine("Listening on default audio input device");
                         ThreadStart channelOpenButtonListenerWork = thread_listenForChannelOpen;
@@ -2860,6 +2876,33 @@ namespace CrewChiefV4
             }
         }
 
+        private void listenIfNotPressed_CheckedChanged(object sender, EventArgs e)
+        {
+            if (((RadioButton)sender).Checked)
+            {
+                try
+                {
+                    if (initialiseSpeechEngine())
+                    {
+                        runListenForChannelOpenThread = false;
+                        runListenForButtonPressesThread = controllerConfiguration.listenForButtons(false);
+                        crewChief.speechRecogniser.voiceOptionEnum = VoiceOptionEnum.NOT_PRESSED;
+                        voiceOption = VoiceOptionEnum.NOT_PRESSED;
+                        UserSettings.GetUserSettings().setProperty("VOICE_OPTION", getVoiceOptionString());
+                        UserSettings.GetUserSettings().saveUserSettings();
+                    }
+                    else
+                    {
+                        ((RadioButton)sender).Checked = false;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Unable to initialise speech engine, message = " + ex.Message);
+                }
+            }
+        }
         private void personalisationSelected(object sender, EventArgs e)
         {
             if (!UserSettings.GetUserSettings().getString("PERSONALISATION_NAME").Equals(this.personalisationBox.Text))
@@ -3025,7 +3068,7 @@ namespace CrewChiefV4
 
         public enum VoiceOptionEnum
         {
-            DISABLED, HOLD, TOGGLE, ALWAYS_ON, TRIGGER_WORD
+            DISABLED, HOLD, TOGGLE, ALWAYS_ON, TRIGGER_WORD, NOT_PRESSED
         }
 
         private void clearConsole(object sender, EventArgs e)
