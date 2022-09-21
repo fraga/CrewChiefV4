@@ -43,7 +43,7 @@ namespace CrewChiefV4.VirtualReality
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Error parsing {file.FullName}: {e.Message}");
+                Console.WriteLine($"Error saving VR config file {file.FullName}: {e.Message}");
             }
         }
 
@@ -99,23 +99,26 @@ namespace CrewChiefV4.VirtualReality
             }
 
             var config = fileInfo.TryDeserializeJson<VROverlayConfiguration>(Console.WriteLine);
-            
-            if (config.HotKeys == null)
+            // note that this can still be null here if the Save call above fails - the console should have some errors so it should be obvious something's wrong
+            if (config != null)
             {
-                config.HotKeys = new List<VROverlaySettings.HotKeyMapping>();
-            }
-            if (config.Windows == null)
-            {
-                config.Windows = new List<VROverlayWindow>();
-            }
-            // remove any hotkeys with an unrecognized action
-            foreach (VROverlaySettings.HotKeyMapping hotKeyMapping in config.HotKeys.Where(m => !m.IsValid()).ToList())
-            {
-                Console.WriteLine($"Unknown hotkey action '{hotKeyMapping.Id}', Hotkey will be ignored");
-                config.HotKeys.Remove(hotKeyMapping);
-            }
+                if (config.HotKeys == null)
+                {
+                    config.HotKeys = new List<VROverlaySettings.HotKeyMapping>();
+                }
+                if (config.Windows == null)
+                {
+                    config.Windows = new List<VROverlayWindow>();
+                }
+                // remove any hotkeys with an unrecognized action
+                foreach (VROverlaySettings.HotKeyMapping hotKeyMapping in config.HotKeys.Where(m => !m.IsValid()).ToList())
+                {
+                    Console.WriteLine($"Unknown hotkey action '{hotKeyMapping.Id}', Hotkey will be ignored");
+                    config.HotKeys.Remove(hotKeyMapping);
+                }
 
-            config.FileInfo = fileInfo;
+                config.FileInfo = fileInfo;
+            }
             return config;
         }
     }

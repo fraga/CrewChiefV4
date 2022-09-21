@@ -1526,7 +1526,8 @@ namespace CrewChiefV4
 
         private bool initSteamVR()
         {
-            if (SteamVR.instance != null)
+            // if the VR config file creation has failed _VRConfig will be null here
+            if (SteamVR.instance != null && _VRConfig != null)
             {
                 try
                 {
