@@ -88,7 +88,7 @@ namespace CrewChiefV4.VirtualReality
                 .Save(fileInfo);
                 OldSettingsFile.Delete();
             }
-            if (!fileInfo.Exists)
+            if (!fileInfo.Exists || fileInfo.TryDeserializeJson<VROverlayConfiguration>() == null)
             {
                 new VROverlayConfiguration
                 {
@@ -98,7 +98,7 @@ namespace CrewChiefV4.VirtualReality
                 .Save(fileInfo);
             }
 
-           var config = fileInfo.TryDeserializeJson<VROverlayConfiguration>(Console.WriteLine);
+            var config = fileInfo.TryDeserializeJson<VROverlayConfiguration>(Console.WriteLine);
             
             if (config.HotKeys == null)
             {
