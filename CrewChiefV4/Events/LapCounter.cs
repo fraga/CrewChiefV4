@@ -84,6 +84,8 @@ namespace CrewChiefV4.Events
 
         private Boolean enableGreenLightMessages = UserSettings.GetUserSettings().getBoolean("enable_green_light_messages");
 
+        private Boolean enableRf2AutoClearTyreChange = UserSettings.GetUserSettings().getBoolean("rf2_enable_auto_clear_tyre_change");
+
         private Boolean useFahrenheit = UserSettings.GetUserSettings().getBoolean("use_fahrenheit");
 
         private DateTime nextManualFormationOvertakeWarning = DateTime.MinValue;
@@ -471,7 +473,7 @@ namespace CrewChiefV4.Events
                         playedGetReady = true;
                     }
                 }
-                if (previousGameState != null && enableGreenLightMessages &&
+                if (previousGameState != null && 
                     currentGameState.SessionData.SessionType == SessionType.Race &&
                     currentGameState.SessionData.SessionPhase == SessionPhase.Green &&
                     (previousGameState.SessionData.SessionPhase == SessionPhase.Formation ||
@@ -485,8 +487,15 @@ namespace CrewChiefV4.Events
                     {
                         Console.WriteLine("Purged " + purgeCount + " outstanding messages at green light");
                     }
-                    audioPlayer.playMessageImmediately(new QueuedMessage(folderGreenGreenGreen, 2, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 15));
+                    if (enableGreenLightMessages)
+                    {
+                        audioPlayer.playMessageImmediately(new QueuedMessage(folderGreenGreenGreen, 2, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 15));
+                    }
                     audioPlayer.disablePearlsOfWisdom = false;
+                    if (enableRf2AutoClearTyreChange && CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT)
+                    {
+                        PitManager.PitManagerEventHandlers_RF2.PMrF2eh_changeNoTyres("");
+                    }
                 }
             }
             // end of start race stuff
