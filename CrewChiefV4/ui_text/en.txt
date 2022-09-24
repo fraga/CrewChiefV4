@@ -563,8 +563,14 @@ enable_battery_messages_category = FUEL_TEMPS_AND_DAMAGES
 # Property: Enable gap messages
 enable_gap_messages = Enable gap messages
 enable_gap_messages_category = TIMINGS
+
+# Property: Enable Go! Go! Go! message
 enable_green_light_messages = Enable green light messages
+enable_green_light_messages_help = Go! Go! Go! message when lights turn green
+
+# Property: Enable "pearls of wisdom"
 enable_pearls_of_wisdom	= Enable pearls of wisdom
+enable_pearls_of_wisdom_help = "Helpful" comments on your driving
 
 # Property: Enable pit exit brake temp warning
 enable_pit_exit_brake_temp_warning = Enable pit exit brake temp warning
@@ -2009,6 +2015,12 @@ rf2_enable_pit_manager = Enable rF2 pit manager
 rf2_enable_pit_manager_help = Enables voice commands controlling rF2 pit menu
 rf2_enable_pit_manager_category = PIT_STOPS_AND_MULTICLASS
 rf2_enable_pit_manager_filter = RF2_64BIT
+
+# Property: Enable rF2 auto clear tyre change
+rf2_enable_auto_clear_tyre_change = Enable rF2 auto clear tyre change
+rf2_enable_auto_clear_tyre_change_help = Clears rF2 pit menu tyre change at start of race
+rf2_enable_auto_clear_tyre_change_category = PIT_STOPS_AND_MULTICLASS
+rf2_enable_auto_clear_tyre_change_filter = RF2_64BIT
 
 # Property: Advanced message prioritisation
 priortise_messages_depending_on_situation = Advanced message prioritisation

@@ -1355,5 +1355,8 @@
     <Setting Name="pause_between_message_fragments" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
+    <Setting Name="rf2_enable_auto_clear_tyre_change" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
