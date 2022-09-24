@@ -42,18 +42,18 @@ namespace CrewChiefV4
             {
                 if (CrewChief.CommandLine.Get(affinity.Key) != null)
                 {
-                        try
-                        {
-                            var process = System.Diagnostics.Process.GetCurrentProcess();
-                            // Set Core
-                            process.ProcessorAffinity = affinity.Value;
-                            Console.WriteLine("Set process core affinity to " + affinity.Key);
-                        }
-                        catch (Exception)
-                        {
-                            Console.WriteLine("Failed to set process affinity");
-                        }
+                    try
+                    {
+                        var process = System.Diagnostics.Process.GetCurrentProcess();
+                        // Set Core
+                        process.ProcessorAffinity = affinity.Value;
+                        Console.WriteLine("Set process core affinity to " + affinity.Key);
                     }
+                    catch (Exception)
+                    {
+                        Console.WriteLine("Failed to set process affinity");
+                    }
+                }
             }
             MainWindow.soundTestMode = CrewChief.CommandLine.Get("sound_test") != null;
             MainWindow.disableControllerReacquire = CrewChief.CommandLine.Get("nodevicescan") != null;
@@ -65,7 +65,7 @@ namespace CrewChiefV4
             if (!allowMultipleInst)
             {
                 String commandPassed = CrewChief.CommandLine.GetCommandArg();
-				if (commandPassed != null)
+                if (commandPassed != null)
                 {
                     if (CommandManager.ProcesssCommand(commandPassed))
                         return;  // This is execution to perform command, exit.
@@ -125,29 +125,23 @@ namespace CrewChiefV4
 #if !DEBUG
             try
             {
+                SharpDX.Configuration.EnableObjectTracking = true;
+                SharpDX.ComObject.LogMemoryLeakWarning = msg => Console.Write(msg);
+                
 #endif
                 MainWindow mw = new MainWindow();
                 mw.MenuStrip(mw.exemplarFont); // Add the menu strip to the main window
                 Application.Run(mw);
 #if !DEBUG
             }
+            catch (System.ObjectDisposedException e) 
+            {
+                // 'Cannot access a disposed object' after doRestart() has closed CC down
+                Log.Error("This shouldn't happen");
+            }
             catch (Exception e)
             {
-                String message = "Error message: " + e.Message + "\nStack trace: " + String.Join(",", e.StackTrace);
-                int innerExceptionCount = 0;
-                int maxReportableInnerExceptions = 5;   // in case we have a circular set of inner exception references
-                Exception innerException = e.InnerException;
-                while (innerException != null && innerExceptionCount < maxReportableInnerExceptions)
-                {
-                    message += "\n\nInner exception " + innerExceptionCount + " message: " + e.InnerException.Message +
-                        "\nInner exception " + innerExceptionCount + " stack trace: " + String.Join(",", e.InnerException.StackTrace);
-                    innerException = innerException.InnerException;
-                    innerExceptionCount++;
-                }
-                MessageBox.Show("The following text will be copied to the clipboard, please report this to the Crew Chief team.\n\n" + message,
-                    "Fatal error",
-                    MessageBoxButtons.OK);
-                Clipboard.SetText(message);
+                Utilities.ReportException(e, "UNKNOWN EXCEPTION", true);
             }
 #endif
 
@@ -203,7 +197,7 @@ namespace CrewChiefV4
                 {
                     File.Delete(Loading.tempSplashImagePath);
                 }
-                catch (Exception e) {Log.Exception(e);}
+                catch (Exception e) { Log.Exception(e); }
             }
             new Thread(() =>
             {

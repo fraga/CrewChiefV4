@@ -1,6 +1,48 @@
 <!DOCTYPE html>
 <html>
 <body>
+<h2>Version 4.16.2.6</h2>
+<ul>
+	<li>Added 'Listen if not Pressed' as a speech recognition mode - the app will always listen for voice commands unless the assigned button is held down (useful for cases where that button activates some other program's voice input)</li>
+	<li>iRacing - fix the app not working with electric vehicles. Note that there's more work still to do here, the existing CC support for electric vehicles makes some assumptions about charging / vehicle swap rules that may not apply</li>
+</ul>
+<h2>Version 4.16.2.5</h2>
+<ul>
+	<li>Revised audio device re-indexing to better handle cases where audio devices are changed while the app is running</li>
+	<li>Fix some crash bugs on start up</li>
+	<li>Assorted other minor fixes and tweaks</li>
+	<li>GTR2 - plugin update</li>
+	<li>iRacing - speculative workaround to prevent the app trying to auto-fuel on driver change when it shouldn't</li>
+	<li>AMS2 - marked some tracks as Ovals</li>
+</ul>
+<h2>Version 4.16.2.3</h2>
+<ul>
+	<li>Added an option to insert a pause between sounds ('Pause between sound fragments (ms)' in the Properties screen, units milliseconds). If you find that the app sometimes misses off the start or end of some sounds, try setting this to 50 or 100</li>
+	<li>iRacing - added new car class mappings</li>
+	<li>some internal rework and error handling improvements</li>
+</ul>
+<h2>Version 4.16.2.2</h2>
+<ul>
+	<li>Fix a potential crash bug in the VR settings initialisation where config files are missing or corrupt</li>
+</ul>
+<h2>Version 4.16.2.1</h2>
+<ul>
+	<li>Added transparency support to VR overlays</li>
+	<li>Some error handling improvements</li>
+	<li>iRacing - clear fuel when we don't actually need any and we're set to auto-fuel</li>
+	<li>GTR2 - plugin update</li>
+	<li>ACC - mapped some of the newer content</li>
+	<li>AMS2 - reinstate refuelling and next / previous pit strategy macros (note these assume that Q is bound to 'ICM Cycle' and the ICM Reset On Exit mode (under Gameplay) is set to 'Default Page')</li>
+	<li>A few minor bug fixes</li>
+</ul>
+<h2>Version 4.16.1.4</h2>
+<ul>
+	<li>Added some additional logging for non-standard property values</li>
+	<li>Fix some incorrect 'opponent approaching' pit exit calls</li>
+	<li>ACC - wait a little longer for stable opponent positions before deriving player grid side and car-to-follow (should fix issues with occasionally incorrect formation lap calls)</li>
+	<li>GTR2 - plugin update</li>
+	<li>A few minor bug fixes</li>
+</ul>
 <h2>Version 4.16.1.3</h2>
 <ul>
 	<li>Clear fuel data in race session when starting from the pit lane (should prevent unrealistic fuel consumption figures in such circumstances)</li>

@@ -216,9 +216,9 @@ namespace CrewChiefV4.iRacing
                     currentGameState.carClass.limiterAvailable = false;
                 }
                 CarData.IRACING_CLASS_ID = playerCar.Car.CarClassId;
-                GlobalBehaviourSettings.UpdateFromCarClass(currentGameState.carClass);
+                GlobalBehaviourSettings.UpdateFromCarClass(currentGameState.carClass, playerCar.Car.CarIsElectric);
 
-                Console.WriteLine("Player is using car class " + currentGameState.carClass.getClassIdentifier() + " (car ID " + playerCar.Car.CarId + ")");
+                Console.WriteLine("Player is using car class " + currentGameState.carClass.getClassIdentifier() + " (car ID " + playerCar.Car.CarId + ")" + "Is Electric Vehicle = " + playerCar.Car.CarIsElectric);
                 currentGameState.SessionData.PlayerCarNr = playerCar.CarNumber;
 
                 currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, 
@@ -303,10 +303,10 @@ namespace CrewChiefV4.iRacing
                         {
                             currentGameState.carClass.limiterAvailable = false;
                         }
-                        GlobalBehaviourSettings.UpdateFromCarClass(currentGameState.carClass);
+                        GlobalBehaviourSettings.UpdateFromCarClass(currentGameState.carClass, playerCar.Car.CarIsElectric);
                         currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength,
                             currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.PositionAndMotionData.CarSpeed, currentGameState.Now);
-                        Console.WriteLine("Player is using car class " + currentGameState.carClass.getClassIdentifier() + " (car ID " + playerCar.Car.CarId + ")");
+                        Console.WriteLine("Player is using car class " + currentGameState.carClass.getClassIdentifier() + " (car ID " + playerCar.Car.CarId + ")" + "Is Electric Vehicle =" + playerCar.Car.CarIsElectric);
                         currentGameState.SessionData.PlayerCarNr = playerCar.CarNumber;
 
                         if (previousGameState != null)
@@ -1115,10 +1115,22 @@ namespace CrewChiefV4.iRacing
                 }
             }
 
-            currentGameState.FuelData.FuelUseActive = true;
-            currentGameState.FuelData.FuelPressure = shared.Telemetry.FuelPress;
-            currentGameState.FuelData.FuelLeft = shared.Telemetry.FuelLevel;
-            currentGameState.FuelData.FuelCapacity = playerCar.Car.DriverCarFuelMaxLtr * playerCar.Car.DriverCarMaxFuelPct;
+
+            if(playerCar.Car.CarIsElectric)
+            {
+                currentGameState.BatteryData.BatteryUseActive = true;
+                currentGameState.BatteryData.BatteryCapacity = playerCar.Car.DriverCarFuelMaxKWh * playerCar.Car.DriverCarMaxFuelPct;
+                currentGameState.BatteryData.BatteryPercentageLeft =  shared.Telemetry.FuelLevel;
+                currentGameState.PitData.IsElectricVehicleSwapAllowed = true;
+            }
+            else
+            {
+                currentGameState.FuelData.FuelUseActive = true;
+                currentGameState.FuelData.FuelPressure = shared.Telemetry.FuelPress;
+                currentGameState.FuelData.FuelLeft = shared.Telemetry.FuelLevel;
+                currentGameState.FuelData.FuelCapacity = playerCar.Car.DriverCarFuelMaxLtr * playerCar.Car.DriverCarMaxFuelPct;
+            }
+
 
             if (currentGameState.carClass.limiterAvailable)
             {
@@ -1319,7 +1331,7 @@ namespace CrewChiefV4.iRacing
             if (opponentData.CurrentSectorNumber != sector)
             {
                 if (opponentData.CurrentSectorNumber == 1 && sector == 2 || opponentData.CurrentSectorNumber == 2 && sector == 3)
-                {
+                {               
                     if (opponentData.CurrentSectorNumber == 1 && opponentData.CarClass.carClassEnum == CarData.CarClassEnum.UNKNOWN_RACE)
                     {
                         // re-evaluate the car class
@@ -1335,7 +1347,7 @@ namespace CrewChiefV4.iRacing
                 opponentData.setInLap();
             }
         }
-
+         
         private static Dictionary<String, SessionType> sessionTypeMap = new Dictionary<String, SessionType>()
         {
             {"Offline Testing", SessionType.LonePractice},

@@ -1652,12 +1652,11 @@ namespace CrewChiefV4.Events
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOWS_MY_TYRE_WEAR))
             {
-                Boolean forStatusReport = !SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOWS_MY_TYRE_WEAR);
                 if (CrewChief.gameDefinition.gameEnum != GameEnum.IRACING && currentTyreConditionStatus != null)
                 {
                     reportCurrentTyreConditionStatus(true, true, delayResponses, true);
                 }
-                else if (!forStatusReport)
+                else
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
                 }

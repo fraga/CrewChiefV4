@@ -30,6 +30,7 @@ namespace CrewChiefV4
             this.checkBox1.Text = label;
             this.checkBox1.Checked = value;
             this.defaultValue = defaultValue;
+            helpText = Utilities.SplitString(helpText, 50);
             this.toolTip1.SetToolTip(this.checkBox1, helpText);
             
             this.changeRequiresRestart = changeRequiresRestart;

@@ -3337,7 +3337,7 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Chief")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Crew Chief")]
         public string trigger_word_for_always_on_sre {
             get {
                 return ((string)(this["trigger_word_for_always_on_sre"]));
@@ -4693,18 +4693,6 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public int racing_type {
-            get {
-                return ((int)(this["racing_type"]));
-            }
-            set {
-                this["racing_type"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string rbr_launch_exe {
             get {
@@ -5432,6 +5420,18 @@ namespace CrewChiefV4.Properties {
             }
             set {
                 this["asr_install_path"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int pause_between_message_fragments {
+            get {
+                return ((int)(this["pause_between_message_fragments"]));
+            }
+            set {
+                this["pause_between_message_fragments"] = value;
             }
         }
     }

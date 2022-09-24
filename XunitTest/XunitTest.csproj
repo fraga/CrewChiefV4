@@ -45,7 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UnitTestTimePrecision.cs" />
+    <Compile Include="TimePrecision\TDD\UnitTestTimePrecision.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CrewChiefV4\CrewChiefV4.csproj">

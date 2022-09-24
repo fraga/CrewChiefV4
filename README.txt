@@ -431,6 +431,18 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.16.2.6: Added 'listen if not pressed' as a speech recognition mode - the app will always listen for voice commands unless the assigned button is held down (useful for cases where that button activates some other program's voice input); iRacing - fix the app not working with electric vehicles. Note that there's more work still to do here, the existing CC support for electric vehicles makes some assumptions about charging / vehicle swap rules that may not apply
+
+Version 4.16.2.5: Revised audio device re-indexing to better handle cases where audio devices are changed while the app is running; fix some crash bugs on start up; assorted other minor fixes and tweaks; GTR2 - plugin update; iRacing - speculative workaround to prevent the app trying to auto-fuel on driver change when it shouldn't; AMS2 - marked some tracks of Ovals
+
+Version 4.16.2.3: Added an option to insert a pause between sounds ('Pause between sound fragments (ms)' in the Properties screen, units milliseconds). If you find that the app sometimes misses off the start or end of some sounds, try setting this to 50 or 100; iRacing - added new car class mappings; some internal rework and error handling improvements
+
+Version 4.16.2.2: Fix a potential crash bug in the VR settings initialisation where config files are missing or corrupt
+
+Version 4.16.2.1: Added transparency support to VR overlays; Some error handling improvements; iRacing - clear fuel when we don't actually need any and we're set to auto-fuel; GTR2 - plugin update; ACC - mapped some of the newer content; AMS2 - reinstate refuelling and next / previous pit strategy macros (note these assume that Q is bound to 'ICM Cycle' and the ICM Reset On Exit mode (under Gameplay) is set to 'Default Page'); A few minor bug fixes
+
+Version 4.16.1.4: Added some additional logging for non-standard property values; Fix some incorrect 'opponent approaching' pit exit calls; ACC - wait a little longer for stable opponent positions before deriving player grid side and car-to-follow (should fix issues with occasionally incorrect formation lap calls); GTR2 - plugin update; A few minor bug fixes
+
 Version 4.16.1.3: Clear fuel data in race session when starting from the pit lane (should prevent unrealistic fuel consumption figures in such circumstances); ACC - improved session restart detection; ACC - fix cut tracks playing after an invalidated out lap; ACC - recalculate car to follow and grid side at the start of double-file formation if drivers have dropped out; ACC - derive the pit window start and end times from the total pit window length, rather than the game-provided start and end times (should fix the incorrect window calls). Note that this may result in incorrect pit window calls if you enter a race session some time after the race has started
 
 Version 4.16.1.2: Fix issues launching games; ACC - wired up more pre-start messages and some pit window and session transition fixes

@@ -1,13 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using CrewChiefV4.commands;
+using CrewChiefV4.ScreenCapture;
 using Newtonsoft.Json;
 using SharpDX;
 using SharpDX.Direct3D11;
+using SharpDX.Mathematics.Interop;
 using Valve.VR;
 /// <summary>
 /// This class stores settings for each Target Application
@@ -42,6 +45,7 @@ namespace CrewChiefV4.VirtualReality
         Standing,
         FollowHead
     }
+
     [Serializable]
     public class VROverlayWindow
     {
@@ -88,12 +92,23 @@ namespace CrewChiefV4.VirtualReality
         public float aspect { get; set; }
         [JsonIgnore]
         public Matrix hmdMatrix { get; set; }
+
+
+        [JsonIgnore]
+        public bool IsSelected { get; set; }
+
+        public bool Chromakey { get; set; }
+        public string ChromakeyColor { get; set; } = "#000000";
+        public float ChromakeyTolerance { get; set; }
+
         private bool wasGazing = false;
         private long lastKeyHandleTickCount = 0;
+
         public VROverlayWindow()
         {
             positionZ = -1;
         }
+
         //[JsonConstructor]
         public VROverlayWindow(string Text, IntPtr hWnd, string Name = "", bool enabled = false, bool wasEnabled = false, float positionX = 0, float positionY = 0, float positionZ = -1,
             float rotationX = 0, float rotationY = 0, float rotationZ = 0, float scale = 1, float transparency = 1, float curvature = 0, TrackingSpace trackingUniverse = TrackingSpace.Seated, bool isDisplay = false, int toggleVKeyCode = -1, int modifierVKeyCode = -1, bool gazeEnabled = false, float gazeScale = 1f, float gazeTransparency = 1f, bool forceTopMost = false)
@@ -134,6 +149,37 @@ namespace CrewChiefV4.VirtualReality
                 SetOverlayEnabled(true);
             }
         }
+
+        /// <summary>
+        /// Update the dimensions of the window
+        /// If the dimiensions have changed then the current texture will be dispsed and a new Texture will be created 
+        /// </summary>
+        /// <param name="rect"></param>
+        /// <param name="getTexture">factory method to create a texture</param>
+        /// <returns></returns>
+        internal bool TryUpdateSize(Rectangle rect, Func<Texture2D> getTexture)
+        {
+            bool result = true;
+            if ((rect.Width != rectAbs.Width || rect.Height != rectAbs.Height) && (rect.Width > 0 && rect.Height > 0))
+            {
+                rectAbs = rect;
+                try
+                {
+                    copiedScreenTexture?.Dispose();
+                    copiedScreenTexture = null;
+                    copiedScreenTexture = getTexture();
+                }
+                catch (SharpDXException e)
+                {
+                    Console.WriteLine("CaptureScreen.Capture: Screen capturing failed = " + e.Message);
+                    result = false;
+                }
+            }
+            rectAbs = rect;
+            this.aspect = Math.Abs(((float)rectAbs.Height / (float)rectAbs.Width));
+            return result;
+        }
+
         public VROverlayWindow(IntPtr hWnd, VROverlayWindow other, ulong vrOverlayCursorHandle = 0)
         {
             this.Text = other.Text;
@@ -161,6 +207,9 @@ namespace CrewChiefV4.VirtualReality
             this.rectScreen = new Rectangle();
             this.forceTopMost = other.forceTopMost;
             this.lastKeyHandleTickCount = other.lastKeyHandleTickCount;
+            this.Chromakey = other.Chromakey;
+            this.ChromakeyColor = other.ChromakeyColor;
+            this.ChromakeyTolerance = other.ChromakeyTolerance;
             shouldDraw = false;
             if (enabled)
             {
@@ -170,6 +219,33 @@ namespace CrewChiefV4.VirtualReality
                 SetOverlayEnabled(true);
             }
         }
+
+        public void Copy(VROverlayWindow currWnd)
+        {
+            enabled = currWnd.enabled;
+            wasEnabled = currWnd.wasEnabled;
+            positionX = currWnd.positionX;
+            positionY = currWnd.positionY;
+            positionZ = currWnd.positionZ;
+            rotationX = currWnd.rotationX;
+            rotationY = currWnd.rotationY;
+            rotationZ = currWnd.rotationZ;
+            scale = currWnd.scale;
+            gazeScale = currWnd.gazeScale;
+            transparency = currWnd.transparency;
+            gazeTransparency = currWnd.gazeTransparency;
+            trackingSpace = currWnd.trackingSpace;
+            curvature = currWnd.curvature;
+            gazeEnabled = currWnd.gazeEnabled;
+            forceTopMost = currWnd.forceTopMost;
+            isDisplay = currWnd.isDisplay;
+            toggleVKeyCode = currWnd.toggleVKeyCode;
+            modifierVKeyCode = currWnd.modifierVKeyCode;
+            Chromakey = currWnd.Chromakey;
+            ChromakeyColor = currWnd.ChromakeyColor;
+            ChromakeyTolerance = currWnd.ChromakeyTolerance;
+        }
+
         public void CreateOverlay(bool setFlags = true)
         {
             if (string.IsNullOrWhiteSpace(Name))
@@ -196,7 +272,6 @@ namespace CrewChiefV4.VirtualReality
             {
                 Console.WriteLine($"Failed to create SVR overlay handle for: {Name} error: {error}");
             }
-
         }
 
         public bool SubmitOverlay()
@@ -285,6 +360,7 @@ namespace CrewChiefV4.VirtualReality
             {
                 return;
             }
+
             var ticksNow = Utilities.GetTickCount64();
             if (ticksNow - lastKeyHandleTickCount > 150L)  // 150ms
             {
@@ -292,9 +368,10 @@ namespace CrewChiefV4.VirtualReality
                 short modifierPressed = 1;
                 if (modifierVKeyCode != -1 && modifierVKeyCode != 0)
                 {
-                    modifierPressed = KeyPresser.GetAsyncKeyState((System.Windows.Forms.Keys)modifierVKeyCode);
+                    modifierPressed = KeyPresser.GetAsyncKeyState((Keys)modifierVKeyCode);
                 }
-                if (KeyPresser.GetAsyncKeyState((System.Windows.Forms.Keys)toggleVKeyCode) != 0 && modifierPressed != 0)
+
+                if (KeyPresser.GetAsyncKeyState((Keys)toggleVKeyCode) != 0 && modifierPressed != 0)
                 {
                     enabled = !enabled;
                     if (enabled && vrOverlayHandle == 0)
@@ -372,66 +449,31 @@ namespace CrewChiefV4.VirtualReality
         {
             return this.Text;
         }
-        // load save settings
-        public static T loadOverlaySetttings<T>(string overlayFileName) where T : class
+
+        public bool MakeTopmost()
         {
-            String path = System.IO.Path.Combine(Environment.GetFolderPath(
-                Environment.SpecialFolder.MyDocuments), "CrewChiefV4", overlayFileName);
-            if (!File.Exists(path))
-            {
-                saveOverlaySetttings(overlayFileName, (T)Activator.CreateInstance(typeof(T)));
-            }
-            if (path != null)
-            {
-                try
-                {
-                    using (StreamReader r = new StreamReader(path))
-                    {
-                        string json = r.ReadToEnd();
-                        T data = JsonConvert.DeserializeObject<T>(json);
-                        if (data != null)
-                        {
-                            return data;
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Error pasing " + path + ": " + e.Message);
-                }
-            }
-            return (T)Activator.CreateInstance(typeof(T));
+            return Win32Stuff.SetWindowPos(hWnd, (IntPtr)Win32Stuff.SpecialWindowHandles.HWND_TOPMOST, 0, 0, 0, 0, Win32Stuff.SetWindowPosFlags.SWP_NOMOVE | Win32Stuff.SetWindowPosFlags.SWP_NOSIZE);
         }
-        public static void saveOverlaySetttings<T>(string overlayFileName, T settings)
+
+        public bool BringToFront()
         {
-            String path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4");
-            if (!Directory.Exists(path))
-            {
-                try
-                {
-                    Directory.CreateDirectory(path);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Error creating " + path + ": " + e.Message);
-                }
-            }
-            if (overlayFileName != null)
-            {
-                try
-                {
-                    using (StreamWriter file = File.CreateText(System.IO.Path.Combine(path, overlayFileName)))
-                    {
-                        JsonSerializer serializer = new JsonSerializer();
-                        serializer.Formatting = Newtonsoft.Json.Formatting.Indented;
-                        serializer.Serialize(file, settings);
-                    }
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Error parsing " + overlayFileName + ": " + e.Message);
-                }
-            }
+            bool ret = Win32Stuff.ShowWindow(hWnd, 1);
+            return ret && Win32Stuff.SetForegroundWindow(hWnd) != IntPtr.Zero;
+        }
+
+        public System.Drawing.Point GetMousePoint()
+        {
+            var mouseLocation = CursorInteraction.MouseCursor.Capture(this.rectScreen);
+            bool shouldDrawMouse = (this.isDisplay && mouseLocation.Info.flags == Win32Stuff.CURSOR_SHOWING)
+                                    || mouseLocation.InBounds(this.rectAbs);
+
+            var cursorIconDrawPoint = this.isDisplay
+                    ? new System.Drawing.Point(mouseLocation.Info.ptScreenPos.x, mouseLocation.Info.ptScreenPos.y)
+                    : mouseLocation.RelativePosition;
+
+            return shouldDrawMouse
+                ? cursorIconDrawPoint
+                : System.Drawing.Point.Empty;
         }
 
         #region IDisposable Support
@@ -445,7 +487,7 @@ namespace CrewChiefV4.VirtualReality
                 {
                     // TODO: dispose managed state (managed objects).
                     copiedScreenTexture?.Dispose();
-                    if(OpenVR.Overlay != null)
+                    if (OpenVR.Overlay != null)
                         OpenVR.Overlay.DestroyOverlay(vrOverlayHandle);
                 }
                 // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
@@ -468,6 +510,10 @@ namespace CrewChiefV4.VirtualReality
             // TODO: uncomment the following line if the finalizer is overridden above.
             // GC.SuppressFinalize(this);
         }
+
+       
+
+
         #endregion
     }
 }

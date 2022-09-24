@@ -53,15 +53,16 @@
     <Compile Include="DummyForm.Designer.cs">
       <DependentUpon>DummyForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="UnitTestCommandLineParametersReader.cs" />
-    <Compile Include="UnitTestPitMenuEventHandler.cs" />
+    <None Include="GrammarFiles\TDD\TDD_GetGrammars.cs" />
+    <Compile Include="Misc\CommandLineParametersReader.cs" />
+    <Compile Include="Misc\TDD_ParseTimeInput.cs" />
+    <Compile Include="PitMenu\PitMenuEventHandler.cs" />
+    <None Include="GrammarFiles\NUnitTestSpeechGrammar.cs" />
+    <None Include="GrammarFiles\TestSpeechGrammar.cs" />
+    <None Include="GrammarFiles\TDD\TDD_grammarFilter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\CrewChiefV4\CrewChiefV4.csproj">
-      <Project>{4240b0e2-69bc-4260-9706-c0cc5aae04a5}</Project>
-      <Name>CrewChiefV4</Name>
-    </ProjectReference>
+    <Compile Include="VROverlayWindow\OverlayDecoratorTests.cs" />
+    <Compile Include="VROverlayWindow\Direct3D11CaptureSourceTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MSTest.TestAdapter">
@@ -73,9 +74,24 @@
     <PackageReference Include="NUnit">
       <Version>3.13.0</Version>
     </PackageReference>
+    <PackageReference Include="NUnit3TestAdapter">
+      <Version>4.2.1</Version>
+    </PackageReference>
+    <PackageReference Include="System.Speech">
+      <Version>6.0.0</Version>
+    </PackageReference>
     <PackageReference Include="System.ValueTuple">
       <Version>4.5.0</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CrewChiefV4\CrewChiefV4.csproj">
+      <Project>{4240b0e2-69bc-4260-9706-c0cc5aae04a5}</Project>
+      <Name>CrewChiefV4</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="GrammarFiles\TestStrings\" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

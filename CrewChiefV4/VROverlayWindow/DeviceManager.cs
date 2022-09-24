@@ -1,15 +1,11 @@
 ﻿
+using SharpDX;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using System;
-using System.Diagnostics;
-using System.Drawing;
-using System.Runtime.InteropServices;
-using Graphics = System.Drawing.Graphics;
-using Device = SharpDX.Direct3D11.Device;
-using SharpDX;
-using Valve.VR;
 using System.Windows.Forms;
+using Valve.VR;
+using Device = SharpDX.Direct3D11.Device;
 
 namespace CrewChiefV4
 {
@@ -45,25 +41,34 @@ namespace CrewChiefV4
         /// </summary>
         InvalidCall,
     }
+
     public class DeviceManager : IDisposable
     {
         protected bool disposedValue = false; // To detect redundant calls
         protected Device _device;
         protected SwapChain _swapChain;
 
-        public Device device { get { return _device; }  }
+        public Device device { get { return _device; } }
         public DeviceContext1 context { get; private set; }
         //public Factory4 factory { get; private set; }
         public RenderTargetView backBufferView { get; private set; }
         public SwapChain swapChain { get { return _swapChain; } }
 
-        public DeviceManager(Form form = null)
-        {
 
+        public SharpDX.Direct2D1.Device Device2D { get; private set; }
+        public SharpDX.Direct2D1.DeviceContext DeviceContext2D { get; private set; }
+        public SharpDX.DXGI.Device DXGIDevice { get; private set; }
+
+        public DeviceManager(CVRSystem vrSystem, Form form = null)
+        {
             try
             {
                 int adapterIndex = 0;
-                OpenVR.System.GetDXGIOutputInfo(ref adapterIndex);
+                if (vrSystem != null)
+                {
+                    vrSystem.GetDXGIOutputInfo(ref adapterIndex);
+                }
+
                 using (var factory = new Factory4())
                 using (var adapter = factory.GetAdapter(adapterIndex))
                 {
@@ -74,36 +79,40 @@ namespace CrewChiefV4
                             BufferCount = 1,
                             Flags = SwapChainFlags.None,
                             IsWindowed = true,
-                            ModeDescription = new ModeDescription
+                            ModeDescription =
                             {
                                 Format = Format.B8G8R8A8_UNorm,
                                 Width = form.ClientSize.Width,
                                 Height = form.ClientSize.Height,
-                                RefreshRate = new Rational(144, 1)
+                                RefreshRate = { Numerator = 144, Denominator = 1 }
                             },
                             OutputHandle = form.Handle,
-                            SampleDescription = new SampleDescription(1, 0),
+                            SampleDescription = { Count = 1, Quality = 0 },
                             SwapEffect = SwapEffect.Discard,
                             Usage = Usage.RenderTargetOutput
                         };
-                        // Retrieve the Direct3D 11.1 device and device context
-                        Device.CreateWithSwapChain(adapter, DeviceCreationFlags.None, swapChainDescription, out _device, out _swapChain);
 
+                        // Retrieve the Direct3D 11.1 device and device context
+                        Device.CreateWithSwapChain(adapter, DeviceCreationFlags.BgraSupport, swapChainDescription, out _device, out _swapChain);
+                        
                         using (var backBuffer = swapChain.GetBackBuffer<Texture2D>(0))
                             backBufferView = new RenderTargetView(device, backBuffer);
-
 
                         factory.MakeWindowAssociation(form.Handle, WindowAssociationFlags.None);
                     }
                     else
                     {
-                        var creationFlags = DeviceCreationFlags.None;
+                        var creationFlags = DeviceCreationFlags.BgraSupport;
 #if DEBUG
                         // Enable D3D device debug layer
                         creationFlags |= DeviceCreationFlags.Debug;
 #endif
                         _device = new Device(adapter, creationFlags);
                     }
+
+                    DXGIDevice = device.QueryInterface<SharpDX.DXGI.Device>();
+                    Device2D = new SharpDX.Direct2D1.Device(DXGIDevice);
+                    DeviceContext2D = new SharpDX.Direct2D1.DeviceContext(Device2D, SharpDX.Direct2D1.DeviceContextOptions.None);
 
                     context = _device.ImmediateContext.QueryInterface<DeviceContext1>();
                 }
@@ -118,11 +127,13 @@ namespace CrewChiefV4
         {
             return true;
         }
+
         internal void refreshDevice()
         {
             device.Dispose();
             //device = new Device(SharpDX.Direct3D.DriverType.Hardware);
         }
+
         public GraphicsDeviceStatus GraphicsDeviceStatus
         {
             get
@@ -174,15 +185,22 @@ namespace CrewChiefV4
         public void Dispose()
         {
             if (!disposedValue)
-            {              
+            {
+                DeviceContext2D?.Dispose();
+                Device2D?.Dispose();
+                DXGIDevice?.Dispose();
+                context?.Dispose();
                 device?.Dispose();
                 _swapChain?.Dispose();
+                DeviceContext2D = null;
+                Device2D = null;
+                DXGIDevice = null;
                 _device = null;
                 _swapChain = null;
                 disposedValue = true;
+                context = null;
             }
             GC.SuppressFinalize(this);
         }
-
     }
 }

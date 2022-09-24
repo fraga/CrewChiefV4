@@ -5,7 +5,7 @@ using CrewChiefV4.NumberProcessing;
 using CrewChiefV4;
 
 
-namespace UnitTest
+namespace UnitTestTimePrecision
 {
     public class UnitTestTimePrecision
     {
@@ -115,7 +115,7 @@ namespace UnitTest
             return precision;
         }
 
-        [Theory]
+        [Theory (Skip = "Problem solved")]
         [InlineData(0.05f, Precision.TENTHS, LapTimes.Delta.A_TENTH )]
         [InlineData(0.30f, Precision.TENTHS, LapTimes.Delta.AUTO_GAPS )]
         [InlineData(1.50f, Precision.TENTHS, LapTimes.Delta.AUTO_GAPS )]
@@ -129,7 +129,7 @@ namespace UnitTest
             Assert.Equal(ENUM, LapTimes.GetDelta(delta));
         }
 
-        [Fact]//(Skip = "finding errors in the old method")]
+        [Fact (Skip = "finding errors in the old method")]
         public void TestMethodListDeltas()
         {
             float[] deltas = {
@@ -192,7 +192,7 @@ namespace UnitTest
             }
         }
 
-        [Theory]
+        [Theory(Skip = "Problem solved")]
         [InlineData( -2.04f, LapTimes.Delta.FAST )]
         [InlineData( 0.04f, LapTimes.Delta.FAST )]
         [InlineData( 0.05f, LapTimes.Delta.A_TENTH )]

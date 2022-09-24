@@ -33,7 +33,7 @@ namespace CrewChiefV4.GameState
      */
     class GlobalBehaviourSettings
     {
-        public static CrewChief.RacingType racingType = CrewChief.RacingType.Circuit;
+        public static CrewChief.RacingType racingType = CrewChief.RacingType.Undefined;
         private static float defaultSpotterVehicleLength = 4.5f;
         private static float defaultSpotterVehicleWidth = 1.8f;
 
@@ -96,7 +96,7 @@ namespace CrewChiefV4.GameState
             GlobalBehaviourSettings.justTheFacts = UserSettings.GetUserSettings().getBoolean("just_the_facts");
         }
 
-        public static void UpdateFromCarClass(CarData.CarClass carClass)
+        public static void UpdateFromCarClass(CarData.CarClass carClass, bool isBatteryPowered = false)
         {
             useAmericanTerms = carClass.useAmericanTerms || defaultToAmericanTerms;
             useHundredths = carClass.timesInHundredths || alwaysUseHundredths;
@@ -107,7 +107,7 @@ namespace CrewChiefV4.GameState
             }
             else
             {
-                enabledMessageTypes.AddRange(carClass.isBatteryPowered ? defaultBatteryPoweredEnabledMessageTypes : defaultEnabledMessageTypes);
+                enabledMessageTypes.AddRange(carClass.isBatteryPowered || isBatteryPowered ? defaultBatteryPoweredEnabledMessageTypes : defaultEnabledMessageTypes);
             }
 
             if (carClass.spotterVehicleLength > 0)

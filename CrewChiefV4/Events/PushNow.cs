@@ -9,7 +9,8 @@ namespace CrewChiefV4.Events
 {
     class PushNow : AbstractEvent
     {
-        private float maxSeparationForPitExitWarning = 300;   // metres
+        private float maxSeparationForPitExitWarningOvals = 300;   // metres
+        private float maxSeparationForPitExitWarningRoad = 200;   // metres
         private float minSeparationForPitExitWarning = 10;   // metres
 
         private Boolean brakeTempWarningOnPitExit = UserSettings.GetUserSettings().getBoolean("enable_pit_exit_brake_temp_warning");
@@ -179,6 +180,7 @@ namespace CrewChiefV4.Events
 
         private Boolean isOpponentApproachingPitExit(GameStateData currentGameState)
         {
+            float maxSeparation = currentGameState.SessionData.TrackDefinition.isOval ? maxSeparationForPitExitWarningOvals : maxSeparationForPitExitWarningRoad;
             // Hooray for PCars and its broken data
             float distanceStartCheckPoint;
             float distanceEndCheckPoint;
@@ -187,11 +189,11 @@ namespace CrewChiefV4.Events
             if (currentGameState.PositionAndMotionData.DistanceRoundTrack == 0)
             {
                 distanceStartCheckPoint = 0;
-                distanceEndCheckPoint = maxSeparationForPitExitWarning - minSeparationForPitExitWarning;
+                distanceEndCheckPoint = maxSeparation - minSeparationForPitExitWarning;
             }
             else
             {
-                distanceStartCheckPoint = currentGameState.PositionAndMotionData.DistanceRoundTrack - maxSeparationForPitExitWarning;
+                distanceStartCheckPoint = currentGameState.PositionAndMotionData.DistanceRoundTrack - maxSeparation;
                 distanceEndCheckPoint = currentGameState.PositionAndMotionData.DistanceRoundTrack - minSeparationForPitExitWarning;
             }
             Boolean startCheckPointIsInSector1 = true;
@@ -201,15 +203,24 @@ namespace CrewChiefV4.Events
                 startCheckPointIsInSector1 = false;
                 distanceStartCheckPoint = currentGameState.SessionData.TrackDefinition.trackLength + distanceStartCheckPoint;
             }
+            float lapMidPoint = currentGameState.SessionData.TrackDefinition.trackLength / 2f;
             foreach (KeyValuePair<string, OpponentData> opponent in currentGameState.OpponentData)
             {
-                if ((opponent.Value.OpponentLapData.Count > 0 || !startCheckPointIsInSector1) && opponent.Value.Speed > 0 &&
-                    !opponent.Value.isEnteringPits() && !opponent.Value.isOnOutLap() && !opponent.Value.InPits &&
-                    ((startCheckPointIsInSector1 && opponent.Value.DistanceRoundTrack > distanceStartCheckPoint && opponent.Value.DistanceRoundTrack < distanceEndCheckPoint) ||
+                bool opponentJustLeftPit = opponent.Value.isOnOutLap() && opponent.Value.DistanceRoundTrack < lapMidPoint;
+                if ((opponent.Value.OpponentLapData.Count > 0 || !startCheckPointIsInSector1)
+                    && opponent.Value.Speed > 0
+                    && !opponent.Value.isEnteringPits()
+                    && !opponentJustLeftPit
+                    && !opponent.Value.InPits
+                    && ((startCheckPointIsInSector1 && opponent.Value.DistanceRoundTrack > distanceStartCheckPoint && opponent.Value.DistanceRoundTrack < distanceEndCheckPoint) ||
                         (!startCheckPointIsInSector1 && (opponent.Value.DistanceRoundTrack > distanceStartCheckPoint || opponent.Value.DistanceRoundTrack < distanceEndCheckPoint))))
                 {
                     return true;
                 }
+                /*
+                JB: I don't think this check will work. The SignedDelta will approach the laptime (positive) as the opponent approaches the line, then it'll go small and negative
+                    until he passes our current position
+
                 if (opponent.Value.Speed > 0 &&
                     !opponent.Value.isEnteringPits() && !opponent.Value.isOnOutLap() && !opponent.Value.InPits)
                 {
@@ -221,6 +232,7 @@ namespace CrewChiefV4.Events
                         return true;
                     }
                 }
+                */
             }
             return false;
         }           

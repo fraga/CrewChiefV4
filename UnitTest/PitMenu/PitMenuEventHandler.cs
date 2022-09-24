@@ -11,11 +11,16 @@ using PitMenuAPI;
 
 // NONE of these actually run, TestPitManager does allow stepping through the
 // Pit Menu event handler
-namespace UnitTest
+namespace UnitTestPitMenuEventHandler
 {
     [TestClass]
     public class TestPitManager
     {
+        [AssemblyInitialize]
+        public static void AssemblyInitialize(TestContext context)
+        {
+            new CrewChiefV4.UserSettings(); // Avoids null pointer errors all over the shop
+        }
         [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException),
             "text")]
@@ -88,7 +93,6 @@ namespace UnitTest
             ccObj = hwnd.crewChief;//    new CrewChief(controllerConfiguration);
         }
         [TestMethod]
-        [Ignore]
         public void CCobject()
         {
             ; // Do nothing, just tests that CC MainWindow has been created
@@ -116,7 +120,6 @@ namespace UnitTest
 #endif
 
         [TestMethod]
-        [Ignore]
         public void TestVoice()
         {
             bool result;

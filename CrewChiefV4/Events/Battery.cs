@@ -206,7 +206,10 @@ namespace CrewChiefV4.Events
                 return;
 
             this.batteryUseActive = currentGameState.BatteryData.BatteryUseActive;
-            var currBattLeftPct = currentGameState.BatteryData.BatteryPercentageLeft;
+
+            var currBattLeftPct = currentGameState.BatteryData.BatteryCapacity <= 0f || currentGameState.BatteryData.BatteryPercentageLeft  == 0 ? 
+                currentGameState.BatteryData.BatteryPercentageLeft : 
+                (currentGameState.BatteryData.BatteryPercentageLeft * 100 ) / currentGameState.BatteryData.BatteryCapacity;
 
             this.sessionRunningTime = currentGameState.SessionData.SessionRunningTime;
             this.completedLaps = currentGameState.SessionData.CompletedLaps;

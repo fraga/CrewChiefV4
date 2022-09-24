@@ -189,7 +189,7 @@
 			"rf2ClassNames": [ "*GT3*" ],
 			"ams2ClassNames": [ "GT3" ],
 			"acClassNames": [ "ks_audi_r8_lms*", "*GT3*" ],
-			"iracingCarIds": [ 43, 55, 59, 72, 73, 94, 132, 133, 137, 144 ],
+			"iracingCarIds": [ 43, 55, 59, 72, 73, 94, 132, 133, 137, 144, 156 ],
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL",
 			"maxSafeOilTemp": 135,
@@ -228,7 +228,7 @@
 			"rf2ClassNames": [ "*GT4*" ],
 			"acClassNames": [ "*GT4*", "ks_bmw_m235i_racing", "lotus_evora_gx", "ginetta_g55" ],
 			"ams2ClassNames": [ "GT4" ],
-			"iracingCarIds": [ 119, 122, 135, 150 ],
+			"iracingCarIds": [ 119, 122, 135, 150, 157 ],
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL",
 			"allMembersAreRWD": true,
@@ -262,6 +262,7 @@
 		{
 			"carClassEnum": "BMW_235I",
 			"raceroomClassIds": [ 6344 ],
+			"acClassNames": [ "ks_bmw_m2_cup" ],
 			"timesInHundredths": true,
 			"maxSafeWaterTemp": 100,
 			"maxSafeOilTemp": 106,
@@ -819,7 +820,7 @@
 		},
 		{
 			"carClassEnum": "TCR",
-			"raceroomClassIds": [ 7009, 7844, 8660, 8077, 9233 ],
+			"raceroomClassIds": [ 7009, 7844, 8660, 8077, 9233, 10344 ],
 			"rf2ClassNames": [ "TCR SEAT", "Honda Civic TCR", "Opel Astra OPC", "TT Cup 2015", "TCR VW", "Ford Focus ST" ],
 			"iracingCarIds": [ 112, 146, 147, 153 ],
 			"timesInHundredths": true,
@@ -990,7 +991,7 @@
 		},
 		{
 			"carClassEnum": "HYPER_CAR_RACE",
-			"acClassNames": [ "ferrari_599xxevo", "pagani_zonda_r", "ks_ferrari_fxx_k" ],
+			"acClassNames": [ "ferrari_599xxevo", "pagani_zonda_r", "ks_ferrari_fxx_k", "ks_acc_488_challenge" ],
 			"brakeType": "Carbon",
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL"
@@ -1388,6 +1389,11 @@
 		{
 			"carClassEnum": "E_TCR",
 			"raceroomClassIds": [ 8682 ],
+			"isBatteryPowered": true
+		},
+		{
+			"carClassEnum": "PORSCHE_MISSION_R",
+			"iracingCarIds": [ 158 ],
 			"isBatteryPowered": true
 		}
 	]

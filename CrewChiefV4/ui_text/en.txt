@@ -25,7 +25,7 @@ updated_personalisations_available_press_to_download = Updated personalisations 
 personalisations_are_up_to_date = Personalisations are up to date
 stop = &Stop
 stop_and_save = &Stop and Save trace
-start_application = &Start application
+start_application = &Start Crew Chief
 incremental_updates_count = updates to apply
 
 pcars_64_bit = pCARS (64 bit)
@@ -75,6 +75,7 @@ always_on = Always on
 trigger_word = Trigger word
 toggle_button = Press and release button
 hold_button = Hold button
+voice_recognition_listen_if_not_pressed = Listen if not pressed
 disabled = Disabled
 clear_console = Clear c&onsole
 copy_console_text = Copy &all console text
@@ -92,6 +93,7 @@ voice_recognition_toggle_button_help = App listens after you press and release a
 voice_recognition_hold_button_help = App listens while you hold down a button
 voice_recognition_disabled_help = App doesn't listen
 voice_recognition_trigger_word_help = App always listens for a key word or phrase, and after hearing this it listens for a command (doesn't work with nAudio)
+voice_recognition_release_button_help = App listens while you release a button so the button can be used for voice chat in another program.
 
 crew_chief_help_title = Crew Chief Help
 
@@ -342,7 +344,7 @@ additional_available_actions = &Additional available actions
 reload_actions = &Restore user defaults.
 
 ###################################### SteamVR Overlay Settings ######################################################
-enable_in_vr = &Show in VR
+enable_in_vr = Show in &VR
 vr_overlay_position = Overlay &position
 vr_position_x = Left / Right (X)
 vr_position_y = Up / Down (Y)
@@ -355,18 +357,42 @@ vr_overlay_scale_trans_curve = S&cale / Transparency / Curvature
 vr_scale = Scale
 vr_transparency = Transparency
 vr_curvature = Curvature
-vr_enable_gazing = Enable gazing
+vr_enable_gazing = Enable &Gazing
 vr_gaze_scale = Gazing scale
 vr_gaze_transparency = Gazing transparency
 vr_force_topmost_window = Force window on top
 vr_toggle_key = Toggle Key(s)
 vr_tracking_universe_overwrite = Overwrite VR tracking universe
 vr_recenter_pose = Reset VR view
+vr_transparent_background = Transparent &Background
+vr_transparent_color = Transparent Color
+vr_transparent_tolerance = Tolerance
 
 vr_tracking_space_seated = Seated
 vr_tracking_space_standing = Standing
 vr_tracking_space_followhead = Follow Head
 vr_tracking_space = Tracking space
+
+vr_decrement_x_position = Decrement X Position
+vr_increment_x_position = Increment X Position
+vr_decrement_y_position = Decrement Y Position
+vr_increment_y_position = Increment Y Position
+vr_decrement_z_position = Decrement Z Position 
+vr_increment_z_position = Increment Z Position 
+vr_decrement_x_rotation = Decrement X Rotation 
+vr_increment_x_rotation = Increment X Rotation 
+vr_decrement_y_rotation = Decrement Y Rotation 
+vr_increment_y_rotation = Increment Y Rotation 
+vr_decrement_z_rotation = Decrement Z Rotation 
+vr_increment_z_rotation = Increment Z Rotation 
+vr_decrement_scale = Increase Scale 
+vr_increment_scale = Decrease Scale
+vr_decrement_transparency = Increase Transparency
+vr_increment_transparency = Decrease Transparency
+vr_reset_overlay_position_and_rotation = Reset Position and Rotation
+vr_previous_visible_overlay = Select Next Enabled Window
+vr_next_visible_overlay = Select Previous Enabled Window
+
 
 ###################################### Preferences ######################################################
 # to change the name of the property title in the properties screen, just use the property name like this:
@@ -489,6 +515,7 @@ enable_brake_damage_messages_category = FUEL_TEMPS_AND_DAMAGES
 
 # Property: Enable ACS log sectors for unknown tracks
 enable_acs_log_sectors_for_unknown_tracks = Enable ACS log sectors for unknown tracks
+enable_acs_log_sectors_for_unknown_tracks_help = Write sectors to Console window
 enable_acs_log_sectors_for_unknown_tracks_filter = ASSETTO_64BIT;ASSETTO_32BIT
 enable_acs_log_sectors_for_unknown_tracks_category = TIMINGS;UI_STARTUP_AND_PATHS
 
@@ -623,6 +650,7 @@ disable_pcars_prac_and_qual_pole_deltas_category = TIMINGS
 
 # Property: Launch ACS
 launch_acs = Launch ACS
+launch_acs_help = When Crew Chief starts (because you click 'Start Crew Chief' or the 'Run immediately' property auto starts it) attempt to launch Assetto Corsa
 launch_acs_filter = ASSETTO_64BIT;ASSETTO_32BIT
 launch_acs_category = UI_STARTUP_AND_PATHS
 launch_acs_metadata = RESTART_REQUIRED
@@ -644,6 +672,7 @@ use_alternate_beeps_metadata = RESTART_REQUIRED
 
 # Property: Use Fahrenheit for temps
 use_fahrenheit = Use Fahrenheit for temps
+use_fahrenheit_help = If not set, use Celcius
 use_fahrenheit_category = INTERNATIONALISATION;FUEL_TEMPS_AND_DAMAGES
 
 # Property: Use listen beep
@@ -664,11 +693,13 @@ acs_practice_time_minuts_filter = ASSETTO_64BIT;ASSETTO_32BIT
 
 # Property: Min time between personalised messages
 min_time_between_personalised_messages = Min time between personalised messages
+min_time_between_personalised_messages_help = Seconds between Crew Chief referring to you by name
 min_time_between_personalised_messages_category = MESSAGE_FREQUENCIES
 min_time_between_personalised_messages_metadata = RESTART_REQUIRED
 
 # Property: Min time between pearls of wisdom
 minimum_time_between_pearls_of_wisdom = Min time between pearls of wisdom
+minimum_time_between_pearls_of_wisdom_help = Seconds between Crew Chief commenting on your performance
 minimum_time_between_pearls_of_wisdom_category = MESSAGE_FREQUENCIES
 minimum_time_between_pearls_of_wisdom_metadata = RESTART_REQUIRED
 
@@ -689,6 +720,7 @@ enable_oval_spotter_enhancements_category = SPOTTER;MESSAGE_FREQUENCIES
 
 # Property: Spotter update interval
 spotter_update_interval = Spotter update interval
+spotter_update_interval_help = Milliseconds between spotter updates
 spotter_update_interval_category = SPOTTER
 
 # Property: pCARS UDP port
@@ -800,6 +832,7 @@ spotter_gap_for_clear_category = SPOTTER
 
 # Property: &Messages volume
 messages_volume = &Messages volume
+messages_volume_help = The volume of Crew Chief / spotter (0 - 1)
 messages_volume_category = AUDIO_VOICE_AND_CONTROLLERS
 
 # Property: &Background volume
@@ -873,7 +906,7 @@ custom_device_guid_metadata = RESTART_REQUIRED
 
 # Property: Launch R3E
 launch_raceroom = Launch R3E
-launch_raceroom_help = If this is true the application will attempt to launch RaceRoom Racing Experience when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
+launch_raceroom_help = When Crew Chief starts (because you click 'Start Crew Chief' or the 'Run immediately' property auto starts it) attempt to launch RaceRoom Racing Experience
 launch_raceroom_filter = RACE_ROOM
 launch_raceroom_category = UI_STARTUP_AND_PATHS
 launch_raceroom_metadata = RESTART_REQUIRED
@@ -1124,116 +1157,116 @@ f1_2021_launch_exe_category = UI_STARTUP_AND_PATHS
 
 # Property: Launch rFactor 1
 launch_rfactor1 = Launch rFactor 1
-launch_rfactor1_help = If this is true the application will attempt to launch rFactor when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
+launch_rfactor1_help = When Crew Chief starts (because you click 'Start Crew Chief' or the 'Run immediately' property auto starts it) attempt to launch rFactor
 launch_rfactor1_filter = RF1
 launch_rfactor1_category = UI_STARTUP_AND_PATHS
 launch_rfactor1_metadata = RESTART_REQUIRED
 
 # Property: Launch ASR
 launch_asr = Launch ASR
-launch_asr_help = If this is true the application will attempt to launch ASR when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
+launch_asr_help = When Crew Chief starts (because you click 'Start Crew Chief' or the 'Run immediately' property auto starts it) attempt to launch ASR
 launch_asr_filter = RF1
 launch_asr_category = UI_STARTUP_AND_PATHS
 launch_asr_metadata = RESTART_REQUIRED
 
 # Property: Launch rFactor 2
 launch_rfactor2 = Launch rFactor 2
-launch_rfactor2_help = If this is true the application will attempt to launch rFactor 2 when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
+launch_rfactor2_help = When Crew Chief starts (because you click 'Start Crew Chief' or the 'Run immediately' property auto starts it) attempt to launch rFactor 2
 launch_rfactor2_filter = RF2_64BIT
 launch_rfactor2_category = UI_STARTUP_AND_PATHS
 launch_rfactor2_metadata = RESTART_REQUIRED
 
 # Property: Launch RBR
 launch_rbr = Launch RBR
-launch_rbr_help = If this is true the application will attempt to launch Richard Burns Rally when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
+launch_rbr_help = When Crew Chief starts (because you click 'Start Crew Chief' or the 'Run immediately' property auto starts it) attempt to launch Richard Burns Rally
 launch_rbr_filter = RBR
 launch_rbr_category = UI_STARTUP_AND_PATHS
 launch_rbr_metadata = RESTART_REQUIRED
 
 # Property: Launch GTR 2
 launch_gtr2 = Launch GTR 2
-launch_gtr2_help = If this is true the application will attempt to launch GTR 2 when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
+launch_gtr2_help = When Crew Chief starts (because you click 'Start Crew Chief' or the 'Run immediately' property auto starts it) attempt to launch GTR 2
 launch_gtr2_filter = GTR2
 launch_gtr2_category = UI_STARTUP_AND_PATHS
 launch_gtr2_metadata = RESTART_REQUIRED
 
 # Property: Launch Dirt Rally
 launch_dirt = Launch Dirt Rally
-launch_dirt_help = If this is true the application will attempt to launch Dirt Rally when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
+launch_dirt_help = When Crew Chief starts (because you click 'Start Crew Chief' or the 'Run immediately' property auto starts it) attempt to launch Dirt Rally
 launch_dirt_filter = DIRT
 launch_dirt_category = UI_STARTUP_AND_PATHS
 launch_dirt_metadata = RESTART_REQUIRED
 
 # Property: Launch Dirt Rally 2
 launch_dirt2 = Launch Dirt Rally 2
-launch_dirt2_help = If this is true the application will attempt to launch Dirt Rally 2 when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
+launch_dirt2_help = When Crew Chief starts (because you click 'Start Crew Chief' or the 'Run immediately' property auto starts it) attempt to launch Dirt Rally 2
 launch_dirt2_filter = DIRT_2
 launch_dirt2_category = UI_STARTUP_AND_PATHS
 launch_dirt2_metadata = RESTART_REQUIRED
 
 # Property: Launch GSC
 launch_gsc = Launch GSC
-launch_gsc_help = If this is true the application will attempt to launch Stock Car Extreme when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
+launch_gsc_help = When Crew Chief starts (because you click 'Start Crew Chief' or the 'Run immediately' property auto starts it) attempt to launch Stock Car Extreme
 launch_gsc_filter = RF1
 launch_gsc_category = UI_STARTUP_AND_PATHS
 launch_gsc_metadata = RESTART_REQUIRED
 
 # Property: Launch F1 2018
 launch_f1_2018 = Launch F1 2018
-launch_f1_2018_help = If this is true the application will attempt to launch F1 2018 when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
+launch_f1_2018_help = When Crew Chief starts (because you click 'Start Crew Chief' or the 'Run immediately' property auto starts it) attempt to launch F1 2018
 launch_f1_2018_filter = F1_2018
 launch_f1_2018_category = UI_STARTUP_AND_PATHS
 launch_f1_2018_metadata = RESTART_REQUIRED
 
 # Property: Launch F1 2019
 launch_f1_2019 = Launch F1 2019
-launch_f1_2019_help = If this is true the application will attempt to launch F1 2019 when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
+launch_f1_2019_help = When Crew Chief starts (because you click 'Start Crew Chief' or the 'Run immediately' property auto starts it) attempt to launch F1 2019
 launch_f1_2019_filter = F1_2019
 launch_f1_2019_category = UI_STARTUP_AND_PATHS
 
 # Property: Launch F1 2020
 launch_f1_2020 = Launch F1 2020
-launch_f1_2020_help = If this is true the application will attempt to launch F1 2020 when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
+launch_f1_2020_help = When Crew Chief starts (because you click 'Start Crew Chief' or the 'Run immediately' property auto starts it) attempt to launch F1 2020
 launch_f1_2020_filter = F1_2020
 launch_f1_2020_category = UI_STARTUP_AND_PATHS
 
 # Property: Launch F1 2021
 launch_f1_2021 = Launch F1 2021
-launch_f1_2021_help = If this is true the application will attempt to launch F1 2021 when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
+launch_f1_2021_help = When Crew Chief starts (because you click 'Start Crew Chief' or the 'Run immediately' property auto starts it) attempt to launch F1 2021
 launch_f1_2021_filter = F1_2021
 launch_f1_2021_category = UI_STARTUP_AND_PATHS
 
 # Property: Launch AMS
 launch_ams = Launch AMS
-launch_ams_help = If this is true the application will attempt to launch Automobilista when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
+launch_ams_help = When Crew Chief starts (because you click 'Start Crew Chief' or the 'Run immediately' property auto starts it) attempt to launch Automobilista
 launch_ams_filter = RF1
 launch_ams_category = UI_STARTUP_AND_PATHS
 launch_ams_metadata = RESTART_REQUIRED
 
 # Property: Launch Marcas
 launch_marcas = Launch Marcas
-launch_marcas_help = If this is true the application will attempt to launch Copa Petrobras de Marcas when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
+launch_marcas_help = When Crew Chief starts (because you click 'Start Crew Chief' or the 'Run immediately' property auto starts it) attempt to launch Copa Petrobras de Marcas
 launch_marcas_filter = RF1
 launch_marcas_category = UI_STARTUP_AND_PATHS
 launch_marcas_metadata = RESTART_REQUIRED
 
 # Property: Launch FTruck
 launch_ftruck = Launch FTruck
-launch_ftruck_help = If this is true the application will attempt to launch Formula Truck when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
+launch_ftruck_help = When Crew Chief starts (because you click 'Start Crew Chief' or the 'Run immediately' property auto starts it) attempt to launch Formula Truck
 launch_ftruck_filter = RF1
 launch_ftruck_category = UI_STARTUP_AND_PATHS
 launch_ftruck_metadata = RESTART_REQUIRED
 
 # Property: Launch pCARS
 launch_pcars = Launch pCARS
-launch_pcars_help = If this is true the application will attempt to launch pCARS when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
+launch_pcars_help = When Crew Chief starts (because you click 'Start Crew Chief' or the 'Run immediately' property auto starts it) attempt to launch pCARS
 launch_pcars_filter = PCARS_64BIT;PCARS_32BIT;PCARS_NETWORK
 launch_pcars_category = UI_STARTUP_AND_PATHS
 launch_pcars_metadata = RESTART_REQUIRED
 
 # Property: Launch ACC
 launch_acc = Launch ACC
-launch_acc_help = If this is true the application will attempt to launch ACC when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
+launch_acc_help = When Crew Chief starts (because you click 'Start Crew Chief' or the 'Run immediately' property auto starts it) attempt to launch ACC
 launch_acc_filter = ACC
 launch_acc_category = UI_STARTUP_AND_PATHS
 launch_acc_metadata = RESTART_REQUIRED
@@ -1289,21 +1322,21 @@ acc_launch_params_metadata = RESTART_REQUIRED
 
 # Property: Launch pCARS 2
 launch_pcars2 = Launch pCARS 2
-launch_pcars2_help = If this is true the application will attempt to launch pCARS 2 when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
+launch_pcars2_help = When Crew Chief starts (because you click 'Start Crew Chief' or the 'Run immediately' property auto starts it) attempt to launch pCARS 2
 launch_pcars2_filter = PCARS2
 launch_pcars2_category = UI_STARTUP_AND_PATHS
 launch_pcars2_metadata = RESTART_REQUIRED
 
 # Property: Launch pCARS 3
 launch_pcars3 = Launch pCARS 3
-launch_pcars3_help = If this is true the application will attempt to launch pCARS 3 when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
+launch_pcars3_help = When Crew Chief starts (because you click 'Start Crew Chief' or the 'Run immediately' property auto starts it) attempt to launch pCARS 3
 launch_pcars3_filter = PCARS3
 launch_pcars3_category = UI_STARTUP_AND_PATHS
 launch_pcars3_metadata = RESTART_REQUIRED
 
 # Property: Launch AMS 2
 launch_ams2 = Launch AMS 2
-launch_ams2_help = If this is true the application will attempt to launch AMS 2 when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
+launch_ams2_help = When Crew Chief starts (because you click 'Start Crew Chief' or the 'Run immediately' property auto starts it) attempt to launch AMS 2
 launch_ams2_filter = AMS2
 launch_ams2_category = UI_STARTUP_AND_PATHS
 launch_ams2_metadata = RESTART_REQUIRED
@@ -1323,7 +1356,7 @@ iracing_launch_params_metadata = RESTART_REQUIRED
 
 # Property: Launch iRacing
 launch_iracing = Launch iRacing
-launch_iracing_help = If this is true the application will attempt to launch iRacing when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
+launch_iracing_help = When Crew Chief starts (because you click 'Start Crew Chief' or the 'Run immediately' property auto starts it) attempt to launch iRacing
 launch_iracing_filter = IRACING
 launch_iracing_category = UI_STARTUP_AND_PATHS
 launch_iracing_metadata = RESTART_REQUIRED
@@ -1512,6 +1545,12 @@ pause_between_messages = Pause between messages
 pause_between_messages_help = Time pause between messages (in seconds) when reading multiple messages together in a single group.
 pause_between_messages_category = MESSAGE_FREQUENCIES
 pause_between_messages_metadata = RESTART_REQUIRED
+
+# Property: Pause between message fragments
+pause_between_message_fragments = Pause between message fragments (ms)
+pause_between_message_fragments_help = Time pause between individual message fragments (sounds) in milliseconds.
+pause_between_message_fragments_category = MESSAGE_FREQUENCIES
+pause_between_message_fragments_metadata = RESTART_REQUIRED
 
 # Property: Load sound files on startup
 load_sound_files_on_startup = Load sound files on startup
@@ -2264,10 +2303,10 @@ enable_overlay_window_metadata = RESTART_REQUIRED
 
 # Property: Enable disk based telemetry for overlay
 iracing_enable_disk_based_telemetry = Enable disk based telemetry for overlay
-iracing_enable_disk_help = Enable disk based telemetry reading for overlay charts
+iracing_enable_disk_based_telemetry_help = Enable iRacing disk based telemetry reading for overlay charts
 iracing_enable_disk_based_telemetry_filter = IRACING
 iracing_enable_disk_based_telemetry_category = UI_STARTUP_AND_PATHS
-iracing_enable_disk_metadata = RESTART_REQUIRED
+iracing_enable_disk_based_telemetry_metadata = RESTART_REQUIRED
 
 # Property: Enable chart telemetry in race session
 enable_chart_telemetry_in_race_session = Enable chart telemetry in race session
@@ -2294,7 +2333,7 @@ delete_iracing_telemetryfile_metadata = RESTART_REQUIRED
 
 # Property: Enable automatic telemetry disk recording
 enable_automatic_disk_telemetry_recording = Enable automatic telemetry disk recording
-enable_automatic_disk_telemetry_recording_help = Let's Crew Chief handle the starting and stopping of iRacing telemetry recoding.
+enable_automatic_disk_telemetry_recording_help = Lets Crew Chief handle the starting and stopping of iRacing telemetry recording.
 enable_automatic_disk_telemetry_recording_filter = IRACING
 enable_automatic_disk_telemetry_recording_category = UI_STARTUP_AND_PATHS
 enable_automatic_disk_telemetry_recording_metadata = RESTART_REQUIRED

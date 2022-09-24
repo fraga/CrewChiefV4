@@ -88,6 +88,9 @@ _ReSharper*/
 # JustCode is a .NET coding addin-in
 .JustCode
 
+# CodeRush
+.cr/
+
 # TeamCity is a build add-in
 _TeamCity*
 

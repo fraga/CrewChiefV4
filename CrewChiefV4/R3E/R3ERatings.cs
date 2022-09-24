@@ -198,7 +198,7 @@ namespace CrewChiefV4.R3E
                 {
                     triedHttp = triedHttp || url.StartsWith("http:");
                     triedHttps = triedHttps || url.StartsWith("https:");
-                    ratingsJson = client.DownloadString(url);
+                    ratingsJson = Encoding.UTF8.GetString(client.DownloadData(url));
                 }
                 catch (Exception e)
                 {

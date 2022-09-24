@@ -41,6 +41,7 @@
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>7.2</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -53,6 +54,7 @@
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>7.2</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>engineer_edited.ico</ApplicationIcon>
@@ -165,6 +167,7 @@
     <Compile Include="Events\FlagsMonitor.cs" />
     <Compile Include="Events\Spotter.cs" />
     <Compile Include="Events\VROverlayController.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="F1_2019\F12019GameStateMapper.cs" />
     <Compile Include="F1_2019\F12019Spotter.cs" />
     <Compile Include="F1_2019\F12019StructWrapper.cs" />
@@ -355,6 +358,7 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="VROverlayWindow\CaptureScreen.cs" />
+    <Compile Include="VROverlayWindow\ChromaKey.cs" />
     <Compile Include="VROverlayWindow\CursorInteraction.cs" />
     <Compile Include="VROverlayWindow\DeviceManager.cs" />
     <Compile Include="VROverlayWindow\DeviceState.cs" />
@@ -368,6 +372,7 @@
     <Compile Include="VROverlayWindow\TouchControllerButton.cs" />
     <Compile Include="VROverlayWindow\TouchControllerHand.cs" />
     <Compile Include="VROverlayWindow\TrackedDevices.cs" />
+    <Compile Include="VROverlayWindow\VROverlayConfiguration.cs" />
     <Compile Include="VROverlayWindow\Win32Stuff.cs" />
     <Compile Include="VROverlayWindow\VROverlayWindow.cs" />
     <Compile Include="SharedMemory.cs" />

@@ -31,9 +31,9 @@ namespace CrewChiefV4.Events
 
         public static String folderMandatoryPitStopsOptionTyres = "mandatory_pit_stops/option_tyres";
 
-        private String folderMandatoryPitStopsCanNowFitPrimes = "mandatory_pit_stops/can_fit_primes";
+        private String folderMandatoryPitStopsCanNowFitPrimes = "mandatory_pit_stops/can_now_fit_primes";
 
-        private String folderMandatoryPitStopsCanNowFitOptions = "mandatory_pit_stops/can_fit_options";
+        private String folderMandatoryPitStopsCanNowFitOptions = "mandatory_pit_stops/can_now_fit_options";
 
         private String folderMandatoryPitStopsPitWindowOpening = "mandatory_pit_stops/pit_window_opening";
 

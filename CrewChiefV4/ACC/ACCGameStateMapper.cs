@@ -64,6 +64,9 @@ namespace CrewChiefV4.ACC
         private DateTime ignoreUnknownSessionTypeUntil = DateTime.MinValue;
         private Boolean waitingForUnknownSessionTypeToSettle = false;
 
+        private DateTime startedWaitingForValidGridDataAt = DateTime.MinValue;
+        private Boolean waitingForValidFormationCarData = false;
+
         private Dictionary<string, int> opponentDisconnectionCounter = new Dictionary<string, int>();
 
         // workaround for shit sector flag data
@@ -408,7 +411,8 @@ namespace CrewChiefV4.ACC
 
             currentGameState.SessionData.DriverRawName = playerVehicle.driverName;
             int positionFromGame = useLeaderboardPosition ? playerVehicle.carLeaderboardPosition : playerVehicle.carRealTimeLeaderboardPosition;
-            currentGameState.SessionData.OverallPosition = currentGameState.SessionData.SessionType == SessionType.Race && previousGameState != null
+            currentGameState.SessionData.OverallPosition = currentGameState.SessionData.SessionType == SessionType.Race && previousGameState != null 
+                && currentGameState.SessionData.SessionPhase == SessionPhase.Green
                 ? getRacePosition(currentGameState.SessionData.DriverRawName, previousGameState.SessionData.OverallPosition, positionFromGame, currentGameState.Now)
                 : positionFromGame;
 
@@ -455,6 +459,7 @@ namespace CrewChiefV4.ACC
                 {
                     Console.WriteLine("sessionTimeRemaining = " + sessionTimeRemaining.ToString("0.000") + " lastSessionTimeRemaining = " + lastSessionTimeRemaining.ToString("0.000"));
                 }
+                waitingForValidFormationCarData = false;
                 currentGameState.SessionData.IsNewSession = true;
                 currentGameState.SessionData.SessionNumberOfLaps = numberOfLapsInSession;
                 currentGameState.SessionData.LeaderHasFinishedRace = false;
@@ -1402,25 +1407,47 @@ namespace CrewChiefV4.ACC
                     // heading check the spotter will see a heading of 0 for the first few ticks and get the side calculation wrong
                     if (currentGameState.FrozenOrderData.Phase == FrozenOrderPhase.None && shared.accPhysics.heading != 0)
                     {
+                        // because of the unsynchronized data, we don't know how many cars we'll have at this point. The game will start sending
+                        // car data at the start of the formation phase, it should be fairly quick, but it's may not be finished by the time we get a non-zero heading
                         Tuple<GridSide, Dictionary<int, GridSide>> gridSides = MainWindow.instance.crewChief.getGridSide();
-                        currentGameState.FrozenOrderData = new FrozenOrderData();
-                        currentGameState.FrozenOrderData.AssignedColumn = gridSides.Item1 == GridSide.LEFT ? FrozenOrderColumn.Left : FrozenOrderColumn.Right;
-                        currentGameState.FrozenOrderData.Phase = FrozenOrderPhase.Rolling;
-                        currentGameState.FrozenOrderData.AssignedPosition = playerPosition;
-                        bool leaderCol = playerPosition % 2 != 0;
-                        currentGameState.FrozenOrderData.AssignedGridPosition = leaderCol ? (playerPosition / 2) + 1 : playerPosition / 2;
-                        if (playerPosition > 1)
+                        // check this is valid - it takes time for the opponent position and player heading data to settle
+                        bool gridSideDataValid = gridSideDataIsValid(gridSides.Item1, gridSides.Item2, playerPosition, shared.accGraphic.carCount);                        
+
+                        if (!gridSideDataValid && !waitingForValidFormationCarData)
                         {
-                            // special case for P2 - no safety car to follow so just tell him to follow the leader
-                            OpponentData carFront = currentGameState.getOpponentAtOverallPosition(playerPosition == 2 ? 1 : playerPosition - 2);
-                            currentGameState.FrozenOrderData.CarNumberToFollowRaw = carFront.CarNumber;
-                            currentGameState.FrozenOrderData.DriverToFollowRaw = carFront.DriverRawName;
+                            waitingForValidFormationCarData = true;
+                            startedWaitingForValidGridDataAt = currentGameState.Now;
                         }
-                        foreach (OpponentData opponent in currentGameState.OpponentData.Values)
+                        else if (gridSideDataValid || currentGameState.Now > startedWaitingForValidGridDataAt.AddSeconds(6))
                         {
-                            currentGameState.FrozenOrderData.OpponentPositionsAtStartOfFormationLap[opponent.OverallPosition] = opponent.DriverRawName;
+                            // note that we don't set an 'action' here - this comes when we hit the countdown phase (it's single file until then)
+                            currentGameState.FrozenOrderData.Action = FrozenOrderAction.None;
+                            currentGameState.FrozenOrderData.Phase = FrozenOrderPhase.Rolling;
+                            if (gridSideDataValid)
+                            {
+                                Console.WriteLine("Waited " + (currentGameState.Now - startedWaitingForValidGridDataAt).TotalSeconds + " for valid grid side data");
+                                currentGameState.FrozenOrderData.AssignedColumn = gridSides.Item1 == GridSide.LEFT ? FrozenOrderColumn.Left : FrozenOrderColumn.Right;
+                            }
+                            else
+                            {
+                                Console.WriteLine("Waited " + (currentGameState.Now - startedWaitingForValidGridDataAt).TotalSeconds + " but didn't get valid side data");
+                            }
+                            currentGameState.FrozenOrderData.AssignedPosition = playerPosition;
+                            bool leaderCol = playerPosition % 2 != 0;
+                            currentGameState.FrozenOrderData.AssignedGridPosition = leaderCol ? (playerPosition / 2) + 1 : playerPosition / 2;
+                            if (playerPosition > 1)
+                            {
+                                // special case for P2 - no safety car to follow so just tell him to follow the leader
+                                OpponentData carFront = currentGameState.getOpponentAtOverallPosition(playerPosition == 2 ? 1 : playerPosition - 2);
+                                currentGameState.FrozenOrderData.CarNumberToFollowRaw = carFront.CarNumber;
+                                currentGameState.FrozenOrderData.DriverToFollowRaw = carFront.DriverRawName;
+                            }
+                            foreach (OpponentData opponent in currentGameState.OpponentData.Values)
+                            {
+                                currentGameState.FrozenOrderData.OpponentPositionsAtStartOfFormationLap[opponent.OverallPosition] = opponent.DriverRawName;
+                            }
+                            waitingForValidFormationCarData = false;
                         }
-                        // note that we don't set an 'action' here - this comes when we hit the countdown phase (it's single file until then)
                     }
                 }
                 else if (playerVehicle.isCarInPitlane == 0
@@ -1477,7 +1504,35 @@ namespace CrewChiefV4.ACC
             }
             return currentGameState;
         }
-        
+
+        private bool gridSideDataIsValid(GridSide playerGridSide, Dictionary<int, GridSide> gridSides, int playerPosition, int carCount)
+        {
+            int carsOnLeft = 0;
+            int carsOnRight = 0;
+            bool nextOrPrevCarIsOnOtherSide = false;
+            for (int i=1; i<carCount; i++)
+            {
+                if (gridSides.TryGetValue(i, out GridSide gridSide))
+                {
+                    if (gridSide == GridSide.LEFT)
+                    {
+                        carsOnLeft++;
+                    }
+                    else if (gridSide == GridSide.RIGHT)
+                    {
+                        carsOnRight++;
+                    }
+                    if ((playerPosition == 1 && i == 2) || (i == playerPosition - 1))
+                    {
+                        nextOrPrevCarIsOnOtherSide = gridSide != playerGridSide;
+                    }
+                }
+            }
+            // we have valid grid data when the car immediately ahead (or behind if we're pole) is on the opposite side, and
+            // there's a reasonable variety of left / right starting positions
+            return nextOrPrevCarIsOnOtherSide && Math.Abs(carsOnLeft - carsOnRight) < 3;
+        }
+
         private void correctFrozenOrderDataForDisconnectedOpponents(GameStateData currentGameState)
         {
             int numMissingAhead = 0;

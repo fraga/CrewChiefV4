@@ -340,7 +340,7 @@ namespace CrewChiefV4.commands
                             count = CrewChief.getEvent(actionItem.eventToResolveRepeatCount).resolveMacroKeyPressCount(macro.name);
                             doR3EFuellingMenuHack = isR3e && actionItem.eventToResolveRepeatCount.Equals("fuel", StringComparison.InvariantCultureIgnoreCase);
                         }
-                        else if (actionItem.repeatCountFromVoiceCommand)
+                        else if (actionItem.repeatCountFromVoiceCommand || actionItem.isNumberString)
                         {
                             count = multiplePressCountFromVoiceCommand;
                             // no event to check against here - this is the case where we say "add fuel, 20 litres" - we want an additional 3 presses for this
@@ -401,9 +401,18 @@ namespace CrewChiefV4.commands
                     {
                         KeyPresser.SendKeyPresses(startChatActionItem.keyCodes, keyPressTime, startChatActionItem.waitTime);
                     }
-                }                
-                Console.WriteLine("Sending " + actionItem.freeText);
-                sendMacroTextKeyPresses(actionItem.freeText);
+                }
+
+                string freeTextToSend = "";
+                if (!string.IsNullOrWhiteSpace(actionItem.freeTextBeforeNumber))
+                    freeTextToSend = actionItem.freeTextBeforeNumber;
+                if (actionItem.isNumberString)
+                    freeTextToSend += count;
+                if (!string.IsNullOrWhiteSpace(actionItem.freeTextAfterNumber))
+                    freeTextToSend += actionItem.freeTextAfterNumber;
+
+                Console.WriteLine("Sending " + freeTextToSend);
+                sendMacroTextKeyPresses(freeTextToSend);
                 Thread.Sleep(getWaitBetweenEachCommand());
 
                 if (actionItem.actionItemsAfterFreeText.Count > 0)
@@ -533,13 +542,13 @@ namespace CrewChiefV4.commands
 
         public int extractInt(String recognisedVoiceCommand, String start, String end)
         {
-            foreach (KeyValuePair<String[], int> entry in SpeechRecogniser.numberToNumber)
+            foreach (KeyValuePair<String[], String> entry in SpeechRecogniser.carNumberToNumber)
             {
                 foreach (String numberStr in entry.Key)
                 {
-                    if (recognisedVoiceCommand.Contains(start + numberStr + end))
+                    if (recognisedVoiceCommand.Equals(start + numberStr + end))
                     {
-                        return entry.Value;
+                        return int.Parse(entry.Value);
                     }
                 }
             }
@@ -661,10 +670,12 @@ namespace CrewChiefV4.commands
         // note this is an array only because we may have multiple presses of the same key
         public Tuple<VirtualKeyCode?, VirtualKeyCode>[] keyCodes;
         public String actionText;
-        public String freeText;
+        public String freeTextBeforeNumber = "";
+        public String freeTextAfterNumber = "";
         //public String extendedType;
         //public String extendedTypeTextParam;
         public Boolean allowFreeText;
+        public Boolean isNumberString;
 
         public HashSet<SessionType> applicableSessionTypes = null;
         public int waitTime = -1;
@@ -689,9 +700,9 @@ namespace CrewChiefV4.commands
                 Console.WriteLine("Action item \"" + action + "\" may need to be changed to \"{WAIT," + action.Substring(action.IndexOf("_") + 1) + "}\"");
             }
             if (action.StartsWith("{"))
-            {
+            {                
                 int start = action.IndexOf("{") + 1;
-                int end = action.IndexOf("}", start);
+                int end = action.IndexOf("}", start);              
                 if (start != -1 && end > -1)
                 {
                     String[] typeAndParamBlocks = action.Substring(start, end - start).Split('|');
@@ -772,11 +783,30 @@ namespace CrewChiefV4.commands
                     {
                         if (allowFreeText)
                         {
+                            if(action.Contains(MacroManager.MULTIPLE_PRESS_FROM_VOICE_TRIGGER_IDENTIFIER))
+                            {
+                                this.freeTextBeforeNumber = action.Substring(0, action.IndexOf("{"));
+                                this.freeTextAfterNumber = action.Substring(action.IndexOf("}") + 1);
+                                isNumberString = true;
+                            }
+                            else
+                            {
+                                this.freeTextAfterNumber = action;
+                            }
                             parsedSuccessfully = true;
-                            this.freeText = action;
                             if (parsedSuccessfully)
                             {
-                                Console.WriteLine("Free text action macro, text = " + freeText);
+                                string cout = "Free text action macro, text = ";
+                                if (!string.IsNullOrWhiteSpace(freeTextBeforeNumber))
+                                {
+                                    cout += freeTextBeforeNumber;
+                                }
+                                if (isNumberString)
+                                {
+                                    cout += MacroManager.MULTIPLE_PRESS_FROM_VOICE_TRIGGER_IDENTIFIER;
+                                }
+                                cout += freeTextAfterNumber;
+                                Console.WriteLine(cout);
                             }
                         }
                         else
@@ -821,7 +851,15 @@ namespace CrewChiefV4.commands
                 }
                 if (this.allowFreeText)
                 {
-                    str += "free text " + this.freeText + " ";
+                    if (!string.IsNullOrWhiteSpace(freeTextBeforeNumber))
+                    {
+                        str += freeTextBeforeNumber;
+                    }
+                    if (isNumberString)
+                    {
+                        str += MacroManager.MULTIPLE_PRESS_FROM_VOICE_TRIGGER_IDENTIFIER;
+                    }
+                    str += freeTextAfterNumber + " ";
                 }
                 if (keyCodes != null)
                 {

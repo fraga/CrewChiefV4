@@ -10,6 +10,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
+using System.Windows.Forms;
 using WebSocketSharp;
 using WebSocketSharp.Server;
 
@@ -430,43 +431,21 @@ namespace CrewChiefV4
         }
 
         /// <summary>
-        /// Restart CC with new args
+        /// Restart CC with edited args
         /// </summary>
-        /// <param name="newArgs"></param>
-        /// <param name="removeSkipUpdates"></param>
         /// <returns>true if app restarted</returns>
         public static bool RestartApp(
             bool app_restart = false,
             bool removeSkipUpdates = false,
-            bool removeProfile = false)
+            bool removeProfile = false,
+            bool removeGame = false)
         {
             if (!CrewChief.Debugging)
             {
-                if (app_restart)
-                {
-                    CrewChief.CommandLine.Add("app_restart", "");
-                }
-                // if we're restarting because the 'force update check'
-                // was clicked, remove the '-skip_updates' arg
-                if (removeSkipUpdates)
-                {
-                    CrewChief.CommandLine.Remove("skip_updates");
-                    CrewChief.CommandLine.Remove("SKIP_UPDATES");
-                }
-                if (removeProfile)
-                {
-                    CrewChief.CommandLine.Remove("profile");
-                }
-                // Always have to add "-multi" to the start args so the app can restart
-                CrewChief.CommandLine.Add("multi", "");
-
-                // Translate the dict back into a command line
-                var newArgs = new List<string>();
-                foreach (var arg in CrewChief.CommandLine._dict)
-                {
-                    newArgs.Add("-" + arg.Key);
-                    newArgs.Add(arg.Value);
-                }
+                var newArgs = RestartAppCommandLine(app_restart,
+                                                    removeSkipUpdates,
+                                                    removeProfile,
+                                                    removeGame);
                 System.Diagnostics.Process.Start(    // to start new instance of application
                     System.Windows.Forms.Application.ExecutablePath,
                     String.Join(" ", newArgs.ToArray()));
@@ -475,129 +454,245 @@ namespace CrewChiefV4
             // If debugging then carry on regardless
             return false;
         }
+        /// <summary>
+        /// Edit the current command line
+        /// </summary>
+        /// <param name="app_restart"></param>
+        /// <param name="removeSkipUpdates">We're restarting because the 'force update check'</param>
+        /// <param name="removeProfile">-profile [profile name]</param>
+        /// <param name="removeGame">=game [game name]</param>
+        /// <returns></returns>
+        // (Extracted so it can be tested)
+        internal static List<string> RestartAppCommandLine(
+            bool app_restart = false,
+            bool removeSkipUpdates = false,
+            bool removeProfile = false,
+            bool removeGame = false)
+        {
+            if (app_restart)
+            {
+                CrewChief.CommandLine.Add("app_restart", "");
+            }
+            if (removeSkipUpdates)
+            {
+                CrewChief.CommandLine.Remove("skip_updates");
+                CrewChief.CommandLine.Remove("SKIP_UPDATES");
+            }
+            if (removeProfile)
+            {
+                CrewChief.CommandLine.Remove("profile");
+            }
+            if (removeGame)
+            {
+                CrewChief.CommandLine.Remove("game");
+            }
+            // Always have to add "-multi" to the start args so the app can restart
+            CrewChief.CommandLine.Add("multi", "");
+
+            // Translate the dict back into a command line
+            var newArgs = new List<string>();
+            foreach (var arg in CrewChief.CommandLine._dict)
+            {
+                newArgs.Add("-" + arg.Key);
+                newArgs.Add(arg.Value);
+            }
+            return newArgs;
+        }
+    
+        /// <summary>
+        /// If 'text' is longer than 'maxLength' insert a newline near
+        /// the middle after a word break
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="maxLength"></param>
+        /// <returns></returns>
+        public static string SplitString(string text, int maxLength)
+        {
+            if (text.Length <= maxLength)
+            {
+                return text;
+            }
+            //Degenerate case with only 1 word
+            if (!text.Any(Char.IsWhiteSpace))
+            {
+                return text;
+            }
+
+            int mid = text.Length / 2;
+            if (!Char.IsWhiteSpace(text[mid]))
+            {
+                for (int i = 1; i < mid; i += i)
+                {
+                    if (Char.IsWhiteSpace(text[mid + i]))
+                    {
+                        mid = mid + i;
+                        break;
+                    }
+                    if (Char.IsWhiteSpace(text[mid - i]))
+                    {
+                        mid = mid - i;
+                        break;
+                    }
+                }
+            }
+
+            return text.Substring(0, mid)
+                   + Environment.NewLine + text.Substring(mid + 1);
+        }
+
 
     /// <summary>
     /// Read the command line arguments into a dictionary
     /// </summary>
     public class CommandLineParametersReader
+    {
+        private string[] _args
         {
-            private string[] _args
-            {
-                get;
-            }
-            public Dictionary<string, string> _dict
-            {
-                get;
-            }
+            get;
+        }
+        public Dictionary<string, string> _dict
+        {
+            get;
+        }
 
-            private bool CaseSensitive
-            {
-                get;
-            }
+        private bool CaseSensitive
+        {
+            get;
+        }
 
-            public CommandLineParametersReader(string[] args=null, bool isCaseSensitive=false)
+        public CommandLineParametersReader(string[] args = null, bool isCaseSensitive = false)
+        {
+            if (args == null)
             {
-                if (args == null)
+                args = Environment.GetCommandLineArgs();
+            }
+            _args = args;
+            CaseSensitive = isCaseSensitive;
+            _dict = new Dictionary<string, string>();
+            Process();
+        }
+
+        // Process Arguments into KeyPairs
+        private void Process()
+        {
+            string currentKey = null;
+            foreach (var arg in _args)
+            {
+                var s = arg.Trim();
+                if (s.StartsWith("-"))
                 {
-                    args = Environment.GetCommandLineArgs();
-                }
-                _args = args;
-                CaseSensitive = isCaseSensitive;
-                _dict = new Dictionary<string, string>();
-                Process();
-            }
-
-            // Process Arguments into KeyPairs
-            private void Process()
-            {
-                string currentKey = null;
-                foreach (var arg in _args)
-                {
-                    var s = arg.Trim();
-                    if (s.StartsWith("-"))
+                    currentKey = s.Substring(1);
+                    if (!CaseSensitive)
                     {
-                        currentKey = s.Substring(1);
-                        if (!CaseSensitive)
-                        {
-                            currentKey = currentKey.ToLower();
-                        }
-                        _dict[currentKey] = "";
+                        currentKey = currentKey.ToLower();
                     }
-                    else
+                    _dict[currentKey] = "";
+                }
+                else
+                {
+                    if (currentKey != null)
                     {
-                        if (currentKey != null)
-                        {
-                            _dict[currentKey] = s;
-                            currentKey = null;
-                        }
+                        _dict[currentKey] = s;
+                        currentKey = null;
                     }
                 }
-            }
-
-            // Return the Key with a default value
-            public string Get(string key, string defaultvalue = null)
-            {
-                if (!CaseSensitive)
-                {
-                    key = key.ToLower();
-                }
-                return _dict.ContainsKey(key) ? _dict[key] : defaultvalue;
-            }
-
-            public void Add(string key, string value)
-            {
-                _dict[key] = value;
-            }
-            public void Remove(string key)
-            {
-                if (_dict.ContainsKey(key))
-                {
-                    _dict.Remove(key);
-                }
-            }
-            /// <summary>
-            /// Return a -c_[command] argument
-            /// </summary>
-            /// <returns>
-            /// The command or "" if none
-            /// </returns>
-            public string GetCommandArg()
-            {
-                string cmd = "";
-                foreach (var arg in _dict)
-                {
-                    if (arg.Key.StartsWith("c_"))
-                    {
-                        cmd = "-" + arg.Key;
-                    }
-                }
-                return cmd;
             }
         }
 
+        // Return the Key with a default value
+        public string Get(string key, string defaultvalue = null)
+        {
+            if (!CaseSensitive)
+            {
+                key = key.ToLower();
+            }
+            return _dict.ContainsKey(key) ? _dict[key] : defaultvalue;
+        }
+
+        public void Add(string key, string value)
+        {
+            _dict[key] = value;
+        }
+        public void Remove(string key)
+        {
+            if (_dict.ContainsKey(key))
+            {
+                _dict.Remove(key);
+            }
+        }
+        /// <summary>
+        /// Return a -c_[command] argument
+        /// </summary>
+        /// <returns>
+        /// The command or "" if none
+        /// </returns>
+        public string GetCommandArg()
+        {
+            string cmd = "";
+            foreach (var arg in _dict)
+            {
+                if (arg.Key.StartsWith("c_"))
+                {
+                    cmd = "-" + arg.Key;
+                }
+            }
+            return cmd;
+        }
+    }
+
         internal static void ReportException(Exception e, string msg, bool needReport)
         {
-            Console.WriteLine(
-                Environment.NewLine + "==================================================================" + Environment.NewLine
-                + (needReport ? ("PLEASE REPORT THIS ERROR TO CC DEV TEAM." + Environment.NewLine) : "")
-                + "Error message: " + msg + Environment.NewLine
-                + e.ToString() + Environment.NewLine
-                + e.Message + Environment.NewLine
-                + e.StackTrace + Environment.NewLine
-            );
-
-            if (e.InnerException != null)
+            String message = needReport ? "Error message copied to clipboard:\n" : "";
+            message += e.Message + "Stack trace: " + String.Join(",", e.StackTrace);
+            int innerExceptionCount = 0;
+            int maxReportableInnerExceptions = 5;   // in case we have a circular set of inner exception references
+            Exception innerException = e.InnerException;
+            while (innerException != null && innerExceptionCount < maxReportableInnerExceptions)
             {
-                Console.WriteLine(
-                    "Inner exception: " + e.InnerException.ToString() + Environment.NewLine
-                    + e.InnerException.Message + Environment.NewLine
-                    + e.InnerException.StackTrace + Environment.NewLine
-                );
+                message += "\n\nInner exception " + innerExceptionCount + " message: " + e.InnerException.Message +
+                    "\nInner exception " + innerExceptionCount + " stack trace: " + String.Join(",", e.InnerException.StackTrace);
+                innerException = innerException.InnerException;
+                innerExceptionCount++;
             }
-
+            // Write it to the console window if it's live
+            Console.WriteLine(
+                "==================================================================" + Environment.NewLine
+                );
+            Console.WriteLine(message);
             Console.WriteLine(
                 "==================================================================" + Environment.NewLine
             );
+
+            if (needReport)
+            {
+                string consoleLogFilename = null;
+                try
+                {
+                    consoleLogFilename = MainWindow.instance.saveConsoleOutputText();
+                }
+                catch (Exception ex)
+                {
+                }
+                if (consoleLogFilename == null)
+                {
+                    // Console window not live yet
+                    MessageBox.Show("The following text will be COPIED TO THE CLIPBOARD\n"
+                        + (needReport ? "Please PASTE the report to the Crew Chief team via the forum or Discord." : "")
+                        + "\n\n" + message,
+                        "Fatal error",
+                        MessageBoxButtons.OK);
+                }
+                else
+                {
+                    MessageBox.Show($"The following text should be found in {consoleLogFilename}\n"
+                        + "but will be COPIED TO THE CLIPBOARD too\n"
+                        + "Please send the log file to the Crew Chief team via the forum or Discord."
+                        + "\n\n" + message,
+                        "Fatal error",
+                        MessageBoxButtons.OK);
+                }
+                Clipboard.SetText(message);
+            }
         }
 
         internal static bool InterruptedSleep(int totalWaitMillis, int waitWindowMillis, Func<bool> keepWaitingPredicate)
@@ -755,65 +850,6 @@ namespace CrewChiefV4
         protected override void OnMessage(MessageEventArgs e)
         {
             Send(GameDataWebsocketData.gameDataSerializer.Serialize(GameDataWebsocketData.gameDataReader.getLatestGameData(), e.Data));
-        }
-    }
-
-    // stackoverflow...
-    public static class Extensions
-    {
-
-        /*public static int IndexOfMin<T>(this IList<T> list) where T : IComparable
-        {
-            if (list == null)
-                throw new ArgumentNullException("list");
-
-            IEnumerator<T> enumerator = list.GetEnumerator();
-            bool isEmptyList = !enumerator.MoveNext();
-
-            if (isEmptyList)
-                throw new ArgumentOutOfRangeException("list", "list is empty");
-
-            int minOffset = 0;
-            T minValue = enumerator.Current;
-            for (int i = 1; enumerator.MoveNext(); ++i)
-            {
-                if (enumerator.Current.CompareTo(minValue) >= 0)
-                    continue;
-
-                minValue = enumerator.Current;
-                minOffset = i;
-            }
-
-            return minOffset;
-        }*/
-        public static int IndexOfMin<T>(this IEnumerable<T> source, IComparer<T> comparer = null)
-        {
-            if (source == null)
-                throw new ArgumentNullException("source");
-
-            if (comparer == null)
-                comparer = Comparer<T>.Default;
-
-            using (var enumerator = source.GetEnumerator())
-            {
-                if (!enumerator.MoveNext())
-                    return -1;    // or maybe throw InvalidOperationException
-
-                int minIndex = 0;
-                T minValue = enumerator.Current;
-
-                int index = 0;
-                while (enumerator.MoveNext())
-                {
-                    index++;
-                    if (comparer.Compare(enumerator.Current, minValue) < 0)
-                    {
-                        minIndex = index;
-                        minValue = enumerator.Current;
-                    }
-                }
-                return minIndex;
-            }
         }
     }
 }

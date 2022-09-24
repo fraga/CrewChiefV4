@@ -31,6 +31,7 @@ namespace CrewChiefV4
             this.originalValue = currentValue;
             this.textBox1.Text = currentValue;
             this.defaultValue = defaultValue;
+            helpText = Utilities.SplitString(helpText, 50);
             this.toolTip1.SetToolTip(this.textBox1, helpText);
             this.toolTip1.SetToolTip(this.label1, helpText);
 

@@ -445,55 +445,58 @@ namespace CrewChiefV4.Events
         public override void respond(String voiceMessage)
         {
             Boolean gotResponse = false;
-            if (SpeechRecogniser.WHAT_CLASS_IS_CAR_AHEAD.Contains(voiceMessage))
+            if (currentGameState != null)
             {
-                String opponentKey = currentGameState.getOpponentKeyInFrontOnTrack();
-                if (opponentKey != null)
+                if (SpeechRecogniser.WHAT_CLASS_IS_CAR_AHEAD.Contains(voiceMessage))
                 {
-                    gotResponse = true;
-                    audioPlayer.playMessageImmediately(new QueuedMessage(getClassSound(currentGameState.OpponentData[opponentKey]), 0));
-                }
-            }
-            else if (SpeechRecogniser.WHAT_CLASS_IS_CAR_BEHIND.Contains(voiceMessage))
-            {                
-                String opponentKey = currentGameState.getOpponentKeyBehindOnTrack();
-                if (opponentKey != null)
-                {
-                    gotResponse = true;
-                    audioPlayer.playMessageImmediately(new QueuedMessage(getClassSound(currentGameState.OpponentData[opponentKey]), 0));
-                }
-            }
-            else if (SpeechRecogniser.IS_CAR_AHEAD_MY_CLASS.Contains(voiceMessage))
-            {
-                String opponentKey = currentGameState.getOpponentKeyInFrontOnTrack();
-                if (opponentKey != null)
-                {
-                    gotResponse = true;
-                    CarData.CarClass opponentClass = currentGameState.OpponentData[opponentKey].CarClass;
-                    if (CarData.IsCarClassEqual(currentGameState.carClass, opponentClass))
+                    String opponentKey = currentGameState.getOpponentKeyInFrontOnTrack();
+                    if (opponentKey != null)
                     {
-                        audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderYes, 0));
-                    }
-                    else
-                    {
-                        audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNo, 0));
+                        gotResponse = true;
+                        audioPlayer.playMessageImmediately(new QueuedMessage(getClassSound(currentGameState.OpponentData[opponentKey]), 0));
                     }
                 }
-            }
-            else if (SpeechRecogniser.IS_CAR_BEHIND_MY_CLASS.Contains(voiceMessage))
-            {
-                String opponentKey = currentGameState.getOpponentKeyBehindOnTrack();
-                if (opponentKey != null)
+                else if (SpeechRecogniser.WHAT_CLASS_IS_CAR_BEHIND.Contains(voiceMessage))
                 {
-                    gotResponse = true;
-                    CarData.CarClass opponentClass = currentGameState.OpponentData[opponentKey].CarClass;
-                    if (CarData.IsCarClassEqual(currentGameState.carClass, opponentClass))
+                    String opponentKey = currentGameState.getOpponentKeyBehindOnTrack();
+                    if (opponentKey != null)
                     {
-                        audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderYes, 0));
+                        gotResponse = true;
+                        audioPlayer.playMessageImmediately(new QueuedMessage(getClassSound(currentGameState.OpponentData[opponentKey]), 0));
                     }
-                    else
+                }
+                else if (SpeechRecogniser.IS_CAR_AHEAD_MY_CLASS.Contains(voiceMessage))
+                {
+                    String opponentKey = currentGameState.getOpponentKeyInFrontOnTrack();
+                    if (opponentKey != null)
                     {
-                        audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNo, 0));
+                        gotResponse = true;
+                        CarData.CarClass opponentClass = currentGameState.OpponentData[opponentKey].CarClass;
+                        if (CarData.IsCarClassEqual(currentGameState.carClass, opponentClass))
+                        {
+                            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderYes, 0));
+                        }
+                        else
+                        {
+                            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNo, 0));
+                        }
+                    }
+                }
+                else if (SpeechRecogniser.IS_CAR_BEHIND_MY_CLASS.Contains(voiceMessage))
+                {
+                    String opponentKey = currentGameState.getOpponentKeyBehindOnTrack();
+                    if (opponentKey != null)
+                    {
+                        gotResponse = true;
+                        CarData.CarClass opponentClass = currentGameState.OpponentData[opponentKey].CarClass;
+                        if (CarData.IsCarClassEqual(currentGameState.carClass, opponentClass))
+                        {
+                            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderYes, 0));
+                        }
+                        else
+                        {
+                            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNo, 0));
+                        }
                     }
                 }
             }

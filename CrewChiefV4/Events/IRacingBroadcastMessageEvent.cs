@@ -118,7 +118,12 @@ namespace CrewChiefV4.Events
                 if (previousGameState != null 
                     // special case: don't allow auto fuelling to trigger if we've just been given control of the car. Prevents this
                     // triggering immediately after a driver change. We also don't want this to trigger when we're not in the car because
-                    // the fuel data aren't sent
+                    // the fuel data aren't sent.
+                    //
+                    // The above isn't quite enough - there's some noise in the data which results in autofuelling triggering sometimes
+                    // when a driver enters the car after a driver swap. Because the trigger is supposed to happen as we enter the pitlane,
+                    // also check for a sane car speed (a driver swap should be with the car stationary this should block an unwanted autofuel trigger)
+                    && currentGameState.PositionAndMotionData.CarSpeed > 1
                     && currentGameState.ControlData.ControlType == ControlType.Player
                     && !(previousGameState.ControlData.ControlType == ControlType.Replay && currentGameState.ControlData.ControlType == ControlType.Player)
                     && !previousGameState.PitData.InPitlane && currentGameState.PitData.InPitlane
@@ -134,7 +139,9 @@ namespace CrewChiefV4.Events
                     }
                     else if (litresNeeded <= 0)
                     {
+                        ClearFuel();
                         audioPlayer.playMessage(new QueuedMessage(Fuel.folderPlentyOfFuel, 0));
+                        
                     }
                     else if (litresNeeded > 0)
                     {

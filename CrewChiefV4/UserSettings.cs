@@ -49,7 +49,7 @@ namespace CrewChiefV4
 
         private static  String[] reservedNameStarts = new String[] { "CHANNEL_", "TOGGLE_", "VOICE_OPTION", "background_volume",
             "messages_volume", "last_game_definition", "UpdateSettings",ControllerConfiguration.ControllerData.PROPERTY_CONTAINER,
-            "PERSONALISATION_NAME", "app_version", "spotter_name", "codriver_name", "codriver_style", "racing_type", "update_notify_attempted", "last_trace_file_name",
+            "PERSONALISATION_NAME", "app_version", "spotter_name", "codriver_name", "codriver_style", "update_notify_attempted", "last_trace_file_name",
             "NAUDIO_DEVICE_GUID", "NAUDIO_RECORDING_DEVICE_GUID", "chief_name", "current_settings_profile", "main_window_position"};
 
         private static String defaultUserSettingsfileName = "defaultSettings.json";
@@ -268,7 +268,7 @@ namespace CrewChiefV4
         /// If the command line profile file does not exist use the default
         /// (not the current) profile instead.
         /// </summary>
-        private UserSettings()
+        internal UserSettings()
         {
             // Set profile from command line '-profile "file name without extension" ...'.  This needs to be
             // done here, because this executes before Main.
@@ -401,13 +401,17 @@ namespace CrewChiefV4
             return props.OrderBy(x => x.Name).ToList();
         }
 
-        private static readonly UserSettings _userSettings = new UserSettings();
+        private static UserSettings _userSettings = new UserSettings();
 
         private Boolean propertiesUpdated = false;
         private Boolean userProfilePropertiesUpdated = false;
 
         public static UserSettings GetUserSettings()
         {
+            if (_userSettings == null)
+            {
+                _userSettings = new UserSettings();
+            }
             return _userSettings;
         }
 
@@ -552,6 +556,45 @@ namespace CrewChiefV4
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Return the settings that have been changed
+        /// </summary>
+        /// <returns>String of lines, one per changed setting</returns>
+        public static string getNonDefaultUserSettings()
+        {
+            string changes = null;
+            string value = null;
+            foreach (SettingsProperty prop in getProperties())
+            {
+                if (currentActiveProfile.userSettings.ContainsKey(prop.Name))
+                {
+                    if (prop.PropertyType == typeof(string))
+                    {
+                        if (prop.DefaultValue.Equals(currentActiveProfile.userSettings[prop.Name]))
+                        {
+                            continue;
+                        }
+                        // Quote strings to show up any white space
+                        value = $"'{currentActiveProfile.userSettings[prop.Name]}'";
+                    }
+                    else
+                    {
+                        if (prop.DefaultValue.Equals(currentActiveProfile.userSettings[prop.Name].ToString()))
+                        {
+                            continue;
+                        }
+                        value = $"{currentActiveProfile.userSettings[prop.Name]}";
+                    }
+                    changes += $"{prop.Name}: {value}\n";
+                }
+                else
+                {
+                    changes += $"Error: '{prop.Name}' not in userSettings\n";
+                }
+            }
+            return changes;
         }
     }
 }
