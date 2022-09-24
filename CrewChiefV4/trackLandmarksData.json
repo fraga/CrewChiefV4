@@ -2522,6 +2522,7 @@
 			"raceroomLayoutId": 1866,
 			"raceroomRollingStartLapDistance": 3828,
 			"rf2TrackNames": [ "RaceRfactor Hungaroring 2013" ],
+			"gtr2TrackNames": [ "Hungaroring", "Hungaroring GP, 2016" ],
 			"accTrackName": "Hungaroring:track config",
 			"irTrackName": "hungaroring",
 			"trackLandmarks": [
