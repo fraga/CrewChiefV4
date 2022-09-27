@@ -25,23 +25,19 @@ namespace PitMenuAPI
 
         private static
             SendrF2HWControl sendHWControl = new SendrF2HWControl();
-        private static
-                MappedBuffer<rF2PitInfo> pitInfoBuffer = new MappedBuffer<rF2PitInfo>(
-                    rFactor2Constants.MM_PITINFO_FILE_NAME,
-                    false /*partial*/,
-                    true /*skipUnchanged*/);
+        private MappedBuffer<rF2PitInfo> pitInfoBuffer = null;
 
         private static rF2PitInfo pitInfo;
-        private static bool Connected = false;
+        private bool Connected = false;
 
         // Shared memory scans slowly until the first control is received. It
         // returns to scanning slowly when it hasn't received a control for a while.
-        private static int initialDelay = 230;
+        private int initialDelay = 230;
 
         // Delay in mS after sending a HW control to rFactor before sending another,
         // set by experiment
         // 20 works for category selection and tyres but fuel needs it slower
-        private static int delay = 30;
+        private int delay = 30;
 
         #endregion Private Fields
 
@@ -56,13 +52,17 @@ namespace PitMenuAPI
         /// <returns>
         /// true if connected
         /// </returns>
-        public static bool Connect()
+        public bool Connect()
         {
-            if (!Connected)
+            if (!this.Connected)
             {
                 Connected = sendHWControl.Connect();
                 if (Connected)
                 {
+                    pitInfoBuffer = new MappedBuffer<rF2PitInfo>(
+                    rFactor2Constants.MM_PITINFO_FILE_NAME,
+                    partial: false,
+                    skipUnchanged: true);
                     pitInfoBuffer.Connect();
                 }
             }
@@ -96,7 +96,7 @@ namespace PitMenuAPI
         /// </summary>
         /// <param name="display"></param>
         /// <returns></returns>
-        public static bool switchMFD(string display = "MFDB")
+        public bool switchMFD(string display = "MFDB")
         {
             if (!Connected)
             {
@@ -129,7 +129,7 @@ namespace PitMenuAPI
             return Connected;
         }
 
-        public static bool startUsingPitMenu()
+        public  bool startUsingPitMenu()
         {
             return switchMFD("MFDB");
         }
@@ -152,7 +152,7 @@ namespace PitMenuAPI
         /// Send a Pit Request (which toggles)
         /// </summary>
         /// <returns>Successful</returns>
-        public static bool PitRequest()
+        public bool PitRequest()
         {
             if (!Connected)
             {
@@ -176,7 +176,7 @@ namespace PitMenuAPI
         /// <returns>
         /// Name of the category
         /// </returns>
-        public static string GetCategory()
+        public string GetCategory()
         {
             pitInfoBuffer.GetMappedData(ref pitInfo);
             var catName = GetStringFromBytes(pitInfo.mPitMneu.mCategoryName);
@@ -187,7 +187,7 @@ namespace PitMenuAPI
         /// <summary>
         /// Move up to the next category
         /// </summary>
-        public static void CategoryUp()
+        public void CategoryUp()
         {
             sendControl("PitMenuUp");
             Log.Verbose("Pit menu category up");
@@ -196,7 +196,7 @@ namespace PitMenuAPI
         /// <summary>
         /// Move down to the next category
         /// </summary>
-        public static void CategoryDown()
+        public void CategoryDown()
         {
             sendControl("PitMenuDown");
             Log.Verbose("Pit menu category down");
@@ -207,7 +207,7 @@ namespace PitMenuAPI
         /// <summary>
         /// Increment the current choice
         /// </summary>
-        public static void ChoiceInc()
+        public void ChoiceInc()
         {
             sendControl("PitMenuIncrementValue");
             Log.Verbose("Pit menu value inc");
@@ -216,7 +216,7 @@ namespace PitMenuAPI
         /// <summary>
         /// Decrement the current choice
         /// </summary>
-        public static void ChoiceDec()
+        public void ChoiceDec()
         {
             sendControl("PitMenuDecrementValue");
             Log.Verbose("Pit menu value dec");
@@ -226,7 +226,7 @@ namespace PitMenuAPI
         /// Get the text of the current choice
         /// </summary>
         /// <returns>string</returns>
-        public static string GetChoice()
+        public string GetChoice()
         {
             pitInfoBuffer.GetMappedData(ref pitInfo);
             var choiceStr = GetStringFromBytes(pitInfo.mPitMneu.mChoiceString);
@@ -286,7 +286,7 @@ namespace PitMenuAPI
         /// <param name="cat1">category to match</param>
         /// <param name="cat2">optional other category to match</param>
         /// <returns></returns>
-        private static bool iSoftMatchCategory(string cat1, string cat2 = "bleagh")  // tbd Can this be done more cleanly?
+        private bool iSoftMatchCategory(string cat1, string cat2 = "bleagh")  // tbd Can this be done more cleanly?
         {
             string InitialCategory = GetCategory();
             int tryNo = 3;
@@ -295,6 +295,7 @@ namespace PitMenuAPI
                 CategoryDown();
                 if (GetCategory() == InitialCategory)
                 {  // Wrapped around, category not found
+#pragma warning disable S1066
                     if (tryNo-- < 0)
                     {
                         return false;
@@ -315,7 +316,7 @@ namespace PitMenuAPI
         /// <returns>
         /// false: Choice not found using the current comparison
         /// </returns>
-        static bool choiceCompare(string choice, bool startsWith)
+        bool choiceCompare(string choice, bool startsWith)
         {
             return ((startsWith && GetChoice().StartsWith(choice)) ||
                 (!startsWith && GetChoice() == choice));
@@ -346,7 +347,9 @@ namespace PitMenuAPI
                     }
                     else
                     {
+#pragma warning disable S2583 // Conditionally executed code should be reachable
                         if (startsWith)
+#pragma warning restore S2583 // Conditionally executed code should be reachable
                         {
                             return false;
                         }
@@ -377,7 +380,7 @@ namespace PitMenuAPI
               : Encoding.Default.GetString(bytes);
         }
 
-        private static void sendControl(string control)
+        private void sendControl(string control)
         {
             sendHWControl.SendHWControl(control, true);
             System.Threading.Thread.Sleep(delay);
