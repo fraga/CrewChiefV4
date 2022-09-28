@@ -223,6 +223,7 @@ namespace CrewChiefV4
             eventsList.Add("CommonActions", new CommonActions(audioPlayer));
             eventsList.Add("OverlayController", new OverlayController(audioPlayer));
             eventsList.Add("VROverlayController", new VROverlayController(audioPlayer));
+            eventsList.Add("Mqtt", new Mqtt(audioPlayer));
             eventsList.Add("CoDriver", new CoDriver(audioPlayer));
             eventsList.Add("PitManagerVoiceCmds", new PitManagerVoiceCmds(audioPlayer));
 

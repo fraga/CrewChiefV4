@@ -213,7 +213,9 @@ namespace CrewChiefV4.AMS2
                 shared.mLapsInEvent + " SequenceNumber: " + shared.mSequenceNumber);*/
 
             AdditionalDataProvider.validate(playerName);
+            currentGameState.carName = StructHelper.getNameFromBytes(shared.mCarName);
             currentGameState.SessionData.CompletedLaps = (int)playerData.mLapsCompleted;
+            currentGameState.SessionData.LapCount = currentGameState.SessionData.CompletedLaps + 1;
             currentGameState.SessionData.SectorNumber = (int)playerData.mCurrentSector + 1; // zero indexed
             currentGameState.SessionData.OverallPosition = (int)playerData.mRacePosition;
             if (currentGameState.SessionData.OverallPosition == 1)
@@ -584,6 +586,8 @@ namespace CrewChiefV4.AMS2
             currentGameState.ControlData.ClutchPedal = shared.mClutch;
             currentGameState.TransmissionData.Gear = shared.mGear;
             currentGameState.ControlData.BrakePedal = shared.mBrake;
+            currentGameState.ControlData.HandBrake = shared.mHandBrake;
+            currentGameState.ControlData.SteeringWheelAngle = shared.mSteering;
 
             //------------------- Variable session data ---------------------------
             if (currentGameState.SessionData.SessionHasFixedTime)
@@ -1261,6 +1265,8 @@ namespace CrewChiefV4.AMS2
             currentGameState.ControlData.BrakePedal = shared.mBrake;
             currentGameState.ControlData.ThrottlePedal = shared.mThrottle;
             currentGameState.ControlData.ClutchPedal = shared.mClutch;
+            currentGameState.ControlData.HandBrake = shared.mHandBrake;
+            currentGameState.ControlData.SteeringWheelAngle = shared.mSteering;
 
             if (currentGameState.SessionData.IsNewLap)
             {

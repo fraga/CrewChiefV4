@@ -85,6 +85,7 @@
 	<Exec Command="copy ..\CrewChiefV4\bin\$(Configuration)\SharpDX.Mathematics.dll ..\CrewChiefV4\bin\PublishedComponents\SharpDX.Mathematics.dll" />
 	<Exec Command="copy ..\CrewChiefV4\bin\$(Configuration)\SharpDX.DXGI.dll ..\CrewChiefV4\bin\PublishedComponents\SharpDX.DXGI.dll" />
 	<Exec Command="copy ..\CrewChiefV4\bin\$(Configuration)\WindowsInput.dll ..\CrewChiefV4\bin\PublishedComponents\WindowsInput.dll" />
+	<Exec Command="copy ..\CrewChiefV4\bin\$(Configuration)\MQTTnet.dll ..\CrewChiefV4\bin\PublishedComponents\MQTTnet.dll" />
 	<Exec Command="copy ..\CrewChiefV4\carClassData.json ..\CrewChiefV4\bin\PublishedComponents\carClassData.json" />
     <Exec Command="copy ..\CrewChiefV4\controllerConfigurationData.json ..\CrewChiefV4\bin\PublishedComponents\controllerConfigurationData.json" />
     <Exec Command="copy ..\CrewChiefV4\saved_command_macros.json ..\CrewChiefV4\bin\PublishedComponents\saved_command_macros.json" />
@@ -93,6 +94,7 @@
     <Exec Command="copy ..\CrewChiefV4\speech_recognition_config.txt ..\CrewChiefV4\bin\PublishedComponents\speech_recognition_config.txt" />
     <Exec Command="copy ..\CrewChiefV4\trackLandmarksData.json ..\CrewChiefV4\bin\PublishedComponents\trackLandmarksData.json" />
     <Exec Command="copy ..\CrewChiefV4\ui_text\en.txt ..\CrewChiefV4\bin\PublishedComponents\ui_text\en.txt" />
+    <Exec Command="copy ..\CrewChiefV4\mqtt_telemetry.json ..\CrewChiefV4\bin\PublishedComponents\mqtt_telemetry.json" />
     <Exec Command="copy ..\help.txt ..\CrewChiefV4\bin\PublishedComponents\help.txt" />
     <Exec Command="copy ..\Newtonsoft_Json_licence.txt ..\CrewChiefV4\bin\PublishedComponents\Newtonsoft_Json_licence.txt" />
     <Exec Command="copy ..\README.txt ..\CrewChiefV4\bin\PublishedComponents\README.txt" />

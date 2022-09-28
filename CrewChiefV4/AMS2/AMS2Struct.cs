@@ -57,6 +57,7 @@ namespace CrewChiefV4.AMS2
             existingState.mSpeed = udpTelemetryData.sSpeed; 
             existingState.mMaxRPM = udpTelemetryData.sMaxRpm;
             existingState.mBrake = (float)udpTelemetryData.sBrake / 255f;
+            existingState.mHandBrake = (float)udpTelemetryData.sHandBrake / 255f;
             existingState.mThrottle = (float)udpTelemetryData.sThrottle / 255f;
             existingState.mClutch = (float)udpTelemetryData.sClutch / 255f;
             existingState.mSteering = (float)udpTelemetryData.sSteering / 127f;

@@ -513,7 +513,7 @@ namespace CrewChiefV4.Overlay
                 float distanceRoundTrack = currentGameState == null ? 0 : currentGameState.PositionAndMotionData.DistanceRoundTrack;
                 object dataSource = field.isRawField ? (object)structWrapper.data.Telemetry : (object)currentGameState;
                 lapData.addDataPoint(new DataPoint(lapsCompleted, distanceRoundTrack,
-                        getPropertyValue(dataSource, field.fieldName), field.overlayDataType, structWrapper.ticksWhenRead, currentGameState.SessionData.SectorNumber));
+                        ReflectionGameStateAccessor.getPropertyValue(dataSource, field.fieldName), field.overlayDataType, structWrapper.ticksWhenRead, currentGameState.SessionData.SectorNumber));
             }
 
             if (mapOpponentData)
@@ -599,40 +599,40 @@ namespace CrewChiefV4.Overlay
                     {
                         case GameEnum.RACE_ROOM:
                             lapData.addDataPoint(new DataPoint(currentGameState.SessionData.CompletedLaps, distanceRoundTrack,
-                                getPropertyValue(((CrewChiefV4.RaceRoom.R3ESharedMemoryReader.R3EStructWrapper)currentGameState.rawGameData).data, field.fieldName), field.overlayDataType, currentGameState.Ticks, currentGameState.SessionData.SectorNumber));
+                                ReflectionGameStateAccessor.getPropertyValue(((CrewChiefV4.RaceRoom.R3ESharedMemoryReader.R3EStructWrapper)currentGameState.rawGameData).data, field.fieldName), field.overlayDataType, currentGameState.Ticks, currentGameState.SessionData.SectorNumber));
                             break;
                         case GameEnum.PCARS2:
                         case GameEnum.PCARS3:
                             lapData.addDataPoint(new DataPoint(currentGameState.SessionData.CompletedLaps, distanceRoundTrack,
-                                getPropertyValue(((CrewChiefV4.PCars2.PCars2SharedMemoryReader.PCars2StructWrapper)currentGameState.rawGameData).data, field.fieldName), field.overlayDataType, currentGameState.Ticks, currentGameState.SessionData.SectorNumber));
+                                ReflectionGameStateAccessor.getPropertyValue(((CrewChiefV4.PCars2.PCars2SharedMemoryReader.PCars2StructWrapper)currentGameState.rawGameData).data, field.fieldName), field.overlayDataType, currentGameState.Ticks, currentGameState.SessionData.SectorNumber));
                             break;
                         case GameEnum.AMS2:
                             lapData.addDataPoint(new DataPoint(currentGameState.SessionData.CompletedLaps, distanceRoundTrack,
-                                getPropertyValue(((CrewChiefV4.AMS2.AMS2SharedMemoryReader.AMS2StructWrapper)currentGameState.rawGameData).data, field.fieldName), field.overlayDataType, currentGameState.Ticks, currentGameState.SessionData.SectorNumber));
+                                ReflectionGameStateAccessor.getPropertyValue(((CrewChiefV4.AMS2.AMS2SharedMemoryReader.AMS2StructWrapper)currentGameState.rawGameData).data, field.fieldName), field.overlayDataType, currentGameState.Ticks, currentGameState.SessionData.SectorNumber));
                             break;
                         case GameEnum.PCARS_32BIT:
                         case GameEnum.PCARS_64BIT:
                         case GameEnum.PCARS2_NETWORK:
                             lapData.addDataPoint(new DataPoint(currentGameState.SessionData.CompletedLaps, distanceRoundTrack,
-                                getPropertyValue(((CrewChiefV4.PCars.PCarsSharedMemoryReader.PCarsStructWrapper)currentGameState.rawGameData).data, field.fieldName), field.overlayDataType, currentGameState.Ticks, currentGameState.SessionData.SectorNumber));
+                                ReflectionGameStateAccessor.getPropertyValue(((CrewChiefV4.PCars.PCarsSharedMemoryReader.PCarsStructWrapper)currentGameState.rawGameData).data, field.fieldName), field.overlayDataType, currentGameState.Ticks, currentGameState.SessionData.SectorNumber));
                             break;
                         case GameEnum.RF1:
                             lapData.addDataPoint(new DataPoint(currentGameState.SessionData.CompletedLaps, distanceRoundTrack,
-                                getPropertyValue(((CrewChiefV4.rFactor1.RF1SharedMemoryReader.RF1StructWrapper)currentGameState.rawGameData), field.fieldName), field.overlayDataType, currentGameState.Ticks, currentGameState.SessionData.SectorNumber));
+                                ReflectionGameStateAccessor.getPropertyValue(((CrewChiefV4.rFactor1.RF1SharedMemoryReader.RF1StructWrapper)currentGameState.rawGameData), field.fieldName), field.overlayDataType, currentGameState.Ticks, currentGameState.SessionData.SectorNumber));
                             break;
                         case GameEnum.RF2_64BIT:
                             lapData.addDataPoint(new DataPoint(currentGameState.SessionData.CompletedLaps, distanceRoundTrack,
-                                getPropertyValue(((CrewChiefV4.rFactor2.RF2SharedMemoryReader.RF2StructWrapper)currentGameState.rawGameData), field.fieldName), field.overlayDataType, currentGameState.Ticks, currentGameState.SessionData.SectorNumber));
+                                ReflectionGameStateAccessor.getPropertyValue(((CrewChiefV4.rFactor2.RF2SharedMemoryReader.RF2StructWrapper)currentGameState.rawGameData), field.fieldName), field.overlayDataType, currentGameState.Ticks, currentGameState.SessionData.SectorNumber));
                             break;
                         case GameEnum.ACC:
                             lapData.addDataPoint(new DataPoint(currentGameState.SessionData.CompletedLaps, distanceRoundTrack,
-                                getPropertyValue(((CrewChiefV4.ACC.ACCSharedMemoryReader.ACCStructWrapper)currentGameState.rawGameData).data, field.fieldName), field.overlayDataType, currentGameState.Ticks, currentGameState.SessionData.SectorNumber));
+                                ReflectionGameStateAccessor.getPropertyValue(((CrewChiefV4.ACC.ACCSharedMemoryReader.ACCStructWrapper)currentGameState.rawGameData).data, field.fieldName), field.overlayDataType, currentGameState.Ticks, currentGameState.SessionData.SectorNumber));
                             break;
                         case GameEnum.ASSETTO_32BIT:
                         case GameEnum.ASSETTO_64BIT:
                         case GameEnum.ASSETTO_64BIT_RALLY:
                             lapData.addDataPoint(new DataPoint(currentGameState.SessionData.CompletedLaps, distanceRoundTrack,
-                                getPropertyValue(((CrewChiefV4.assetto.ACSSharedMemoryReader.ACSStructWrapper)currentGameState.rawGameData).data, field.fieldName), field.overlayDataType, currentGameState.Ticks, currentGameState.SessionData.SectorNumber));
+                                ReflectionGameStateAccessor.getPropertyValue(((CrewChiefV4.assetto.ACSSharedMemoryReader.ACSStructWrapper)currentGameState.rawGameData).data, field.fieldName), field.overlayDataType, currentGameState.Ticks, currentGameState.SessionData.SectorNumber));
                             break;
                         default:
                             break;
@@ -641,7 +641,7 @@ namespace CrewChiefV4.Overlay
                 else
                 {
                     lapData.addDataPoint(new DataPoint(currentGameState.SessionData.CompletedLaps, distanceRoundTrack,
-                        getPropertyValue(currentGameState, field.fieldName), field.overlayDataType, currentGameState.Ticks, currentGameState.SessionData.SectorNumber));
+                        ReflectionGameStateAccessor.getPropertyValue(currentGameState, field.fieldName), field.overlayDataType, currentGameState.Ticks, currentGameState.SessionData.SectorNumber));
                 }
             }
             if (mapOpponentData)
@@ -779,7 +779,7 @@ namespace CrewChiefV4.Overlay
                                 thisOpponentCurrentLapData[field.Key] = dataForThisField;
                             }
                             dataForThisField.addDataPoint(new DataPoint(opponentData.CompletedLaps, opponentData.DistanceRoundTrack,
-                                getPropertyValue(opponentData, field.Key), field.Value, ticks, opponentData.CurrentSectorNumber));                  
+                                ReflectionGameStateAccessor.getPropertyValue(opponentData, field.Key), field.Value, ticks, opponentData.CurrentSectorNumber));                  
                             if (isLapStartPoint)
                             {
                                 startPointsForCopyFromPreviousLap[driverName] = dataForThisField.dataPoints.Count;
@@ -801,64 +801,6 @@ namespace CrewChiefV4.Overlay
 
             }
             return clone;
-        }
-
-        public static object getPropertyValue(object src, string propName)
-        {
-            if (src == null) throw new ArgumentException("Value cannot be null.", "src");
-            if (propName == null) throw new ArgumentException("Value cannot be null.", "propName");
-            
-            if (propName.Contains("."))//complex type nested
-            {
-                var temp = propName.Split(new char[] { '.' }, 2);
-                return getPropertyValue(getPropertyValue(src, temp[0]), temp[1]);
-            }
-            else
-            {
-                int arrayIndex = -1;
-                int arrayStartBracketLocation = propName.IndexOf('[');
-                if (arrayStartBracketLocation != -1)
-                {
-                    int arrayEndBracketLocation = propName.IndexOf(']');
-                    if (arrayEndBracketLocation != -1)
-                    {
-                        string arrayIndexString = propName.Substring(arrayStartBracketLocation + 1, arrayEndBracketLocation - arrayStartBracketLocation - 1);
-                        arrayIndex = int.Parse(arrayIndexString);
-                        propName = propName.Substring(0, arrayStartBracketLocation);
-                    }
-                }
-                FieldInfo field = src.GetType().GetField(propName);
-                if (field != null)
-                {
-                    if (arrayIndex != -1)
-                    {
-                        return ((Array)field.GetValue(src)).GetValue(arrayIndex);
-                    }
-                    else
-                    {
-                        return field.GetValue(src);
-                    }
-                }
-                else
-                {
-                    PropertyInfo prop = src.GetType().GetProperty(propName);
-                    if (prop != null)
-                    {
-                        if (arrayIndex != -1)
-                        {
-                            return ((Array)prop.GetValue(src)).GetValue(arrayIndex);
-                        }
-                        else
-                        {
-                            return prop.GetValue(src);
-                        }
-                    }
-                    else
-                    {
-                        return null;
-                    }
-                }                
-            }
         }
     }
     public enum OverlayDataType

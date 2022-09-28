@@ -17,6 +17,7 @@ namespace CrewChiefV4.iRacing
         public string CarNumber { get; set; }
         public int CarId { get; set; }
         public int CarClassId { get; set; }
+        public string CarName { get; set; }
         public int CarClassRelSpeed { get; set; }
         public float DriverCarFuelMaxLtr { get; set; }
         public float DriverCarMaxFuelPct { get; set; }

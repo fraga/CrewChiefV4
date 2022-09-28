@@ -908,6 +908,9 @@ namespace CrewChiefV4.GameState
         // How many laps the player has completed. If this value is 6, the player is on his 7th lap.
         public int CompletedLaps;
 
+        // Completed laps + 1
+        public int LapCount;
+
         // how many laps are left for the player. In fixed lap sessions this is totalLaps - leaderCompletedLaps, to allow for being
         // lapped. In all other sessions it's MaxInt
         public int SessionLapsRemaining = int.MaxValue;
@@ -2748,10 +2751,17 @@ namespace CrewChiefV4.GameState
         public Single BrakePedal;
 
         // ...
+        public Single HandBrake;
+
+        // ...
         public Single ClutchPedal;
 
         // ...
         public Single BrakeBias;
+
+        // ...
+        public float SteeringWheelAngle;
+
     }
 
     public class PitData
@@ -3146,6 +3156,7 @@ namespace CrewChiefV4.GameState
         public ConditionsMonitor.RainLevel rainLevelIn10Mins = ConditionsMonitor.RainLevel.NONE;
         public ConditionsMonitor.RainLevel rainLevelIn30Mins = ConditionsMonitor.RainLevel.NONE;
 
+        public ConditionsSample CurrentConditions;
         private List<ConditionsSample> _samples;
         public List<ConditionsSample> samples
         {
@@ -3199,20 +3210,15 @@ namespace CrewChiefV4.GameState
         public void addSample(DateTime time, int lapCount, int sectorNumber, float AmbientTemperature, float TrackTemperature, float RainDensity,
                 float WindSpeed, float WindDirectionX, float WindDirectionY, float CloudBrightness, Boolean atStartLine, ConditionsMonitor.TrackStatus TrackStatus)
         {
-            samples.Add(new ConditionsSample(time, lapCount, sectorNumber, AmbientTemperature, TrackTemperature, RainDensity,
-                WindSpeed, WindDirectionX, WindDirectionY, CloudBrightness, atStartLine, TrackStatus));
+            ConditionsSample sample = new ConditionsSample(time, lapCount, sectorNumber, AmbientTemperature, TrackTemperature, RainDensity,
+                WindSpeed, WindDirectionX, WindDirectionY, CloudBrightness, atStartLine, TrackStatus);
+            samples.Add(sample);
+            CurrentConditions = sample;
         }
 
         public ConditionsSample getMostRecentConditions()
         {
-            if (samples.Count == 0)
-            {
-                return null;
-            }
-            else
-            {
-                return samples[samples.Count - 1];
-            }
+            return CurrentConditions;
         }
 
         public List<ConditionsSample> getStartLineConditions()

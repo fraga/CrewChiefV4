@@ -58,6 +58,7 @@
     <Content Include="About_Donations.html" />
     <Content Include="About_KnownIssues.html" />
     <Content Include="About_Licenses.html" />
+    <Content Include="About_Telemetry.html" />
     <Content Include="About_Updating.html" />
     <Content Include="blank.html" />
     <Content Include="CrewChief.png" />

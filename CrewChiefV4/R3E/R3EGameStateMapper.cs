@@ -669,6 +669,7 @@ namespace CrewChiefV4.RaceRoom
 
             currentGameState.SessionData.SessionTimeRemaining = shared.SessionTimeRemaining;
             currentGameState.SessionData.CompletedLaps = shared.CompletedLaps;
+            currentGameState.SessionData.LapCount = currentGameState.SessionData.CompletedLaps + 1;
             currentGameState.SessionData.MaxIncidentCount = shared.MaxIncidentPoints;
             currentGameState.SessionData.HasLimitedIncidents = shared.MaxIncidentPoints > 0;
 

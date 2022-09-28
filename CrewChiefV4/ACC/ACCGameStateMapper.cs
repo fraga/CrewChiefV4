@@ -650,6 +650,7 @@ namespace CrewChiefV4.ACC
                     currentGameState.SessionData.SessionStartClassPosition = previousGameState.SessionData.SessionStartClassPosition;
                     currentGameState.SessionData.ClassPositionAtStartOfCurrentLap = previousGameState.SessionData.ClassPositionAtStartOfCurrentLap;
                     currentGameState.SessionData.CompletedLaps = previousGameState.SessionData.CompletedLaps;
+                    currentGameState.SessionData.LapCount = previousGameState.SessionData.LapCount;
 
                     currentGameState.OpponentData = previousGameState.OpponentData;
                     currentGameState.PitData.IsRefuellingAllowed = previousGameState.PitData.IsRefuellingAllowed;
@@ -751,6 +752,7 @@ namespace CrewChiefV4.ACC
                     currentGameState.readLandmarksForThisLap = false;
                     currentGameState.SessionData.IsNewSector = true;
                     currentGameState.SessionData.CompletedLaps = playerVehicle.lapCount;
+                    currentGameState.SessionData.LapCount = currentGameState.SessionData.CompletedLaps + 1;
 
                     currentGameState.SessionData.playerCompleteLapWithProvidedLapTime(currentGameState.SessionData.OverallPosition,
                         currentGameState.SessionData.SessionRunningTime,
