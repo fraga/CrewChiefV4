@@ -107,24 +107,15 @@ namespace CrewChiefV4
         // this is the physical file:
         // private static String autoUpdateXMLURL1 = "https://thecrewchief.org/downloads/auto_update_data_primary.xml";
         // this is the file accessed via the PHP download script:
-        private static String autoUpdateXMLURL1 = "https://thecrewchief.org/downloads.php?do=downloadxml";
+        private static String autoUpdateXMLURLTheCrewChiefOrg = "https://thecrewchief.org/downloads.php?do=downloadxml";
 
         private static String additionalDataURL = "https://thecrewchief.org/downloads.php?do=getadditionaldata";
 
-        // the legacy update stuff hosted on GoogleDrive with downloads on the isnais ftp server
-        // Note that GoogleDrive have updated their front end, making it difficult to download XML files
-        // in an automated way. A 'this file cannot be scanned for viruses' page is shown instead. To fix this we'll
-        // need to capture the cookie offered by that page then make another request to the 'download anyway' link
-        // on that page passing back the cookie. Not rocket science but a job for another day. Or another life.
-        //
-        // Changing the file extension to .txt causes the "can't scan for viruses" page to be skipped but GoogeDrive
-        // still behaves differently - it sends a 302 with some token that needs to be passed into the follow-on link.
-        // Working around these changes can be done but Google being Google, any effort here is likely to be wasted
-        // when they make another unannounced and undocumented change
-        // private static String autoUpdateXMLURL2 = "https://drive.google.com/uc?export=download&id=0B4KQS820QNFbWWFjaDAzRldMNUE";
+        // secondary on our VPS:
+        private static String autoUpdateXMLURLVPS = "http://167.235.144.28/auto_update_data.xml";
 
-        // a copy on ISNAIS:
-        private static String autoUpdateXMLURL2 = "http://crewchief.isnais.de/auto_update_data.xml";
+        // a copy on Cloudfront, not used at the moment due to AWS' insane egress prices:
+        //private static String autoUpdateXMLURL2 = "https://d1o4ya81faadx8.cloudfront.net/auto_update_data.xml";
 
         private Boolean preferAlternativeDownloadSite = UserSettings.GetUserSettings().getBoolean("prefer_alternative_download_site");
         private Boolean allowCompositePersonalisations = UserSettings.GetUserSettings().getBoolean("allow_composite_personalisations");
@@ -373,8 +364,8 @@ namespace CrewChiefV4
                     {
                         Console.WriteLine("Checking for updates");
 
-                        String firstUpdate = preferAlternativeDownloadSite ? autoUpdateXMLURL2 : autoUpdateXMLURL1;
-                        String secondUpdate = preferAlternativeDownloadSite ? autoUpdateXMLURL1 : autoUpdateXMLURL2;
+                        String firstUpdate = preferAlternativeDownloadSite ? autoUpdateXMLURLVPS : autoUpdateXMLURLTheCrewChiefOrg;
+                        String secondUpdate = preferAlternativeDownloadSite ? autoUpdateXMLURLTheCrewChiefOrg : autoUpdateXMLURLVPS;
 
                         Thread.CurrentThread.IsBackground = true;
                         // now the sound packs
@@ -395,7 +386,7 @@ namespace CrewChiefV4
                             {
                                 AutoUpdater.Start(firstUpdate);
                             }
-                            if (firstUpdate == autoUpdateXMLURL1 && CrewChief.gameDefinition != null)
+                            if (firstUpdate == autoUpdateXMLURLTheCrewChiefOrg && CrewChief.gameDefinition != null)
                             {
                                 firstUpdate += "&lastplayed=" + (appRestarted ? "-app_restart" : CrewChief.gameDefinition.gameEnum.ToString());
                             }
@@ -405,7 +396,7 @@ namespace CrewChiefV4
                         catch (Exception ee) {Log.Exception(ee);}
                         if (gotUpdateData)
                         {
-                            Console.WriteLine("Got update data from primary URL: " + firstUpdate.Substring(0, 24));
+                            Console.WriteLine("Got update data from primary URL: " + firstUpdate.Substring(0, firstUpdate.LastIndexOf('/')));
                         }
                         else
                         {
@@ -420,12 +411,16 @@ namespace CrewChiefV4
                                 {
                                     AutoUpdater.Start(secondUpdate);
                                 }
-                                if (secondUpdate == autoUpdateXMLURL1 && CrewChief.gameDefinition != null)
+                                if (secondUpdate == autoUpdateXMLURLTheCrewChiefOrg && CrewChief.gameDefinition != null)
                                 {
                                     secondUpdate += "&lastplayed=" + (appRestarted ? "-app_restart" : CrewChief.gameDefinition.gameEnum.ToString());
                                 }
                                 string xml = new WebClient().DownloadString(secondUpdate);
                                 gotUpdateData = SoundPackVersionsHelper.parseUpdateData(xml);
+                                if (gotUpdateData)
+                                {
+                                    Console.WriteLine("Got update data from fallback URL: " + secondUpdate.Substring(0, secondUpdate.LastIndexOf('/')));
+                                }
                             }
                             catch (Exception ee) {Log.Exception(ee);}
                         }
