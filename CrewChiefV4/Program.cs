@@ -206,7 +206,7 @@ namespace CrewChiefV4
                 {
                     try
                     {
-                        client.DownloadFile(@"http://crewchief.isnais.de/CrewChief_splash_image.png", Loading.tempSplashImagePath);
+                        client.DownloadFile(@"http://167.235.144.28/CrewChief_splash_image.png", Loading.tempSplashImagePath);
                     }
                     catch (Exception)
                     {

@@ -1,18 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- this is the fall-back auto_update_data.xml. The app will check this one only if the primary check doesn't work.
+<!-- this is the alternate auto_update_data.xml.
+This will used in be cases where the user can't access thecrewchief.org or have set the 'prefer alternate downloads' site option.
 Note that the filename has to remain 'auto_update_data.xml' so legacy installs (which have no concept of the primary / 
-secondary update sources) can still be updated. All downloads from this source will be pulled from the isnais ftp server. -->
+secondary update sources) can still be updated.
+From this update file, the MSI installer is pulled from the VPS and the assets from thecrewchief.org, falling back to the VPS. -->
 <item>
 <title>Crew Chief 4.16.2.6 updated 10 September 2022</title>
 <version>4.16.2.6</version>
-<url>http://crewchief.isnais.de/CrewChiefV4.msi</url>
-<changelog>http://crewchief.isnais.de/change_log_for_auto_updated.html</changelog>
+<!-- direct download link to the installer, not HTTPS so may raise eyebrows. We could change this to be
+https://d1o4ya81faadx8.cloudfront.net/CrewChiefV4.msi without incurring too much risk but it's additional faff
+ -->
+<url>http://167.235.144.28/CrewChiefV4.msi</url>
+<changelog>http://167.235.144.28/change_log_for_auto_updated.html</changelog>
 
 
 <!-- if a sound pack download fails, we retry replacing this part of its URL: -->
 <retry_replace>https://thecrewchief.org/downloads/</retry_replace>
-<!-- with this: -->
-<retry_replace_with>http://crewchief.isnais.de/</retry_replace_with>
+<!-- with our fallback to our VPS: -->
+<retry_replace_with>http://167.235.144.28/</retry_replace_with>
 
 
 <!-- current implementation where all the sound pack update information is in this document -->
