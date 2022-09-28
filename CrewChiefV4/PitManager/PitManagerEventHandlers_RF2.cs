@@ -58,7 +58,9 @@ namespace CrewChiefV4.PitManager
         private static readonly PitMenuAbstractionLayer Pmal = new PitMenuAbstractionLayer();
 
         #region Public struct
+#pragma warning disable S3925 // "ISerializable" should be implemented correctly
         public class TyreDictionary : Dictionary<string, List<string>>
+#pragma warning restore S3925 // "ISerializable" should be implemented correctly
         {
             public TyreDictionary()
             {
@@ -71,8 +73,16 @@ namespace CrewChiefV4.PitManager
         }
         #endregion Public struct
 
-        public static bool fuelVoiceCommandGiven = false;
+        public static class FuelVoiceCommand
+        {
+            private static bool _fuelVoiceCommandGiven = false;
 
+            public static bool Given
+            {
+                get { return _fuelVoiceCommandGiven; }
+                set { _fuelVoiceCommandGiven = value; }
+            }
+        }
         #region Private field made Public for unit testing
         // Complicated because rF2 has many names for tyres so use a dict of
         // possible alternative names for each type
@@ -82,18 +92,18 @@ namespace CrewChiefV4.PitManager
         public static readonly TyreDictionary SampleTyreTranslationDict =
           new TyreDictionary() {
             { "Hypersoft",    new List <string> {"hypersoft", "c1", "ultrasoft", "supersoft", "soft", "alternates",
-                        "s310", "slick", "dry", "allweather", "medium" } },
+                        "s310", "slick", "dry", "race", "allweather", "medium" } },
             { "Ultrasoft",    new List <string> {"ultrasoft","c1", "hypersoft", "supersoft", "soft", "alternates",
-                        "s310", "slick", "dry", "allweather", "medium" } },
+                        "s310", "slick", "dry", "race", "allweather", "medium" } },
             { "Supersoft",    new List <string> {"supersoft", "c2", "hypersoft", "ultrasoft", "soft", "alternates",
-                        "s310", "slick", "dry", "allweather", "medium" } },
+                        "s310", "slick", "dry", "race", "allweather", "medium" } },
             { "Soft",         new List <string> {"soft", "c3", "alternates",
-                        "s310", "slick", "dry", "allweather", "medium" } },
+                        "s310", "slick", "dry", "race", "allweather", "medium" } },
             { "Medium",       new List <string> { "medium", "c4", "default",
-                        "s310", "slick", "dry", "allweather" } },
+                        "s310", "slick", "dry", "race", "allweather" } },
             { "Hard",         new List <string> {"hard", "c5", "p310", "endur", "primary",
                         "medium", "default",
-                                "slick", "dry", "allweather" } },
+                                "slick", "dry", "race", "allweather" } },
             { "Intermediate", new List <string> { "intermediate", "inter", "inters",
                         "wet", "rain", "monsoon", "allweather" } },
             { "Wet",          new List <string> {
@@ -177,6 +187,7 @@ namespace CrewChiefV4.PitManager
                                         if (normalisedRf2TyreType.Length == dictTyreName.Length &&
                                             normalisedRf2TyreType.IndexOf(dictTyreName, StringComparison.OrdinalIgnoreCase) >= 0)
                                         {
+#pragma warning disable S1066
                                             if (!result.ContainsKey(ccTyreType.Key))
                                             {
                                                 result[ccTyreType.Key] = rF2TyreType;
@@ -238,7 +249,8 @@ namespace CrewChiefV4.PitManager
         /// </summary>
         static public bool PMrF2eh_prepareToUseMenu(string __)
         {
-            PitMenu.startUsingPitMenu();
+            PitMenu pm = new PitMenu();
+            pm.startUsingPitMenu();
             return true;
         }
 
@@ -413,7 +425,7 @@ namespace CrewChiefV4.PitManager
             {
                 amount = (int)PitManagerVoiceCmds.getFuelCapacity();
             }
-            fuelVoiceCommandGiven = true;
+            FuelVoiceCommand.Given = true;
             return rF2SetFuel(amount + current);
         }
         static public bool PMrF2eh_FuelAddXlitres(string voiceMessage)
@@ -434,13 +446,13 @@ namespace CrewChiefV4.PitManager
             {
                 return true;    // Couldn't calculate
             }
-            fuelVoiceCommandGiven = true;
+            FuelVoiceCommand.Given = true;
             return rF2SetFuel(litresNeeded);
         }
 
         static public bool PMrF2eh_FuelNone(string __)
         {
-            fuelVoiceCommandGiven = true;
+            FuelVoiceCommand.Given = true;
             return rF2SetFuel(1);
         }
 
@@ -690,7 +702,7 @@ namespace CrewChiefV4.PitManager
         {
             #region Private Fields
 
-            private static string currentTyreType = "No Change";
+            private string currentTyreType = "No Change";
 
             #endregion Private Fields
 
@@ -719,7 +731,7 @@ namespace CrewChiefV4.PitManager
 
         #endregion Private Classes
 
-        public class TyreDictFile
+        public static class TyreDictFile
         {
             private static Tuple<string,  string> getUserTyreDictionaryFileLocation()
             {
