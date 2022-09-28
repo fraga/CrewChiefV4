@@ -39,8 +39,8 @@ namespace PitMenuAPI
         /// Dictionary of all menu categories for the current vehicle
         /// The tyre categories have a list of all the tyre choices
         /// </summary>
-        private static Dictionary<string, List<string>> shadowPitMenu;
-        private static List<string> shadowPitMenuCats = new List<string> { };
+        private Dictionary<string, List<string>> shadowPitMenu;
+        private List<string> shadowPitMenuCats = new List<string> { };
         #endregion Private Fields
 
         #region Public Methods
@@ -53,7 +53,7 @@ namespace PitMenuAPI
         /// <returns>
         /// Dictionary of all choices for all tyre/tire menu categories
         /// </returns>
-        public static Dictionary<string, List<string>> GetMenuDict()
+        public Dictionary<string, List<string>> GetMenuDict()
         {
             shadowPitMenu = new Dictionary<string, List<string>> { };
             shadowPitMenuCats = new List<string> { };
@@ -95,8 +95,7 @@ namespace PitMenuAPI
         /// <summary>
         /// Keep banging away until the menu choice changes
         /// </summary>
-        /// <returns>the new choice</returns>
-        private static string nextChoice()
+        private void nextChoice()
         {
             string newChoice;
             string currentChoice = GetChoice();
@@ -110,17 +109,17 @@ namespace PitMenuAPI
                 }
             }
             while (newChoice == currentChoice);
-            return newChoice;
         }
 
         /// <summary>
         /// Take the shortest way to "category"
         /// </summary>
         /// <param name="category"> Pit Menu category</param>
-        public static bool SmartSetCategory(string category)
+        public bool SmartSetCategory(string category)
         {
             if (shadowPitMenuCats.Count == 0)
             {
+#pragma warning disable S1066
                 if (GetMenuDict().Count == 0)
                 {
                     return false;

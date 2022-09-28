@@ -194,7 +194,7 @@ namespace CrewChiefV4.PitManager
         {
             fuelCapacity = -1;
             currentFuel = -1;
-            PitManagerEventHandlers_RF2.fuelVoiceCommandGiven = false;
+            PitManagerEventHandlers_RF2.FuelVoiceCommand.Given = false;
             pmh.EventHandlerInit();
         }
 
@@ -245,7 +245,9 @@ namespace CrewChiefV4.PitManager
             fuelCapacity = currentGameState.FuelData.FuelCapacity;
             currentFuel = currentGameState.FuelData.FuelLeft;
             if (inCar
+#pragma warning disable S2589
                 && (previousGameState != null
+#pragma warning restore S2589
                     && currentGameState.SessionData.SessionType == SessionType.Race
                     && currentGameState.SessionData.SessionRunningTime > 15
                     && !previousGameState.PitData.IsInGarage
@@ -257,10 +259,10 @@ namespace CrewChiefV4.PitManager
                     Log.Commentary("Entered pit lane");
                     if (rf2AutoFuelToEnd)
                     {
-                        if (PitManagerEventHandlers_RF2.fuelVoiceCommandGiven)
+                        if (PitManagerEventHandlers_RF2.FuelVoiceCommand.Given)
                         {
                             Log.Warning("'rF2 auto refuelling' ignored as a pitstop fuel voice command has been given");
-                            PitManagerEventHandlers_RF2.fuelVoiceCommandGiven = false;  // auto refuel next pitstop
+                            PitManagerEventHandlers_RF2.FuelVoiceCommand.Given = false;  // auto refuel next pitstop
                         }
                         else
                         {
