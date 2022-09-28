@@ -82,6 +82,7 @@ namespace CrewChiefV4.iRacing
             this.Car.CarId = Parser.ParseInt(ParseDriverYaml(sessionInfo, "CarID"));
             this.Car.CarNumber = ParseDriverYaml(sessionInfo, "CarNumberRaw");
             this.Car.CarClassId = Parser.ParseInt(ParseDriverYaml(sessionInfo, "CarClassID"));
+            this.Car.CarName = ParseDriverYaml(sessionInfo, "CarScreenName");
             this.Car.CarClassRelSpeed = Parser.ParseInt(ParseDriverYaml(sessionInfo, "CarClassRelSpeed"));
             this.Car.CarIsElectric = Parser.ParseInt(ParseDriverYaml(sessionInfo, "CarIsElectric")) == 1;
             if (isPlayerCar)

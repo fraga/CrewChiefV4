@@ -796,6 +796,7 @@ namespace CrewChiefV4.assetto
             playerName = getNameFromBytes(playerVehicle.driverName);
             AdditionalDataProvider.validate(playerName);
             AC_SESSION_TYPE sessionType = shared.acsGraphic.session;
+            currentGameState.carName = shared.acsStatic.carModel;
 
             SessionPhase lastSessionPhase = SessionPhase.Unavailable;
             SessionType lastSessionType = SessionType.Unavailable;
@@ -1157,6 +1158,7 @@ namespace CrewChiefV4.assetto
                     currentGameState.SessionData.SessionStartClassPosition = previousGameState.SessionData.SessionStartClassPosition;
                     currentGameState.SessionData.ClassPositionAtStartOfCurrentLap = previousGameState.SessionData.ClassPositionAtStartOfCurrentLap;
                     currentGameState.SessionData.CompletedLaps = previousGameState.SessionData.CompletedLaps;
+                    currentGameState.SessionData.LapCount = previousGameState.SessionData.LapCount;
 
                     currentGameState.OpponentData = previousGameState.OpponentData;
                     currentGameState.PitData.PitWindowStart = previousGameState.PitData.PitWindowStart;
@@ -1231,6 +1233,7 @@ namespace CrewChiefV4.assetto
                     lapCountAtSector1End = shared.acsGraphic.completedLaps;
                     // belt & braces, just in case we never had 'new lap data' so never updated the lap count on crossing the line
                     currentGameState.SessionData.CompletedLaps = lapCountAtSector1End;
+                    currentGameState.SessionData.LapCount = currentGameState.SessionData.CompletedLaps + 1;
                 }
                 currentGameState.SessionData.LapTimeCurrent = mapToFloatTime(shared.acsGraphic.iCurrentTime);
 
@@ -1252,6 +1255,7 @@ namespace CrewChiefV4.assetto
                     currentGameState.SessionData.IsNewSector = true;
                     // if we have new lap data, update the lap count using the laps completed at sector1 end + 1, or the game provided data (whichever is bigger)
                     currentGameState.SessionData.CompletedLaps = Math.Max(lapCountAtSector1End + 1, shared.acsGraphic.completedLaps);
+                    currentGameState.SessionData.LapCount = currentGameState.SessionData.CompletedLaps + 1;
 
                     currentGameState.SessionData.playerCompleteLapWithProvidedLapTime(currentGameState.SessionData.OverallPosition, currentGameState.SessionData.SessionRunningTime,
                         lastLapTime, currentGameState.SessionData.CurrentLapIsValid, currentGameState.PitData.InPitlane, false,
@@ -1540,6 +1544,7 @@ namespace CrewChiefV4.assetto
             currentGameState.ControlData.BrakePedal = shared.acsPhysics.brake;
             currentGameState.ControlData.ThrottlePedal = shared.acsPhysics.gas;
             currentGameState.ControlData.ClutchPedal = shared.acsPhysics.clutch;
+            currentGameState.ControlData.SteeringWheelAngle = shared.acsPhysics.steerAngle;
 
             // penalty data
             currentGameState.PenaltiesData.HasDriveThrough = currentFlag == AC_FLAG_TYPE.AC_PENALTY_FLAG && shared.acsGraphic.penaltyTime <= 0;

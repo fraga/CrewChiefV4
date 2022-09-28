@@ -375,6 +375,7 @@ namespace CrewChiefV4.PCars
             pCarsAPIParticipantStruct viewedParticipant = playerData.Item2;
             AdditionalDataProvider.validate(playerName);
             currentGameState.SessionData.CompletedLaps = (int)viewedParticipant.mLapsCompleted;
+            currentGameState.SessionData.LapCount = currentGameState.SessionData.CompletedLaps + 1;
             currentGameState.SessionData.SectorNumber = (int)viewedParticipant.mCurrentSector;
             currentGameState.SessionData.OverallPosition = (int)viewedParticipant.mRacePosition;
             if (currentGameState.SessionData.OverallPosition == 1)

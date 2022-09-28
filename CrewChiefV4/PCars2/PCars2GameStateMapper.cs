@@ -215,6 +215,7 @@ namespace CrewChiefV4.PCars2
 
             AdditionalDataProvider.validate(playerName);
             currentGameState.SessionData.CompletedLaps = (int)playerData.mLapsCompleted;
+            currentGameState.SessionData.LapCount = currentGameState.SessionData.CompletedLaps + 1;
             currentGameState.SessionData.SectorNumber = (int)playerData.mCurrentSector + 1; // zero indexed
             currentGameState.SessionData.OverallPosition = (int)playerData.mRacePosition;
             if (currentGameState.SessionData.OverallPosition == 1)
