@@ -1133,11 +1133,7 @@ namespace CrewChiefV4
 
             this.SuspendLayout();
             Application.DoEvents();
-            var currProfileName = UserSettings.currentUserProfileFileName;
-            if (currProfileName.EndsWith(".json", StringComparison.InvariantCultureIgnoreCase))
-                currProfileName = currProfileName.Substring(0, currProfileName.Length - ".json".Length);
-
-            this.Text = $"{Configuration.getUIString("main_window_title_prefix")} {currProfileName}";
+            SetFrameHeading();
 
             SetupNotificationTrayIcon();
 
@@ -1494,7 +1490,7 @@ namespace CrewChiefV4
             this.deleteAssigmentButton.Enabled = false;
 
             this.ResumeLayout();
-            
+
             bool forceHScrollbar = UserSettings.GetUserSettings().getBoolean("scroll_bars_on_main_window") || NEED_H_SCROLL;
             bool forceVScrollbar = UserSettings.GetUserSettings().getBoolean("scroll_bars_on_main_window") || NEED_V_SCROLL;
 
@@ -1517,6 +1513,19 @@ namespace CrewChiefV4
                 subtitleOverlay = new SubtitleOverlay();
                 subtitleOverlay.Run();
             }
+        }
+
+        private void SetFrameHeading(string game=null)
+        {
+            var currProfileName = UserSettings.currentUserProfileFileName;
+            if (currProfileName.EndsWith(".json", StringComparison.InvariantCultureIgnoreCase))
+                currProfileName = currProfileName.Substring(0, currProfileName.Length - ".json".Length);
+
+            if (game != null)
+            {
+                currProfileName += $" - Running: {game}";
+            }
+            this.Text = $"{Configuration.getUIString("main_window_title_prefix")} {currProfileName}";
         }
 
         private bool isSteamVrRunning()
@@ -2284,6 +2293,7 @@ namespace CrewChiefV4
                     uiSyncAppStart();
                     CarData.loadCarClassData();
                     TrackData.loadTrackLandmarksData();
+                    SetFrameHeading(gameDefinition.friendlyName);
                     ThreadStart crewChiefWork = runApp;
                     Thread crewChiefThread = new Thread(crewChiefWork);
                     crewChiefThread.Name = "MainWindow.runApp";
