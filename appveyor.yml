@@ -87,4 +87,5 @@
     - git checkout HTMLhelp
     - git merge origin/master
     # git diff --quiet && git diff --staged --quiet ensures only commit if files changed
+    - git diff --quiet && git diff --staged --quiet || echo Committing...
     - git diff --quiet && git diff --staged --quiet || git commit -am "Appveyor merge master change_log_for_auto_updated.html" && git push
