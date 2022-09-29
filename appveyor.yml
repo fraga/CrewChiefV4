@@ -1,11 +1,6 @@
 # This has to be the same on master and HTMLhelp branches
 # so that merging master changes into HTMLhelp maintains the functionality
 
-# Public Access Token giving AppVeyor write access to https://gitlab.com/mr_belowski/CrewChiefV4
-environment:
-  access_token:
-    secure: qv5Nyfv8ZnjjHYdyl4Kw0NTn3L62r6i55tmYyqbMGpY=
-
 -
   branches:
     only:
@@ -44,6 +39,11 @@ environment:
 
 
   on_success:
+        # Public Access Token giving AppVeyor write access to https://gitlab.com/mr_belowski/CrewChiefV4
+    -   environment:
+    -     access_token:
+    -       secure: qv5Nyfv8ZnjjHYdyl4Kw0NTn3L62r6i55tmYyqbMGpY=
+
     # Push any new files in public/ so they're published to
     # https://mr_belowski.gitlab.io/CrewChiefV4/index.html
     - git config --global credential.helper store
@@ -63,22 +63,27 @@ environment:
     only:
       - master
 
-    # Including commits with particular message or from specific user
-    only_commits:
+  # Including commits with particular message or from specific user
+  only_commits:
       message: /update stuff/       # Start a new build if message contains 'update stuff'
       # author: mr_belowski         # Start a new build for commit of user with email mr_belowski (untested)
 
-      # Empty build script to avoid error "Specify which project or solution file to use because the folder contains more than one project or solution file"
-      build_script:
-      - cmd: >-
-          cd .  
+  # Empty build script to avoid error "Specify which project or solution file to use because the folder contains more than one project or solution file"
+  build_script:
+        - cmd: >-
+        - cd .  
 
-      on_finish:
-        - git config --global credential.helper store
-        - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://oauth2:$($env:access_token)@gitlab.com`n" -NoNewline
-        - git config --global user.email "crewchiefTony@outlook.com"
-        - git config --global user.name "Tony Whitley"
-        - git checkout HTMLhelp
-        - git merge origin/master
-        # git diff --quiet && git diff --staged --quiet ensures only commit if files changed
-        - git diff --quiet && git diff --staged --quiet || git commit -am "Appveyor merge master change_log_for_auto_updated.html" && git push
+  on_finish:
+  # Public Access Token giving AppVeyor write access to https://gitlab.com/mr_belowski/CrewChiefV4
+    - environment:
+    -   access_token:
+    -     secure: qv5Nyfv8ZnjjHYdyl4Kw0NTn3L62r6i55tmYyqbMGpY=
+
+    - git config --global credential.helper store
+    - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://oauth2:$($env:access_token)@gitlab.com`n" -NoNewline
+    - git config --global user.email "crewchiefTony@outlook.com"
+    - git config --global user.name "Tony Whitley"
+    - git checkout HTMLhelp
+    - git merge origin/master
+    # git diff --quiet && git diff --staged --quiet ensures only commit if files changed
+    - git diff --quiet && git diff --staged --quiet || git commit -am "Appveyor merge master change_log_for_auto_updated.html" && git push
