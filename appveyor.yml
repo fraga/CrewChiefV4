@@ -1,6 +1,7 @@
 # This has to be the same on master and HTMLhelp branches
 # so that merging master changes into HTMLhelp maintains the functionality
 
+# HTMLhelp branch actually updating the gitlab pages files
 -
   branches:
     only:
