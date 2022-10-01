@@ -5,7 +5,7 @@ Note that the filename has to remain 'auto_update_data.xml' so legacy installs (
 secondary update sources) can still be updated.
 From this update file, the MSI installer is pulled from the VPS and the assets from thecrewchief.org, falling back to the VPS. -->
 <item>
-<title>Crew Chief 4.16.3.0 updated 29 September 2022</title>
+<title>Crew Chief 4.16.3.0 updated 01 October 2022</title>
 <version>4.16.3.0</version>
 <!-- direct download link to the installer, not HTTPS so may raise eyebrows. We could change this to be
 https://d1o4ya81faadx8.cloudfront.net/CrewChiefV4.msi without incurring too much risk but it's additional faff
