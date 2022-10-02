@@ -459,7 +459,7 @@ namespace CrewChiefV4
                                     Console.WriteLine("Current sound pack version " + SoundPackVersionsHelper.currentSoundPackVersion + " is out of date, next update is " + soundPackUpdateData.url);
                                     willNeedAnotherSoundPackDownload = soundPackUpdateData.willRequireAnotherUpdate;
                                     string buttonText;
-                                    if (SoundPackVersionsHelper.latestSoundPackVersion == -1)
+                                    if (SoundPackVersionsHelper.currentSoundPackVersion == -1)
                                     {
                                         buttonText = Configuration.getUIString("no_sound_pack_detected_press_to_download");
                                     }
@@ -511,7 +511,7 @@ namespace CrewChiefV4
                                     Console.WriteLine("Current personalisations pack version " + SoundPackVersionsHelper.currentPersonalisationsVersion + " is out of date, next update is " + personalisationPackUpdateData.url);
                                     willNeedAnotherPersonalisationsDownload = personalisationPackUpdateData.willRequireAnotherUpdate;
                                     string buttonText;
-                                    if (SoundPackVersionsHelper.latestPersonalisationsVersion == -1)
+                                    if (SoundPackVersionsHelper.currentPersonalisationsVersion == -1)
                                     {
                                         buttonText = Configuration.getUIString("no_personalisations_detected_press_to_download");
                                     }
@@ -563,7 +563,7 @@ namespace CrewChiefV4
                                     Console.WriteLine("Current driver names pack version " + SoundPackVersionsHelper.currentDriverNamesVersion + " is out of date, next update is " + drivernamesPackUpdateData.url);
                                     willNeedAnotherDrivernamesDownload = drivernamesPackUpdateData.willRequireAnotherUpdate;
                                     string buttonText;
-                                    if (SoundPackVersionsHelper.latestDriverNamesVersion == -1)
+                                    if (SoundPackVersionsHelper.currentDriverNamesVersion == -1)
                                     {
                                         buttonText = Configuration.getUIString("no_driver_names_detected_press_to_download");
                                     }
