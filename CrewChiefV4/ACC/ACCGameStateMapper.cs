@@ -1125,7 +1125,7 @@ namespace CrewChiefV4.ACC
             }
 
             // motion data
-            currentGameState.PositionAndMotionData.CarSpeed = playerVehicle.speedMS;
+            currentGameState.PositionAndMotionData.CarSpeed = shared.accPhysics.speedKmh / 3.6f;
             currentGameState.PositionAndMotionData.DistanceRoundTrack = distanceRoundTrack;
 
             currentGameState.SessionData.PlayerCarNr = playerVehicle.raceNumber.ToString();
