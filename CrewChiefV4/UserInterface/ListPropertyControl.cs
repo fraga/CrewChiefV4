@@ -152,6 +152,7 @@ namespace CrewChiefV4
                 this.comboBox1.Items.Add(value);
             }
             this.comboBox1.EndUpdate();
+            this.comboBox1.DropDownStyle = ComboBoxStyle.DropDownList;
 
             this.originalValue = ListPropertyValues.getLabelForInvariantItem(propertyId, currentValue);
             this.comboBox1.Text = this.originalValue;
