@@ -5437,6 +5437,30 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool enable_mqtt_telemetry {
+            get {
+                return ((bool)(this["enable_mqtt_telemetry"]));
+            }
+            set {
+                this["enable_mqtt_telemetry"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Jim")]
+        public string mqtt_topic_drivername {
+            get {
+                return ((string)(this["mqtt_topic_drivername"]));
+            }
+            set {
+                this["mqtt_topic_drivername"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool rf2_enable_auto_clear_tyre_change {
             get {

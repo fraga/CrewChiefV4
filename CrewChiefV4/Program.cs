@@ -199,21 +199,25 @@ namespace CrewChiefV4
                 }
                 catch (Exception e) { Log.Exception(e); }
             }
-            new Thread(() =>
+            // refresh the image if we don't have one, and occasionally refresh anyway
+            if (!File.Exists(Loading.splashImagePath) || new Random().NextDouble() > 0.9)
             {
-                Thread.CurrentThread.IsBackground = true;
-                using (var client = new System.Net.WebClient())
+                new Thread(() =>
                 {
-                    try
+                    Thread.CurrentThread.IsBackground = true;
+                    using (var client = new System.Net.WebClient())
                     {
-                        client.DownloadFile(@"http://crewchief.isnais.de/CrewChief_splash_image.png", Loading.tempSplashImagePath);
+                        try
+                        {
+                            client.DownloadFile(@"http://167.235.144.28/CrewChief_splash_image.png", Loading.tempSplashImagePath);
+                        }
+                        catch (Exception)
+                        {
+                            // ignore - no splash screen, doesn't matter
+                        }
                     }
-                    catch (Exception)
-                    {
-                        // ignore - no splash screen, doesn't matter
-                    }
-                }
-            }).Start();
+                }).Start();
+            }
         }
     }
 }

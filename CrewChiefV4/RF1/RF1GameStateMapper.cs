@@ -331,6 +331,7 @@ namespace CrewChiefV4.rFactor1
             currentGameState.SessionData.PositionAtStartOfCurrentLap = currentGameState.SessionData.IsNewLap ? currentGameState.SessionData.OverallPosition : previousGameState.SessionData.PositionAtStartOfCurrentLap;
             currentGameState.SessionData.IsDisqualified = (rFactor1Constant.rfFinishStatus)player.finishStatus == rFactor1Constant.rfFinishStatus.dq;
             currentGameState.SessionData.CompletedLaps = shared.lapNumber < 0 ? 0 : shared.lapNumber;
+            currentGameState.SessionData.LapCount = currentGameState.SessionData.CompletedLaps + 1;
             currentGameState.SessionData.LapTimeCurrent = currentGameState.SessionData.SessionRunningTime - player.lapStartET;
             currentGameState.SessionData.LapTimePrevious = player.lastLapTime > 0 ? player.lastLapTime : -1;
 

@@ -403,6 +403,7 @@ namespace CrewChiefV4.iRacing
                     currentGameState.SessionData.PlayerLapData = previousGameState.SessionData.PlayerLapData;
                     currentGameState.SessionData.trackLandmarksTiming = previousGameState.SessionData.trackLandmarksTiming;
                     currentGameState.SessionData.CompletedLaps = previousGameState.SessionData.CompletedLaps;
+                    currentGameState.SessionData.LapCount = previousGameState.SessionData.LapCount;
                     currentGameState.SessionData.PlayerCarNr = previousGameState.SessionData.PlayerCarNr;
 
                     currentGameState.OpponentData = previousGameState.OpponentData;
@@ -434,6 +435,8 @@ namespace CrewChiefV4.iRacing
             currentGameState.ControlData.ThrottlePedal = shared.Telemetry.Throttle;
             currentGameState.ControlData.ClutchPedal = shared.Telemetry.Clutch;
             currentGameState.ControlData.BrakePedal = shared.Telemetry.Brake;
+            currentGameState.ControlData.HandBrake = shared.Telemetry.HandBrake;
+            currentGameState.ControlData.SteeringWheelAngle = shared.Telemetry.SteeringWheelAngle;
             currentGameState.TransmissionData.Gear = shared.Telemetry.Gear;
 
 
@@ -497,6 +500,7 @@ namespace CrewChiefV4.iRacing
             }
 
             currentGameState.SessionData.CompletedLaps = playerCar.Live.LiveLapsCompleted;
+            currentGameState.SessionData.LapCount = currentGameState.SessionData.CompletedLaps + 1;
             currentGameState.SessionData.LapTimeCurrent = shared.Telemetry.LapCurrentLapTime;
             currentGameState.FlagData.isFullCourseYellow = currentGameState.SessionData.SessionPhase == SessionPhase.FullCourseYellow;
             
@@ -1240,6 +1244,7 @@ namespace CrewChiefV4.iRacing
             {
                 CrewChief.carClass = currentGameState.carClass.carClassEnum;
             }
+            currentGameState.carName = shared.Driver.Car.CarName;
             CrewChief.distanceRoundTrack = currentGameState.PositionAndMotionData.DistanceRoundTrack;
             CrewChief.viewingReplay = false;
             if (currentGameState.SessionData.IsNewLap)

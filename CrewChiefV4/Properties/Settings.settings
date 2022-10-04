@@ -1355,6 +1355,12 @@
     <Setting Name="pause_between_message_fragments" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
+    <Setting Name="enable_mqtt_telemetry" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="mqtt_topic_drivername" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Jim</Value>
+    </Setting>  
     <Setting Name="rf2_enable_auto_clear_tyre_change" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>

@@ -55,8 +55,9 @@ namespace CrewChiefV4.iRacing
             SteeringWheelAngle = (System.Single)sdk.GetData("SteeringWheelAngle");
             Throttle = (System.Single)sdk.GetData("Throttle");
 			Brake = (System.Single)sdk.GetData("Brake");
-			Clutch = (System.Single)sdk.GetData("Clutch");
-			Gear = (System.Int32)sdk.GetData("Gear");
+            Clutch = (System.Single)sdk.GetData("Clutch");
+            HandBrake = (System.Single)sdk.GetData("HandbrakeRaw");
+            Gear = (System.Int32)sdk.GetData("Gear");
             RPM = (System.Single)sdk.GetData("RPM");
             Lap = (System.Int32)sdk.GetData("Lap");
             LapBestLap = (System.Int32)sdk.GetData("LapBestLap");
@@ -317,10 +318,15 @@ namespace CrewChiefV4.iRacing
 		/// <summary>
 		public System.Single Brake;
 
-		/// <summary>
-		/// 0=disengaged to 1=fully engaged
-		/// <summary>
-		public System.Single Clutch;
+        /// <summary>
+        /// 0=brake released to 1=max force
+        /// <summary>
+        public System.Single HandBrake;
+
+        /// <summary>
+        /// 0=disengaged to 1=fully engaged
+        /// <summary>
+        public System.Single Clutch;
 
 		/// <summary>
 		/// -1=reverse  0=neutral  1..n=current gear

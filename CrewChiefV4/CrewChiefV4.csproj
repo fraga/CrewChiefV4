@@ -155,6 +155,7 @@
     <Compile Include="Events\CommonDataContainers.cs" />
     <Compile Include="Events\DriverSwaps.cs" />
     <Compile Include="Events\CoDriver.cs" />
+    <Compile Include="Events\Mqtt.cs" />
     <Compile Include="Events\WatchedOpponents.cs" />
     <Compile Include="Events\Strategy.cs" />
     <Compile Include="Events\FrozenOrderMonitor.cs" />
@@ -285,6 +286,7 @@
     <Compile Include="GameState\DummyGameDataReader.cs" />
     <Compile Include="GameState\DummyGameStateMapper.cs" />
     <Compile Include="GameState\GlobalBehaviourSettings.cs" />
+    <Compile Include="GameState\ReflectionGameStateAccessor.cs" />
     <Compile Include="GlobalResources.cs" />
     <Compile Include="iRacing\Bitfields\CameraState.cs" />
     <Compile Include="iRacing\Bitfields\EngineWarning.cs" />
@@ -337,6 +339,11 @@
     <Compile Include="PitManager\PitManagerEventHandlers_RF2.cs" />
     <Compile Include="PitManager\PitManagerResponseHandlers.cs" />
     <Compile Include="PitManager\PitManagerVoiceCmds.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
     <Compile Include="R3E\R3EPitMenuManager.cs" />
     <Compile Include="R3E\R3ERatings.cs" />
     <Compile Include="R3E\R3ESerializer.cs" />
@@ -436,11 +443,6 @@
     <Compile Include="PCars2\PCars2UDPTelemetryDataStruct.cs" />
     <Compile Include="PCars\PCarsUDPTelemetryDataStruct.cs" />
     <Compile Include="PluginInstaller.cs" />
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
     <Compile Include="R3E\R3ESharedMemoryReader.cs" />
     <Compile Include="GameDataReader.cs" />
     <Compile Include="PCars\PCarsStruct.cs" />
@@ -594,6 +596,7 @@
     <None Include="chart_subscriptions.json" />
     <None Include="controllerConfigurationData.json" />
     <Compile Include="Overlay\OverlaySubscription.cs" />
+    <None Include="mqtt_telemetry.json" />
     <None Include="PitManager\Documentation\rF2_PitManager.graphml" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -660,6 +663,9 @@
     </PackageReference>
     <PackageReference Include="MathNet.Numerics">
       <Version>4.8.1</Version>
+    </PackageReference>
+    <PackageReference Include="MQTTnet">
+      <Version>3.1.2</Version>
     </PackageReference>
     <PackageReference Include="NAudio">
       <Version>2.0.1</Version>

@@ -153,7 +153,6 @@ POV = PoV
 not_assigned = not assigned
 
 text_prop_type = (text)
-boolean_prop_type = (boolean)
 integer_prop_type = (integer)
 real_number_prop_type = (real number)
 
@@ -2624,3 +2623,13 @@ speak_only_when_spoken_to_category = AUDIO_VOICE_AND_CONTROLLERS
 just_the_facts = Disable commentary
 just_the_facts_help = Play only factual messages - no suggestions, encouragement or complaints
 just_the_facts_category = AUDIO_VOICE_AND_CONTROLLERS
+
+# Property: MQTT Telemetry
+enable_mqtt_telemetry = MQTT Telemetry enabled
+enable_mqtt_telemetry_help = Enable MQTT telemetry transmission to an MQTT broker
+enable_mqtt_telemetry_category = MISC
+
+# Property: MQTT mqtt_topic_drivername
+mqtt_topic_drivername = MQTT drivername
+mqtt_topic_drivername_help = A unique driver name to be inserted into the MQTT topic
+mqtt_topic_drivername_category = MISC

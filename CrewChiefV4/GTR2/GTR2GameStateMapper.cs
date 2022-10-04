@@ -778,6 +778,7 @@ namespace CrewChiefV4.GTR2
             // NOTE: Telemetry contains mLapNumber, which might be ahead of Scoring due to higher refresh rate.  However,
             // since we use Scoring fields for timing calculations, stick to Scoring here as well.
             csd.CompletedLaps = playerScoring.mTotalLaps;
+            csd.LapCount = csd.CompletedLaps + 1;
 
             ////////////////////////////////////
             // motion data
