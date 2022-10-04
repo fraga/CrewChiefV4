@@ -2,7 +2,7 @@
 <!-- this is the 'primary' auto update data - the app will check this one first. From this update file, the MSI
 will be pulled from the thecrewchief.org ftp server and the assets from our VPS, falling back to thecrewchief.org. -->
 <item>
-<title>Crew Chief 4.16.3.0 updated 29 Sepember 2022</title>
+<title>Crew Chief 4.16.3.0 updated 01 October 2022</title>
 <version>4.16.3.0</version>
 <!-- indirect link via a download script which tracks the number of downloads (just the number, not IP addresses or anything else) -->
 <url>https://thecrewchief.org/downloads.php</url>

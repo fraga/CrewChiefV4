@@ -446,7 +446,7 @@ namespace CrewChiefV4.ACC
             public int isPlayerVehicle;
             public string driverName;
             public string carModel;
-            public float speedMS;
+            public float speedMS; // note that the data in this struct aren't updated on every tick. Use speedKmh from Physics for the player speed
             public int bestLapMS;
             public int bestSplit1TimeMS;
             public int bestSplit2TimeMS;

@@ -153,7 +153,6 @@ POV = PoV
 not_assigned = not assigned
 
 text_prop_type = (text)
-boolean_prop_type = (boolean)
 integer_prop_type = (integer)
 real_number_prop_type = (real number)
 
