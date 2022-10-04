@@ -2323,6 +2323,7 @@ namespace CrewChiefV4
             else
             {
                 startApplicationButton.Enabled = false;
+                SetFrameHeading();
                 Console.WriteLine("Resuming console scrolling");
                 MainWindow.autoScrollConsole = true;
                 MacroManager.stop();
