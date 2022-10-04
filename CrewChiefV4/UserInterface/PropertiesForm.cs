@@ -171,84 +171,101 @@ namespace CrewChiefV4
 
             this.SuspendLayout();
             this.propertiesFlowLayoutPanel.SuspendLayout();
+            string propertyType;
 
             int widgetCount = 0;
+            propertyType = Configuration.getUIString("text_prop_type");
             foreach (SettingsProperty strProp in UserSettings.GetUserSettings().getProperties(typeof(String), null, null))
             {
                 if (strProp.Name.EndsWith(PropertiesForm.listPropPostfix) && ListPropertyValues.getListBoxLabels(strProp.Name) != null)
                 {
-                    this.propertiesFlowLayoutPanel.Controls.Add(new ListPropertyControl(strProp.Name, Configuration.getUIString(strProp.Name) + " " + Configuration.getUIString("text_prop_type"),
+                    this.propertiesFlowLayoutPanel.Controls.Add(new ListPropertyControl(strProp.Name, Configuration.getUIString(strProp.Name),
                        UserSettings.GetUserSettings().getString(strProp.Name), (String)strProp.DefaultValue,
-                       GetHelpString(strProp.Name), Configuration.getUIStringStrict(strProp.Name + "_filter"),
+                       GetHelpString(strProp.Name), // Property type note not needed for dropdown choice
+                       Configuration.getUIStringStrict(strProp.Name + "_filter"),
                        Configuration.getUIStringStrict(strProp.Name + "_category"), changeRequiresRestart(Configuration.getUIStringStrict(strProp.Name + "_metadata")),
                        Configuration.getUIStringStrict(strProp.Name + "_type"), this));
                 }
                 else
                 {
-                    this.propertiesFlowLayoutPanel.Controls.Add(new StringPropertyControl(strProp.Name, Configuration.getUIString(strProp.Name) + " " + Configuration.getUIString("text_prop_type"),
+                    this.propertiesFlowLayoutPanel.Controls.Add(new StringPropertyControl(strProp.Name, Configuration.getUIString(strProp.Name),
                        UserSettings.GetUserSettings().getString(strProp.Name), (String)strProp.DefaultValue,
-                       GetHelpString(strProp.Name), Configuration.getUIStringStrict(strProp.Name + "_filter"),
+                       GetHelpString(strProp.Name) + " " + propertyType, 
+                       Configuration.getUIStringStrict(strProp.Name + "_filter"),
                        Configuration.getUIStringStrict(strProp.Name + "_category"), changeRequiresRestart(Configuration.getUIStringStrict(strProp.Name + "_metadata")), this));
                 }
                 widgetCount++;
             }
             pad(widgetCount);
+
             widgetCount = 0;
             foreach (SettingsProperty boolProp in UserSettings.GetUserSettings().getProperties(typeof(Boolean), "enable", null))
             {
                 Boolean defaultValue;
                 Boolean.TryParse((String)boolProp.DefaultValue, out defaultValue);
-                this.propertiesFlowLayoutPanel.Controls.Add(new BooleanPropertyControl(boolProp.Name, Configuration.getUIString(boolProp.Name) + " " + Configuration.getUIString("boolean_prop_type"),
+                this.propertiesFlowLayoutPanel.Controls.Add(new BooleanPropertyControl(boolProp.Name, Configuration.getUIString(boolProp.Name),
                     UserSettings.GetUserSettings().getBoolean(boolProp.Name), defaultValue,
-                    GetHelpString(boolProp.Name), Configuration.getUIStringStrict(boolProp.Name + "_filter"),
+                    GetHelpString(boolProp.Name), // Property type note not needed for checkbox
+                    Configuration.getUIStringStrict(boolProp.Name + "_filter"),
                     Configuration.getUIStringStrict(boolProp.Name + "_category"), changeRequiresRestart(Configuration.getUIStringStrict(boolProp.Name + "_metadata")), this));
                 widgetCount++;
             }
             pad(widgetCount);
+
+            propertyType = Configuration.getUIString("integer_prop_type");
             widgetCount = 0;
             foreach (SettingsProperty intProp in UserSettings.GetUserSettings().getProperties(typeof(int), "frequency", null))
             {
                 int defaultValue;
                 int.TryParse((String)intProp.DefaultValue, out defaultValue);
-                this.propertiesFlowLayoutPanel.Controls.Add(new IntPropertyControl(intProp.Name, Configuration.getUIString(intProp.Name) + " " + Configuration.getUIString("integer_prop_type"),
+                this.propertiesFlowLayoutPanel.Controls.Add(new IntPropertyControl(intProp.Name, Configuration.getUIString(intProp.Name),
                     UserSettings.GetUserSettings().getInt(intProp.Name), defaultValue,
-                    GetHelpString(intProp.Name), Configuration.getUIStringStrict(intProp.Name + "_filter"),
+                    GetHelpString(intProp.Name) + " " + propertyType,
+                    Configuration.getUIStringStrict(intProp.Name + "_filter"),
                     Configuration.getUIStringStrict(intProp.Name + "_category"), changeRequiresRestart(Configuration.getUIStringStrict(intProp.Name + "_metadata")), this));
                 widgetCount++;
             }
             pad(widgetCount);
+
             widgetCount = 0;
             foreach (SettingsProperty boolProp in UserSettings.GetUserSettings().getProperties(typeof(Boolean), null, "enable"))
             {
                 Boolean defaultValue;
                 Boolean.TryParse((String)boolProp.DefaultValue, out defaultValue);
-                this.propertiesFlowLayoutPanel.Controls.Add(new BooleanPropertyControl(boolProp.Name, Configuration.getUIString(boolProp.Name) + " " + Configuration.getUIString("boolean_prop_type"),
+                this.propertiesFlowLayoutPanel.Controls.Add(new BooleanPropertyControl(boolProp.Name, Configuration.getUIString(boolProp.Name),
                     UserSettings.GetUserSettings().getBoolean(boolProp.Name), defaultValue,
-                    GetHelpString(boolProp.Name), Configuration.getUIStringStrict(boolProp.Name + "_filter"),
+                    GetHelpString(boolProp.Name), // Property type note not needed for checkbox
+                    Configuration.getUIStringStrict(boolProp.Name + "_filter"),
                     Configuration.getUIStringStrict(boolProp.Name + "_category"), changeRequiresRestart(Configuration.getUIStringStrict(boolProp.Name + "_metadata")), this));
                 widgetCount++;
             }
             pad(widgetCount);
+
+            propertyType = Configuration.getUIString("integer_prop_type");
             widgetCount = 0;
             foreach (SettingsProperty intProp in UserSettings.GetUserSettings().getProperties(typeof(int), null, "frequency"))
             {
                 int defaultValue;
                 int.TryParse((String)intProp.DefaultValue, out defaultValue);
-                this.propertiesFlowLayoutPanel.Controls.Add(new IntPropertyControl(intProp.Name, Configuration.getUIString(intProp.Name) + " " + Configuration.getUIString("integer_prop_type"),
+                this.propertiesFlowLayoutPanel.Controls.Add(new IntPropertyControl(intProp.Name, Configuration.getUIString(intProp.Name),
                     UserSettings.GetUserSettings().getInt(intProp.Name), defaultValue,
-                    GetHelpString(intProp.Name), Configuration.getUIStringStrict(intProp.Name + "_filter"),
+                    GetHelpString(intProp.Name) + " " + propertyType,
+                    Configuration.getUIStringStrict(intProp.Name + "_filter"),
                     Configuration.getUIStringStrict(intProp.Name + "_category"), changeRequiresRestart(Configuration.getUIStringStrict(intProp.Name + "_metadata")), this));
                 widgetCount++;
             }
             pad(widgetCount);
+
+            propertyType = Configuration.getUIString("real_number_prop_type");
             widgetCount = 0;
             foreach (SettingsProperty floatProp in UserSettings.GetUserSettings().getProperties(typeof(float), null, null))
             {
                 float defaultValue;
                 float.TryParse((String)floatProp.DefaultValue, out defaultValue);
-                this.propertiesFlowLayoutPanel.Controls.Add(new FloatPropertyControl(floatProp.Name, Configuration.getUIString(floatProp.Name) + " " + Configuration.getUIString("real_number_prop_type"),
+                this.propertiesFlowLayoutPanel.Controls.Add(new FloatPropertyControl(floatProp.Name, Configuration.getUIString(floatProp.Name),
                     UserSettings.GetUserSettings().getFloat(floatProp.Name), defaultValue,
-                    GetHelpString(floatProp.Name), Configuration.getUIStringStrict(floatProp.Name + "_filter"),
+                    GetHelpString(floatProp.Name)+ " " + propertyType,
+                    Configuration.getUIStringStrict(floatProp.Name + "_filter"),
                     Configuration.getUIStringStrict(floatProp.Name + "_category"), changeRequiresRestart(Configuration.getUIStringStrict(floatProp.Name + "_metadata")), this));
                 widgetCount++;
             }
