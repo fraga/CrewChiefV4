@@ -114,7 +114,8 @@ namespace CrewChiefV4.PitManager
         DisplayTemps,
         DisplayRaceInfo,
         DisplayStandings,
-        DisplayPenalties
+        DisplayPenalties,
+        DisplayNext
     }
 
     public class PitManager
@@ -221,6 +222,12 @@ namespace CrewChiefV4.PitManager
                                     if (result)
                                     {
                                         result = PM_event_dict[ev].PitManagerEventResponse.Invoke();
+                                        if (PitManagerVoiceCmds.tyresAutoCleared)
+                                        {   // Pit menu tyre change cleared at start of race
+                                            PitManagerVoiceCmds.tyresAutoCleared = false;
+                                            // Restore the MFD
+                                            PM_event_dict[PME.DisplayRaceInfo].PitManagerEventAction.Invoke(voiceMessage);
+                                        }
                                     }
                                     else
                                     {
@@ -402,6 +409,7 @@ namespace CrewChiefV4.PitManager
             {PME.DisplayRaceInfo,         _PMet(_PMeh, PMEHrF2.PMrF2eh_DisplayRaceInfo,    PMER.PMrh_NoResponse) },
             {PME.DisplayStandings,        _PMet(_PMeh, PMEHrF2.PMrF2eh_DisplayStandings,   PMER.PMrh_NoResponse) },
             {PME.DisplayPenalties,        _PMet(_PMeh, PMEHrF2.PMrF2eh_DisplayPenalties,   PMER.PMrh_NoResponse) },
+            {PME.DisplayNext,             _PMet(_PMeh, PMEHrF2.PMrF2eh_DisplayNext,       PMER.PMrh_NoResponse) },
         };
 
         ///////////////////////////////////////////////////////////////////////////

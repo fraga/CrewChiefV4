@@ -557,29 +557,36 @@ namespace CrewChiefV4.PitManager
         #endregion Public Methods
 
         #region MFD
+        static string currentMFD = "MFDF";
         static public bool PMrF2eh_DisplaySectors(string __)
         {
             Pmal.MfdPage("MFDA");
+            currentMFD = "MFDA";
             return true;
         }
         static public bool PMrF2eh_DisplayPitMenu(string __)
         {
             Pmal.MfdPage("MFDB");
+            currentMFD = "MFDB";
             return true;
         }
         static public bool PMrF2eh_DisplayTyres(string __)
         {
             Pmal.MfdPage("MFDC");
+            currentMFD = "MFDC";
             return true;
         }
+        // MFDD is Driving Aids, not worth a command
         static public bool PMrF2eh_DisplayTemps(string __)
         {
             Pmal.MfdPage("MFDE");
+            currentMFD = "MFDE";
             return true;
         }
         static public bool PMrF2eh_DisplayRaceInfo(string __)
         {
             Pmal.MfdPage("MFDF");
+            currentMFD = "MFDF";
             return true;
         }
         static public bool PMrF2eh_DisplayStandings(string __)
@@ -590,6 +597,22 @@ namespace CrewChiefV4.PitManager
         static public bool PMrF2eh_DisplayPenalties(string __)
         {
             Pmal.MfdPage("MFDH");
+            currentMFD = "MFDH";
+            return true;
+        }
+        /// <summary>
+        /// Display the next MFD screen
+        /// </summary>
+        static public bool PMrF2eh_DisplayNext(string __)
+        {
+            var lastLetter = currentMFD[currentMFD.Length - 1] + 1;
+            if (lastLetter == 'I')
+            {
+                lastLetter = 'A';
+            }
+            currentMFD = "MFD" + (char)lastLetter;
+            Pmal.MfdPage(currentMFD);
+            Log.Commentary($"Displaying {currentMFD}");
             return true;
         }
         #endregion MFD
