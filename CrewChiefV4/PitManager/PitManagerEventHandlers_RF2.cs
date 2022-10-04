@@ -558,47 +558,44 @@ namespace CrewChiefV4.PitManager
 
         #region MFD
         static string currentMFD = "MFDF";
+        static private bool changeMFD(string mfd)
+        {
+            if (Pmal.MfdPage(mfd))
+            {
+                currentMFD = mfd;
+                Log.Commentary($"Displaying {currentMFD}");
+                return true;
+            }
+            return false;
+        }
         static public bool PMrF2eh_DisplaySectors(string __)
         {
-            Pmal.MfdPage("MFDA");
-            currentMFD = "MFDA";
-            return true;
+            return changeMFD("MFDA");
         }
         static public bool PMrF2eh_DisplayPitMenu(string __)
         {
-            Pmal.MfdPage("MFDB");
-            currentMFD = "MFDB";
-            return true;
+            return changeMFD("MFDB");
         }
         static public bool PMrF2eh_DisplayTyres(string __)
         {
-            Pmal.MfdPage("MFDC");
-            currentMFD = "MFDC";
-            return true;
+            return changeMFD("MFDC");
         }
         // MFDD is Driving Aids, not worth a command
         static public bool PMrF2eh_DisplayTemps(string __)
         {
-            Pmal.MfdPage("MFDE");
-            currentMFD = "MFDE";
-            return true;
+            return changeMFD("MFDE");
         }
         static public bool PMrF2eh_DisplayRaceInfo(string __)
         {
-            Pmal.MfdPage("MFDF");
-            currentMFD = "MFDF";
-            return true;
+            return changeMFD("MFDF");
         }
         static public bool PMrF2eh_DisplayStandings(string __)
         {
-            Pmal.MfdPage("MFDG");
-            return true;
+            return changeMFD("MFDG");
         }
         static public bool PMrF2eh_DisplayPenalties(string __)
         {
-            Pmal.MfdPage("MFDH");
-            currentMFD = "MFDH";
-            return true;
+            return changeMFD("MFDH");
         }
         /// <summary>
         /// Display the next MFD screen
@@ -610,10 +607,7 @@ namespace CrewChiefV4.PitManager
             {
                 lastLetter = 'A';
             }
-            currentMFD = "MFD" + (char)lastLetter;
-            Pmal.MfdPage(currentMFD);
-            Log.Commentary($"Displaying {currentMFD}");
-            return true;
+            return changeMFD("MFD" + (char)lastLetter);
         }
         #endregion MFD
 
