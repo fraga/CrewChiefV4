@@ -494,7 +494,7 @@ namespace CrewChiefV4.Events
                     audioPlayer.disablePearlsOfWisdom = false;
                     if (enableRf2AutoClearTyreChange && CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT)
                     {
-                        CrewChief.getEvent("PitManagerVoiceCmds").respond("pitstop clear tyres");
+                        PitManager.PitManagerVoiceCmds.startOfRace();
                     }
                 }
             }

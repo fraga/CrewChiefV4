@@ -367,13 +367,14 @@ PIT_STOP_DRY_TYRES = pitstop dry tyres:box, dry tyres
 PIT_STOP_MONSOON_TYRES = pitstop monsoon tyres:box, monsoon tyres
 PIT_STOP_FILL_TO = pitstop fill to:box, fill to
 
-DISPLAY_SECTORS = display sectors:display sector times
-DISPLAY_PIT_MENU = display pit menu
-DISPLAY_TYRES = display tyres
-DISPLAY_TEMPS = display temps:display temperatures
-DISPLAY_RACE_INFO = display race info
-DISPLAY_STANDINGS = display standings
-DISPLAY_PENALTIES = display penalties
+DISPLAY_SECTORS = display sectors:display sector times:M F D sectors:M F D sector times
+DISPLAY_PIT_MENU = display pit menu:M F D pit menu
+DISPLAY_TYRES = display tyres:M F D tyres
+DISPLAY_TEMPS = display temps:display temperatures:M F D temps:M F D temperatures
+DISPLAY_RACE_INFO = display race info:M F D race info
+DISPLAY_STANDINGS = display standings:M F D standings
+DISPLAY_PENALTIES = display penalties:M F D penalties
+DISPLAY_NEXT = display next:M F D next
 
 LITERS = liters
 GALLONS = gallons

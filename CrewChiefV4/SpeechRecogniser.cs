@@ -328,6 +328,7 @@ namespace CrewChiefV4
         public static String[] DISPLAY_RACE_INFO = Configuration.getSpeechRecognitionPhrases("DISPLAY_RACE_INFO");  // rF2
         public static String[] DISPLAY_STANDINGS = Configuration.getSpeechRecognitionPhrases("DISPLAY_STANDINGS");  // rF2
         public static String[] DISPLAY_PENALTIES = Configuration.getSpeechRecognitionPhrases("DISPLAY_PENALTIES");  // rF2
+        public static String[] DISPLAY_NEXT = Configuration.getSpeechRecognitionPhrases("DISPLAY_NEXT");  // rF2
 
         public static String[] MORE_INFO = Configuration.getSpeechRecognitionPhrases("MORE_INFO");
 
@@ -2392,6 +2393,7 @@ namespace CrewChiefV4
                 validateAndAdd(DISPLAY_RACE_INFO, pitManagerChoices);
                 validateAndAdd(DISPLAY_STANDINGS, pitManagerChoices);
                 validateAndAdd(DISPLAY_PENALTIES, pitManagerChoices);
+                validateAndAdd(DISPLAY_NEXT, pitManagerChoices);
 
                 GrammarBuilderWrapper PitManagerGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper(pitManagerChoices);
                 PitManagerGrammarBuilder.SetCulture(cultureInfo);
