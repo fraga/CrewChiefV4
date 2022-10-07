@@ -5458,7 +5458,7 @@ namespace CrewChiefV4.Properties {
                 this["mqtt_topic_drivername"] = value;
             }
         }
-
+        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
@@ -5468,6 +5468,18 @@ namespace CrewChiefV4.Properties {
             }
             set {
                 this["rf2_enable_auto_clear_tyre_change"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool report_fuel_laps_left_in_timed_races {
+            get {
+                return ((bool)(this["report_fuel_laps_left_in_timed_races"]));
+            }
+            set {
+                this["report_fuel_laps_left_in_timed_races"] = value;
             }
         }
     }
