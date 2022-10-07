@@ -83,9 +83,9 @@ namespace PitMenuAPI
             menuLayout.GetKeys();
         }
 
-        public void MfdPage(string Mfd)
+        public bool MfdPage(string Mfd)
         {
-            switchMFD(Mfd);
+            return switchMFD(Mfd);
         }
 
         public List<string> GetCategories()

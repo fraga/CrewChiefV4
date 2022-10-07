@@ -557,40 +557,57 @@ namespace CrewChiefV4.PitManager
         #endregion Public Methods
 
         #region MFD
+        static string currentMFD = "MFDF";
+        static private bool changeMFD(string mfd)
+        {
+            if (Pmal.MfdPage(mfd))
+            {
+                currentMFD = mfd;
+                Log.Commentary($"Displaying {currentMFD}");
+                return true;
+            }
+            return false;
+        }
         static public bool PMrF2eh_DisplaySectors(string __)
         {
-            Pmal.MfdPage("MFDA");
-            return true;
+            return changeMFD("MFDA");
         }
         static public bool PMrF2eh_DisplayPitMenu(string __)
         {
-            Pmal.MfdPage("MFDB");
-            return true;
+            return changeMFD("MFDB");
         }
         static public bool PMrF2eh_DisplayTyres(string __)
         {
-            Pmal.MfdPage("MFDC");
-            return true;
+            return changeMFD("MFDC");
         }
+        // MFDD is Driving Aids, not worth a command
         static public bool PMrF2eh_DisplayTemps(string __)
         {
-            Pmal.MfdPage("MFDE");
-            return true;
+            return changeMFD("MFDE");
         }
         static public bool PMrF2eh_DisplayRaceInfo(string __)
         {
-            Pmal.MfdPage("MFDF");
-            return true;
+            return changeMFD("MFDF");
         }
         static public bool PMrF2eh_DisplayStandings(string __)
         {
-            Pmal.MfdPage("MFDG");
-            return true;
+            return changeMFD("MFDG");
         }
         static public bool PMrF2eh_DisplayPenalties(string __)
         {
-            Pmal.MfdPage("MFDH");
-            return true;
+            return changeMFD("MFDH");
+        }
+        /// <summary>
+        /// Display the next MFD screen
+        /// </summary>
+        static public bool PMrF2eh_DisplayNext(string __)
+        {
+            var lastLetter = currentMFD[currentMFD.Length - 1] + 1;
+            if (lastLetter == 'I')
+            {
+                lastLetter = 'A';
+            }
+            return changeMFD("MFD" + (char)lastLetter);
         }
         #endregion MFD
 

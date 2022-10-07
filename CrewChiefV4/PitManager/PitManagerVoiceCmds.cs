@@ -100,7 +100,8 @@ namespace CrewChiefV4.PitManager
             {PME.DisplayTemps,            SRE.DISPLAY_TEMPS },
             {PME.DisplayRaceInfo,         SRE.DISPLAY_RACE_INFO },
             {PME.DisplayStandings,        SRE.DISPLAY_STANDINGS },
-            {PME.DisplayPenalties,        SRE.DISPLAY_PENALTIES }
+            {PME.DisplayPenalties,        SRE.DISPLAY_PENALTIES },
+            {PME.DisplayNext,             SRE.DISPLAY_NEXT }
             };
 
         private static float fuelCapacity = -1;
@@ -109,6 +110,8 @@ namespace CrewChiefV4.PitManager
         private static bool inCar = false;
 
         private static Boolean rf2AutoFuelToEnd = UserSettings.GetUserSettings().getBoolean("rf2_enable_auto_fuel_to_end_of_race");
+
+        public static Boolean tyresAutoCleared = false;
 
         #endregion Private Fields
 
@@ -222,17 +225,22 @@ namespace CrewChiefV4.PitManager
             return inCar;
         }
 
-        #endregion Public Methods
+        public static void startOfRace()
+        {
+            CrewChief.getEvent("PitManagerVoiceCmds").respond("pitstop clear tyres");
+            tyresAutoCleared = true;
+    }
+    #endregion Public Methods
 
-        #region Protected Methods
+    #region Protected Methods
 
-        /// <summary>
-        /// This is called on each 'tick' - the event subtype should
-        /// place its logic in here including calls to audioPlayer.queueClip
-        /// </summary>
-        /// <param name="previousGameState"></param>
-        /// <param name="currentGameState"></param>
-        override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
+    /// <summary>
+    /// This is called on each 'tick' - the event subtype should
+    /// place its logic in here including calls to audioPlayer.queueClip
+    /// </summary>
+    /// <param name="previousGameState"></param>
+    /// <param name="currentGameState"></param>
+    override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
         {
             inCar = currentGameState.inCar;
             if (!previousGameState.inCar && currentGameState.inCar)
