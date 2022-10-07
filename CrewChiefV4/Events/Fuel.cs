@@ -1130,7 +1130,6 @@ namespace CrewChiefV4.Events
                     }
                     else if (reportFuelLapsLeftInTimedRaces && averageUsagePerLapToCheck > 0)
                     {
-                        reportedSomething = true;
                         reportLapsOfFuelLeft();
                     }
                     else
