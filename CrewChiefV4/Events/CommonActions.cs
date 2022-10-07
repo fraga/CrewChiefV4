@@ -217,7 +217,7 @@ namespace CrewChiefV4.Events
             else if (SpeechRecogniser.ResultContains(voiceMessage, new string[] { ControllerConfiguration.GET_FUEL_STATUS }))
             {
                 Console.WriteLine("Getting fuel/battery status");
-                reportFuelStatus();
+                reportFuelBatteryStatus();
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, new string[] { ControllerConfiguration.TOGGLE_PACE_NOTES_RECORDING }))
             {
@@ -472,7 +472,7 @@ namespace CrewChiefV4.Events
             audioPlayer.playMessageImmediately(new QueuedMessage(LapCounter.folderManualFormationLapModeDisabled, 0));
         }
 
-        public void reportFuelStatus()
+        private void reportFuelBatteryStatus()
         {
             if (GlobalBehaviourSettings.enabledMessageTypes.Contains(MessageTypes.BATTERY))
             {

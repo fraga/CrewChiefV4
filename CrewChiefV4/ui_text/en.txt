@@ -2201,6 +2201,11 @@ prefer_max_consumption_in_fuel_calculations = Base fuel calculations on max fuel
 prefer_max_consumption_in_fuel_calculations_help = Use max per-lap fuel consumption when calculating fuel on all track types
 prefer_max_consumption_in_fuel_calculations_category = FUEL_TEMPS_AND_DAMAGES;PIT_STOPS_AND_MULTICLASS
 
+# Property: Report fuel laps left in timed races
+report_fuel_laps_left_in_timed_races = Report fuel as laps left in timed races
+report_fuel_laps_left_in_timed_races_help = Report how many laps left in timed races rather than how long it will last
+report_fuel_laps_left_in_timed_races_category = FUEL_TEMPS_AND_DAMAGES
+
 # Property: Identify opponents by race position
 sre_enable_opponents_by_position = Identify opponents by race position
 sre_enable_opponents_by_position_help = Allow the app to recognise opponents in voice commands by their race position
