@@ -675,6 +675,7 @@ namespace CrewChiefV4.ACC
                     currentGameState.SessionData.PlayerBestLapSector3Time = previousGameState.SessionData.PlayerBestLapSector3Time;
                     currentGameState.SessionData.LapTimePrevious = previousGameState.SessionData.LapTimePrevious;
                     currentGameState.Conditions.samples = previousGameState.Conditions.samples;
+                    currentGameState.Conditions.CurrentConditions = previousGameState.Conditions.CurrentConditions;
                     currentGameState.SessionData.trackLandmarksTiming = previousGameState.SessionData.trackLandmarksTiming;
                     currentGameState.TyreData.TyreTypeName = previousGameState.TyreData.TyreTypeName;
 

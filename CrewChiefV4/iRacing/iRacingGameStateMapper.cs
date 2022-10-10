@@ -417,6 +417,7 @@ namespace CrewChiefV4.iRacing
                     currentGameState.SessionData.StrengthOfField = previousGameState.SessionData.StrengthOfField;
 
                     currentGameState.Conditions.samples = previousGameState.Conditions.samples;
+                    currentGameState.Conditions.CurrentConditions = previousGameState.Conditions.CurrentConditions;
                     currentGameState.PenaltiesData.CutTrackWarnings = previousGameState.PenaltiesData.CutTrackWarnings;
                     currentGameState.retriedDriverNames = previousGameState.retriedDriverNames;
                     currentGameState.disqualifiedDriverNames = previousGameState.disqualifiedDriverNames;

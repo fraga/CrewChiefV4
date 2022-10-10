@@ -582,6 +582,9 @@ namespace CrewChiefV4.RaceRoom
                     currentGameState.SessionData.StrengthOfField = previousGameState.SessionData.StrengthOfField;
 
                     currentGameState.SessionData.expectedFinishingPosition = previousGameState.SessionData.expectedFinishingPosition;
+
+                    currentGameState.Conditions.CurrentConditions = previousGameState.Conditions.CurrentConditions;
+                    currentGameState.Conditions.samples = previousGameState.Conditions.samples;
                 }
             }
 

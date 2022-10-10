@@ -362,6 +362,7 @@ namespace CrewChiefV4.rFactor1
                 previousGameState.SessionData.RestorePlayerTimings(currentGameState.SessionData);
 
                 currentGameState.SessionData.DeltaTime = previousGameState.SessionData.DeltaTime;
+                currentGameState.Conditions.CurrentConditions = previousGameState.Conditions.CurrentConditions;
                 currentGameState.Conditions.samples = previousGameState.Conditions.samples;
                 currentGameState.TimingData = previousGameState.TimingData;
             }
