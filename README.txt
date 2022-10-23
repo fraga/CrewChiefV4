@@ -431,6 +431,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.16.3.1: Fix missing 'conditions' data (weather, track temp etc); Added option to report fuel remaining in number of laps, even for time-limited races ('Report fuel as laps left in timed races' in the Properties screen); RF2 - added 'display next' voice command to move to the next MFD screen; ACC - corrected car speed data (use a more frequently updated value); Various minor fixes
+
 Version 4.16.3.0: Support change of hosting location for assets; New configuration setting to publish live telemetry data to an MQTT broker. A default broker is hosted at <a href="https://github.com/b4mad/racing">github.com/b4mad/racing</a>. More under Help &rarr; Telemetry; Iracing - fix some issues with battery charge reporting; RF2 - clear existing tyre change setting when starting a race; General bug fixes
 
 Version 4.16.2.6: Added 'listen if not pressed' as a speech recognition mode - the app will always listen for voice commands unless the assigned button is held down (useful for cases where that button activates some other program's voice input); iRacing - fix the app not working with electric vehicles. Note that there's more work still to do here, the existing CC support for electric vehicles makes some assumptions about charging / vehicle swap rules that may not apply
