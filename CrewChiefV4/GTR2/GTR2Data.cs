@@ -309,7 +309,8 @@ namespace GTR2SharedMemory
             public GTR2Vec3 mLastImpactPos;        // location of last impact
 
             // Future use
-            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 64)]
+            [JsonIgnore] public float mLastSteeringFFBValue;
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 60)]
             [JsonIgnore] public byte[] mExpansion;
 
             // keeping this at the end of the structure to make it easier to replace in future versions
@@ -489,11 +490,15 @@ namespace GTR2SharedMemory
         }
 
 
-        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 4)]
         public struct GTR2ExtendedVehicleScoring
         {
             public int mPitState;
+            // LIMITATION: Currently, this is the rear compound only.  Reason: atm front compound for AI is not known.  Perhaps it
+            // is the fundamental limitation in the game.
             public int mTireCompoundIndex;
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 64)]
+            public byte[] mCurrCompoundName;
             public float mFuelCapacityLiters;
             public int mBlueFlag;
             public float mBlueFlagET;
@@ -548,6 +553,15 @@ namespace GTR2SharedMemory
             public float mOptimalTempK;
             public float mColdTempK;
             public float mRadiusMeters;
+        }
+
+
+        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        public struct GTR2TimeGap
+        {
+            public float mTimeDifference;
+            public int mLapsDifference;
+            public bool mGapIsKnown;
         }
 
 
@@ -621,6 +635,26 @@ namespace GTR2SharedMemory
             public byte mCurrDRSSystemState;
             public byte mCurrDRSLEDState;
             public byte mCurrActivationsInRace;
+
+            [JsonIgnore] public GTR2TimeGap mGapBehind;
+
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 20)]
+            [JsonIgnore] public byte[] mGapBehindStr;
+
+            [JsonIgnore] public GTR2TimeGap mGapAhead;
+
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 20)]
+            [JsonIgnore] public byte[] mGapAheadStr;
+
+            [JsonIgnore] public GTR2TimeGap mDeltaPersonalBest;
+
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 20)]
+            [JsonIgnore] public byte[] mDeltaPersonalBestStr;
+
+            [JsonIgnore] public GTR2TimeGap mDeltaClassBest;
+
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 20)]
+            [JsonIgnore] public byte[] mDeltaClassBestStr;
 
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 256)]
             [JsonIgnore] public byte[] mReserved;
