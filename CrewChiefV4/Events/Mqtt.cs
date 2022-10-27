@@ -112,21 +112,17 @@ namespace CrewChiefV4.Events
 
             Mqtt.mqttClient.UseApplicationMessageReceivedHandler(e =>
             {
-                //Console.WriteLine("### RECEIVED APPLICATION MESSAGE ###");
-                //Console.WriteLine($"+ Topic = {e.ApplicationMessage.Topic}");
-                //Console.WriteLine($"+ Payload = {Encoding.UTF8.GetString(e.ApplicationMessage.Payload)}");
-                //Console.WriteLine($"+ QoS = {e.ApplicationMessage.QualityOfServiceLevel}");
-                //Console.WriteLine($"+ Retain = {e.ApplicationMessage.Retain}");
-                //Console.WriteLine();
                 try
                 {
                     var response = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
-                    int meters = Int32.Parse(response);
+                    response = Regex.Replace(response, @"[^\w\d\.]", " ");
+                    if (response.Length > 256) { response = response.Substring(0, 256); }
+
+                    var fragment = MessageFragment.Text(response);
+                    fragment.allowTTS = true;
                     audioPlayer.playMessage(
-                        new QueuedMessage($"mqtt_response_{meters}", 1,
-                                messageFragments: MessageContents(
-                                    MessageFragment.Integer(meters, MessageFragment.Genders("pt-br", NumberReader.ARTICLE_GENDER.FEMALE))
-                                ),
+                        new QueuedMessage($"mqtt_response_{response}", 1,
+                                messageFragments: MessageContents(fragment),
                                 abstractEvent: this, type: SoundType.REGULAR_MESSAGE, priority: 0)
                         );
                 }
