@@ -515,6 +515,9 @@ namespace GTR2SharedMemory
             public byte[] mCarClass;
             public int mYearAndCarNumber;
             public int mMechanicalFailureID;
+
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 100)]
+            [JsonIgnore] public byte[] mReserved;
         }
 
 
@@ -553,6 +556,9 @@ namespace GTR2SharedMemory
             public float mOptimalTempK;
             public float mColdTempK;
             public float mRadiusMeters;
+
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 32)]
+            [JsonIgnore] public byte[] mReserved;
         }
 
 
