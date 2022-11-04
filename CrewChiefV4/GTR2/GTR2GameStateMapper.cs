@@ -181,7 +181,7 @@ namespace CrewChiefV4.GTR2
             this.tyreDirtPickupThresholds.Add(new CornerData.EnumWithThresholds(TyreDirtPickupState.MAJOR, 0.7f, 1.1f));
         }
 
-        private int[] minimumSupportedVersionParts = new int[] { 2, 4, 0, 0 };
+        private int[] minimumSupportedVersionParts = new int[] { 2, 4, 1, 0 };
         public static bool pluginVerified = false;
         private static int reinitWaitAttempts = 0;
         public override void versionCheck(Object memoryMappedFileStruct)
