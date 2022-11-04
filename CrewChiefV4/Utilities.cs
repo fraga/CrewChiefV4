@@ -274,8 +274,17 @@ namespace CrewChiefV4
             return false;
         }
 
-        public static void runGame(String launchExe, String launchParams)
+        /// <summary>
+        /// Launch the game
+        /// </summary>
+        /// <param name="launchExe"></param>
+        /// <param name="launchParams"></param>
+        /// <returns>true: the game started
+        /// false: there was a problem running the game</returns>
+        public static bool runGame(String launchExe, String launchParams)
         {
+            string exception;
+            string exMsg;
             // Inconsistent handling of spaces in paths
             // ProcessStartInfo() is happy with the escaped " version: "\"c:\pa th\game.exe\""
             // GetDirectoryName() wants "c:\pa th\game.exe"
@@ -291,17 +300,24 @@ namespace CrewChiefV4
                     startInfo.WorkingDirectory = Path.GetDirectoryName(launchExe);
                     process.StartInfo = startInfo;
                     process.Start();
+                    return true;
                 }
             }
             catch (InvalidOperationException e)
             {
-                Console.WriteLine("InvalidOperationException starting game with path " + launchExe + " and params " + launchParams + ": " + e.Message);
+                exception = "InvalidOperationException";
+                exMsg = e.Message;
             }
             catch (Exception e)
             {
-                Console.WriteLine("Exception starting game with path " + launchExe + " and params " + launchParams + ": " + e.Message);
+                exception = "Exception";
+                exMsg = e.Message;
             }
-                $"{exception} starting game with path '{launchExe}' : {exMsg}" : $"Exception starting game with path '{launchExe}'  and params '{launchParams}': {exMsg}";
+            string error = String.IsNullOrEmpty(launchParams) ? 
+                $"{exception} starting game with path '{launchExe}' : {exMsg}" : 
+                $"{exception} starting game with path '{launchExe}' and params '{launchParams}' : {exMsg}";
+            Log.Error(error);
+            return false;
         }
 
         /*

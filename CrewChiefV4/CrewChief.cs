@@ -586,9 +586,15 @@ namespace CrewChiefV4
                         }
                         else if (UserSettings.GetUserSettings().getBoolean(gameDefinition.gameStartEnabledProperty) && !attemptedToRunGame)
                         {
-                            Utilities.runGame(UserSettings.GetUserSettings().getString(gameDefinition.gameStartCommandProperty),
-                                UserSettings.GetUserSettings().getString(gameDefinition.gameStartCommandOptionsProperty));
-                            attemptedToRunGame = true;
+                            if (Utilities.runGame(UserSettings.GetUserSettings().getString(gameDefinition.gameStartCommandProperty),
+                                UserSettings.GetUserSettings().getString(gameDefinition.gameStartCommandOptionsProperty)))
+                            {
+                                attemptedToRunGame = true;
+                            }
+                            else
+                            {
+                                return false;
+                            }
                         }
                     }
 
