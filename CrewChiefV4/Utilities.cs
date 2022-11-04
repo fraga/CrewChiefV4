@@ -301,6 +301,7 @@ namespace CrewChiefV4
             {
                 Console.WriteLine("Exception starting game with path " + launchExe + " and params " + launchParams + ": " + e.Message);
             }
+                $"{exception} starting game with path '{launchExe}' : {exMsg}" : $"Exception starting game with path '{launchExe}'  and params '{launchParams}': {exMsg}";
         }
 
         /*
