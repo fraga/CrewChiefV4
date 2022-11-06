@@ -490,6 +490,18 @@ namespace GTR2SharedMemory
         }
 
 
+        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        public struct GTR2ExtendedBaseWheel
+        {
+            [JsonIgnore] public float mWear;
+            [JsonIgnore] public byte mFlat;
+            [JsonIgnore] public byte mDetached;
+
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 32)]
+            [JsonIgnore] public byte[] mReserved;
+        }
+
+
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 4)]
         public struct GTR2ExtendedVehicleScoring
         {
@@ -515,6 +527,23 @@ namespace GTR2SharedMemory
             public byte[] mCarClass;
             public int mYearAndCarNumber;
             public int mMechanicalFailureID;
+
+            [JsonIgnore] public float mFuel;
+
+            [JsonIgnore] public byte mDetached;
+
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 4)]
+            [JsonIgnore] public GTR2ExtendedBaseWheel[] mWheels;
+
+            [JsonIgnore] public byte mHasRearWing;
+            [JsonIgnore] public byte mRearWingDetached;
+
+            [JsonIgnore] public byte mGear;
+            [JsonIgnore] public float mEngineRPM;
+
+            [JsonIgnore] public float mSteeringInput;
+            [JsonIgnore] public float mThrottleInput;
+            [JsonIgnore] public float mBrakeInput;
 
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 100)]
             [JsonIgnore] public byte[] mReserved;
