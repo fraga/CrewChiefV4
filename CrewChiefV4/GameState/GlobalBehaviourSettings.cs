@@ -168,16 +168,33 @@ namespace CrewChiefV4.GameState
             Console.WriteLine("Using metric: " + GlobalBehaviourSettings.useMetric);
         }
 
+        /// <summary>
+        /// Set whether the spotter is enabled.
+        /// </summary>
         public static void UpdateFromTrackDefinition(TrackDefinition trackDefinition)
         {
-            useOvalLogic = trackDefinition.isOval;
+            useOvalLogic = spotterEnabled = trackDefinition.isOval;
             // this is called when we start a session, so update the spotter enabled flag based on the initial state
-            spotterEnabled = spotterEnabledInitialState && (useOvalLogic || !realisticMode);
-            ovalSpotterMode = useOvalLogic && enableOvalSpotterBehaviours;
-            if (useOvalLogic)
+            if (spotterEnabledInitialState)
             {
-                Console.WriteLine("Track is marked as oval");
+                if (useOvalLogic)
+                {
+                    Console.WriteLine("Track is marked as oval");
+                }
+                else
+                {
+                    if (!realisticMode)
+                    {
+                        spotterEnabled = true;
+                        Log.Commentary("Spotter enabled on road circuit because Realistic Mode is not checked");
+                    }
+                    else
+                    {
+                        Log.Warning("SPOTTER NOT ENABLED on road circuit because Realistic Mode is checked");
+                    }
+                }
             }
+            ovalSpotterMode = useOvalLogic && enableOvalSpotterBehaviours;
         }
 
         private static void parseMessageTypes(String messageTypes)
