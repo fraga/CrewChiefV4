@@ -84,7 +84,7 @@
     - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://oauth2:$($env:access_token)@gitlab.com`n" -NoNewline
     - git config --global user.email "crewchiefTony@outlook.com"
     - git config --global user.name "Tony Whitley"
-    - git checkout HTMLhelp
+    - git checkout origin/HTMLhelp
     - git merge origin/master
     # git diff --quiet && git diff --staged --quiet ensures only commit if files changed 
     # (not working now so commit anyway) 
