@@ -17806,6 +17806,37 @@
 				}
 			],
 			"isOval": false
+		},
+		{
+			"ams2TrackName": "Indianapolis:Indianapolis_2022_OVAL",
+			"raceroomLayoutId": 9958,
+			"isOval": true,
+			"trackLandmarks": [
+				{
+					"landmarkName": "turn1",
+					"distanceRoundLapStart": 330,
+					"distanceRoundLapEnd": 730,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn2",
+					"distanceRoundLapStart": 920,
+					"distanceRoundLapEnd": 1370,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn3",
+					"distanceRoundLapStart": 2270,
+					"distanceRoundLapEnd": 2760,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn4",
+					"distanceRoundLapStart": 2950,
+					"distanceRoundLapEnd": 3360,
+					"isCommonOvertakingSpot": true
+				}
+			]
 		}
 	]
-		}
+}
