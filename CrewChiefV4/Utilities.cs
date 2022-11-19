@@ -290,6 +290,12 @@ namespace CrewChiefV4
             // GetDirectoryName() wants "c:\pa th\game.exe"
             // Neither is happy if the user enters "c:\pa th\game.exe" with quotes
             launchExe = launchExe.Trim().Trim('"').Trim('\'').Trim();
+            if (launchExe.IsNullOrEmpty())
+            {
+                // user wants to launch the game but hasn't specified a path. Bloody users.
+                Console.WriteLine("Skipping game launch because no path was provided");
+                return true;
+            }
             try
             {
                 Console.WriteLine("Attempting to run game using " + launchExe + " " + launchParams);
