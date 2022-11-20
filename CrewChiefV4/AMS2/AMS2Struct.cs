@@ -755,5 +755,22 @@ namespace CrewChiefV4.AMS2
         // Input
         public byte mJoyPad0;            // button mask
         public byte mDPad;               // button mask
+
+        // added for version 13:
+
+        public int mAntiLockSetting;             // [ UNSET = -1 ] Current ABS garage setting. Valid under player control only.
+        public int mTractionControlSetting;      // [ UNSET = -1 ] Current ABS garage setting. Valid under player control only.
+
+        // ERS
+        public int mErsDeploymentMode;           // [ enum (Type#15)  ErsDeploymentMode ]
+        public bool mErsAutoModeEnabled;         // true if the deployment mode was selected by auto system. Valid only when mErsDeploymentMode > ERS_DEPLOYMENT_MODE_NONE
+
+        // Clutch State & Damage
+        public float mClutchTemp;                // [ UNITS = Kelvin ] [ UNSET = -273.16 ]
+        public float mClutchWear;                // [ RANGE = 0.0f->1.0f... ]
+        public bool mClutchOverheated;          // true if clutch performance is degraded due to overheating
+        public bool mClutchSlipping;            // true if clutch is slipping (can be induced by overheating or wear)
+
+        public int mYellowFlagState;             // [ enum (Type#16) YellowFlagState ]
     }
 }
