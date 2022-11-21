@@ -724,7 +724,7 @@ namespace CrewChiefV4.Events
                             if (CrewChief.yellowFlagMessagesEnabled)
                             {
                                 // WIP AMS2 logic - state goes RACING -> PITS_OPEN with nothing in between so queue 'yellow' then 'pit open' some time later
-                                if (CrewChief.gameDefinition.gameEnum == GameEnum.AMS2)
+                                if (CrewChief.gameDefinition.gameEnum == GameEnum.AMS2 && previousGameState.FlagData.fcyPhase == FullCourseYellowPhase.RACING)
                                 {
                                     audioPlayer.playMessage(new QueuedMessage(GlobalBehaviourSettings.useAmericanTerms ? folderFCYellowStartUS : folderFCYellowStartEU,
                                         5, secondsDelay: 0, abstractEvent: this, priority: 10));
