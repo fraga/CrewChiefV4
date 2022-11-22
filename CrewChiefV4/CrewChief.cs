@@ -447,7 +447,6 @@ namespace CrewChiefV4
 
         public Boolean Run(String filenameToRun, Boolean dumpToFile)
         {
-            bool gameRan = false;
             clearAndReloadEvents();
             reloadSettings();
             GlobalBehaviourSettings.reloadSettings();
@@ -587,9 +586,15 @@ namespace CrewChiefV4
                         }
                         else if (UserSettings.GetUserSettings().getBoolean(gameDefinition.gameStartEnabledProperty) && !attemptedToRunGame)
                         {
-                            attemptedToRunGame = true;
-                            running = gameRan = Utilities.runGame(UserSettings.GetUserSettings().getString(gameDefinition.gameStartCommandProperty),
-                                UserSettings.GetUserSettings().getString(gameDefinition.gameStartCommandOptionsProperty));
+                            if (Utilities.runGame(UserSettings.GetUserSettings().getString(gameDefinition.gameStartCommandProperty),
+                                UserSettings.GetUserSettings().getString(gameDefinition.gameStartCommandOptionsProperty)))
+                            {
+                                attemptedToRunGame = true;
+                            }
+                            else
+                            {
+                                return false;
+                            }
                         }
                     }
 
@@ -1061,7 +1066,7 @@ namespace CrewChiefV4
                 }
             }
 
-            return gameRan;
+            return true;
         }
 
         private bool shouldTriggerEvents(GameStateData previousGameState, GameStateData currentGameState)
