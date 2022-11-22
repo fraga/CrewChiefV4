@@ -766,8 +766,9 @@ namespace CrewChiefV4.AMS2
         public bool mErsAutoModeEnabled;         // true if the deployment mode was selected by auto system. Valid only when mErsDeploymentMode > ERS_DEPLOYMENT_MODE_NONE
 
         // Clutch State & Damage
-        public float mClutchTemp;                // [ UNITS = Kelvin ] [ UNSET = -273.16 ]
-        public float mClutchWear;                // [ RANGE = 0.0f->1.0f... ]
+        // note temp and wear appear to be the wrong way around in the API
+        public float mClutchWear;                // [ RANGE = 0.0f->1.0f... ] - this is always 0
+        public float mClutchTemp;                // [ UNITS = Kelvin ] [ UNSET = -273.16 ] - this appears to have no bearing on the overheated value below
         public bool mClutchOverheated;          // true if clutch performance is degraded due to overheating
         public bool mClutchSlipping;            // true if clutch is slipping (can be induced by overheating or wear)
 

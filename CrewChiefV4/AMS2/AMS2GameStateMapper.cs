@@ -1024,7 +1024,7 @@ namespace CrewChiefV4.AMS2
             currentGameState.CarDamageData.DamageEnabled = true;    // no way to tell if it's disabled from the shared memory
             currentGameState.CarDamageData.OverallAeroDamage = mapToAeroDamageLevel(shared.mAeroDamage);
             currentGameState.CarDamageData.OverallEngineDamage = mapToEngineDamageLevel(shared.mEngineDamage);
-            currentGameState.CarDamageData.OverallTransmissionDamage = DamageLevel.NONE;
+            currentGameState.CarDamageData.OverallTransmissionDamage = mapToTransmissionDamageLevel(shared.mClutchOverheated);
             currentGameState.CarDamageData.SuspensionDamageStatus = CornerData.getCornerData(suspensionDamageThresholds,
                 shared.mSuspensionDamage[0], shared.mSuspensionDamage[1], shared.mSuspensionDamage[2], shared.mSuspensionDamage[3]);
             currentGameState.CarDamageData.BrakeDamageStatus = CornerData.getCornerData(brakeDamageThresholds,
@@ -1339,6 +1339,14 @@ namespace CrewChiefV4.AMS2
             {
                 return DamageLevel.NONE;
             }
+        }
+        private DamageLevel mapToTransmissionDamageLevel(bool clutchOverheated)
+        {
+            // some clutch data (damage, wear, slipping) in shared memory look like nonsense (temp & wear are the wrong way around, wear is always 0 
+            // slipping is always false. ClutchOverheated seems to be true very quickly in a session (even when I don't leave the garage) and remain true
+            // for the session
+            // return clutchOverheated ? DamageLevel.MINOR : DamageLevel.NONE;
+            return DamageLevel.NONE;
         }
 
         private void updateOpponentData(OpponentData opponentData, int racePosition, int completedLaps, int sector, Boolean isEnteringPits,

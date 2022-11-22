@@ -431,6 +431,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.16.3.4: GTR2 plugin update; Added basic support for AMS2 full course yellow flags; Various minor fixes
+
 Version 4.16.3.2: GTR2 plugin update; Allow MQTT broker responses to trigger arbitrary text-to-speech responses; some minor fixes
 
 Version 4.16.3.1: Fix missing 'conditions' data (weather, track temp etc); Added option to report fuel remaining in number of laps, even for time-limited races ('Report fuel as laps left in timed races' in the Properties screen); RF2 - added 'display next' voice command to move to the next MFD screen; ACC - corrected car speed data (use a more frequently updated value); Various minor fixes
