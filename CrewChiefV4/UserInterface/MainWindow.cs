@@ -297,6 +297,7 @@ namespace CrewChiefV4
             if (UserSettings.GetUserSettings().getBoolean("run_immediately") &&
                 GameDefinition.getGameDefinitionForFriendlyName(gameDefinitionList.Text) != null)
             {
+                IsAppRunning = true;
                 doStartAppStuff();
 
                 // Will wait for threads to start, possible file load and enable the button.
@@ -2140,15 +2141,16 @@ namespace CrewChiefV4
         public void startApplicationButton_Click(object sender, EventArgs e)
         {
             MainWindow.shouldSaveTrace = IsAppRunning;
-
-            doStartAppStuff();
+            IsAppRunning = !IsAppRunning;
 
             if (IsAppRunning)
             {
+                doStartAppStuff();
                 ThreadManager.DoWatchStartup(crewChief);
             }
             else
             {
+                doStopAppStuff();
                 ThreadManager.DoWatchStop(crewChief);
                 MainWindow.playingBackTrace = false;
             }
@@ -2267,10 +2269,7 @@ namespace CrewChiefV4
 
         private void doStartAppStuff()
         {
-            IsAppRunning = !IsAppRunning;
-            if (_IsAppRunning)
-            {
-                startApplicationButton.Enabled = false;
+            startApplicationButton.Enabled = false;
 
 #if !DEBUG
                 // Don't disable auto scroll in Debug builds and in Profile mode.
@@ -2280,69 +2279,69 @@ namespace CrewChiefV4
                     MainWindow.autoScrollConsole = MainWindow.profileMode;
                 }
 #endif
-                GameDefinition gameDefinition = GameDefinition.getGameDefinitionForFriendlyName(gameDefinitionList.Text);
-                if (gameDefinition != null)
+            GameDefinition gameDefinition = GameDefinition.getGameDefinitionForFriendlyName(gameDefinitionList.Text);
+            if (gameDefinition != null)
+            {
+                crewChief.setGameDefinition(gameDefinition);
+                MacroManager.initialise(crewChief.audioPlayer, crewChief.speechRecogniser, this.controllerConfiguration);
+                uiSyncAppStart();
+                CarData.loadCarClassData();
+                TrackData.loadTrackLandmarksData();
+                SetFrameHeading(gameDefinition.friendlyName);
+                ThreadStart crewChiefWork = runApp;
+                Thread crewChiefThread = new Thread(crewChiefWork);
+                crewChiefThread.Name = "MainWindow.runApp";
+                ThreadManager.RegisterRootThread(crewChiefThread);
+
+                // this call is not part of the standard AutoUpdater API - I added a 'stopped' flag to prevent the auto updater timer
+                // or other Threads firing when the game is running. It's not needed 99% of the time, it just stops that edge case where
+                // the AutoUpdater triggers and steals focus while the player is racing
+                AutoUpdater.Stop();
+
+                crewChief.onRestart();
+                crewChiefThread.Start();
+
+                if (crewChief.speechRecogniser != null)
                 {
-                    crewChief.setGameDefinition(gameDefinition);
-                    MacroManager.initialise(crewChief.audioPlayer, crewChief.speechRecogniser, this.controllerConfiguration);
-                    uiSyncAppStart();
-                    CarData.loadCarClassData();
-                    TrackData.loadTrackLandmarksData();
-                    SetFrameHeading(gameDefinition.friendlyName);
-                    ThreadStart crewChiefWork = runApp;
-                    Thread crewChiefThread = new Thread(crewChiefWork);
-                    crewChiefThread.Name = "MainWindow.runApp";
-                    ThreadManager.RegisterRootThread(crewChiefThread);
-
-                    // this call is not part of the standard AutoUpdater API - I added a 'stopped' flag to prevent the auto updater timer
-                    // or other Threads firing when the game is running. It's not needed 99% of the time, it just stops that edge case where
-                    // the AutoUpdater triggers and steals focus while the player is racing
-                    AutoUpdater.Stop();
-
-                    crewChief.onRestart();
-                    crewChiefThread.Start();
-
-                    if (crewChief.speechRecogniser != null)
-                    {
-                        ThreadStart loadSREGrammarWork = loadSREGrammarAndStartListening;
-                        ThreadManager.UnregisterTemporaryThread(loadSREGrammarThread);
-                        loadSREGrammarThread = new Thread(loadSREGrammarWork);
-                        loadSREGrammarThread.Name = "MainWindow.loadSREGrammarThread";
-                        ThreadManager.RegisterTemporaryThread(loadSREGrammarThread);
-                        loadSREGrammarThread.Start();
-                    }
-                }
-                else
-                {
-                    MessageBox.Show(Configuration.getUIString("please_choose_a_game_option"), Configuration.getUIString("no_game_selected"),
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    IsAppRunning = false;
-                    return;
+                    ThreadStart loadSREGrammarWork = loadSREGrammarAndStartListening;
+                    ThreadManager.UnregisterTemporaryThread(loadSREGrammarThread);
+                    loadSREGrammarThread = new Thread(loadSREGrammarWork);
+                    loadSREGrammarThread.Name = "MainWindow.loadSREGrammarThread";
+                    ThreadManager.RegisterTemporaryThread(loadSREGrammarThread);
+                    loadSREGrammarThread.Start();
                 }
             }
             else
             {
-                startApplicationButton.Enabled = false;
-                SetFrameHeading();
-                Console.WriteLine("Resuming console scrolling");
-                MainWindow.autoScrollConsole = true;
-                MacroManager.stop();
-                if ((voiceOption == VoiceOptionEnum.ALWAYS_ON || voiceOption == VoiceOptionEnum.TOGGLE) && crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised)
-                {
-                    Console.WriteLine("Stopping listening...");
-                    try
-                    {
-                        SpeechRecogniser.waitingForSpeech = false;
-                        crewChief.speechRecogniser.recognizeAsyncCancel();
-                        crewChief.speechRecogniser.stopTriggerRecogniser();
-                    }
-                    catch (Exception e) {Log.Exception(e);}
-                }
-                stopApp();
-                Console.WriteLine("Application stopped");
-                DriverTrainingService.completeRecordingPaceNotes();
-                DriverTrainingService.stopPlayingPaceNotes();
+                MessageBox.Show(Configuration.getUIString("please_choose_a_game_option"), Configuration.getUIString("no_game_selected"),
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                IsAppRunning = false;
+                return;
             }
+        }
+
+        private void doStopAppStuff()
+        {
+            startApplicationButton.Enabled = true;
+            uiSyncAppStop();
+            SetFrameHeading();
+            Console.WriteLine("Resuming console scrolling");
+            MainWindow.autoScrollConsole = true;
+            MacroManager.stop();
+            if ((voiceOption == VoiceOptionEnum.ALWAYS_ON || voiceOption == VoiceOptionEnum.TOGGLE) && crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised)
+            {
+                Console.WriteLine("Stopping listening...");
+                try
+                {
+                    SpeechRecogniser.waitingForSpeech = false;
+                    crewChief.speechRecogniser.recognizeAsyncCancel();
+                    crewChief.speechRecogniser.stopTriggerRecogniser();
+                }
+                catch (Exception e) { Log.Exception(e); }
+            }
+            Console.WriteLine("Application stopped");
+            DriverTrainingService.completeRecordingPaceNotes();
+            DriverTrainingService.stopPlayingPaceNotes();
         }
 
 
@@ -2408,6 +2407,8 @@ namespace CrewChiefV4
             }
             runListenForChannelOpenThread = false;
             runListenForButtonPressesThread = false;
+            IsAppRunning = false;
+            doStopAppStuff();
             crewChief.stop();
         }
 
