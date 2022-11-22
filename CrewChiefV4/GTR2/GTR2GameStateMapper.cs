@@ -613,7 +613,7 @@ namespace CrewChiefV4.GTR2
             }
             else
             {
-                csd.SessionNumberOfLaps = shared.scoring.mScoringInfo.mMaxLaps > 0 && shared.scoring.mScoringInfo.mMaxLaps < 1000 ? shared.scoring.mScoringInfo.mMaxLaps : 0;
+                csd.SessionNumberOfLaps = shared.scoring.mScoringInfo.mMaxLaps > 0 && shared.scoring.mScoringInfo.mMaxLaps < 999 ? shared.scoring.mScoringInfo.mMaxLaps : 0;
 
                 // default to 60:30 if both session time and number of laps undefined (test day)
                 csd.SessionTotalRunTime
