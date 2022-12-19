@@ -12,14 +12,14 @@ REM *******************************************************
 rem *******************************************************
 rem Main user-configurable items:
 
-set gamesList=AC,ACC,AMS,AMS2,DR2,GTR2,PCARS2,RF2
+set gamesList=ASSETTO_64BIT,ACC,AMS,AMS2,DR2,GTR2,PCARS2,RF2
 set CrewChiefPath="%ProgramFiles(x86)%\Britton IT Ltd\CrewChiefV4"
 
 rem *******************************************************
 
 rem *******************************************************
 rem but you may need to edit these
-	set AC_process=assettocorsa.exe
+	set ASSETTO_64BIT_process=assettocorsa.exe
 	set ACC_process=acc.exe
 	set AMS_process=AMS.exe
 	set AMS2_process=AMS2AVX.exe
