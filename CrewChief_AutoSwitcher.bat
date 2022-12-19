@@ -2,6 +2,13 @@
 cls
 setlocal
 
+REM *******************************************************
+REM NO WARRANTY IMPLIED OR GIVEN. YMMV.
+REM OBJECTS IN THE MIRROR ARE CLOSER THAN THEY APPEAR.
+REM ETC. ETC.  YOU'RE ON YOUR OWN!
+REM *******************************************************
+
+
 rem *******************************************************
 rem Main user-configurable items:
 
