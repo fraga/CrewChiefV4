@@ -12,7 +12,7 @@ REM *******************************************************
 rem *******************************************************
 rem Main user-configurable items:
 
-set gamesList=ASSETTO_64BIT,ACC,AMS,AMS2,DR2,GTR2,PCARS2,RF2
+set gamesList=ASSETTO_64BIT,ACC,AMS,AMS2,DR2,GTR2,IRACING,PCARS2,RF2,RACE_ROOM
 set CrewChiefPath="%ProgramFiles(x86)%\Britton IT Ltd\CrewChiefV4"
 
 rem *******************************************************
@@ -23,10 +23,12 @@ rem but you may need to edit these
 	set ACC_process=acc.exe
 	set AMS_process=AMS.exe
 	set AMS2_process=AMS2AVX.exe
-	set GTR2_process=GTR2.exe
 	set DR2_process=dirtrally2.exe
+	set GTR2_process=GTR2.exe
+	set IRACING_process=iRacingSim64DX11.exe
 	set PCARS2_process=pcars2avx.exe
 	set RF2_process=rfactor2.exe
+	set RACE_ROOM_process=RRRE64.exe
 rem *******************************************************
 
 rem Logging may help if there are problems
@@ -55,36 +57,36 @@ title %~nx0
 
 
 :doGame
-		set game=%1
-		set "process=%1_process"
-		@echo Checking for %game% starting (!%process%!)...
-		%SystemRoot%\System32\qprocess.exe !%process%! >nul 2>&1
-		if errorlevel 1 (
-			goto :NextGame
-			)
-		@call :cmnt %game% started
-		@call :doCrewChief
-		@call :cmnt Now waiting for %game% to close down after playing...
-	:WaitStop
-		%SystemRoot%\System32\qprocess.exe !%process%! >nul 2>&1
-		if errorlevel 1 (
-			call :cmnt %game% finished
-			goto :shutDown
-			) else (
-			timeout /t 2 > nul
-			goto :WaitStop
-			)
-	:shutDown
-		call :cmnt Shut down CC
-		@call :log start /d %CrewChiefPath% CrewChiefV4.exe -c_exit
-		start /d %CrewChiefPath% CrewChiefV4.exe -c_exit
-	:NextGame
+	set game=%1
+	set "process=%1_process"
+	@echo Checking for %game% starting (!%process%!)...
+	%SystemRoot%\System32\qprocess.exe !%process%! >nul 2>&1
+	if errorlevel 1 goto :NextGame
+	@call :cmnt %game% started
+	@call :%game%banner
+	@call :doCrewChief
+	@call :cmnt Now waiting for %game% to close down after playing...
+:WaitStop
+	%SystemRoot%\System32\qprocess.exe !%process%! >nul 2>&1
+	if errorlevel 1 (
+		call :cmnt %game% finished
+		goto :shutDown
+		) else (
+		timeout /t 2 > nul
+		goto :WaitStop
+		)
+:shutDown
+	call :cmnt Shut down CC
+	@call :log start /d %CrewChiefPath% CrewChiefV4.exe -c_exit
+	start /d %CrewChiefPath% CrewChiefV4.exe -c_exit
+:NextGame
 
 	
 
 
 	goto :eof
 
+::::::::::::::::::::::::::::::::::::::::::::::::::
 
 :doCrewChief
 	call :CrewChief  -game %game% -profile %game%
@@ -130,3 +132,139 @@ rem Log logs
 	if /i '%logging%' == 'off' GOTO :eof
 	echo %time% - %_type% %* >> %log%
 	goto :eof
+	
+::::::::::::::::::::::::::::::::::::::::::::::::
+  ____                                  
+ |  _ \                                 
+ | |_) | __ _ _ __  _ __   ___ _ __ ___ 
+ |  _ < / _` | '_ \| '_ \ / _ \ '__/ __|
+ | |_) | (_| | | | | | | |  __/ |  \__ \
+ |____/ \__,_|_| |_|_| |_|\___|_|  |___/
+
+	https://www.coolgenerator.com/ascii-text-generator "Big" font
+
+:rf2Banner
+echo        ______         _               ___  
+echo       ^|  ____^|       ^| ^|             ^|__ \ 
+echo   _ __^| ^|__ __ _  ___^| ^|_ ___  _ __     ) ^|
+echo  ^| '__^|  __/ _` ^|/ __^| __/ _ \^| '__^|   / / 
+echo  ^| ^|  ^| ^| ^| (_^| ^| (__^| ^|^| (_) ^| ^|     / /_ 
+echo  ^|_^|  ^|_^|  \__,_^|\___^|\__\___/^|_^|    ^|____^|
+echo.
+goto :eof
+
+:ASSETTO_64BITbanner
+echo                         _   _           _____                     
+echo      /\                ^| ^| ^| ^|         / ____^|                    
+echo     /  \   ___ ___  ___^| ^|_^| ^|_ ___   ^| ^|     ___  _ __ ___  __ _ 
+echo    / /\ \ / __/ __^|/ _ \ __^| __/ _ \  ^| ^|    / _ \^| '__/ __^|/ _` ^|
+echo   / ____ \\__ \__ \  __/ ^|_^| ^|^| (_) ^| ^| ^|___^| (_) ^| ^|  \__ \ (_^| ^|
+echo  /_/    \_\___/___/\___^|\__^|\__\___/   \_____\___/^|_^|  ^|___/\__,_^|
+echo.
+goto :eof 
+
+:ACCbanner
+
+echo               _____    _____ 
+echo      /\      / ____^|  / ____^|
+echo     /  \    ^| ^|      ^| ^|     
+echo    / /\ \   ^| ^|      ^| ^|     
+echo   / ____ \  ^| ^|____  ^| ^|____ 
+echo  /_/    \_\  \_____^|  \_____^|
+echo.
+goto :eof
+
+:AMSbanner
+echo                 _                        _     _ _ _     _        
+echo      /\        ^| ^|                      ^| ^|   (_) (_)   ^| ^|       
+echo     /  \  _   _^| ^|_ ___  _ __ ___   ___ ^| ^|__  _^| ^|_ ___^| ^|_ __ _ 
+echo    / /\ \^| ^| ^| ^| __/ _ \^| '_ ` _ \ / _ \^| '_ \^| ^| ^| / __^| __/ _` ^|
+echo   / ____ \ ^|_^| ^| ^|^| (_) ^| ^| ^| ^| ^| ^| (_) ^| ^|_) ^| ^| ^| \__ \ ^|^| (_^| ^|
+echo  /_/    \_\__,_^|\__\___/^|_^| ^|_^| ^|_^|\___/^|_.__/^|_^|_^|_^|___/\__\__,_^|
+echo.
+goto :eof
+
+:AMS2banner
+echo                 _                        _     _ _ _     _          ___  
+echo      /\        ^| ^|                      ^| ^|   (_) (_)   ^| ^|        ^|__ \ 
+echo     /  \  _   _^| ^|_ ___  _ __ ___   ___ ^| ^|__  _^| ^|_ ___^| ^|_ __ _     ) ^|
+echo    / /\ \^| ^| ^| ^| __/ _ \^| '_ ` _ \ / _ \^| '_ \^| ^| ^| / __^| __/ _` ^|   / / 
+echo   / ____ \ ^|_^| ^| ^|^| (_) ^| ^| ^| ^| ^| ^| (_) ^| ^|_) ^| ^| ^| \__ \ ^|^| (_^| ^|  / /_ 
+echo  /_/    \_\__,_^|\__\___/^|_^| ^|_^| ^|_^|\___/^|_.__/^|_^|_^|_^|___/\__\__,_^| ^|____^|	
+echo.
+goto :eof
+
+:IRACINGbanner
+echo    _ _____            _             
+echo   (_)  __ \          (_)            
+echo    _^| ^|__) ^|__ _  ___ _ _ __   __ _ 
+echo   ^| ^|  _  // _` ^|/ __^| ^| '_ \ / _` ^|
+echo   ^| ^| ^| \ \ (_^| ^| (__^| ^| ^| ^| ^| (_^| ^|
+echo   ^|_^|_^|  \_\__,_^|\___^|_^|_^| ^|_^|\__, ^|
+echo                                __/ ^|
+echo                               ^|___/ 
+goto :eof
+
+:PCARS2banner
+echo   _____           _           _      _____                 ___  
+echo  ^|  __ \         (_)         ^| ^|    / ____^|               ^|__ \ 
+echo  ^| ^|__) ^| __ ___  _  ___  ___^| ^|_  ^| ^|     __ _ _ __ ___     ) ^|
+echo  ^|  ___/ '__/ _ \^| ^|/ _ \/ __^| __^| ^| ^|    / _` ^| '__/ __^|   / / 
+echo  ^| ^|   ^| ^| ^| (_) ^| ^|  __/ (__^| ^|_  ^| ^|___^| (_^| ^| ^|  \__ \  / /_ 
+echo  ^|_^|   ^|_^|  \___/^| ^|\___^|\___^|\__^|  \_____\__,_^|_^|  ^|___/ ^|____^|
+echo                 _/ ^|                                            
+echo                ^|__/ 
+echo.
+goto :eof
+
+:RACE_ROOMbanner
+echo   _____                  _____                       
+echo  ^|  __ \                ^|  __ \                      
+echo  ^| ^|__) ^|__ _  ___ ___  ^| ^|__) ^|___   ___  _ __ ___  
+echo  ^|  _  // _` ^|/ __/ _ \ ^|  _  // _ \ / _ \^| '_ ` _ \ 
+echo  ^| ^| \ \ (_^| ^| (_^|  __/ ^| ^| \ \ (_) ^| (_) ^| ^| ^| ^| ^| ^|
+echo  ^|_^|  \_\__,_^|\___\___^| ^|_^|  \_\___/ \___/^|_^| ^|_^| ^|_^|
+echo.
+goto :eof
+ 
+:F1_2015Banner
+echo   ______ __    ___   ___  __ _____ 
+echo  ^|  ____/_ ^|  ^|__ \ / _ \/_ ^| ____^|
+echo  ^| ^|__   ^| ^|     ) ^| ^| ^| ^|^| ^| ^|__  
+echo  ^|  __^|  ^| ^|    / /^| ^| ^| ^|^| ^|___ \ 
+echo  ^| ^|     ^| ^|   / /_^| ^|_^| ^|^| ^|___) ^|
+echo  ^|_^|     ^|_^|  ^|____^|\___/ ^|_^|____/ 
+echo.
+goto :eof
+
+:F1_2019Banner
+echo   ______ __    ___   ___  __  ___  
+echo  ^|  ____/_ ^|  ^|__ \ / _ \/_ ^|/ _ \ 
+echo  ^| ^|__   ^| ^|     ) ^| ^| ^| ^|^| ^| (_) ^|
+echo  ^|  __^|  ^| ^|    / /^| ^| ^| ^|^| ^|\__, ^|
+echo  ^| ^|     ^| ^|   / /_^| ^|_^| ^|^| ^|  / / 
+echo  ^|_^|     ^|_^|  ^|____^|\___/ ^|_^| /_/  
+echo.
+goto :eof
+
+:DR2Banner
+echo   _____  _      _     _____       _ _         ___  
+echo  ^|  __ \(_)    ^| ^|   ^|  __ \     ^| ^| ^|       ^|__ \ 
+echo  ^| ^|  ^| ^|_ _ __^| ^|_  ^| ^|__) ^|__ _^| ^| ^|_   _     ) ^|
+echo  ^| ^|  ^| ^| ^| '__^| __^| ^|  _  // _` ^| ^| ^| ^| ^| ^|   / / 
+echo  ^| ^|__^| ^| ^| ^|  ^| ^|_  ^| ^| \ \ (_^| ^| ^| ^| ^|_^| ^|  / /_ 
+echo  ^|_____/^|_^|_^|   \__^| ^|_^|  \_\__,_^|_^|_^|\__, ^| ^|____^|
+echo                                        __/ ^|       
+echo                                       ^|___/
+echo.
+goto :eof
+
+:GTR2Banner
+echo    _____ _______ _____  ___  
+echo   / ____^|__   __^|  __ \^|__ \ 
+echo  ^| ^|  __   ^| ^|  ^| ^|__) ^|  ) ^|
+echo  ^| ^| ^|_ ^|  ^| ^|  ^|  _  /  / / 
+echo  ^| ^|__^| ^|  ^| ^|  ^| ^| \ \ / /_ 
+echo   \_____^|  ^|_^|  ^|_^|  \_\____^|
+echo.
+goto :eof
