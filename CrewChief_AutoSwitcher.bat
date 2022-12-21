@@ -2,6 +2,30 @@
 cls
 setlocal
 
+rem *******************************************************
+rem How to use:
+rem
+rem Download this file to anywhere convenient (like your desktop) and
+rem simply double-click it instead of starting Crew Chief before playing any sim.
+rem 
+rem When you start a sim in GAMESLIST it will start up Crew Chief, pre-selecting
+rem the game for you.  When you exit the sim it will close down Crew Chief and
+rem wait until you load another sim.  When you've finished racing press Ctrl/C
+rem to exit this program.
+rem 
+rem You can probably use it as it is but if you have set up your computer
+rem differently to me you may need to edit the "MAIN USER-CONFIGURABLE ITEMS"
+rem below (edit in Notepad for example).  If you're unlucky you may have to
+rem edit one of the "ITEMS YOU'RE LESS LIKELY TO NEED TO CHANGE".
+rem 
+rem If it doesn't work go to LOGGING MAY HELP IF THERE ARE PROBLEMS and
+rem set logging=on
+rem This will write a log file which *may* help diagnosing the problem.
+rem
+rem If it still doesn't work... see the warranty below
+rem *******************************************************
+
+
 REM *******************************************************
 REM NO WARRANTY IMPLIED OR GIVEN. YMMV.
 REM OBJECTS IN THE MIRROR ARE CLOSER THAN THEY APPEAR.
@@ -10,15 +34,19 @@ REM *******************************************************
 
 
 rem *******************************************************
-rem Main user-configurable items:
+rem MAIN USER-CONFIGURABLE ITEMS:
 
-set gamesList=ASSETTO_64BIT,ACC,AMS,AMS2,DR2,GTR2,IRACING,PCARS2,RF2,RACE_ROOM
+rem If you want you can trim this list to only check for the games you have
+set GAMESLIST=ASSETTO_64BIT,ACC,AMS,AMS2,DR2,GTR2,IRACING,PCARS2,RF2,RACE_ROOM
+
+rem Where Crew Chief is installed
 set CrewChiefPath="%ProgramFiles(x86)%\Britton IT Ltd\CrewChiefV4"
 
 rem *******************************************************
 
 rem *******************************************************
-rem but you may need to edit these
+rem ITEMS YOU'RE LESS LIKELY TO NEED TO CHANGE
+
 	set ASSETTO_64BIT_process=assettocorsa.exe
 	set ACC_process=acc.exe
 	set AMS_process=AMS.exe
@@ -31,7 +59,7 @@ rem but you may need to edit these
 	set RACE_ROOM_process=RRRE64.exe
 rem *******************************************************
 
-rem Logging may help if there are problems
+rem LOGGING MAY HELP IF THERE ARE PROBLEMS
 set logging=off
 
 
