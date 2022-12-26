@@ -679,7 +679,7 @@ use_alternate_beeps_metadata = RESTART_REQUIRED
 
 # Property: Use Fahrenheit for temps
 use_fahrenheit = Use Fahrenheit for temps
-use_fahrenheit_help = If not set, use Celcius
+use_fahrenheit_help = If not checked, use Celcius
 use_fahrenheit_category = INTERNATIONALISATION;FUEL_TEMPS_AND_DAMAGES
 
 # Property: Use listen beep
@@ -1370,7 +1370,7 @@ launch_iracing_metadata = RESTART_REQUIRED
 
 # Property: Run immediately
 run_immediately = Run immediately
-run_immediately_help = If this is true the application will start running Crew Chief as soon as you start it up, using whatever options you previously set
+run_immediately_help = If this is checked the application will start running Crew Chief as soon as you start it up, using whatever options you previously set
 run_immediately_category = UI_STARTUP_AND_PATHS
 run_immediately_metadata = RESTART_REQUIRED
 
@@ -1567,7 +1567,7 @@ load_sound_files_on_startup_metadata = RESTART_REQUIRED
 
 # Property: Update game plugins on startup
 enable_automatic_plugin_update = Update game plugins on startup
-enable_automatic_plugin_update_help = If enabled, CC will check if latest plugin is installed and will prompt to install plugin if it is not found or out of date.
+enable_automatic_plugin_update_help = If checked, CC will check if latest plugin is installed and will prompt to install plugin if it is not found or out of date.
 enable_automatic_plugin_update_category = UI_STARTUP_AND_PATHS
 
 # Property: pCARS character encoding
@@ -1694,7 +1694,7 @@ use_american_terms_category = INTERNATIONALISATION;FLAGS_AND_RULES
 
 # Property: Use metric
 use_metric = Use metric
-use_metric_help = Use metric units (KPH, litres etc). If not set use MPH, gallons etc.
+use_metric_help = Use metric units (KPH, litres etc). If not checked use MPH, gallons etc.
 use_metric_category = INTERNATIONALISATION;PIT_STOPS_AND_MULTICLASS
 
 # Property: Realistic mode
@@ -1751,19 +1751,19 @@ enable_rf2_frozen_order_messages_category = FLAGS_AND_RULES
 
 # Property: Enable rF2 cut track heuristic detection
 enable_rf2_cut_track_heuristics = Enable rF2 cut track heuristic detection
-enable_rf2_cut_track_heuristics_help = If enabled, CC will try to detect if user cut track.  If disabled, cut track will only be reported if game reported that lap got invalidated.
+enable_rf2_cut_track_heuristics_help = If checked, CC will try to detect if user cut track.  If disabled, cut track will only be reported if game reported that lap got invalidated.
 enable_rf2_cut_track_heuristics_filter = RF2_64BIT
 enable_rf2_cut_track_heuristics_category = FLAGS_AND_RULES
 
 # Property: Enable GTR 2 cut track heuristic detection
 enable_gtr2_cut_track_heuristics = Enable GTR 2 cut track heuristic detection
-enable_gtr2_cut_track_heuristics_help = If enabled, CC will try to detect if user cut track.  If disabled, cut track will only be reported if game reported that lap got invalidated.
+enable_gtr2_cut_track_heuristics_help = If checked, CC will try to detect if user cut track.  If disabled, cut track will only be reported if game reported that lap got invalidated.
 enable_gtr2_cut_track_heuristics_filter = GTR2
 enable_gtr2_cut_track_heuristics_category = FLAGS_AND_RULES
 
 # Property: Enable rF2 pit lane approach detection
 enable_rf2_pit_lane_approach_heuristics = Enable rF2 pit lane approach detection
-enable_rf2_pit_lane_approach_heuristics_help = Experimental: If enabled, CC will try to detect if user approaches the pit lane entry and remind him to respect speed limit.  Might not work correctly for all tracks.
+enable_rf2_pit_lane_approach_heuristics_help = Experimental: If checked, CC will try to detect if user approaches the pit lane entry and remind him to respect speed limit.  Might not work correctly for all tracks.
 enable_rf2_pit_lane_approach_heuristics_filter = RF2_64BIT
 enable_rf2_pit_lane_approach_heuristics_category = PIT_STOPS_AND_MULTICLASS
 
@@ -1780,13 +1780,13 @@ pcars_enable_rain_prediction_filter = PCARS_64BIT;PCARS_32BIT;PCARS_NETWORK
 
 # Property: Disable alternative voice commands
 disable_alternative_voice_commands = Disable alternative voice commands
-disable_alternative_voice_commands_help = Experimental: If enabled, CC will only use the first item from each voice command set - may improve recognition accuracy
+disable_alternative_voice_commands_help = Experimental: If checked, CC will only use the first item from each voice command set - may improve recognition accuracy
 disable_alternative_voice_commands_category = AUDIO_VOICE_AND_CONTROLLERS
 disable_alternative_voice_commands_metadata = RESTART_REQUIRED
 
 # Property: Use verbose command responses
 use_verbose_responses = Use verbose command responses
-use_verbose_responses_help = If enabled, will automatically request more info for the previously issued voice or button command
+use_verbose_responses_help = If checked, will automatically request more info for the previously issued voice or button command
 use_verbose_responses_category = AUDIO_VOICE_AND_CONTROLLERS
 use_verbose_responses_metadata = RESTART_REQUIRED
 
@@ -2426,7 +2426,7 @@ watched_opponent_names_help = Comma separated list of opponent names to report o
 
 # Property: Always show VR Settings window as overlay
 show_vr_settings_as_overlay = Always show VR Settings window as overlay
-show_vr_settings_as_overlay_help = If enabled, SteamVR Settings window is always shown as an overlay.  Disable if it gets in a way of other windows
+show_vr_settings_as_overlay_help = If checked, SteamVR Settings window is always shown as an overlay.  Disable if it gets in a way of other windows
 show_vr_settings_as_overlay_category = VR_SETTINGS
 
 # Property: Co-driver rushing speed threshold (km/h)
@@ -2482,7 +2482,7 @@ show_splash_screen_category = MISC
 
 # Property: Enable GTR 2 pit lane approach detection
 enable_gtr2_pit_lane_approach_heuristics = Enable GTR 2 pit lane approach detection
-enable_gtr2_pit_lane_approach_heuristics_help = Experimental: If enabled, CC will try to detect if user approaches the pit lane entry and remind him to respect speed limit.  Might not work correctly for all tracks.
+enable_gtr2_pit_lane_approach_heuristics_help = Experimental: If checked, CC will try to detect if user approaches the pit lane entry and remind him to respect speed limit.  Might not work correctly for all tracks.
 enable_gtr2_pit_lane_approach_heuristics_filter = GTR2
 enable_gtr2_pit_lane_approach_heuristics_category = PIT_STOPS_AND_MULTICLASS
 
@@ -2618,7 +2618,7 @@ enable_frozen_order_messages_category = FLAGS_AND_RULES
 
 # Property: Force Seated tracking mode on Reset VR View
 force_seated_on_vr_view_reset = Force Seated tracking mode on Reset VR View
-force_seated_on_vr_view_reset_help = If enabled, will force Seated position reset on Reset VR View.  If disabled, will respect the current SteamVR tracking mode.
+force_seated_on_vr_view_reset_help = If checked, will force Seated position reset on Reset VR View.  If disabled, will respect the current SteamVR tracking mode.
 force_seated_on_vr_view_reset_category = VR_SETTINGS
 
 # Property: Speak only when spoken to
