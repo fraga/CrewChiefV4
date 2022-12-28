@@ -43,15 +43,15 @@ namespace CrewChiefV4
             else
             {
                 dataFilesPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4", "debugLogs");
-                try
-                {
-                    System.IO.Directory.CreateDirectory(dataFilesPath);
-                }
-                catch (Exception)
-                {
-                    Console.WriteLine("Unable to create folder for data file, no session record will be available");
-                    dataFilesPath = null;
-                }
+            }
+            try
+            {
+                System.IO.Directory.CreateDirectory(dataFilesPath);
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Unable to create folder for data file, no session record will be available");
+                dataFilesPath = null;
             }
         }
 
