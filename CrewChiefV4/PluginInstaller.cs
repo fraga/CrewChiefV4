@@ -87,12 +87,14 @@ namespace CrewChiefV4
             return folders;
         }
 
-        private Boolean presentInstallMessagebox()
+        private Boolean presentInstallMessagebox(string gameName)
         {
             if (messageBoxPresented == false)
             {
                 messageBoxPresented = true;
-                if (DialogResult.OK == MessageBox.Show(Configuration.getUIString("install_plugin_popup_text"), Configuration.getUIString("install_plugin_popup_title"),
+                if (DialogResult.OK == MessageBox.Show(Configuration.getUIString("install_plugin_popup_text")
+                    + $" {gameName}.\n\n" + Configuration.getUIString("install_plugin_popup_text2"),
+                    Configuration.getUIString("install_plugin_popup_title"),
                     MessageBoxButtons.OKCancel, MessageBoxIcon.Information))
                 {
                     messageBoxResult = true;
@@ -121,7 +123,7 @@ namespace CrewChiefV4
         }
 
         //I stole this from the internetz(http://stackoverflow.com/questions/3201598/how-do-i-create-a-file-and-any-folders-if-the-folders-dont-exist)
-        private bool installOrUpdatePlugin(string source, string destination)
+        private bool installOrUpdatePlugin(string source, string destination, string gameName)
         {
             try
             {
@@ -143,7 +145,7 @@ namespace CrewChiefV4
                     // Sub directories                    
                     if (Directory.Exists(element))
                     {
-                        installOrUpdatePlugin(element, destination + Path.GetFileName(element));
+                        installOrUpdatePlugin(element, destination + Path.GetFileName(element), gameName);
                     }
                     else
                     {
@@ -155,7 +157,7 @@ namespace CrewChiefV4
                             if (!checkMD5(element).Equals(checkMD5(destinationFile)))
                             {
                                 //ask the user if they want to update the plugin
-                                if (presentInstallMessagebox())
+                                if (presentInstallMessagebox(gameName))
                                 {
                                     File.Copy(element, destinationFile, true);
                                     Console.WriteLine("Updated plugin file: " + destinationFile);    
@@ -164,7 +166,7 @@ namespace CrewChiefV4
                         }
                         else
                         {
-                            if (presentInstallMessagebox())
+                            if (presentInstallMessagebox(gameName))
                             {
                                 File.Copy(element, destinationFile, true);
                                 Console.WriteLine("Installed plugin file: " + destinationFile);
@@ -303,7 +305,7 @@ namespace CrewChiefV4
             if (!Directory.Exists(gameInstallPath))
             {
                 //Present a messagebox to the user asking if they want to install plugins
-                if (presentInstallMessagebox())
+                if (presentInstallMessagebox(gameDefinition.friendlyName))
                 {
                     List<string> steamLibs = getSteamLibraryFolders();
                     foreach (string lib in steamLibs)
@@ -321,7 +323,7 @@ namespace CrewChiefV4
             if (!Directory.Exists(gameInstallPath))
             {
                 //Present a messagebox to the user asking if they want to install plugins
-                if (presentInstallMessagebox())
+                if (presentInstallMessagebox(gameDefinition.friendlyName))
                 {
                     FolderBrowserDialog dialog = new FolderBrowserDialog();
                     dialog.ShowNewFolderButton = false;
@@ -359,7 +361,11 @@ namespace CrewChiefV4
             //we have a gameInstallPath so we can go on with installation/updating assuming that the user wants to enable the plugin.
             if (Directory.Exists(gameInstallPath))
             {
-                installOrUpdatePlugin(Path.Combine(Configuration.getDefaultFolderLocation("plugins"), gameDefinition.gameInstallDirectory), gameInstallPath);
+                installOrUpdatePlugin(
+                    Path.Combine(Configuration.getDefaultFolderLocation("plugins"),
+                                 gameDefinition.gameInstallDirectory),
+                    gameInstallPath,
+                    gameDefinition.friendlyName);
                 if (gameDefinition.gameEnum == GameEnum.RF2_64BIT)
                 {
                     UserSettings.GetUserSettings().setProperty("rf2_install_path", gameInstallPath);

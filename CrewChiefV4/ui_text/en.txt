@@ -184,7 +184,8 @@ personalisations_are_up_to_date = Personalisations are up to date
 personalisation_label = M&y name:
 personalisation_tooltip = Choose a name you'd like Chief to call you (requires restart)
 
-install_plugin_popup_text = Crew Chief needs additional files to be installed or updated for the selected game. Click OK to install or Cancel to Return
+install_plugin_popup_text = Crew Chief has additional files which it needs to be installed or updated for the selected game
+install_plugin_popup_text2 = Click OK to install or Cancel to Return
 install_plugin_popup_title = Plugin Needed
 install_plugin_select_directory_start = Please select
 install_plugin_select_directory_end = installation directory
