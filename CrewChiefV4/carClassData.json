@@ -184,7 +184,7 @@
 		},
 		{
 			"carClassEnum": "GT3",
-			"raceroomClassIds": [ 1703, 2922, 3375, 4516, 7278, 7767, 10396, 10786, 10049 ],
+			"raceroomClassIds": [ 1703, 2922, 3375, 4516, 7278, 7767, 10396, 10786, 10049, 11566 ],
 			"pCarsClassNames": [ "GT3" ],
 			"rf2ClassNames": [ "*GT3*" ],
 			"ams2ClassNames": [ "GT3" ],
