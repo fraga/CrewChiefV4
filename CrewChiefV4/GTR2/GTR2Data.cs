@@ -4,7 +4,7 @@ Must be kept in sync with Include\GTR2State.h.
 
 See: MainForm.MainUpdate for sample on how to marshall from native in memory struct.
 
-Authors: The Iron Wolf (vleonavicius@hotmail.com), The Sparten
+Authors: The Iron Wolf, The Sparten
 Website: thecrewchief.org
 */
 using Newtonsoft.Json;
@@ -383,7 +383,8 @@ namespace GTR2SharedMemory
             public float mOffPathWetness; // on main path 0.0-1.0
 
             // Future use
-            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 256)]
+            public float mCurrentDT;
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 252)]
             [JsonIgnore] public byte[] mExpansion;
 
             // MM_NOT_USED
