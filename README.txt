@@ -431,6 +431,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.16.3.5: R3E - fix missing ADAC 2021 GT3 class mapping; GTR2 plugin update; added more channels to MQTT telemetry output; a few minor fixes
+
 Version 4.16.3.4: GTR2 plugin update; Added basic support for AMS2 full course yellow flags; Various minor fixes
 
 Version 4.16.3.2: GTR2 plugin update; Allow MQTT broker responses to trigger arbitrary text-to-speech responses; some minor fixes
