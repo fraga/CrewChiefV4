@@ -1410,6 +1410,11 @@
 			"carClassEnum": "PORSCHE_MISSION_R",
 			"iracingCarIds": [ 158 ],
 			"isBatteryPowered": true
+		},
+		{
+			"carClassEnum": "LMDH",
+			"iracingCarIds": [ 159 ],
+			"isBatteryPowered": false
 		}
 	]
 }
