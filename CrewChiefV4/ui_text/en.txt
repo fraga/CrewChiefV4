@@ -1455,12 +1455,12 @@ frequency_of_being_overtaken_messages_category = MESSAGE_FREQUENCIES
 
 # Property: Frequency of car close ahead reports
 frequency_of_car_close_ahead_reports = Frequency of car close ahead reports
-frequency_of_car_close_ahead_reports_help = How often to report a car close behind (being pressured). 0 (never) to 10 (as often as possible)
+frequency_of_car_close_ahead_reports_help = How often to report a car close ahead (that you are pressuring). 0 (never) to 10 (as often as possible)
 frequency_of_car_close_ahead_reports_category = MESSAGE_FREQUENCIES;TIMINGS
 
 # Property: Frequency of car close behind reports
 frequency_of_car_close_behind_reports = Frequency of car close behind reports
-frequency_of_car_close_behind_reports_help = How often to report a car close in front (pressuring an opponent). 0 (never) to 10 (as often as possible)
+frequency_of_car_close_behind_reports_help = How often to report a car close behind (that is pressuring you). 0 (never) to 10 (as often as possible)
 frequency_of_car_close_behind_reports_category = MESSAGE_FREQUENCIES;TIMINGS
 
 # Property: Frequency of gap ahead reports
