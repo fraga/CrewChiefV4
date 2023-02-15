@@ -1,5 +1,9 @@
 CrewChief version 4.14
 
+(The Crew Chief Help menu was created from this file (and others) and has been updated since, this file hasn't except for the change log, so it's better to refer to the Help contents at https://mr_belowski.gitlab.io/CrewChiefV4/index.html than this.)
+
+________________________________________________________________________________
+
 Written by Jim Britton, Morten Roslev, Vytautas Leonavičius, Paul Burgess, Tony Whitley, Dan Allongo (Automobilista and rFactor1 implementation), Daniel Nowak (nAudio speech recognition port), Mike Schreiner and Brent Owen (technical input on stock car rules). The application is the result of lots of lots of hard work and input from the guys above as well as some great advice and support from the community and the guys at Sector3 and SMS.
 
 Additional material from Scoops (fantastic track layout mapping work), Nolan Bates (conversion of thousands of phrases from speech to text for subtitle support) and Longtomjr (F1 2018 UDP data format structs). Fantastic alternate spotter sounds by Geoffrey Lessel, Matt Orr (aka EmptyBox), Clare Britton, Mike Schreiner, Phil Linden, Lee Taylor and Micha (last name?). Also a thank you to Nick Thissen for his work on iRacingSdkWrapper.  Rally mode was created in collaboration with Janne Laahanen, who contributed his codriver pack and helped in understanding of the RBR pacenotes.
