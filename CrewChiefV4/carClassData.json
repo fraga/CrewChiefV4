@@ -504,6 +504,27 @@
 			"allMembersAreRWD": true
 		},
 		{
+			"carClassEnum": "INDYCAR_95",
+			"ams2ClassNames": [ "F-USA_Gen1" ],
+			"timesInHundredths": true,
+			"useAmericanTerms": true,
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "INDYCAR_98",
+			"ams2ClassNames": [ "F-USA_Gen2" ],
+			"timesInHundredths": true,
+			"useAmericanTerms": true,
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "INDYCAR_2000",
+			"ams2ClassNames": [ "F-USA_Gen3" ],
+			"timesInHundredths": true,
+			"useAmericanTerms": true,
+			"allMembersAreRWD": true
+		},
+		{
 			"carClassEnum": "HYBRID_F1_2022",
 			"raceroomClassIds": [ 10050 ],
 			"ams2ClassNames": [ "F-Ultimate_Gen2" ],
