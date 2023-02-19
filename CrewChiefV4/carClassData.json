@@ -411,7 +411,7 @@
 			"rf2ClassNames": [ "Sauber C11", "Porsche 962C", "Mazda 787B" ],
 			"acClassNames": [ "mazda_787b", "ks_mazda_787b", "ks_mercedes_c9", "ks_porsche_962c_*" ],
 			"ams2ClassNames": [ "Group C" ],
-			"brakeType": "Ceramic",
+			"brakeType": "Carbon",
 			"timesInHundredths": true,
 			"enabledMessageTypes": "TYRE_TEMPS, BRAKE_TEMPS, FUEL, LOCKING_AND_SPINNING",
 			"allMembersAreRWD": true
