@@ -284,6 +284,7 @@ namespace CrewChiefV4.ACC
                 lastSessionTotalRunTime = previousGameState.SessionData.SessionTotalRunTime;
                 lastSessionTimeRemaining = previousGameState.SessionData.SessionTimeRemaining;
                 currentGameState.carClass = previousGameState.carClass;
+                currentGameState.carName = previousGameState.carName;
 
                 currentGameState.SessionData.PlayerLapTimeSessionBest = previousGameState.SessionData.PlayerLapTimeSessionBest;
                 currentGameState.SessionData.PlayerLapTimeSessionBestPrevious = previousGameState.SessionData.PlayerLapTimeSessionBestPrevious;
@@ -480,6 +481,7 @@ namespace CrewChiefV4.ACC
 
                 //add carclasses for assetto corsa.
                 currentGameState.carClass = CarData.getCarClassForClassNameOrCarName(playerVehicle.carModel);
+                currentGameState.carName = playerVehicle.carModel;
                 GlobalBehaviourSettings.UpdateFromCarClass(currentGameState.carClass);
                 CarData.CLASS_ID = shared.accStatic.carModel;
 
@@ -597,6 +599,7 @@ namespace CrewChiefV4.ACC
                             playerVehicle.speedMS, currentGameState.Now);
 
                         currentGameState.carClass = CarData.getCarClassForClassNameOrCarName(playerVehicle.carModel);
+                        currentGameState.carName = playerVehicle.carModel;
                         CarData.CLASS_ID = shared.accStatic.carModel;
                         GlobalBehaviourSettings.UpdateFromCarClass(currentGameState.carClass);
                         System.Diagnostics.Debug.WriteLine("Player is using car class " + currentGameState.carClass.getClassIdentifier());
