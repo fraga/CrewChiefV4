@@ -816,6 +816,7 @@
 		{
 			"carClassEnum": "CLIO_CUP",
 			"pCarsClassNames": [ "TC1", "Clio Cup" ],
+			"iracingCarIds": [ 162 ],
 			"timesInHundredths": true,
 			"enabledMessageTypes": "TYRE_TEMPS, BRAKE_TEMPS, FUEL, LOCKING_AND_SPINNING",
 			"allMembersAreFWD": true
@@ -1435,6 +1436,12 @@
 		{
 			"carClassEnum": "LMDH",
 			"iracingCarIds": [ 159 ],
+			"brakeType": "Ceramic",
+			"isBatteryPowered": false
+		},
+		{
+			"carClassEnum": "FORMULA_FORD_1600",
+			"iracingCarIds": [ 163 ],
 			"isBatteryPowered": false
 		}
 	]
