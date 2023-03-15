@@ -115,6 +115,20 @@ namespace CrewChiefV4.Events
             });
         }
 
+        private void playMessage(string text, float distance, int priority)
+        {
+
+            var fragment = MessageFragment.Text(text);
+            fragment.allowTTS = true;
+            var message = new QueuedMessage($"mqtt_response_{text}", 10,
+                              messageFragments: MessageContents(fragment),
+                              abstractEvent: this, type: SoundType.REGULAR_MESSAGE, priority: priority,
+                              triggerFunction: (GameStateData gsd) =>
+                                 distance < 0 || Math.Abs(gsd.PositionAndMotionData.DistanceRoundTrack - distance) < 1
+                              );
+            audioPlayer.playMessage(message);
+        }
+
         private void SubscribeClient()
         {
             // this method is called async in a task
@@ -125,17 +139,33 @@ namespace CrewChiefV4.Events
             {
                 try
                 {
-                    var response = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
-                    response = Regex.Replace(response, @"[^\w\d\.]", " ");
-                    if (response.Length > 256) { response = response.Substring(0, 256); }
-
-                    var fragment = MessageFragment.Text(response);
-                    fragment.allowTTS = true;
-                    audioPlayer.playMessage(
-                        new QueuedMessage($"mqtt_response_{response}", 1,
-                                messageFragments: MessageContents(fragment),
-                                abstractEvent: this, type: SoundType.REGULAR_MESSAGE, priority: 0)
-                        );
+                    string response = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
+                    string message = response;
+                    float distance = -1;
+                    int priority = SoundMetadata.DEFAULT_PRIORITY;
+                    if (response.StartsWith("{"))
+                    {
+                        JObject json = JObject.Parse(response);
+                        if (json.ContainsKey("message"))
+                        {
+                            message = json.GetValue("message").ToString();
+                        }
+                        if (json.ContainsKey("distance"))
+                        {
+                            distance = json.GetValue("distance").ToObject<float>();
+                        }
+                        if (json.ContainsKey("priority"))
+                        {
+                            priority = json.GetValue("priority").ToObject<int>();
+                        }
+                    }
+                    else
+                    {
+                        response = Regex.Replace(response, @"[^\w\d\.]", " ");
+                        if (response.Length > 256) { response = response.Substring(0, 256); }
+                        message = response;
+                    }
+                    playMessage(message, distance, priority);
                 }
                 catch (AggregateException ex)
                 {
