@@ -1060,7 +1060,7 @@ namespace CrewChiefV4.Audio
             }
         }
 
-        private void createCompositePrefixesAndSuffixes(DirectoryInfo soundsRootDirectory,
+        public void createCompositePrefixesAndSuffixes(DirectoryInfo soundsRootDirectory,
             DirectoryInfo personalisationsDirectory, String selectedPersonalisation)
         {
             Console.WriteLine("Creating a new personalisation set from driver name sound " + selectedPersonalisation);

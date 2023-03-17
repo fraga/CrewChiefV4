@@ -364,6 +364,14 @@
     <Compile Include="UserInterface\MainWindowMenu.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="UserInterface\Models\MyName.cs" />
+    <Compile Include="UserInterface\MyName-V.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UserInterface\MyName-V.Designer.cs">
+      <DependentUpon>MyName-V.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserInterface\VMs\MyName-VM.cs" />
     <Compile Include="VROverlayWindow\CaptureScreen.cs" />
     <Compile Include="VROverlayWindow\ChromaKey.cs" />
     <Compile Include="VROverlayWindow\CursorInteraction.cs" />
@@ -566,6 +574,9 @@
     <EmbeddedResource Include="UserInterface\MacroEditor.resx">
       <DependentUpon>MacroEditor.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="UserInterface\MyName-V.resx">
+      <DependentUpon>MyName-V.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UserInterface\PropertiesForm.resx">
       <DependentUpon>PropertiesForm.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -658,6 +669,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="FuzzySharp">
+      <Version>2.0.2</Version>
+    </PackageReference>
     <PackageReference Include="InputSimulatorPlus">
       <Version>1.0.7</Version>
     </PackageReference>
