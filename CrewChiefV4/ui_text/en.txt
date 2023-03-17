@@ -154,6 +154,13 @@ button = button
 POV = PoV
 not_assigned = not assigned
 
+###################################### My Name dialog ######################################################
+enter_your_name = Enter your name
+full_personalisation = Full personalisation
+driver_name = Driver name
+play_name_sample = Play name sample
+select = Select
+
 text_prop_type = (text)
 integer_prop_type = (integer)
 real_number_prop_type = (real number)

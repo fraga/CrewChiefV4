@@ -21,6 +21,7 @@ using Valve.VR;
 using CrewChiefV4.ScreenCapture;
 using CrewChiefV4.VirtualReality;
 using System.Globalization;
+using CrewChiefV4.UserInterface;
 
 namespace CrewChiefV4
 {
@@ -1018,6 +1019,7 @@ namespace CrewChiefV4
             this.label2.Text = Configuration.getUIString("available_actions");
             this.propertiesButton.Text = Configuration.getUIString("properties");
             this.groupBox1.Text = Configuration.getUIString("voice_recognition_mode");
+            SetButtonMyNameText();
             voiceRecognitionToolTip.SetToolTip(this.groupBox1, Configuration.getUIString("voice_recognition_mode_help"));
             this.alwaysOnButton.Text = Configuration.getUIString("always_on");
             voiceRecognitionAlwaysOnToolTip.SetToolTip(this.alwaysOnButton, Configuration.getUIString("voice_recognition_always_on_help"));
@@ -3826,6 +3828,16 @@ namespace CrewChiefV4
         {
             var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
             return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
+        }
+
+        private void buttonMyName_Click(object sender, EventArgs e)
+        {
+            var win = new MyName_V(this, UserSettings.GetUserSettings().getString("PERSONALISATION_NAME"));
+            win.ShowDialog(this);
+        }
+        public void SetButtonMyNameText()
+        {
+            this.buttonMyName.Text = $"{Configuration.getUIString("personalisation_label")} {UserSettings.GetUserSettings().getString("PERSONALISATION_NAME")}";
         }
     }
 
