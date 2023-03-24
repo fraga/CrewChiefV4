@@ -66,6 +66,7 @@
 	<Exec Command="copy ..\CrewChiefV4\bin\$(Configuration)\openvr_api.dll ..\CrewChiefV4\bin\PublishedComponents\openvr_api.dll" />
     <Exec Command="copy ..\CrewChiefV4\bin\$(Configuration)\CrewChiefV4.exe.config ..\CrewChiefV4\bin\PublishedComponents\CrewChiefV4.exe.config" />
     <Exec Command="copy ..\CrewChiefV4\bin\$(Configuration)\CrewChiefV4.pdb ..\CrewChiefV4\bin\PublishedComponents\CrewChiefV4.pdb" />
+    <Exec Command="copy ..\CrewChiefV4\bin\$(Configuration)\FuzzySharp.dll ..\CrewChiefV4\bin\PublishedComponents\FuzzySharp.dll" />
     <Exec Command="copy ..\CrewChiefV4\bin\$(Configuration)\MathNet.Numerics.dll ..\CrewChiefV4\bin\PublishedComponents\MathNet.Numerics.dll" />
     <Exec Command="copy ..\CrewChiefV4\bin\$(Configuration)\NAudio.dll ..\CrewChiefV4\bin\PublishedComponents\NAudio.dll" />
     <Exec Command="copy ..\CrewChiefV4\bin\$(Configuration)\NAudio.Core.dll ..\CrewChiefV4\bin\PublishedComponents\NAudio.Core.dll" />

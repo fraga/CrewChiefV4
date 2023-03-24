@@ -1,4 +1,4 @@
-CrewChief version 4.14
+CrewChief version 4.16
 
 (The Crew Chief Help menu was created from this file (and others) and has been updated since, this file hasn't except for the change log, so it's better to refer to the Help contents at https://mr_belowski.gitlab.io/CrewChiefV4/index.html than this.)
 
@@ -435,6 +435,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.16.4.1: Use FuzzySharp to find names close to the player's name. Set Allow opponent names in 'My name' list Property if necessary. Update rFactor2SharedMemoryMapPlugin64.dll to 3.7.15.0. MQTT parses JSON messages with priority and distance at which the message should be played. Added car model to ACC. Correct the Group C brake type. Use US terms for AMS2's indycars. Tsukuba track mapped. iRacing: LMDH added, Formula Ford 1600 added. Plugin installer now sets folder browser root to My Computer instead of Desktop. GTR2: Update plugin to v2.5.0.0
+
 Version 4.16.3.5: R3E - fix missing ADAC 2021 GT3 class mapping; GTR2 plugin update; added more channels to MQTT telemetry output; a few minor fixes
 
 Version 4.16.3.4: GTR2 plugin update; Added basic support for AMS2 full course yellow flags; Various minor fixes
