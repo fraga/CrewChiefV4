@@ -190,8 +190,11 @@ namespace CrewChiefV4.Audio
                     Boolean hasMale = false;
                     Boolean hasAdult = false;
                     Boolean hasSenior = false;
-                    foreach (InstalledVoice voice in synthesizer.GetInstalledVoices())
+                    string ttsVoice = null;
+                    var voices = new List<InstalledVoice>(synthesizer.GetInstalledVoices().Where(v => v.Enabled));
+                    foreach (var voice in voices)
                     {
+                        Log.Debug($"Available TTS voice: {voice.VoiceInfo.Name}");
                         if (voice.VoiceInfo.Age == VoiceAge.Adult)
                         {
                             hasAdult = true;
@@ -204,20 +207,30 @@ namespace CrewChiefV4.Audio
                         {
                             hasMale = true;
                         }
+                        if (hasMale && (hasAdult || hasSenior))
+                        {
+                            ttsVoice = voice.VoiceInfo.Name;
+                            hasSuitableTTSVoice = true;
+                            Log.Commentary($"Using TTS voice {ttsVoice}");
+                            break;
+                        }
                     }
-                    if (hasMale && (hasAdult || hasSenior))
+                    if (ttsVoice == null)
                     {
-                        hasSuitableTTSVoice = true;
-                    }
-                    else
-                    {
-                        Console.WriteLine("No suitable TTS voice pack found - TTS will only be used in response to voice commands (and will probably sound awful). " +
+                        Console.WriteLine("No suitable (male adult) TTS voice pack found in the following list:");
+                        foreach (var voice in voices)
+                        {
+                            Console.WriteLine("  " + voice.VoiceInfo.Name);
+                        }
+                        Console.WriteLine("TTS will only be used in response to voice commands (and will probably sound awful). " +
                             "US versions of Windows 8.1 and Windows 10 should be able to use Microsoft's 'David' voice - " +
                             "this can be selected in the Control Panel");
+                        Console.WriteLine(@"https://stackoverflow.com/a/69219822/4108941 fix may work for you");
                         hasSuitableTTSVoice = false;
                         if (synthesizer.GetInstalledVoices().Count == 1)
                         {
-                            Console.WriteLine("Defaulting to voice " + synthesizer.GetInstalledVoices()[0].VoiceInfo.Name);
+                            ttsVoice = synthesizer.GetInstalledVoices()[0].VoiceInfo.Name;
+                            Console.WriteLine("Defaulting to voice " + ttsVoice);
                         }
                     }
 
@@ -225,6 +238,7 @@ namespace CrewChiefV4.Audio
                     // which will probably be shit, but MS TTS is shit anyway and now it's even shitter because it crashes the fucking
                     // app on start up. Nobbers.
                     // synthesizer.SelectVoiceByHints(VoiceGender.Male, hasAdult ? VoiceAge.Adult : VoiceAge.Senior);
+                    synthesizer.SelectVoice(ttsVoice);
                     synthesizer.Volume = 100;
                     synthesizer.Rate = 0;
                 }
