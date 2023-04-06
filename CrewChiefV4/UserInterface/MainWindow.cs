@@ -2696,6 +2696,8 @@ namespace CrewChiefV4
             }
             return $"{path}\nProfile: " +
                     UserSettings.currentUserProfileFileName +
+                    "\nGame: " +
+                    CrewChief.gameDefinition.friendlyName +
                     "\nVOICE_OPTION: " +
                     UserSettings.GetUserSettings().getString("VOICE_OPTION") +
                     "\n\nNon-default Properties:\n" +
