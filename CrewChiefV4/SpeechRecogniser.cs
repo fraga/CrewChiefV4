@@ -3456,8 +3456,8 @@ namespace CrewChiefV4
             else if (ResultContains(recognisedSpeech, PIT_STOP_TEAROFF, false) ||   // tbd Does this actually do anything?
                 ResultContains(recognisedSpeech, PIT_STOP_FAST_REPAIR, false) ||    // already captured by
                 ResultContains(recognisedSpeech, PIT_STOP_CLEAR_ALL, false) ||      // else if (GrammarWrapperListContains(iracingPitstopGrammarList, recognitionGrammar))
-                ResultContains(recognisedSpeech, PIT_STOP_CLEAR_TYRES, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_CLEAR_WIND_SCREEN, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CLEAR_TYRES, false) ||    // Morten: Yes its needed for button press to sre command as its not passed through sre_SpeechRecognized() but ControllerConfiguration.ButtonAssignment.findEvent()
+                ResultContains(recognisedSpeech, PIT_STOP_CLEAR_WIND_SCREEN, false) || // all sre events that can be executed by controller action needs to be defined in getEventForAction
                 ResultContains(recognisedSpeech, PIT_STOP_CLEAR_FAST_REPAIR, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_CLEAR_FUEL, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_CHANGE_ALL_TYRES, false) ||
