@@ -97,9 +97,13 @@ namespace CrewChiefV4.UserInterface.Models
         }
         public void SelectPersonalisation(string name)
         {
-            UserSettings.GetUserSettings().setProperty("PERSONALISATION_NAME", name);
-            UserSettings.GetUserSettings().saveUserSettings();
-            Log.Info($"My name '{name}' selected");
+            if (!UserSettings.GetUserSettings().getString("PERSONALISATION_NAME").Equals(name))
+            {
+                UserSettings.GetUserSettings().setProperty("PERSONALISATION_NAME", name);
+                UserSettings.GetUserSettings().saveUserSettings();
+                viewModel.doRestart();
+                Log.Info($"My name '{name}' selected");
+            }
         }
         public void SelectDriverName(string name)
         {

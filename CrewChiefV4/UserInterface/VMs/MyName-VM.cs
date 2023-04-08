@@ -26,5 +26,9 @@
         {
             view.selectDriverName(index);
         }
+        public void doRestart()
+        {
+            view.doRestart();
+        }
     }
 }

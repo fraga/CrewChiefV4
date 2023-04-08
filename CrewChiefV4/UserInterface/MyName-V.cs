@@ -63,6 +63,11 @@ namespace CrewChiefV4.UserInterface
         {
             listBoxDriverNames.SelectedIndex = index;
         }
+        public void doRestart()
+        {
+            mwi.doRestart(Configuration.getUIString("the_application_must_be_restarted_to_load_the_new_sounds"),
+                Configuration.getUIString("load_new_sounds"));
+        }
 
         private void buttonPlayName_Click(object sender, EventArgs e)
         {

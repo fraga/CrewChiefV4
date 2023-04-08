@@ -3681,7 +3681,7 @@ namespace CrewChiefV4
         /// <param name="warningTitle"></param>
         /// <param name="removeSkipUpdates"></param>
         /// <param name="mandatory">Switching between race and rally modes</param>
-        private void doRestart(String warningMessage, String warningTitle, Boolean removeSkipUpdates = false, Boolean mandatory = false)
+        internal void doRestart(String warningMessage, String warningTitle, Boolean removeSkipUpdates = false, Boolean mandatory = false)
         {
             if (CrewChief.Debugging)
             {
