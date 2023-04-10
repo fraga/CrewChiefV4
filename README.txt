@@ -1,8 +1,8 @@
 CrewChief version 4.16
 
 (The Crew Chief Help menu was created from this file (and others) and has been updated since,
-this file hasn't except for the change log, so it's better to refer to the Help in the game,
-contents are at https://mr_belowski.gitlab.io/CrewChiefV4/index.html than this.)
+this file hasn't except for the change log, so it's better to refer to the Help in Crew Chief
+- contents are at https://mr_belowski.gitlab.io/CrewChiefV4/index.html - than this.)
 
 ________________________________________________________________________________
 
