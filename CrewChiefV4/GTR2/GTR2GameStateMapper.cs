@@ -1337,7 +1337,6 @@ namespace CrewChiefV4.GTR2
             if (shared.extended.mActiveDRSRuleSet == (char)GTR2DRSRuleSet.DTM18)
             {
                 cgs.OvertakingAids.DrsEnabled = shared.extended.mCurrDRSSystemState == (char)GTR2DRSSystemState.Enabled;
-                // cgs.OvertakingAids.DrsDetected = F1 specific
                 var ledState = (GTR2DTM18DRSState)shared.extended.mCurrDRSLEDState;
 
                 cgs.OvertakingAids.DrsAvailable = ledState == GTR2DTM18DRSState.Available1
@@ -1352,6 +1351,16 @@ namespace CrewChiefV4.GTR2
 
                 if (cgs.SessionData.SessionType == SessionType.Race)
                     cgs.OvertakingAids.DrsActivationsRemaining = shared.extended.mActiveDRSDTM18ActivationsPerRace - shared.extended.mCurrActivationsInRace;
+            }
+            else if (shared.extended.mActiveDRSRuleSet == (char)GTR2DRSRuleSet.F1_2011)
+            {
+                cgs.OvertakingAids.DrsEnabled = shared.extended.mCurrDRSSystemState == (char)GTR2DRSSystemState.Enabled;
+                
+                var ledState = (GTR2F1DRSState)shared.extended.mCurrDRSLEDState;
+                cgs.OvertakingAids.DrsAvailable = ledState == GTR2F1DRSState.Available;
+                cgs.OvertakingAids.DrsDetected = ledState == GTR2F1DRSState.Eligible;
+                cgs.OvertakingAids.DrsEngaged = ledState == GTR2F1DRSState.Active;
+                cgs.OvertakingAids.DrsRange = shared.extended.mActiveDRSActivationThresholdSeconds;
             }
 
             // --------------------------------

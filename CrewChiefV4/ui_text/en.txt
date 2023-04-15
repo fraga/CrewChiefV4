@@ -556,7 +556,7 @@ enable_drs_messages_category = FLAGS_AND_RULES
 
 # Property: Enable DRS beeps
 enable_drs_beeps = Enable DRS beeps
-enable_drs_beeps_filter = IRACING;RACE_ROOM;RF2_64BIT
+enable_drs_beeps_filter = IRACING;RACE_ROOM;RF2_64BIT;GTR2
 enable_drs_beeps_category = FLAGS_AND_RULES
 enable_drs_beeps_help = Beep for DRS detection (iRacing only) and availability
 
