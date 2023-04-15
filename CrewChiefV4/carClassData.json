@@ -505,21 +505,21 @@
 		},
 		{
 			"carClassEnum": "INDYCAR_95",
-			"ams2ClassNames": [ "F-USA_Gen1" ],
+			"ams2ClassNames": [ "F-USA_Gen1", "F-USA_Gen1_SS", "F-USA_Gen1_SW" ],
 			"timesInHundredths": true,
 			"useAmericanTerms": true,
 			"allMembersAreRWD": true
 		},
 		{
 			"carClassEnum": "INDYCAR_98",
-			"ams2ClassNames": [ "F-USA_Gen2" ],
+			"ams2ClassNames": [ "F-USA_Gen2", "F-USA_Gen2_SS", "F-USA_Gen2_SW" ],
 			"timesInHundredths": true,
 			"useAmericanTerms": true,
 			"allMembersAreRWD": true
 		},
 		{
 			"carClassEnum": "INDYCAR_2000",
-			"ams2ClassNames": [ "F-USA_Gen3" ],
+			"ams2ClassNames": [ "F-USA_Gen3", "F-USA_Gen3_SS", "F-USA_Gen3_SW" ],
 			"timesInHundredths": true,
 			"useAmericanTerms": true,
 			"allMembersAreRWD": true
@@ -1152,7 +1152,7 @@
 		{
 			"carClassEnum": "F1_90S",
 			"rf2ClassNames": [ "F1_1996_SL1DE" ],
-			"ams2ClassNames": [ "F-Classic_Gen3" ],
+			"ams2ClassNames": [ "F-Classic_Gen3", "F-Classic_Gen3_LD", "F-Classic_Gen4", "F-Classic_Gen4_LD" ],
 			"raceroomClassIds": [ 7214 ],
 			"brakeType": "Carbon",
 			"maxSafeWaterTemp": 105,
@@ -1170,7 +1170,7 @@
 		},
 		{
 			"carClassEnum": "F1_80S_TURBO",
-			"ams2ClassNames": [ "F-Classic_Gen1" ],
+			"ams2ClassNames": [ "F-Classic_Gen1", "F-Classic_Gen1_LD" ],
 			"maxSafeWaterTemp": 105,
 			"maxSafeOilTemp": 140,
 			"timesInHundredths": true,
@@ -1179,7 +1179,7 @@
 		},
 		{
 			"carClassEnum": "F1_80S_NA",
-			"ams2ClassNames": [ "F-Classic_Gen2" ],
+			"ams2ClassNames": [ "F-Classic_Gen2", "F-Classic_Gen2_LD" ],
 			"maxSafeWaterTemp": 105,
 			"maxSafeOilTemp": 140,
 			"timesInHundredths": true,
