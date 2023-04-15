@@ -196,7 +196,7 @@ namespace GTR2SharedMemory
         {
             None = 0,
             DTM18,
-            F1
+            F1_2011
         }
 
         public enum GTR2DTM18DRSState
@@ -208,6 +208,14 @@ namespace GTR2SharedMemory
             Active2,
             Available1,
             Active1
+        }
+
+        public enum GTR2F1DRSState
+        {
+            Inactive = 0,
+            Eligible,  // Qualified to use in DRS zone.
+            Available, // Qualified and is in DRS zone.
+            Active
         }
 
         public enum GTR2DRSSystemState
