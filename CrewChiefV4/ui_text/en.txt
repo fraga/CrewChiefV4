@@ -156,8 +156,9 @@ not_assigned = not assigned
 
 ###################################### My Name dialog ######################################################
 enter_your_name = Enter your name
-full_personalisation = Full personalisation
-driver_name = Driver name
+full_personalisation = Full personalisations
+driver_name = Driver names
+other_driver_name = Other possible driver names
 play_name_sample = Play name sample
 select = Select
 

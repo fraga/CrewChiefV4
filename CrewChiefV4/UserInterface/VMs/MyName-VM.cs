@@ -26,6 +26,10 @@
         {
             view.selectDriverName(index);
         }
+        public void fillOtherDriverNames(string[] names)
+        {
+            view.fillOtherDriverNames(names);
+        }
         public void doRestart()
         {
             view.doRestart();

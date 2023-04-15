@@ -24,6 +24,7 @@ namespace CrewChiefV4.UserInterface
             textBoxMyName.Text = oldName;
             labelFullPersonalisation.Text = Configuration.getUIString("full_personalisation");
             labelDriverName.Text = Configuration.getUIString("driver_name");
+            labelOtherDriverName.Text = Configuration.getUIString("other_driver_name");
             //buttonPlayName.Text = Configuration.getUIString("play_name_sample");
             buttonNameSelect.Text = Configuration.getUIString("select");
         }
@@ -58,10 +59,22 @@ namespace CrewChiefV4.UserInterface
             {
                 listBoxDriverNames.Items.Add(name);
             }
+            // May not be any other names
+            listBoxOtherDriverNames.Items.Clear();
+            listBoxOtherDriverNames.Enabled = false;
         }
         public void selectDriverName(int index)
         {
             listBoxDriverNames.SelectedIndex = index;
+        }
+        public void fillOtherDriverNames(string[] names)
+        {
+            listBoxOtherDriverNames.Enabled = true;
+            listBoxOtherDriverNames.Items.Clear();
+            foreach (var name in names)
+            {
+                listBoxOtherDriverNames.Items.Add(name);
+            }
         }
         public void doRestart()
         {
@@ -79,6 +92,10 @@ namespace CrewChiefV4.UserInterface
             {
                 model.PlayRandomDriverName(listBoxDriverNames.SelectedItem.ToString());
             }
+            if (listBoxOtherDriverNames.SelectedIndex != -1)
+            {
+                model.PlayRandomDriverName(listBoxOtherDriverNames.SelectedItem.ToString());
+            }
         }
 
         private void buttonNameSelect_Click(object sender, EventArgs e)
@@ -94,6 +111,11 @@ namespace CrewChiefV4.UserInterface
                 name = listBoxDriverNames.SelectedItem.ToString();
                 model.SelectDriverName(name);
             }
+            else if (listBoxOtherDriverNames.SelectedIndex != -1)
+            {
+                name = listBoxOtherDriverNames.SelectedItem.ToString();
+                model.SelectDriverName(name);
+            }
             mwi.SetButtonMyNameText();
             this.Close();
         }
@@ -103,6 +125,7 @@ namespace CrewChiefV4.UserInterface
             if (listBoxPersonalisations.SelectedIndex != -1)
             {   // listBoxDriverNames cleared this one
                 listBoxDriverNames.SelectedIndex = -1;
+                listBoxOtherDriverNames.SelectedIndex = -1;
             }
 
             buttonPlayName.Enabled = true;
@@ -114,6 +137,18 @@ namespace CrewChiefV4.UserInterface
             if (listBoxDriverNames.SelectedIndex != -1)
             {   // listBoxPersonalisations cleared this one
                 listBoxPersonalisations.SelectedIndex = -1;
+                listBoxOtherDriverNames.SelectedIndex = -1;
+            }
+            buttonPlayName.Enabled = true;
+            buttonNameSelect.Enabled = true;
+        }
+
+        private void listBoxOtherDriverNames_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (listBoxOtherDriverNames.SelectedIndex != -1)
+            {   // listBoxPersonalisations cleared this one
+                listBoxPersonalisations.SelectedIndex = -1;
+                listBoxDriverNames.SelectedIndex = -1;
             }
             buttonPlayName.Enabled = true;
             buttonNameSelect.Enabled = true;
@@ -125,6 +160,11 @@ namespace CrewChiefV4.UserInterface
         }
 
         private void listBoxDriverNames_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            buttonPlayName_Click(sender, e);
+        }
+
+        private void listBoxOtherDriverNames_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             buttonPlayName_Click(sender, e);
         }

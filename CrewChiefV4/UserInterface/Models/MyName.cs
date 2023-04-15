@@ -28,7 +28,8 @@ namespace CrewChiefV4.UserInterface.Models
             // Create 2 lists of candidate names:
             // 1) Full personalisations
             int exactPersonalisationMatch = -1;
-            string[] availablePersonalisations = MainWindow.instance.crewChief.audioPlayer.personalisationsArray;
+            string[] availablePersonalisations = MainWindow.instance.crewChief.audioPlayer.personalisationsArray.
+                Where(w => w.Length > name.Length / 2).ToArray();
             var matches = Process.ExtractTop(name, availablePersonalisations, limit: 10);
             availablePersonalisations = new string[matches.Count()];
             int index = 0;
@@ -50,23 +51,53 @@ namespace CrewChiefV4.UserInterface.Models
 
             // 2) Just driver names
             int exactDriverNameMatch = -1;
-            string[] driverNames = SoundCache.availableDriverNamesForUI.ToArray();
-            matches = Process.ExtractTop(name, driverNames, limit: 10);
-            driverNames = new string[matches.Count()];
+            var driverNames = SoundCache.availableDriverNamesForUI;
+            // Remove any personalisations that are duplicated in drivers
+            foreach (var match in matches)
+            {
+                if (driverNames.Contains(match.Value))
+                {
+                    driverNames.Remove(match.Value);
+                }
+            }
+            string[] useAvailableDriverNames = driverNames.Where(w => w.Length > name.Length / 2).ToArray();
+            matches = Process.ExtractTop(name, useAvailableDriverNames.ToArray(), limit: 10);
+            var driverNamesList = new string[matches.Count()];
             index = 0;
             foreach (var match in matches)
             {
-                driverNames[index] = match.Value;
+                driverNamesList[index] = match.Value;
                 if (exactPersonalisationMatch == -1 && match.Score == 100)
                 {
                     exactDriverNameMatch = index;
                 }
                 index++;
             }
-            viewModel.fillDriverNames(driverNames);
+            viewModel.fillDriverNames(driverNamesList);
             if (exactDriverNameMatch != -1)
             {
                 viewModel.selectDriverName(exactDriverNameMatch);
+            }
+
+            // 3) other less likely fuzzy matches
+            if (exactPersonalisationMatch == -1 &&
+                exactDriverNameMatch == -1)
+            {
+                var oddDriverNames = SoundCache.availableDriverNamesForUI;
+                // Remove any driver names that are already offered
+                foreach (var match in matches)
+                {
+                    if (oddDriverNames.Contains(match.Value))
+                    {
+                        oddDriverNames.Remove(match.Value);
+                    }
+                }
+                string[] otherDriverNames = oddDriverNames.ToArray();
+                var res = DriverNameHelper.PhonixFuzzyMatches(name, otherDriverNames, 10);
+                if (res.matched)
+                {
+                    viewModel.fillOtherDriverNames(res.driverNameMatches.ToArray());
+                }
             }
         }
         public void PlayRandomPersonalisation(string name)
