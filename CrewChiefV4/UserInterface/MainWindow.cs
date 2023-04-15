@@ -3127,15 +3127,19 @@ namespace CrewChiefV4
                 try
                 {
                     var prevRacingType = CrewChief.gameDefinition.racingType;
+                    var prevGameDefinition = CrewChief.gameDefinition;
                     CrewChief.gameDefinition = GameDefinition.getGameDefinitionForFriendlyName(this.gameDefinitionList.Text);
 
                     if (prevRacingType != CrewChief.RacingType.Undefined &&
                         prevRacingType != CrewChief.gameDefinition.racingType)
                     {
-                        UserSettings.GetUserSettings().setProperty("last_game_definition", CrewChief.gameDefinition.commandLineName);
-                        UserSettings.GetUserSettings().saveUserSettings();
-
-                        doRestart(Configuration.getUIString("the_application_must_be_restarted_to_switch_between_circuit_and_rally_racing"), Configuration.getUIString("switch_racing_type"), removeSkipUpdates: false, mandatory: true);
+                        if (doRestart(Configuration.getUIString("the_application_must_be_restarted_to_switch_between_circuit_and_rally_racing"),
+                            Configuration.getUIString("switch_racing_type"), removeSkipUpdates: false, mandatory: false, saveUserSettings: true))
+                        {    // The user cancelled, bounce back to previous game
+                            CrewChief.gameDefinition = prevGameDefinition;
+                            this.gameDefinitionList.Text = CrewChief.gameDefinition.friendlyName;
+                            return;
+                        }
                     }
 
                     GlobalBehaviourSettings.racingType = CrewChief.gameDefinition.racingType;
@@ -3681,8 +3685,11 @@ namespace CrewChiefV4
         /// <param name="warningTitle"></param>
         /// <param name="removeSkipUpdates"></param>
         /// <param name="mandatory">Switching between race and rally modes</param>
-        internal void doRestart(String warningMessage, String warningTitle, Boolean removeSkipUpdates = false, Boolean mandatory = false)
+        /// <returns>User cancelled</returns>
+        internal Boolean doRestart(String warningMessage, String warningTitle, Boolean removeSkipUpdates = false, Boolean mandatory = false, Boolean saveUserSettings = false)
         {
+            Boolean userCancelled = false;
+
             if (CrewChief.Debugging)
             {
                 warningMessage = "The app must be restarted manually";
@@ -3692,8 +3699,13 @@ namespace CrewChiefV4
             this.RestoreFromTray();
 
             if (MessageBox.Show(warningMessage, warningTitle,
-                CrewChief.Debugging || mandatory ? MessageBoxButtons.OK : MessageBoxButtons.OKCancel) == DialogResult.OK)
+                mandatory ? MessageBoxButtons.OK : MessageBoxButtons.OKCancel) == DialogResult.OK)
             {
+                if (saveUserSettings)
+                {
+                    UserSettings.GetUserSettings().setProperty("last_game_definition", CrewChief.gameDefinition.commandLineName);
+                    UserSettings.GetUserSettings().saveUserSettings();
+                }
                 if (Utilities.RestartApp(app_restart: true, 
                                          removeSkipUpdates: removeSkipUpdates,
                                          removeProfile: mandatory,
@@ -3702,6 +3714,11 @@ namespace CrewChiefV4
                     this.Close(); //to turn off current app
                 }
             }
+            else
+            {
+                userCancelled = true;
+            }
+            return userCancelled;
         }
 
         private void downloadSoundPackButtonPress(object sender, EventArgs e)
