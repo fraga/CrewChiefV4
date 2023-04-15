@@ -420,7 +420,7 @@ namespace CrewChiefV4.RaceRoom
                             GlobalBehaviourSettings.UpdateFromCarClass(currentGameState.carClass);
                             Console.WriteLine("Player is using car class " + currentGameState.carClass.getClassIdentifier());
                         }
-                        brakeTempThresholdsForPlayersCar = CarData.getBrakeTempThresholds(currentGameState.carClass);
+                        brakeTempThresholdsForPlayersCar = getBrakeTempThresholds(shared.BrakeTemp);
                         if (previousGameState != null)
                         {
                             currentGameState.PitData.IsRefuellingAllowed = previousGameState.PitData.IsRefuellingAllowed;
@@ -722,7 +722,7 @@ namespace CrewChiefV4.RaceRoom
                         {
                             currentGameState.carClass = newClass;
                             Console.WriteLine("Player is using car class " + currentGameState.carClass.getClassIdentifier() + " (class ID " + participantStruct.DriverInfo.ClassId + ")");
-                            brakeTempThresholdsForPlayersCar = CarData.getBrakeTempThresholds(currentGameState.carClass);
+                            brakeTempThresholdsForPlayersCar = getBrakeTempThresholds(shared.BrakeTemp); ;
                         }
                     }
                     if (currentGameState.SessionData.CurrentLapIsValid && (participantStruct.CurrentLapValid != 1 || participantStruct.LapTimeCurrentSelf == -1) && !approachingFirstFlyingLap)
@@ -821,7 +821,7 @@ namespace CrewChiefV4.RaceRoom
                 if (currentGameState.carClass.carClassEnum == CarData.CarClassEnum.UNKNOWN_RACE && shared.VehicleInfo.ClassId > 0)
                 {
                     currentGameState.carClass = CarData.getCarClassForRaceRoomId(shared.VehicleInfo.ClassId);
-                    brakeTempThresholdsForPlayersCar = CarData.getBrakeTempThresholds(currentGameState.carClass);
+                    brakeTempThresholdsForPlayersCar = getBrakeTempThresholds(shared.BrakeTemp); ;
                 }
                 currentGameState.SessionData.trackLandmarksTiming.cancelWaitingForLandmarkEnd();
             }
@@ -2001,6 +2001,20 @@ namespace CrewChiefV4.RaceRoom
             {
                 currentTickFlags[2] = FlagEnum.GREEN;
             }
+        }
+
+        private static List<CornerData.EnumWithThresholds> getBrakeTempThresholds(TireData<BrakeTempInformation> brakeTempDataFromGame)
+        {
+            // the game sends cold, optimal and hot
+            var btt = new List<CornerData.EnumWithThresholds>();
+            // make a range for optimal centred around optimal
+            var maxCold = brakeTempDataFromGame.FrontLeft.ColdTemp + ((brakeTempDataFromGame.FrontLeft.OptimalTemp - brakeTempDataFromGame.FrontLeft.ColdTemp) / 2);
+            var maxWarm = brakeTempDataFromGame.FrontLeft.HotTemp - ((brakeTempDataFromGame.FrontLeft.HotTemp - brakeTempDataFromGame.FrontLeft.OptimalTemp) / 2);
+            btt.Add(new CornerData.EnumWithThresholds(BrakeTemp.COLD, -10000, maxCold));
+            btt.Add(new CornerData.EnumWithThresholds(BrakeTemp.WARM, maxCold, maxWarm));
+            btt.Add(new CornerData.EnumWithThresholds(BrakeTemp.HOT, maxWarm, brakeTempDataFromGame.FrontLeft.HotTemp));
+            btt.Add(new CornerData.EnumWithThresholds(BrakeTemp.COOKING, brakeTempDataFromGame.FrontLeft.HotTemp, 10000));
+            return btt;
         }
     }
 }
