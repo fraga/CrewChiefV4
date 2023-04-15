@@ -563,6 +563,23 @@ namespace CrewChiefV4
                    + Environment.NewLine + text.Substring(mid + 1);
         }
 
+        public static void AddLinesToFile(string filePath, List<string> lines)
+            {
+                // Create the file if it doesn't exist
+                if (!File.Exists(filePath))
+                {
+                    File.Create(filePath).Close();
+                }
+
+                // Add the lines to the file
+                using (StreamWriter writer = File.AppendText(filePath))
+                {
+                    foreach (string line in lines)
+                    {
+                        writer.WriteLine(line);
+                    }
+                }
+            }
 
     /// <summary>
     /// Read the command line arguments into a dictionary

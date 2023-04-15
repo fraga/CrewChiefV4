@@ -1,9 +1,14 @@
 ﻿using CrewChiefV4.Audio;
+
+using FuzzySharp;
+using FuzzySharp.Extractor;
+
+using Phonix;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 /**
  * Utility class to ease some of the pain of managing driver names.
@@ -26,10 +31,16 @@ namespace CrewChiefV4
 
         private static Boolean useLastNameWherePossible = true;
 
+        private static string generatedDriverNamesPath;
+
         public static void readRawNamesToUsableNamesFiles(String soundsFolderName)
         {
-            readRawNamesToUsableNamesFile(soundsFolderName, @"\driver_names\additional_names.txt");
-            readRawNamesToUsableNamesFile(soundsFolderName, @"\driver_names\names.txt");
+            readRawNamesToUsableNamesFile(soundsFolderName, @"driver_names\additional_names.txt");
+            readRawNamesToUsableNamesFile(soundsFolderName, @"driver_names\names.txt");
+            // Generating fuzzy match driver names is costly so they're stored once
+            // they're generated
+            readRawNamesToUsableNamesFile(soundsFolderName, @"driver_names\generated_names.txt");
+            generatedDriverNamesPath = Path.Combine(soundsFolderName, @"driver_names\generated_names.txt");
         }
 
         private static void readRawNamesToUsableNamesFile(String soundsFolderName, String filename)
@@ -39,7 +50,7 @@ namespace CrewChiefV4
             string line;
             try
             {
-                StreamReader file = new StreamReader(soundsFolderName + filename);
+                StreamReader file = new StreamReader(Path.Combine(soundsFolderName, filename));
                 while ((line = file.ReadLine()) != null)
                 {
                     int separatorIndex = line.LastIndexOf(":");
@@ -256,14 +267,28 @@ namespace CrewChiefV4
                             {
                                 if (lowerCaseRawNameToUsableName.TryGetValue(lastName.ToLower(), out usableDriverName))
                                 {
-                                    Console.WriteLine("Using mapped driver last name " + usableDriverName + " for raw driver last name " + lastName);
+                                    Console.WriteLine("Using mapped driver name " + usableDriverName + " for raw driver last name " + lastName);
                                     usableNamesForSession.Add(rawDriverName, usableDriverName);
                                     usedLastName = true;
                                 }
                                 else
                                 {
-                                    Console.WriteLine("Using unmapped driver last name " + lastName + " for raw driver name " + rawDriverName);
-                                    usableDriverName = lastName;
+                                    var fuzzyDriverName = FuzzyMatch(lastName);
+                                    if (fuzzyDriverName.matched)
+                                    {
+                                        usableDriverName = fuzzyDriverName.driverNameMatches[0].ToLower();
+                                        if (fuzzyDriverName.fuzzy)
+                                        {
+                                            Utilities.AddLinesToFile(generatedDriverNamesPath,
+                                                new List<string> { $"{lastName}:{usableDriverName}" });
+                                        }
+                                        lowerCaseRawNameToUsableName[rawDriverName] = usableDriverName;
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("Using unmapped driver last name " + lastName + " for raw driver name " + rawDriverName);
+                                        usableDriverName = lastName;
+                                    }
                                     usableNamesForSession.Add(rawDriverName, usableDriverName);
                                     usedLastName = true;
                                 }
@@ -271,7 +296,22 @@ namespace CrewChiefV4
                         }
                         if (!usedLastName)
                         {
-                            Console.WriteLine("Using unmapped drivername " + usableDriverName + " for raw driver name " + rawDriverName);
+                            var fuzzyDriverName = FuzzyMatch(usableDriverName);
+                            if (fuzzyDriverName.matched)
+                            {
+                                var driverName = fuzzyDriverName.driverNameMatches[0].ToLower();
+                                if (fuzzyDriverName.fuzzy)
+                                {
+                                    Utilities.AddLinesToFile(generatedDriverNamesPath,
+                                        new List<string> { $"{usableDriverName}:{driverName}" });
+                                }
+                                usableDriverName = driverName;
+                                lowerCaseRawNameToUsableName[rawDriverName] = usableDriverName;
+                            }
+                            else
+                            {
+                                Console.WriteLine("Using unmapped drivername " + usableDriverName + " for raw driver name " + rawDriverName);
+                            }
                             usableNamesForSession.Add(rawDriverName, usableDriverName);
                         }
                     }
@@ -287,7 +327,145 @@ namespace CrewChiefV4
                 return usableNamesForSession[rawDriverName];
             }
         }
-        
+        public struct FuzzyDriverNameResult
+        {
+            public List<string> driverNameMatches;
+            public int matchLevel;
+            public bool matched;
+            public bool fuzzy;
+        }
+        public static FuzzyDriverNameResult FuzzyMatch(string driverName, string[] availableDriverNames = null)
+        {
+            FuzzyDriverNameResult result = new FuzzyDriverNameResult();
+            result.driverNameMatches = new List<string>();
+            result.matched = false;
+
+            if (availableDriverNames == null)
+            {
+                availableDriverNames = SoundCache.availableDriverNamesForUI.ToArray(); // files in AppData\Local\CrewChiefV4\sounds\driver_names
+            }
+            driverName = char.ToUpper(driverName[0]) + driverName.Substring(1);
+            if (availableDriverNames.Contains(driverName))
+            {
+                result.driverNameMatches.Add(driverName);
+                result.matched = true;
+                result.fuzzy = false;
+                return result;
+            }
+
+            string[] useAvailableDriverNames = availableDriverNames.Where(w => w.Length > driverName.Length/2).ToArray();
+            
+            var matches = Process.ExtractTop(driverName, availableDriverNames, limit: 1);
+            if (matches.Count() > 0 &&
+                matches.First<ExtractedResult<string>>().Score > 90)
+                {
+                    var usableDriverName = matches.First<ExtractedResult<string>>().Value;
+                    Log.Commentary($"Driver name {driverName} fuzzy matched {usableDriverName}");
+                    result.driverNameMatches.Add(usableDriverName);
+                    result.matched = true;
+                }
+                else
+                {   // FuzzySharp didn't return good enough matches, try the Phonix set of fuzzy matches
+                    // Try names with same first letter first
+                    string[] namesWithSameFirstLetter = useAvailableDriverNames.Where(w => w.StartsWith(driverName[0].ToString())).Select(w => w).ToArray<string>();
+                    var phonix = PhonixFuzzyMatches(driverName, namesWithSameFirstLetter);
+                    if (phonix.matched)
+                    {
+                        var usableDriverName = phonix.driverNameMatches[0];
+                        Log.Commentary($"Driver name {driverName} fuzzy matched {usableDriverName} in names with the same first letter at level {phonix.matchLevel} ");
+                    }
+                    else
+                    {   // getting desperate now, try to match anything
+                        phonix = PhonixFuzzyMatches(driverName, useAvailableDriverNames);
+                        if (phonix.matched)
+                        {
+                            var usableDriverName = phonix.driverNameMatches[0];
+                            Log.Commentary($"Driver name {driverName} fuzzy matched {usableDriverName} in all names at level {phonix.matchLevel} ");
+                        }
+                    }
+                    result = phonix;
+
+                    //Log.Commentary($"These fuzzy matches for '{driverName}' were not acceptable:");
+                    //foreach (var match in matches)
+                    //{
+                    //    Log.Commentary($"  '{match.Value}', {match.Score}");
+                    //}
+                }
+            result.fuzzy = true;
+            return result;
+        }
+        public static FuzzyDriverNameResult PhonixFuzzyMatches(string driverName, string[] availableDriverNames, int numberOfNamesRqd = 1)
+        {
+            FuzzyDriverNameResult result = new FuzzyDriverNameResult();
+            result.driverNameMatches = new List<string>();
+            result.matched = false;
+            if (driverName.Length < 2)
+            {
+                return result;
+            }
+            var soundex = new Soundex();
+            var doubleMetaphone = new DoubleMetaphone();
+            var matchRatingApproach = new MatchRatingApproach();
+            var caverPhone = new CaverPhone();
+            var metaphone = new Metaphone();
+
+            // Try to find a name where at least 2 algorithms find a match
+            for (int threshold = 3; threshold > 1; threshold--)
+            {
+                foreach (var availableName in availableDriverNames)
+                {
+                    string[] array = new string[] { driverName, availableName };
+                    int matches = 0;
+                    try
+                    {
+                        if (soundex.IsSimilar(array))
+                        {
+                            matches++;
+                        }
+                        if (doubleMetaphone.IsSimilar(array))
+                        {
+                            matches++;
+                        }
+                        //if (matchRatingApproach.IsSimilar(array))  Throws IndexOutOfRange a lot
+                        //{
+                        //    matches++;
+                        //}
+                        if (caverPhone.IsSimilar(array))
+                        {
+                            matches++;
+                        }
+                        if (metaphone.IsSimilar(array))
+                        {
+                            matches++;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Exception(ex, "Phonix dll");
+                    }
+                    if (matches > threshold)
+                    {
+                        if (!result.driverNameMatches.Contains(availableName))
+                        {
+                            result.driverNameMatches.Add(availableName);
+                            result.matched = true;
+                            result.matchLevel = matches;
+                            if (result.driverNameMatches.Count > numberOfNamesRqd)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (result.matched &&
+                    result.driverNameMatches.Count > numberOfNamesRqd)
+                {
+                    break;
+                }
+            }
+            return result;
+        }
+
         public static List<String> getUsableDriverNames(List<String> rawDriverNames)
         {
             usableNamesForSession.Clear();

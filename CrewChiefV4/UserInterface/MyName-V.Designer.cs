@@ -38,6 +38,8 @@
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.buttonPlayName = new System.Windows.Forms.Button();
             this.buttonNameSelect = new System.Windows.Forms.Button();
+            this.listBoxOtherDriverNames = new System.Windows.Forms.ListBox();
+            this.labelOtherDriverName = new System.Windows.Forms.Label();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -46,10 +48,10 @@
             this.labelEnterYourName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.labelEnterYourName.AutoSize = true;
-            this.labelEnterYourName.Location = new System.Drawing.Point(121, 0);
-            this.labelEnterYourName.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelEnterYourName.Location = new System.Drawing.Point(232, 0);
+            this.labelEnterYourName.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelEnterYourName.Name = "labelEnterYourName";
-            this.labelEnterYourName.Size = new System.Drawing.Size(84, 22);
+            this.labelEnterYourName.Size = new System.Drawing.Size(170, 44);
             this.labelEnterYourName.TabIndex = 0;
             this.labelEnterYourName.Text = "Enter your name";
             this.labelEnterYourName.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -59,11 +61,11 @@
             this.textBoxMyName.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBoxMyName.Location = new System.Drawing.Point(209, 2);
-            this.textBoxMyName.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBoxMyName.Location = new System.Drawing.Point(410, 4);
+            this.textBoxMyName.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.textBoxMyName.MaxLength = 32;
             this.textBoxMyName.Name = "textBoxMyName";
-            this.textBoxMyName.Size = new System.Drawing.Size(203, 20);
+            this.textBoxMyName.Size = new System.Drawing.Size(398, 31);
             this.textBoxMyName.TabIndex = 1;
             this.textBoxMyName.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxMyName_KeyDown);
             // 
@@ -74,10 +76,11 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.listBoxPersonalisations.Enabled = false;
             this.listBoxPersonalisations.FormattingEnabled = true;
-            this.listBoxPersonalisations.Location = new System.Drawing.Point(10, 43);
-            this.listBoxPersonalisations.Margin = new System.Windows.Forms.Padding(10, 2, 10, 2);
+            this.listBoxPersonalisations.ItemHeight = 25;
+            this.listBoxPersonalisations.Location = new System.Drawing.Point(20, 88);
+            this.listBoxPersonalisations.Margin = new System.Windows.Forms.Padding(20, 4, 20, 4);
             this.listBoxPersonalisations.Name = "listBoxPersonalisations";
-            this.listBoxPersonalisations.Size = new System.Drawing.Size(187, 134);
+            this.listBoxPersonalisations.Size = new System.Drawing.Size(366, 254);
             this.listBoxPersonalisations.TabIndex = 1;
             this.listBoxPersonalisations.SelectedIndexChanged += new System.EventHandler(this.listBoxPersonalisations_SelectedIndexChanged);
             this.listBoxPersonalisations.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.listBoxPersonalisations_MouseDoubleClick);
@@ -89,10 +92,11 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.listBoxDriverNames.Enabled = false;
             this.listBoxDriverNames.FormattingEnabled = true;
-            this.listBoxDriverNames.Location = new System.Drawing.Point(217, 43);
-            this.listBoxDriverNames.Margin = new System.Windows.Forms.Padding(10, 2, 10, 2);
+            this.listBoxDriverNames.ItemHeight = 25;
+            this.listBoxDriverNames.Location = new System.Drawing.Point(426, 88);
+            this.listBoxDriverNames.Margin = new System.Windows.Forms.Padding(20, 4, 20, 4);
             this.listBoxDriverNames.Name = "listBoxDriverNames";
-            this.listBoxDriverNames.Size = new System.Drawing.Size(187, 134);
+            this.listBoxDriverNames.Size = new System.Drawing.Size(366, 254);
             this.listBoxDriverNames.TabIndex = 2;
             this.listBoxDriverNames.SelectedIndexChanged += new System.EventHandler(this.listBoxDriverNames_SelectedIndexChanged);
             this.listBoxDriverNames.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.listBoxDriverNames_MouseDoubleClick);
@@ -101,10 +105,10 @@
             // 
             this.labelFullPersonalisation.AutoSize = true;
             this.labelFullPersonalisation.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.labelFullPersonalisation.Location = new System.Drawing.Point(2, 28);
-            this.labelFullPersonalisation.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelFullPersonalisation.Location = new System.Drawing.Point(4, 59);
+            this.labelFullPersonalisation.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelFullPersonalisation.Name = "labelFullPersonalisation";
-            this.labelFullPersonalisation.Size = new System.Drawing.Size(203, 13);
+            this.labelFullPersonalisation.Size = new System.Drawing.Size(398, 25);
             this.labelFullPersonalisation.TabIndex = 3;
             this.labelFullPersonalisation.Text = "Full personalisation";
             this.labelFullPersonalisation.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
@@ -113,19 +117,20 @@
             // 
             this.labelDriverName.AutoSize = true;
             this.labelDriverName.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.labelDriverName.Location = new System.Drawing.Point(209, 28);
-            this.labelDriverName.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelDriverName.Location = new System.Drawing.Point(410, 59);
+            this.labelDriverName.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelDriverName.Name = "labelDriverName";
-            this.labelDriverName.Size = new System.Drawing.Size(203, 13);
+            this.labelDriverName.Size = new System.Drawing.Size(398, 25);
             this.labelDriverName.TabIndex = 4;
             this.labelDriverName.Text = "Driver name";
             this.labelDriverName.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             // 
             // tableLayoutPanel1
             // 
-            this.tableLayoutPanel1.ColumnCount = 2;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.ColumnCount = 3;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
             this.tableLayoutPanel1.Controls.Add(this.listBoxDriverNames, 1, 2);
             this.tableLayoutPanel1.Controls.Add(this.labelDriverName, 1, 1);
             this.tableLayoutPanel1.Controls.Add(this.listBoxPersonalisations, 0, 2);
@@ -134,15 +139,17 @@
             this.tableLayoutPanel1.Controls.Add(this.labelFullPersonalisation, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.buttonPlayName, 0, 3);
             this.tableLayoutPanel1.Controls.Add(this.buttonNameSelect, 1, 3);
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(6, 18);
-            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tableLayoutPanel1.Controls.Add(this.listBoxOtherDriverNames, 2, 2);
+            this.tableLayoutPanel1.Controls.Add(this.labelOtherDriverName, 2, 1);
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(12, 35);
+            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 4;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 52.77778F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 47.22222F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 148F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 24F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(414, 214);
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 285F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 46F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(1220, 416);
             this.tableLayoutPanel1.TabIndex = 1;
             // 
             // buttonPlayName
@@ -152,10 +159,10 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonPlayName.Enabled = false;
             this.buttonPlayName.Image = ((System.Drawing.Image)(resources.GetObject("buttonPlayName.Image")));
-            this.buttonPlayName.Location = new System.Drawing.Point(10, 191);
-            this.buttonPlayName.Margin = new System.Windows.Forms.Padding(10, 2, 10, 2);
+            this.buttonPlayName.Location = new System.Drawing.Point(20, 373);
+            this.buttonPlayName.Margin = new System.Windows.Forms.Padding(20, 4, 20, 4);
             this.buttonPlayName.Name = "buttonPlayName";
-            this.buttonPlayName.Size = new System.Drawing.Size(187, 21);
+            this.buttonPlayName.Size = new System.Drawing.Size(366, 39);
             this.buttonPlayName.TabIndex = 5;
             this.buttonPlayName.UseVisualStyleBackColor = true;
             this.buttonPlayName.Click += new System.EventHandler(this.buttonPlayName_Click);
@@ -166,23 +173,52 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonNameSelect.Enabled = false;
-            this.buttonNameSelect.Location = new System.Drawing.Point(217, 191);
-            this.buttonNameSelect.Margin = new System.Windows.Forms.Padding(10, 2, 10, 2);
+            this.buttonNameSelect.Location = new System.Drawing.Point(426, 373);
+            this.buttonNameSelect.Margin = new System.Windows.Forms.Padding(20, 4, 20, 4);
             this.buttonNameSelect.Name = "buttonNameSelect";
-            this.buttonNameSelect.Size = new System.Drawing.Size(187, 21);
+            this.buttonNameSelect.Size = new System.Drawing.Size(366, 39);
             this.buttonNameSelect.TabIndex = 6;
             this.buttonNameSelect.Text = "Select";
             this.buttonNameSelect.UseVisualStyleBackColor = true;
             this.buttonNameSelect.Click += new System.EventHandler(this.buttonNameSelect_Click);
             // 
+            // listBoxOtherDriverNames
+            // 
+            this.listBoxOtherDriverNames.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.listBoxOtherDriverNames.Enabled = false;
+            this.listBoxOtherDriverNames.FormattingEnabled = true;
+            this.listBoxOtherDriverNames.ItemHeight = 25;
+            this.listBoxOtherDriverNames.Location = new System.Drawing.Point(832, 88);
+            this.listBoxOtherDriverNames.Margin = new System.Windows.Forms.Padding(20, 4, 20, 4);
+            this.listBoxOtherDriverNames.Name = "listBoxOtherDriverNames";
+            this.listBoxOtherDriverNames.Size = new System.Drawing.Size(368, 254);
+            this.listBoxOtherDriverNames.TabIndex = 7;
+            this.listBoxOtherDriverNames.SelectedIndexChanged += new System.EventHandler(this.listBoxOtherDriverNames_SelectedIndexChanged);
+            this.listBoxOtherDriverNames.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.listBoxOtherDriverNames_MouseDoubleClick);
+            // 
+            // labelOtherDriverName
+            // 
+            this.labelOtherDriverName.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.labelOtherDriverName.AutoSize = true;
+            this.labelOtherDriverName.Location = new System.Drawing.Point(815, 44);
+            this.labelOtherDriverName.Name = "labelOtherDriverName";
+            this.labelOtherDriverName.Size = new System.Drawing.Size(402, 40);
+            this.labelOtherDriverName.TabIndex = 8;
+            this.labelOtherDriverName.Text = "Other possible driver names";
+            this.labelOtherDriverName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // MyName_V
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(448, 255);
+            this.ClientSize = new System.Drawing.Size(1250, 490);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "MyName_V";
             this.Text = "Selecting a name";
             this.tableLayoutPanel1.ResumeLayout(false);
@@ -202,5 +238,7 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.Button buttonPlayName;
         private System.Windows.Forms.Button buttonNameSelect;
+        private System.Windows.Forms.ListBox listBoxOtherDriverNames;
+        private System.Windows.Forms.Label labelOtherDriverName;
     }
 }
