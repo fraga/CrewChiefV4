@@ -27,6 +27,12 @@ namespace CrewChiefV4
 
         private static String[] juniorSuffixes = new string[] { "jr", "junior" };
 
+        // provide a hint to the last-ditch phonics matcher - only allow names who's first letters match these pairs
+        private static string[][] closeFirstLetters = new string[][] {
+            new string[] { "C", "K" }, new string[] { "J", "G" }, new string[] { "W", "V" }, new string[] { "Z", "S" },
+            new string[] { "Sh", "Ch" }, new string[] { "Ch", "Sch" }, new string[] { "Th", "T" }, new string[] { "Ts", "S" },
+            new string[] { "X", "Z" }, new string[] { "Dj", "J" }};
+
         private static Dictionary<String, String> lowerCaseRawNameToUsableName = new Dictionary<String, String>();
 
         private static Dictionary<String, String> usableNamesForSession = new Dictionary<String, String>();
@@ -377,12 +383,17 @@ namespace CrewChiefV4
                         Log.Commentary($"Driver name {driverName} fuzzy matched {usableDriverName} in names with the same first letter at level {phonix.matchLevel} ");
                     }
                     else
-                    {   // getting desperate now, try to match anything
-                        phonix = PhonixFuzzyMatches(driverName, useAvailableDriverNames);
-                        if (phonix.matched)
+                    {
+                        // getting desperate now, try to match anything provided the 2 first letters are close enough   
+                        string[] namesWithCloseFirstLetters = useAvailableDriverNames.Where(w => firstLettersCloseEnough(w, driverName)).Select(w => w).ToArray<string>();
+                        if (namesWithCloseFirstLetters.Count() > 0)
                         {
-                            var usableDriverName = phonix.driverNameMatches[0];
-                            Log.Commentary($"Driver name {driverName} fuzzy matched {usableDriverName} in all names at level {phonix.matchLevel} ");
+                            phonix = PhonixFuzzyMatches(driverName, namesWithCloseFirstLetters);
+                            if (phonix.matched)
+                            {
+                                var usableDriverName = phonix.driverNameMatches[0];
+                                Log.Commentary($"Driver name {driverName} fuzzy matched {usableDriverName} in all names at level {phonix.matchLevel} ");
+                            }
                         }
                     }
                     result = phonix;
@@ -478,6 +489,17 @@ namespace CrewChiefV4
             return usableNamesForSession.Values.ToList();
         }
 
+        private static bool firstLettersCloseEnough(string s1, string s2)
+        {
+            foreach (string[] pairs in closeFirstLetters)
+            {
+                if ((s1.StartsWith(pairs[0]) && s2.StartsWith(pairs[1])) || (s1.StartsWith(pairs[1]) && s2.StartsWith(pairs[0])))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
         private static String getUnambiguousLastName(String fullName)
         {
             if (fullName.Count(Char.IsWhiteSpace) == 0) 

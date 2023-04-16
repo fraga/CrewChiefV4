@@ -27,6 +27,11 @@ namespace CrewChiefV4.UserInterface
             labelOtherDriverName.Text = Configuration.getUIString("other_driver_name");
             //buttonPlayName.Text = Configuration.getUIString("play_name_sample");
             buttonNameSelect.Text = Configuration.getUIString("select");
+            if (textBoxMyName.Text.Length > 0)
+            {
+                // Run the model
+                model.NameEntry(textBoxMyName.Text);
+            }
         }
 
         private void textBoxMyName_KeyDown(object sender, KeyEventArgs e)
