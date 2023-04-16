@@ -25,6 +25,8 @@ namespace CrewChiefV4
 
         private static String[] middleBits = new String[] { "de la", "de le", "van der", "van de", "van", "de", "da", "le", "la", "von", "di", "eg", "du", "el", "del", "saint", "st" };
 
+        private static String[] juniorSuffixes = new string[] { "jr", "junior" };
+
         private static Dictionary<String, String> lowerCaseRawNameToUsableName = new Dictionary<String, String>();
 
         private static Dictionary<String, String> usableNamesForSession = new Dictionary<String, String>();
@@ -514,6 +516,10 @@ namespace CrewChiefV4
                 else if (fullNameSplit.Length > 3 && middleBits.Contains((fullNameSplit[fullNameSplit.Count() - 3] + " " + fullNameSplit[fullNameSplit.Count() - 2]).ToLower()))
                 {
                     return fullNameSplit[fullNameSplit.Count() - 3] + " " + fullNameSplit[fullNameSplit.Count() - 2] + " " + fullNameSplit[fullNameSplit.Count() - 1];
+                }
+                else if (juniorSuffixes.Contains(fullNameSplit[fullNameSplit.Count() - 1].ToLower()))
+                {
+                    return fullNameSplit[fullNameSplit.Count() - 2];
                 }
                 else if (optimisticSurnameExtraction)
                 {

@@ -4,6 +4,7 @@ using CrewChiefV4.UserInterface.VMs;
 using System.Linq;
 using System.IO;
 using System.Media;
+using System.Collections.Generic;
 
 namespace CrewChiefV4.UserInterface.Models
 {
@@ -30,20 +31,27 @@ namespace CrewChiefV4.UserInterface.Models
             int exactPersonalisationMatch = -1;
             string[] availablePersonalisations = MainWindow.instance.crewChief.audioPlayer.personalisationsArray.
                 Where(w => w.Length > name.Length / 2).ToArray();
+            // get fuzzy and phonic matches on the available personalisations
             var matches = Process.ExtractTop(name, availablePersonalisations, limit: 10);
-            availablePersonalisations = new string[matches.Count()];
+            var phonicMatches = DriverNameHelper.PhonixFuzzyMatches(name, availablePersonalisations, 10);
+            List<string> fuzzyAndPhonicPersonalisationMatches = new List<string>();
             int index = 0;
             foreach (var match in matches)
             {
-                availablePersonalisations[index] = match.Value;
-                if (match.Score == 100)
+                if (!AudioPlayer.NO_PERSONALISATION_SELECTED.Equals(match.Value))
                 {
-                    exactPersonalisationMatch = index;
+                    fuzzyAndPhonicPersonalisationMatches.Add(match.Value);
+                    if (match.Score == 100)
+                    {
+                        exactPersonalisationMatch = index;
+                    }
+                    index++;
                 }
-                index++;
             }
+            fuzzyAndPhonicPersonalisationMatches.AddRange(phonicMatches.driverNameMatches.Where(
+                w => w != null && !AudioPlayer.NO_PERSONALISATION_SELECTED.Equals(w) && !fuzzyAndPhonicPersonalisationMatches.Contains(w)));
             // Send it to the VM
-            viewModel.fillPersonalisations(availablePersonalisations);
+            viewModel.fillPersonalisations(fuzzyAndPhonicPersonalisationMatches.ToArray());
             if (exactPersonalisationMatch != -1)
             {
                 viewModel.selectPersonalisation(exactPersonalisationMatch);
@@ -79,7 +87,7 @@ namespace CrewChiefV4.UserInterface.Models
                 viewModel.selectDriverName(exactDriverNameMatch);
             }
 
-            // 3) other less likely fuzzy matches
+            // 3) other less likely fuzzy matches on the driver names
             if (exactPersonalisationMatch == -1 &&
                 exactDriverNameMatch == -1)
             {
