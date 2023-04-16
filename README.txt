@@ -437,7 +437,7 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
-Version 4.16.4.1: Use FuzzySharp to find names close to the player's name. Set Allow opponent names in 'My name' list Property if necessary. Update rFactor2SharedMemoryMapPlugin64.dll to 3.7.15.1. MQTT parses JSON messages with priority and distance at which the message should be played. Added car model to ACC. Correct the Group C brake type. Use US terms for AMS2's indycars. Tsukuba track mapped. iRacing: LMDH added, Formula Ford 1600 added. Plugin installer now sets folder browser root to My Computer instead of Desktop. GTR2: Update plugin to v2.5.0.0
+Version 4.17.0.0: Use FuzzySharp to find names close to the player's name - the My Name popup now allows you to enter your name and the app will suggest possible matches for this. Sets Allow opponent names in 'My name' list Property if necessary; allow fuzzy and phonic matching for opponent driver names; MQTT parses JSON messages with priority and distance at which the message should be played; Plugin installer now sets folder browser root to My Computer instead of Desktop; RF2 - Update rFactor2SharedMemoryMapPlugin64.dll to 3.7.15.1; ACC - Added car model to data; R3E - use game provided brake temperature thresholds; AMS2 - Use US terms for AMS2's indycars, some car class corrections; iRacing - Tsukuba track mapped, LMDH added, Formula Ford 1600 added; GTR2 - Updated plugin; various minor fixes
 
 Version 4.16.3.5: R3E - fix missing ADAC 2021 GT3 class mapping; GTR2 plugin update; added more channels to MQTT telemetry output; a few minor fixes
 
