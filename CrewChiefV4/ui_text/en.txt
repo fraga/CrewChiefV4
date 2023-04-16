@@ -2649,3 +2649,9 @@ enable_mqtt_telemetry_category = MISC
 mqtt_topic_drivername = MQTT drivername
 mqtt_topic_drivername_help = A unique driver name to be inserted into the MQTT topic
 mqtt_topic_drivername_category = MISC
+
+# Property: allow fuzzy opponent name matching
+use_fuzzy_driver_name_matching = Fuzzy opponent name matching
+use_fuzzy_driver_name_matching_help = Allow opponent names to be matched to similar sounding recordings
+use_fuzzy_driver_name_matching_category = AUDIO_VOICE_AND_CONTROLLERS
+use_fuzzy_driver_name_matching_metadata = RESTART_REQUIRED

@@ -41,14 +41,19 @@ namespace CrewChiefV4
 
         private static string generatedDriverNamesPath;
 
+        private static bool useFuzzyDrivernameMatching = UserSettings.GetUserSettings().getBoolean("use_fuzzy_driver_name_matching");
+
         public static void readRawNamesToUsableNamesFiles(String soundsFolderName)
         {
             readRawNamesToUsableNamesFile(soundsFolderName, @"driver_names\additional_names.txt");
             readRawNamesToUsableNamesFile(soundsFolderName, @"driver_names\names.txt");
-            // Generating fuzzy match driver names is costly so they're stored once
-            // they're generated
-            readRawNamesToUsableNamesFile(soundsFolderName, @"driver_names\generated_names.txt");
-            generatedDriverNamesPath = Path.Combine(soundsFolderName, @"driver_names\generated_names.txt");
+            if (useFuzzyDrivernameMatching)
+            {
+                // Generating fuzzy match driver names is costly so they're stored once
+                // they're generated
+                readRawNamesToUsableNamesFile(soundsFolderName, @"driver_names\generated_names.txt");
+                generatedDriverNamesPath = Path.Combine(soundsFolderName, @"driver_names\generated_names.txt");
+            }
         }
 
         private static void readRawNamesToUsableNamesFile(String soundsFolderName, String filename)
@@ -347,6 +352,10 @@ namespace CrewChiefV4
             FuzzyDriverNameResult result = new FuzzyDriverNameResult();
             result.driverNameMatches = new List<string>();
             result.matched = false;
+            if (!useFuzzyDrivernameMatching)
+            {
+                return result;
+            }
 
             if (availableDriverNames == null)
             {

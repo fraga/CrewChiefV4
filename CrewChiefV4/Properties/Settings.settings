@@ -1367,5 +1367,8 @@
     <Setting Name="report_fuel_laps_left_in_timed_races" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="use_fuzzy_driver_name_matching" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
