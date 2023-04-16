@@ -68,7 +68,7 @@ namespace CrewChiefV4
                 StreamReader file = new StreamReader(Path.Combine(soundsFolderName, filename));
                 while ((line = file.ReadLine()) != null)
                 {
-                    if (line.Length > 2 && line.Trim().EndsWith(":"))
+                    if (line.Length > 1 && line.Trim().EndsWith(":"))
                     {
                         suppressFuzzyMatchesOnTheseNames.Add(line.Trim(':').ToLower());
                     }
