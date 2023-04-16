@@ -37,6 +37,8 @@ namespace CrewChiefV4
 
         private static Dictionary<String, String> usableNamesForSession = new Dictionary<String, String>();
 
+        private static HashSet<string> suppressFuzzyMatchesOnTheseNames = new HashSet<string>();
+
         private static Boolean useLastNameWherePossible = true;
 
         private static string generatedDriverNamesPath;
@@ -66,15 +68,22 @@ namespace CrewChiefV4
                 StreamReader file = new StreamReader(Path.Combine(soundsFolderName, filename));
                 while ((line = file.ReadLine()) != null)
                 {
-                    int separatorIndex = line.LastIndexOf(":");
-                    if (separatorIndex > 0 && line.Length > separatorIndex + 1)
+                    if (line.Length > 2 && line.Trim().EndsWith(":"))
                     {
-                        String lowerCaseRawName = line.Substring(0, separatorIndex).ToLower();
-                        String usableName = line.Substring(separatorIndex + 1).Trim().ToLower();
-                        if (usableName != null && usableName.Length > 0) 
+                        suppressFuzzyMatchesOnTheseNames.Add(line.Trim(':').ToLower());
+                    }
+                    else
+                    {
+                        int separatorIndex = line.LastIndexOf(":");
+                        if (separatorIndex > 0 && line.Length > separatorIndex + 1)
                         {
-                            // add new or replace the existing mapping - last one wins
-                            lowerCaseRawNameToUsableName[lowerCaseRawName] = usableName;
+                            String lowerCaseRawName = line.Substring(0, separatorIndex).ToLower();
+                            String usableName = line.Substring(separatorIndex + 1).Trim().ToLower();
+                            if (usableName != null && usableName.Length > 0)
+                            {
+                                // add new or replace the existing mapping - last one wins
+                                lowerCaseRawNameToUsableName[lowerCaseRawName] = usableName;
+                            }
                         }
                     }
                     counter++;
@@ -352,7 +361,7 @@ namespace CrewChiefV4
             FuzzyDriverNameResult result = new FuzzyDriverNameResult();
             result.driverNameMatches = new List<string>();
             result.matched = false;
-            if (!useFuzzyDrivernameMatching)
+            if (!useFuzzyDrivernameMatching || suppressFuzzyMatchesOnTheseNames.Contains(driverName.ToLower()))
             {
                 return result;
             }
