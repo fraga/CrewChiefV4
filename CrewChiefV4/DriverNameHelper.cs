@@ -295,7 +295,7 @@ namespace CrewChiefV4
                                 }
                                 else
                                 {
-                                    var fuzzyDriverName = FuzzyMatch(lastName);
+                                    var fuzzyDriverName = MatchForOpponentName(lastName);
                                     if (fuzzyDriverName.matched)
                                     {
                                         usableDriverName = fuzzyDriverName.driverNameMatches[0].ToLower();
@@ -318,7 +318,7 @@ namespace CrewChiefV4
                         }
                         if (!usedLastName)
                         {
-                            var fuzzyDriverName = FuzzyMatch(usableDriverName);
+                            var fuzzyDriverName = MatchForOpponentName(usableDriverName);
                             if (fuzzyDriverName.matched)
                             {
                                 var driverName = fuzzyDriverName.driverNameMatches[0].ToLower();
@@ -355,78 +355,43 @@ namespace CrewChiefV4
             public int matchLevel;
             public bool matched;
             public bool fuzzy;
+            public int fuzzyConfidence;
         }
-        public static FuzzyDriverNameResult FuzzyMatch(string driverName, string[] availableDriverNames = null)
+        public static string[] getAvailableNamesWithCloseFirstLetters(string driverName, string[] availableDriverNames)
         {
-            FuzzyDriverNameResult result = new FuzzyDriverNameResult();
-            result.driverNameMatches = new List<string>();
-            result.matched = false;
+            driverName = char.ToUpper(driverName[0]) + driverName.Substring(1);
+            List<string> names = new List<string>();
+            int minNameLength = driverName.Length / 2;
+            int maxNameLength = driverName.Length * 2;
+            foreach (string name in availableDriverNames)
+            {
+                if (name.Length > minNameLength && name.Length < maxNameLength &&
+                        (name[0] == driverName[0] || firstLettersCloseEnough(driverName, name)))
+                {
+                    names.Add(name);
+                }
+            }
+            return names.ToArray<string>();
+        }
+        public static FuzzyDriverNameResult MatchForOpponentName(string driverName, string[] availableDriverNames = null)
+        {
             if (!useFuzzyDrivernameMatching || suppressFuzzyMatchesOnTheseNames.Contains(driverName.ToLower()))
             {
-                return result;
+                var emptyResult = new FuzzyDriverNameResult();
+                emptyResult.driverNameMatches = new List<string>();
+                emptyResult.matched = false;
+                return emptyResult;
             }
-
             if (availableDriverNames == null)
             {
                 availableDriverNames = SoundCache.availableDriverNamesForUI.ToArray(); // files in AppData\Local\CrewChiefV4\sounds\driver_names
             }
-            driverName = char.ToUpper(driverName[0]) + driverName.Substring(1);
-            if (availableDriverNames.Contains(driverName))
-            {
-                result.driverNameMatches.Add(driverName);
-                result.matched = true;
-                result.fuzzy = false;
-                return result;
-            }
-
-            string[] useAvailableDriverNames = availableDriverNames.Where(w => w.Length > driverName.Length/2).ToArray();
-            
-            var matches = Process.ExtractTop(driverName, availableDriverNames, limit: 1);
-            if (matches.Count() > 0 &&
-                matches.First<ExtractedResult<string>>().Score > 90)
-                {
-                    var usableDriverName = matches.First<ExtractedResult<string>>().Value;
-                    Log.Commentary($"Driver name {driverName} fuzzy matched {usableDriverName}");
-                    result.driverNameMatches.Add(usableDriverName);
-                    result.matched = true;
-                }
-                else
-                {   // FuzzySharp didn't return good enough matches, try the Phonix set of fuzzy matches
-                    // Try names with same first letter first
-                    string[] namesWithSameFirstLetter = useAvailableDriverNames.Where(w => w.StartsWith(driverName[0].ToString())).Select(w => w).ToArray<string>();
-                    var phonix = PhonixFuzzyMatches(driverName, namesWithSameFirstLetter);
-                    if (phonix.matched)
-                    {
-                        var usableDriverName = phonix.driverNameMatches[0];
-                        Log.Commentary($"Driver name {driverName} fuzzy matched {usableDriverName} in names with the same first letter at level {phonix.matchLevel} ");
-                    }
-                    else
-                    {
-                        // getting desperate now, try to match anything provided the 2 first letters are close enough   
-                        string[] namesWithCloseFirstLetters = useAvailableDriverNames.Where(w => firstLettersCloseEnough(w, driverName)).Select(w => w).ToArray<string>();
-                        if (namesWithCloseFirstLetters.Count() > 0)
-                        {
-                            phonix = PhonixFuzzyMatches(driverName, namesWithCloseFirstLetters);
-                            if (phonix.matched)
-                            {
-                                var usableDriverName = phonix.driverNameMatches[0];
-                                Log.Commentary($"Driver name {driverName} fuzzy matched {usableDriverName} in all names at level {phonix.matchLevel} ");
-                            }
-                        }
-                    }
-                    result = phonix;
-
-                    //Log.Commentary($"These fuzzy matches for '{driverName}' were not acceptable:");
-                    //foreach (var match in matches)
-                    //{
-                    //    Log.Commentary($"  '{match.Value}', {match.Score}");
-                    //}
-                }
-            result.fuzzy = true;
-            return result;
+            return PhonixFuzzyMatches(driverName, getAvailableNamesWithCloseFirstLetters(driverName, availableDriverNames), 1);
         }
+
         public static FuzzyDriverNameResult PhonixFuzzyMatches(string driverName, string[] availableDriverNames, int numberOfNamesRqd = 1)
         {
+            bool multipleMatchesRequested = numberOfNamesRqd > 1;
             FuzzyDriverNameResult result = new FuzzyDriverNameResult();
             result.driverNameMatches = new List<string>();
             result.matched = false;
@@ -440,9 +405,13 @@ namespace CrewChiefV4
             var caverPhone = new CaverPhone();
             var metaphone = new Metaphone();
 
+            // keep track of what we've matched so we don't add the same result twice
+            HashSet<string> allMatches = new HashSet<string>();
+
             // Try to find a name where at least 2 algorithms find a match
-            for (int threshold = 3; threshold > 1; threshold--)
+            for (int threshold = 4; threshold > 1; threshold--)
             {
+                List<string> matchesForThisThreshold = new List<string>();
                 foreach (var availableName in availableDriverNames)
                 {
                     string[] array = new string[] { driverName, availableName };
@@ -474,29 +443,46 @@ namespace CrewChiefV4
                     {
                         Log.Exception(ex, "Phonix dll");
                     }
-                    if (matches > threshold)
+                    if (matches >= threshold && allMatches.Add(availableName))
                     {
-                        if (!result.driverNameMatches.Contains(availableName))
+                        // multiple match mode - add this match to the set and stop looking if we have enough
+                        if (multipleMatchesRequested)
                         {
                             result.driverNameMatches.Add(availableName);
                             result.matched = true;
                             result.matchLevel = matches;
                             if (result.driverNameMatches.Count > numberOfNamesRqd)
                             {
-                                break;
+                                // we have enough, stop looking and return - no need to do another run at a lower threshold
+                                return result;
                             }
+                        }
+                        else
+                        {
+                            matchesForThisThreshold.Add(availableName);
                         }
                     }
                 }
-                if (result.matched &&
-                    result.driverNameMatches.Count > numberOfNamesRqd)
+                // single match mode - get the best we have and stop looking
+                if (!multipleMatchesRequested && matchesForThisThreshold.Count() > 0)
                 {
-                    break;
+                    // fuzzy match thresold can be more lenient when we have a great phonic match
+                    int matchScoreThreshold = threshold == 4 ? 60 : threshold == 3 ? 72 : 75;
+                    // get the best match from what we have, if it's good enough stop
+                    var fuzzyMatchesForThisThreshold = Process.ExtractTop(driverName, matchesForThisThreshold.ToArray(), limit: 1);
+                    if (fuzzyMatchesForThisThreshold.Count() > 0 && fuzzyMatchesForThisThreshold.First().Score > matchScoreThreshold)
+                    {
+                        result.driverNameMatches.Add(fuzzyMatchesForThisThreshold.First().Value);
+                        result.matched = true;
+                        result.matchLevel = threshold;
+                        result.fuzzyConfidence = fuzzyMatchesForThisThreshold.First().Score;
+                        break;
+                    }
                 }
             }
             return result;
         }
-
+        
         public static List<String> getUsableDriverNames(List<String> rawDriverNames)
         {
             usableNamesForSession.Clear();
