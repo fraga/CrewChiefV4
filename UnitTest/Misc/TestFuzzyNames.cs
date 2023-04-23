@@ -127,7 +127,8 @@ namespace UnitTest.Misc
         [TestCase("fenstermacher", null)]
         [TestCase("boltzmann", null)]
         [TestCase("berenger", null)]
-        
+        [TestCase("prunes", null)]
+
         public void test_FuzzyMatches(string driverName, string wavFile)
         {
             // var result = DriverNameHelper.FuzzyMatch(driverName, availableDriverNames);

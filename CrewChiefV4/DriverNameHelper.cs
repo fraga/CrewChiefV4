@@ -468,9 +468,11 @@ namespace CrewChiefV4
                 {
                     // fuzzy match thresold can be more lenient when we have a great phonic match
                     int matchScoreThreshold = threshold == 4 ? 60 : threshold == 3 ? 72 : 75;
-                    // get the best match from what we have, if it's good enough stop
+                    // get the best match from what we have, if it's good enough stop.
+                    // "good enough" means it has to have a decent fuzzy match, and it can't be massively longer or shorter than the original
                     var fuzzyMatchesForThisThreshold = Process.ExtractTop(driverName, matchesForThisThreshold.ToArray(), limit: 1);
-                    if (fuzzyMatchesForThisThreshold.Count() > 0 && fuzzyMatchesForThisThreshold.First().Score > matchScoreThreshold)
+                    if (fuzzyMatchesForThisThreshold.Count() > 0 && fuzzyMatchesForThisThreshold.First().Score > matchScoreThreshold
+                        && Math.Abs(fuzzyMatchesForThisThreshold.First().Value.Length - driverName.Length) < 5)
                     {
                         result.driverNameMatches.Add(fuzzyMatchesForThisThreshold.First().Value);
                         result.matched = true;
