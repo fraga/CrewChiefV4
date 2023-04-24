@@ -1,14 +1,13 @@
 ﻿using NUnit.Framework;
 
-using CrewChiefV4;
-using System;
-
 using Assert = NUnit.Framework.Assert;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Runtime.InteropServices;
 using System.IO;
 using System.Collections.Generic;
-using SharpDX;
+using System;
+using System.Linq;
+
+using CrewChiefV4;
+using static CrewChiefV4.DriverNameHelper;
 
 namespace UnitTest.Misc
 {
@@ -33,8 +32,10 @@ namespace UnitTest.Misc
                 line = sr.ReadLine();
             }
             availableDriverNames = aDN.ToArray();
+            readRawNamesToUsableNamesFile(@"../../../CrewChiefV4/sounds/driver_names", "names.txt");
         }
 
+        #region Test_FuzzyMatches
         // good matches...
         [TestCase("waissman", "weissmann")]
         [TestCase("gwilherme", "guilherme")]
@@ -168,5 +169,115 @@ namespace UnitTest.Misc
                 Log.Commentary(driverName);
             }
         }
+        #endregion Test_FuzzyMatches
+
+        #region Test_getUsableDriverName
+        static int BEFORE_usableNamesForSessionCount = 0;
+        static int AFTER_usableNamesForSessionCount = 0;
+
+        [TestCase("michael holtz", "holts", 1)]
+        [TestCase("Patricio Javier Alzamora", "alzamora", 1)] // Clause 1: A straight match
+        // (Clause 2 is an error condition I can't see a way to generate)
+        [TestCase("webber232", "weber", 1)]         // Clause 3: Using mapped driver name for cleaned up driver name
+        [TestCase("andy webber", "weber", 1)]       // Clause 4: Using mapped driver name for cleaned up driver (last) name
+        // (Clause 4 is a fuzzy match which the old method doesn't do)
+        [TestCase("andy wexxxer", "wexxxer", 1)]    // Clause 6a: Using unmapped driver last name for raw driver name
+        [TestCase("weyyyer", "weyyyer", 1)]         // Clause 6b: Using unmapped driver name for raw driver name
+
+        // Rerun the same cases and no new names should be added
+        // ...assuming the tests are run in this order
+        [TestCase("michael holtz", "holts", 0)]
+        [TestCase("Patricio Javier Alzamora", "alzamora", 0)] // Clause 1: A straight match
+        // (Clause 2 is an error condition I can't see a way to generate)
+        [TestCase("webber232", "weber", 0)]         // Clause 3: Using mapped driver name for cleaned up driver name
+        [TestCase("andy webber", "weber", 0)]       // Clause 4: Using mapped driver name for cleaned up driver (last) name
+        // (Clause 4 is a fuzzy match which the old method doesn't do)
+        [TestCase("andy wexxxer", "wexxxer", 0)]    // Clause 6a: Using unmapped driver last name for raw driver name
+        [TestCase("weyyyer", "weyyyer", 0)]         // Clause 6b: Using unmapped driver name for raw driver name
+
+        public void AB_Test_getUsableDriverName(string rawDriverName,
+            string usableDriverName,
+            int adds1to_usableNamesForSession)
+        {
+            Assert.AreEqual(BEFORE_usableNamesForSessionCount, AFTER_usableNamesForSessionCount);
+            var driverName = BEFORE_DriverNameHelper.BEFORE_getUsableDriverName(rawDriverName);
+            Assert.AreEqual(driverName, usableDriverName);
+            BEFORE_usableNamesForSessionCount += adds1to_usableNamesForSession;
+            Assert.AreEqual(BEFORE_usableNamesForSessionCount,
+                BEFORE_DriverNameHelper.getSize_usableNamesForSession());
+
+            // Old method passes, check the new method
+            driverName = getUsableDriverName(rawDriverName);
+            Assert.AreEqual(driverName, usableDriverName);
+            AFTER_usableNamesForSessionCount += adds1to_usableNamesForSession;
+            Assert.AreEqual(AFTER_usableNamesForSessionCount,
+                GetSize_usableNamesForSession());
+        }
+    }
+
+    // Copy of getUsableDriverName() before refactoring.
+    class BEFORE_DriverNameHelper
+    {
+        private static Dictionary<String, String> usableNamesForSession = new Dictionary<String, String>();
+        private static bool useLastNameWherePossible = true;
+        internal static int getSize_usableNamesForSession()
+        {
+            return usableNamesForSession.Count;
+        }
+        public static String BEFORE_getUsableDriverName(String rawDriverName)
+        {
+            if (!usableNamesForSession.ContainsKey(rawDriverName))
+            {
+                String usableDriverName = null;
+                if (lowerCaseRawNameToUsableName.TryGetValue(rawDriverName.ToLower(), out usableDriverName))
+                {
+                    Console.WriteLine("BEFORE_Using mapped drivername " + usableDriverName + " for raw driver name " + rawDriverName);
+                    usableNamesForSession.Add(rawDriverName, usableDriverName);
+                }
+                else
+                {
+                    usableDriverName = validateAndCleanUpName(rawDriverName);
+                    if (usableDriverName != null)
+                    {
+                        Boolean usedLastName = false;
+                        if (useLastNameWherePossible)
+                        {
+                            String lastName = getUnambiguousLastName(usableDriverName);
+                            if (lastName != null && lastName.Count() > 1)
+                            {
+                                if (lowerCaseRawNameToUsableName.TryGetValue(lastName.ToLower(), out usableDriverName))
+                                {
+                                    Console.WriteLine("BEFORE_Using mapped driver last name " + usableDriverName + " for raw driver last name " + lastName);
+                                    usableNamesForSession.Add(rawDriverName, usableDriverName);
+                                    usedLastName = true;
+                                }
+                                else
+                                {
+                                    Console.WriteLine("BEFORE_Using unmapped driver last name " + lastName + " for raw driver name " + rawDriverName);
+                                    usableDriverName = lastName;
+                                    usableNamesForSession.Add(rawDriverName, usableDriverName);
+                                    usedLastName = true;
+                                }
+                            }
+                        }
+                        if (!usedLastName)
+                        {
+                            Console.WriteLine("BEFORE_Using unmapped drivername " + usableDriverName + " for raw driver name " + rawDriverName);
+                            usableNamesForSession.Add(rawDriverName, usableDriverName);
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("BEFORE_Unable to create a usable driver name for " + rawDriverName);
+                    }
+                }
+                return usableDriverName;
+            }
+            else
+            {
+                return usableNamesForSession[rawDriverName];
+            }
+        }
+        #endregion Test_getUsableDriverName
     }
 }
