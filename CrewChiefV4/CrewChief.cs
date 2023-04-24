@@ -1,24 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.IO.MemoryMappedFiles;
-using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading;
-using System.Windows.Forms;
+
 using CrewChiefV4.RaceRoom;
 using CrewChiefV4.Events;
-using System.Collections.Generic;
 using CrewChiefV4.GameState;
 using CrewChiefV4.PCars;
-using CrewChiefV4.RaceRoom.RaceRoomData;
 using CrewChiefV4.Audio;
-using CrewChiefV4.NumberProcessing;
-using WebSocketSharp.Server;
 using CrewChiefV4.Overlay;
 using CrewChiefV4.SharedMemory;
 using CrewChiefV4.PitManager;
-using CrewChiefV4.commands;
 
 namespace CrewChiefV4
 {
@@ -171,7 +163,7 @@ namespace CrewChiefV4
             audioPlayer.initialise();
             clearAndReloadEvents();
 
-            DriverNameHelper.readRawNamesToUsableNamesFiles(AudioPlayer.soundFilesPath);
+            DriverNameHelper.ReadDriverNameMappings(AudioPlayer.soundFilesPath);
         }
 
         private void reloadSettings()

@@ -39,6 +39,7 @@ namespace CrewChiefV4.Audio
         private static Dictionary<String, SingleSound> singleSounds = new Dictionary<String, SingleSound>();
         public static HashSet<String> availableDriverNames = new HashSet<String>();
         public static HashSet<String> availableDriverNamesForUI = new HashSet<String>();
+        public static string[] availableDriverNamesForUIAsArray = new string[] { };
         public static HashSet<String> availableSounds = new HashSet<String>();
         public static HashSet<String> availablePrefixesAndSuffixes = new HashSet<String>();
         private Boolean useSwearyMessages;
@@ -1029,6 +1030,7 @@ namespace CrewChiefV4.Audio
                     }
                 }
             }
+            availableDriverNamesForUIAsArray = availableDriverNamesForUI.ToArray();
             if (verbose)
             {
                 Console.WriteLine("Prepare driver names completed");
