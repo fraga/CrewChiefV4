@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MyName_V));
             this.labelEnterYourName = new System.Windows.Forms.Label();
             this.textBoxMyName = new System.Windows.Forms.TextBox();
@@ -40,6 +41,9 @@
             this.buttonNameSelect = new System.Windows.Forms.Button();
             this.listBoxOtherDriverNames = new System.Windows.Forms.ListBox();
             this.labelOtherDriverName = new System.Windows.Forms.Label();
+            this.buttonNoName = new System.Windows.Forms.Button();
+            this.buttonSearch = new System.Windows.Forms.Button();
+            this.toolTipNoName = new System.Windows.Forms.ToolTip(this.components);
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -62,7 +66,7 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.textBoxMyName.Location = new System.Drawing.Point(410, 4);
-            this.textBoxMyName.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.textBoxMyName.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxMyName.MaxLength = 32;
             this.textBoxMyName.Name = "textBoxMyName";
             this.textBoxMyName.Size = new System.Drawing.Size(398, 31);
@@ -141,8 +145,10 @@
             this.tableLayoutPanel1.Controls.Add(this.buttonNameSelect, 1, 3);
             this.tableLayoutPanel1.Controls.Add(this.listBoxOtherDriverNames, 2, 2);
             this.tableLayoutPanel1.Controls.Add(this.labelOtherDriverName, 2, 1);
+            this.tableLayoutPanel1.Controls.Add(this.buttonNoName, 2, 3);
+            this.tableLayoutPanel1.Controls.Add(this.buttonSearch, 2, 0);
             this.tableLayoutPanel1.Location = new System.Drawing.Point(12, 35);
-            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(4);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 4;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 52.77778F));
@@ -211,6 +217,33 @@
             this.labelOtherDriverName.Text = "Other possible driver names";
             this.labelOtherDriverName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // buttonNoName
+            // 
+            this.buttonNoName.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonNoName.Location = new System.Drawing.Point(815, 372);
+            this.buttonNoName.Name = "buttonNoName";
+            this.buttonNoName.Size = new System.Drawing.Size(402, 41);
+            this.buttonNoName.TabIndex = 9;
+            this.buttonNoName.Text = "No name thanks";
+            this.toolTipNoName.SetToolTip(this.buttonNoName, "If no name is selected Crew Chief will simply not say personalised messages");
+            this.buttonNoName.UseVisualStyleBackColor = true;
+            this.buttonNoName.Click += new System.EventHandler(this.buttonNoName_Click);
+            // 
+            // buttonSearch
+            // 
+            this.buttonSearch.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.buttonSearch.Image = ((System.Drawing.Image)(resources.GetObject("buttonSearch.Image")));
+            this.buttonSearch.Location = new System.Drawing.Point(815, 3);
+            this.buttonSearch.Name = "buttonSearch";
+            this.buttonSearch.Size = new System.Drawing.Size(41, 38);
+            this.buttonSearch.TabIndex = 10;
+            this.buttonSearch.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.buttonSearch.UseVisualStyleBackColor = true;
+            this.buttonSearch.Click += new System.EventHandler(this.buttonSearch_Click);
+            // 
             // MyName_V
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
@@ -218,9 +251,10 @@
             this.ClientSize = new System.Drawing.Size(1250, 490);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "MyName_V";
             this.Text = "Selecting a name";
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.MyName_V_KeyDown);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);
@@ -240,5 +274,8 @@
         private System.Windows.Forms.Button buttonNameSelect;
         private System.Windows.Forms.ListBox listBoxOtherDriverNames;
         private System.Windows.Forms.Label labelOtherDriverName;
+        private System.Windows.Forms.Button buttonNoName;
+        private System.Windows.Forms.ToolTip toolTipNoName;
+        private System.Windows.Forms.Button buttonSearch;
     }
 }

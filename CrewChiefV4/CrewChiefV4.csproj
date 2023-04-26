@@ -339,6 +339,11 @@
     <Compile Include="PitManager\PitManagerEventHandlers_RF2.cs" />
     <Compile Include="PitManager\PitManagerResponseHandlers.cs" />
     <Compile Include="PitManager\PitManagerVoiceCmds.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
@@ -558,6 +563,10 @@
     <Compile Include="GTR2\GTR2SharedMemoryReader.cs" />
     <Compile Include="GTR2\GTR2Spotter.cs" />
     <Compile Include="GTR2\GTR2Data.cs" />
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="UserInterface\ActionEditor.resx">
       <DependentUpon>ActionEditor.cs</DependentUpon>
     </EmbeddedResource>
@@ -576,6 +585,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UserInterface\MyName-V.resx">
       <DependentUpon>MyName-V.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="UserInterface\PropertiesForm.resx">
       <DependentUpon>PropertiesForm.cs</DependentUpon>
