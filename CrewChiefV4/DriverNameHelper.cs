@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 
 using CrewChiefV4.Audio;
+using System.Text.RegularExpressions;
 
 [assembly: InternalsVisibleTo("UnitTest")]
 /**
@@ -21,15 +22,27 @@ namespace CrewChiefV4
     {
         public static HashSet<String> unvocalizedNames = new HashSet<string>();
 
-        private static readonly String[] middleBits = { "de la", "de le", "van der", "van de", "van", "de", "da", "le", "la", "von", "di", "eg", "du", "el", "del", "saint", "st" };
+        private static readonly String[] middleBits = { "de la", "de le", "van der", "van de", "van", "de", "da", "le", "la", "von", "di",
+            "eg", "du", "el", "del", "saint", "st", "mac", "mc" }; // mac and mc may have been split off during CamelCase processing
 
-        private static readonly String[] juniorSuffixes = { "jr", "junior" };
+        // need a special case here for "junior" and "senior"
+        // - if it's "Something Junior" then allow it, it it's "Something Somthingelse Junior" then remove it
+        //
+        // 2 part suffix list - remove these even if the name only has one other part
+        private static readonly String[] ignored2PartSuffixes = { "jr", "vr", "uk", "us", "fr", "de", "sw", "es", "dk", "div", "proam", "am", "pro" };
+        // 3 part suffix list - remove these if the name 2 or more other parts
+        private static readonly String[] ignored3PartSuffixes = { "junior", "senior", "division", "group" };
 
-        // provide a hint to the last-ditch phonics matcher - only allow names whose first letters match these pairs
+        // provide a hint to the phonics matcher - only allow names whose first letters match these pairs
         private static readonly (string, string)[] closeFirstLetters = {
             ( "C", "K" ), ( "J", "G" ), ( "W", "V" ), ( "Z", "S" ),
             ( "Sh", "Ch" ), ( "Ch", "Sch" ), ( "Th", "T" ), ( "Ts", "S" ),
             ( "X", "Z" ), ( "Dj", "J" ) };
+
+        private static readonly (char, char)[] numberLetterSubstitutions = {
+            ( '0', 'o' ), ( '1', 'l' ), ( '3', 'b' ), ( '5', 's' ) };
+        // brackets could have the same treatment
+        // all the above could be in a JSON file...
 
         internal static Dictionary<String, String> lowerCaseRawNameToUsableName = new Dictionary<String, String>();
 
@@ -134,14 +147,18 @@ namespace CrewChiefV4
                         allCharsValid = false;
                     }
                 }
+                string validCharsOnly = null;
+                // at this point we may have a name like BobSmith or garyMcShit.
+                // Before we lower case it, see if there's a split hiding in the case (PascalCase or camelCase)
                 if (allCharsValid && name.Trim().Count() > 1)
                 {
-                    return name.Trim().ToLower();
+                    validCharsOnly = SpacesFromCamel(name.Trim()).ToLower();
                 }
                 else if (charsFromName.Trim().Count() > 1)
                 {
-                    return charsFromName.ToLower().Trim();
-                }                
+                    validCharsOnly = SpacesFromCamel(charsFromName.Trim()).ToLower();
+                }
+                return validCharsOnly;
             }
             catch (Exception)
             {
@@ -162,54 +179,16 @@ namespace CrewChiefV4
             name = name.Replace('.', ' ');
             name = name.Replace("$", "s");
             // trim the string and replace any multiple whitespace chars with a single space
-            return System.Text.RegularExpressions.Regex.Replace(name.Trim(), @"\s+", " ");
+            return Regex.Replace(name.Trim(), @"\s+", " ");
         }
-
-        private static String cleanBrackets(String name)
+        private static string cleanBrackets(string name)
         {
-            if (name.EndsWith("]") && name.Contains("["))
-            {
-                name = name.Substring(0, name.IndexOf('['));
-                name = name.Trim();
-            }
-            if (name.StartsWith("[") && name.Contains("]"))
-            {
-                name = name.Substring(name.LastIndexOf(']') + 1);
-                name = name.Trim();
-            }
-            if (name.EndsWith(")") && name.Contains("("))
-            {
-                name = name.Substring(0, name.LastIndexOf('('));
-                name = name.Trim();
-            }
-            if (name.StartsWith("(") && name.Contains(")"))
-            {
-                name = name.Substring(name.LastIndexOf(')') + 1);
-                name = name.Trim();
-            }
-            if (name.EndsWith(">") && name.Contains("<"))
-            {
-                name = name.Substring(0, name.LastIndexOf('<'));
-                name = name.Trim();
-            }
-            if (name.StartsWith("<") && name.Contains(">"))
-            {
-                name = name.Substring(name.LastIndexOf('>') + 1);
-                name = name.Trim();
-            }
-            if (name.EndsWith("}") && name.Contains("{"))
-            {
-                name = name.Substring(0, name.LastIndexOf('{'));
-                name = name.Trim();
-            }
-            if (name.StartsWith("{") && name.Contains("}"))
-            {
-                name = name.Substring(name.LastIndexOf('}') + 1);
-                name = name.Trim();
-            }
-            return name;
+            name = Regex.Replace(name, @"\[.*\]", string.Empty);
+            name = Regex.Replace(name, @"\<.*\>", string.Empty);
+            name = Regex.Replace(name, @"\(.*\)", string.Empty);
+            name = Regex.Replace(name, @"\{.*\}", string.Empty);
+            return name.Trim();
         }
-
         private static String undoNumberSubstitutions(String name)
         {
             // handle letter -> number substitutions
@@ -223,20 +202,14 @@ namespace CrewChiefV4
                 {
                     if (Char.IsNumber(ch) && Char.IsLetter(name[i - 1]) && Char.IsLetter(name[i + 1]))
                     {
-                        if (ch == '1')
+                        foreach (var nls in numberLetterSubstitutions)
                         {
-                            changedNumberForLetter = true;
-                            nameWithLetterSubstitutions = nameWithLetterSubstitutions + 'l';
-                        }
-                        else if (ch == '3')
-                        {
-                            changedNumberForLetter = true;
-                            nameWithLetterSubstitutions = nameWithLetterSubstitutions + 'e';
-                        }
-                        else if (ch == '0')
-                        {
-                            changedNumberForLetter = true;
-                            nameWithLetterSubstitutions = nameWithLetterSubstitutions + 'o';
+                            if (ch == nls.Item1)
+                            {
+                                changedNumberForLetter = true;
+                                nameWithLetterSubstitutions = nameWithLetterSubstitutions + nls.Item2;
+                                break;
+                            }
                         }
                     }
                 }
@@ -513,49 +486,103 @@ namespace CrewChiefV4
             }
             else
             {
+                String[] fullNameSplit = null;
+                bool gotFromMiddleBit = false;
                 foreach (String middleBit in middleBits)
                 {
-                    if (fullName.Contains(" " + middleBit + " "))
+                    // if we have a something van der somethingelse, we want this to be { "something", "van der", "somethingelse" }
+                    string middleBitWithSpaces = " " + middleBit + " ";
+                    if (fullName.Contains(middleBitWithSpaces))
                     {
-                        String[] split = fullName.Split(' ');
-                        return middleBit + " " + split[split.Count() - 1];
+                        string start = fullName.Substring(0, fullName.IndexOf(middleBitWithSpaces));
+                        string end = fullName.Substring(fullName.IndexOf(middleBitWithSpaces) + middleBitWithSpaces.Length);
+                        List<string> splitList = new List<string>();
+                        splitList.AddRange(start.Split(' '));
+                        splitList.Add(middleBit);
+                        splitList.AddRange(end.Split(' '));
+                        fullNameSplit = splitList.ToArray();
+                        gotFromMiddleBit = true;
+                        break;
                     }
                 }
-                String[] fullNameSplit = trimEmptyStrings(fullName.Split(' '));
+                if (!gotFromMiddleBit)
+                {
+                    fullNameSplit = trimEmptyStrings(fullName.Split(' '));
+                }
+                // if the last part is 'uk' or something and there are 2 or more parts, lose the 'uk'.
+                if (fullNameSplit.Length > 1 && ignored2PartSuffixes.Contains(fullNameSplit[fullNameSplit.Count() - 1]))
+                {
+                    fullNameSplit = fullNameSplit.Take(fullNameSplit.Count() - 1).ToArray();
+                }
+                // Lose the 'junior' only if there are 3 or more parts (note this is done separately so we fix cases
+                // like "jim britton junior uk"
+                if (fullNameSplit.Length > 2 && ignored3PartSuffixes.Contains(fullNameSplit[fullNameSplit.Count() - 1]))
+                {
+                    fullNameSplit = fullNameSplit.Take(fullNameSplit.Count() - 1).ToArray();
+                }
+                if (fullNameSplit.Count() == 1)
+                {
+                    return fullNameSplit[0];
+                }
                 if (fullNameSplit.Count() == 2)
                 {
-                    String[] split = fullName.Split(' ');
-                    if (split[1].Count() > 1)
+                    if (fullNameSplit[1].Count() > 1)
                     {
-                        return split[1];
+                        // "something somthingelse", just return "somethingelse"
+                        return fullNameSplit[1];
                     }
                     else
                     {
-                        return split[0];
+                        // second part is 0 or 1 char, return the first part
+                        return fullNameSplit[0];
                     }
+                }
+                else if (middleBits.Contains(fullNameSplit[fullNameSplit.Count() - 2]))
+                {
+                    return fullNameSplit[fullNameSplit.Count() - 2] + " " + fullNameSplit[fullNameSplit.Count() - 1];
                 }
                 else if (fullNameSplit[fullNameSplit.Count() - 2].Length == 1)
                 {
                     return fullNameSplit[fullNameSplit.Count() - 1];
                 }
-                else if (middleBits.Contains(fullNameSplit[fullNameSplit.Count() - 2].ToLower()))
-                {
-                    return fullNameSplit[fullNameSplit.Count() - 2] + " " + fullNameSplit[fullNameSplit.Count() - 1];
-                }
-                else if (fullNameSplit.Length > 3 && middleBits.Contains((fullNameSplit[fullNameSplit.Count() - 3] + " " + fullNameSplit[fullNameSplit.Count() - 2]).ToLower()))
+                else if (fullNameSplit.Length > 3 && middleBits.Contains((fullNameSplit[fullNameSplit.Count() - 3] + " " + fullNameSplit[fullNameSplit.Count() - 2])))
                 {
                     return fullNameSplit[fullNameSplit.Count() - 3] + " " + fullNameSplit[fullNameSplit.Count() - 2] + " " + fullNameSplit[fullNameSplit.Count() - 1];
-                }
-                else if (juniorSuffixes.Contains(fullNameSplit[fullNameSplit.Count() - 1].ToLower()))
-                {
-                    return fullNameSplit[fullNameSplit.Count() - 2];
                 }
                 // if there are more than 2 names, and the second to last name isn't one of the common middle bits, 
                 // use the last part
                 return fullNameSplit[fullNameSplit.Count() - 1];
             }
         }
-
+        private static string SpacesFromCamel(string value)
+        {
+            if (value.Length > 2)
+            {
+                var result = new List<char>();
+                char[] array = value.ToCharArray();
+                result.Add(array[0]);
+                for (int i = 1; i < array.Length - 1; i++)
+                {
+                    var prevItem = array[i - 1];
+                    var item = array[i];
+                    var nextItem = array[i + 1];
+                    if (char.IsUpper(item)
+                        && nextItem != ' ' && prevItem != ' '
+                        && char.IsLower(prevItem)
+                        && result.Count > 0)
+                    {
+                        result.Add(' ');
+                    }
+                    result.Add(item);
+                    if (i == array.Length - 2)
+                    {
+                        result.Add(nextItem);
+                    }
+                }
+                return new string(result.ToArray());
+            }
+            return value;
+        }
         private static String[] trimEmptyStrings(String[] strings)
         {
             List<String> trimmedList = new List<string>();
