@@ -172,9 +172,71 @@ namespace UnitTest.Misc
         #endregion Test_FuzzyMatches
 
         #region Test_getUsableDriverName
+        [TestCase("J1mBr1tt0n", "brltton")] // note 1 is substituted for L (not I)
+        [TestCase("JimBri5tol", "bristol")]
+        [TestCase("JimBritton", "britton")]
+        [TestCase("jimBRITTON", "britton")]
+        [TestCase("jim BRITTON", "britton")]
+        [TestCase("jim BRITTON UK", "britton")]
+        [TestCase("JIM BRITTON", "britton")]
+        [TestCase("JIM_BRITTON!!!", "britton")]
+        [TestCase("BRITTON", "britton")]
+        [TestCase("JimBritton!!!!", "britton")]
+        [TestCase("Jim Britton!!!!", "britton")]
+        [TestCase("jim vanderbritton", "vanderbritton")]
+        [TestCase("Jim_Van_Der_Britton", "van der britton")]
+        [TestCase("jim_von_britton", "von britton")]
+        [TestCase("Jim Van Der Britton", "van der britton")]
+        [TestCase("JimVanDerBritton", "van der britton")]
+        [TestCase("Jim McShit", "mc shit")]
+        [TestCase("Jim Mcshit", "mcshit")]
+        [TestCase("Jim MacShit", "mac shit")]
+        [TestCase("Dave Mackay", "mackay")]
+        [TestCase("bobbyMoore", "moore")]
+        [TestCase("Jim Britton uk", "britton")]
+        [TestCase("JimBritton UK", "britton")]
+        [TestCase("Jim Britton [UK]", "britton")]
+        [TestCase("Jim Britt0n 69 UK", "britton")]
+        [TestCase("Jim Britton 69", "britton")]
+        [TestCase("Jim Britton Junior UK", "britton")]
+        [TestCase("Jim Britton Junior", "britton")]
+        [TestCase("Jim Britton jr", "britton")]
+        [TestCase("Jim Junior", "junior")]
+        [TestCase("Jim LeClerc", "le clerc")]
+        [TestCase("Jim le Clerc", "le clerc")]
+        [TestCase("Charles Leclerc", "leclerc")]
+        [TestCase("Jim Ng", "ng")]
+        [TestCase("jim", "jim")]
+        [TestCase("a", null)]
+        [TestCase("ba", "ba")]
+        [TestCase("aaaa", "aaaa")]
+        [TestCase("345hf9237f", "hff")]
+        [TestCase("9999", null)]
+        [TestCase("Jim Britton DIV 2", "britton")]
+        [TestCase("jimBritton DIV 2", "britton")]
+        [TestCase("jimBritton pro", "britton")]
+        [TestCase("jimBritton proam", "britton")]
+        [TestCase("jim DIV 2", "jim")]
+        [TestCase("Jim Britton division 2", "britton")]
+        [TestCase("Jim [da man] Britton", "britton")]
+        [TestCase("JimBritton {some nonsense} UK", "britton")]
+        [TestCase("Britton {some other nonsense} UK", "britton")]
+        [TestCase("Jim <boss> Britton (is ace)", "britton")]
+        // [TestCase("Jim <boss> Britton [][]<>{} ()", "britton")]  fails because it removes everything between the first < and the last >
+        [TestCase("Jim Britton [dude]", "britton")]
+        [TestCase("<ejit> JimBritton", "britton")]
+        [TestCase("<ejit> Jim Britton [dipstick]{smelly}", "britton")]
+        public void Test_getUsableDriverName(string rawDriverName,
+            string usableDriverName)
+        {
+            var driverName = getUsableDriverName(rawDriverName);
+            Assert.AreEqual(usableDriverName, driverName);
+        }
+        #endregion Test_getUsableDriverName
+
+        #region Test_getUsableDriverNameAB
         static int BEFORE_usableNamesForSessionCount = 0;
         static int AFTER_usableNamesForSessionCount = 0;
-
         [TestCase("michael holtz", "holts", 1)]
         [TestCase("Patricio Javier Alzamora", "alzamora", 1)] // Clause 1: A straight match
         // (Clause 2 is an error condition I can't see a way to generate)
