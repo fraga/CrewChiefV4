@@ -3316,7 +3316,7 @@ namespace CrewChiefV4.GTR2
             if (this.idToCarInfoMap.TryGetValue(vehicleScoring.mID, out ci))
                 return ci;
 
-            var driverName = GTR2GameStateMapper.GetStringFromBytes(vehicleScoring.mDriverName).ToLowerInvariant();
+            var driverName = GTR2GameStateMapper.GetStringFromBytes(vehicleScoring.mDriverName);
             driverName = GTR2GameStateMapper.GetSanitizedDriverName(driverName);
 
             var vehicleExtendedScoring = extended.mExtendedVehicleScoring[vehicleScoring.mID % GTR2Constants.MAX_MAPPED_IDS];

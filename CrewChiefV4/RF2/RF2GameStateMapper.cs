@@ -2317,7 +2317,7 @@ namespace CrewChiefV4.rFactor2
             else if (msg.Length > this.scrLuckyDogIsPrefix.Length
                 && msg.StartsWith(this.scrLuckyDogIsPrefix))
             {
-                scrData.luckyDogNameRaw = msg.Substring(this.scrLuckyDogIsPrefix.Length).ToLowerInvariant();
+                scrData.luckyDogNameRaw = msg.Substring(this.scrLuckyDogIsPrefix.Length);
                 scrData.luckyDogNameRaw = RF2GameStateMapper.GetSanitizedDriverName(scrData.luckyDogNameRaw);
                 scrData.stockCarRuleApplicable = StockCarRule.NEW_LUCKY_DOG;
             }
@@ -3357,7 +3357,7 @@ namespace CrewChiefV4.rFactor2
             if (this.idToCarInfoMap.TryGetValue(vehicleScoring.mID, out ci))
                 return ci;
 
-            var driverName = RF2GameStateMapper.GetStringFromBytes(vehicleScoring.mDriverName).ToLowerInvariant();
+            var driverName = RF2GameStateMapper.GetStringFromBytes(vehicleScoring.mDriverName);
             driverName = RF2GameStateMapper.GetSanitizedDriverName(driverName);
 
             var carClassId = RF2GameStateMapper.GetStringFromBytes(vehicleScoring.mVehicleClass);

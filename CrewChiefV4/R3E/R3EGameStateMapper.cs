@@ -200,7 +200,7 @@ namespace CrewChiefV4.RaceRoom
             currentGameState.ControlData.ControlType = mapToControlType(shared.ControlType);
 
             // in some cases, the session start trigger gets missed and we don't have a driver name
-            currentGameState.SessionData.DriverRawName = getNameFromBytes(shared.PlayerName).ToLower();
+            currentGameState.SessionData.DriverRawName = getNameFromBytes(shared.PlayerName);
 
             DriverData playerDriverData = new DriverData();
             int playerDriverDataIndex = 0;
@@ -209,7 +209,7 @@ namespace CrewChiefV4.RaceRoom
             for (int i = 0; i < shared.DriverData.Length; i++)
             {
                 DriverData participantStruct = shared.DriverData[i];
-                String driverName = getNameFromBytes(participantStruct.DriverInfo.Name).ToLower().Trim();
+                String driverName = getNameFromBytes(participantStruct.DriverInfo.Name).Trim();
                 driverNames[i] = driverName;
                 if (driverName.Equals(currentGameState.SessionData.DriverRawName))
                 {

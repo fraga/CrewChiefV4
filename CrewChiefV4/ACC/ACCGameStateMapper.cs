@@ -505,7 +505,7 @@ namespace CrewChiefV4.ACC
                     accVehicleInfo participantStruct = shared.accChief.vehicle[i];
                     if (participantStruct.isConnected == 1)
                     {
-                        String participantName = participantStruct.driverName.ToLower();
+                        String participantName = participantStruct.driverName;
                         if (i != 0 && participantName != null && participantName.Length > 0)
                         {
                             CarData.CarClass opponentCarClass = CarData.getCarClassForClassNameOrCarName(participantStruct.carModel);
@@ -851,7 +851,7 @@ namespace CrewChiefV4.ACC
                 {
                     accVehicleInfo participantStruct = shared.accChief.vehicle[i];
 
-                    String participantName = participantStruct.driverName.ToLower();
+                    String participantName = participantStruct.driverName;
                     OpponentData currentOpponentData = getOpponentForName(currentGameState, participantName);
                     if (currentGameState.SessionData.SessionPhase == SessionPhase.Countdown
                         && participantStruct.carLeaderboardPosition == 1
@@ -1707,7 +1707,7 @@ namespace CrewChiefV4.ACC
         private OpponentData createOpponentData(accVehicleInfo participantStruct, Boolean loadDriverName, CarData.CarClass carClass, float trackLength, bool raceSessionIsUnderway)
         {
             OpponentData opponentData = new OpponentData();
-            String participantName = participantStruct.driverName.ToLower();
+            String participantName = participantStruct.driverName;
             opponentData.DriverRawName = participantName;
             opponentData.DriverNameSet = true;
             // note that in AC, drivers may be added to the session during the race - we don't want to load these driver names

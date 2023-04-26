@@ -390,7 +390,7 @@ namespace CrewChiefV4.PCars2
                 for (int i = 0; i < shared.mParticipantData.Length; i++)
                 {
                     pCars2APIParticipantStruct participantStruct = shared.mParticipantData[i];
-                    String participantName = StructHelper.getNameFromBytes(participantStruct.mName).ToLower();
+                    String participantName = StructHelper.getNameFromBytes(participantStruct.mName);
                     if (i != playerIndex && participantStruct.mIsActive && participantName != null && participantName.Length > 0
                         && !opponentDriverNamesProcessedForThisTick.Contains(participantName) && !positionsFilledForThisTick.Contains(participantStruct.mRacePosition))
                     {
@@ -718,7 +718,7 @@ namespace CrewChiefV4.PCars2
                         // discard this participant element because the race position is already occupied
                         continue;
                     }
-                    String participantName = StructHelper.getNameFromBytes(participantStruct.mName).ToLower();
+                    String participantName = StructHelper.getNameFromBytes(participantStruct.mName);
                     if (participantName != null && participantName.Length > 0 && !opponentDriverNamesProcessedForThisTick.Contains(participantName))
                     {
                         opponentDriverNamesProcessedForThisTick.Add(participantName);
@@ -1382,7 +1382,7 @@ namespace CrewChiefV4.PCars2
         private OpponentData createOpponentData(pCars2APIParticipantStruct participantStruct, Boolean loadDriverName, CarData.CarClass carClass, Boolean canUseName, float trackLength)
         {            
             OpponentData opponentData = new OpponentData();
-            String participantName = StructHelper.getNameFromBytes(participantStruct.mName).ToLower();
+            String participantName = StructHelper.getNameFromBytes(participantStruct.mName);
             opponentData.DriverRawName = participantName;
             opponentData.DriverNameSet = true;
             if (participantName != null && participantName.Length > 0 && loadDriverName && CrewChief.enableDriverNames)

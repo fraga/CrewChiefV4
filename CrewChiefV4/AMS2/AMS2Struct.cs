@@ -470,7 +470,7 @@ namespace CrewChiefV4.AMS2
 
         public override string ToString()
         {
-            return "position " + mRacePosition + " name " + StructHelper.getNameFromBytes(mName).ToLower() + " lapsCompleted " + mLapsCompleted + " lapDist " + mCurrentLapDistance;
+            return "position " + mRacePosition + " name " + StructHelper.getNameFromBytes(mName) + " lapsCompleted " + mLapsCompleted + " lapDist " + mCurrentLapDistance;
         }
     }
 

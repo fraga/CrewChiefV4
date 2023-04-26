@@ -523,7 +523,7 @@ namespace CrewChiefV4.PCars
                 for (int i = 0; i < shared.mParticipantData.Length; i++)
                 {
                     pCarsAPIParticipantStruct participantStruct = shared.mParticipantData[i];
-                    String participantName = StructHelper.getNameFromBytes(participantStruct.mName).ToLower();
+                    String participantName = StructHelper.getNameFromBytes(participantStruct.mName);
                     if (i != playerDataIndex && participantStruct.mIsActive && participantName != null && participantName.Length > 0)
                     {
                         CarData.CarClass opponentCarClass = !shared.hasOpponentClassData || shared.isSameClassAsPlayer[i] ? currentGameState.carClass : CarData.DEFAULT_PCARS_OPPONENT_CLASS;
@@ -798,7 +798,7 @@ namespace CrewChiefV4.PCars
                         continue;
                     }
                     CarData.CarClass opponentCarClass = !shared.hasOpponentClassData || shared.isSameClassAsPlayer[i] ? currentGameState.carClass : CarData.DEFAULT_PCARS_OPPONENT_CLASS;
-                    String participantName = StructHelper.getNameFromBytes(participantStruct.mName).ToLower();
+                    String participantName = StructHelper.getNameFromBytes(participantStruct.mName);
                     // awesomely, the driver can appear twice (or more?) in the array. Can't be sure which of the copies is the dead one so assume the first is the one to use.
                     // This may be wrong but the PCars data is such a fucking shambles I honestly can't be arsed with it any more.
                     if (participantName != null && participantName.Length > 0 && !namesInRawData.Contains(participantName))
@@ -1410,7 +1410,7 @@ namespace CrewChiefV4.PCars
         private OpponentData createOpponentData(pCarsAPIParticipantStruct participantStruct, Boolean loadDriverName, CarData.CarClass carClass, Boolean canUseName, float trackLength)
         {            
             OpponentData opponentData = new OpponentData();
-            String participantName = StructHelper.getNameFromBytes(participantStruct.mName).ToLower();
+            String participantName = StructHelper.getNameFromBytes(participantStruct.mName);
             opponentData.DriverRawName = participantName;
             opponentData.DriverNameSet = true;
             if (participantName != null && participantName.Length > 0 && !participantName.StartsWith(NULL_CHAR_STAND_IN) && loadDriverName && CrewChief.enableDriverNames)

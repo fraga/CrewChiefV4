@@ -100,7 +100,7 @@ namespace CrewChiefV4.iRacing
             if (shared.Driver != null)
             {
                 playerCar = shared.Driver;
-                playerName = playerCar.Name.ToLower();
+                playerName = playerCar.Name;
             }
             // only used for auto fuelling check
             currentGameState.ControlData.ControlType = shared.Telemetry.IsReplayPlaying ? ControlType.Replay : ControlType.Player;
@@ -863,7 +863,7 @@ namespace CrewChiefV4.iRacing
                     continue;
                 }
 
-                String driverName = driver.Name.ToLower();
+                String driverName = driver.Name;
                 lastActiveTimeForOpponents[opponentDataKey] = currentGameState.Now;
                 Boolean createNewDriver = true;
                 OpponentData currentOpponentData = null;
@@ -1523,7 +1523,7 @@ namespace CrewChiefV4.iRacing
 
         private OpponentData createOpponentData(Driver driver, Boolean loadDriverName, float trackLength)
         {
-            String driverName = driver.Name.ToLower();
+            String driverName = driver.Name;
             if (loadDriverName && CrewChief.enableDriverNames)
             {
                 if (speechRecogniser != null) speechRecogniser.addNewOpponentName(driverName, driver.CarNumber);

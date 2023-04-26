@@ -148,7 +148,7 @@ namespace CrewChiefV4.rFactor1
             }
             if (playerName == null)
             {
-                String driverName = getStringFromBytes(player.driverName).ToLower();
+                String driverName = getStringFromBytes(player.driverName);
                 AdditionalDataProvider.validate(driverName);
                 playerName = driverName;
             }
@@ -225,7 +225,7 @@ namespace CrewChiefV4.rFactor1
 
             currentGameState.carClass = getCarClass(getStringFromBytes(shared.vehicleName), true);
             brakeTempThresholdsForPlayersCar = CarData.getBrakeTempThresholds(currentGameState.carClass);
-            currentGameState.SessionData.DriverRawName = getStringFromBytes(player.driverName).ToLower();
+            currentGameState.SessionData.DriverRawName = getStringFromBytes(player.driverName);
             currentGameState.SessionData.TrackDefinition = new TrackDefinition(getStringFromBytes(shared.trackName), shared.lapDist);
             if (previousGameState != null)
             {
@@ -651,7 +651,7 @@ namespace CrewChiefV4.rFactor1
             for (int i = 0; i < shared.numVehicles; ++i)
             {
                 var vehicle = shared.vehicle[i];
-                String driverName = getStringFromBytes(vehicle.driverName).ToLower();
+                String driverName = getStringFromBytes(vehicle.driverName);
                 if (isOfflineSession && (rFactor1Constant.rfControl)vehicle.control == rFactor1Constant.rfControl.remote)
                 {
                     isOfflineSession = false;
@@ -690,7 +690,7 @@ namespace CrewChiefV4.rFactor1
                     default:
                         break;
                 }
-                String driverName = getStringFromBytes(vehicle.driverName).ToLower();
+                String driverName = getStringFromBytes(vehicle.driverName);
                 OpponentData opponentPrevious;
                 int duplicatesCount = driverNameCounts[driverName];
                 string opponentKey;
@@ -1351,7 +1351,7 @@ namespace CrewChiefV4.rFactor1
                 OpponentData o = null;
                 if (previousGameState.OpponentData.TryGetValue(possibleKey, out o))
                 {
-                    if (o.DriverRawName != getStringFromBytes(vehicle.driverName).ToLower() ||
+                    if (o.DriverRawName != getStringFromBytes(vehicle.driverName) ||
                         !CarData.IsCarClassEqual(o.CarClass, getCarClass(getStringFromBytes(vehicle.vehicleName), false)) ||
                         opponentKeysProcessed.Contains(possibleKey))
                     {

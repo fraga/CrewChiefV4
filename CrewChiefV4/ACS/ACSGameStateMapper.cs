@@ -1000,7 +1000,7 @@ namespace CrewChiefV4.assetto
                     acsVehicleInfo participantStruct = shared.acsChief.vehicle[i];
                     if (participantStruct.isConnected == 1)
                     {
-                        String participantName = getNameFromBytes(participantStruct.driverName).ToLower();
+                        String participantName = getNameFromBytes(participantStruct.driverName);
                         if (i != 0 && participantName != null && participantName.Length > 0)
                         {
                             CarData.CarClass opponentCarClass = CarData.getCarClassForClassNameOrCarName(getNameFromBytes(participantStruct.carModel));
@@ -1324,7 +1324,7 @@ namespace CrewChiefV4.assetto
                 List<string> duplicateNames = new List<string>();
                 for (int i = 0; i < Math.Min(shared.acsChief.numVehicles, 64); i++)
                 {
-                    String participantName = getNameFromBytes(shared.acsChief.vehicle[i].driverName).ToLower();
+                    String participantName = getNameFromBytes(shared.acsChief.vehicle[i].driverName);
                     if (driversToBeProcessed.Contains(participantName))
                     {
                         if (!duplicateNames.Contains(participantName))
@@ -1342,7 +1342,7 @@ namespace CrewChiefV4.assetto
                 {
                     acsVehicleInfo participantStruct = shared.acsChief.vehicle[i];
 
-                    String participantName = getNameFromBytes(participantStruct.driverName).ToLower();
+                    String participantName = getNameFromBytes(participantStruct.driverName);
                     OpponentData currentOpponentData = getOpponentForName(currentGameState, participantName);
 
                     if (i != 0 && participantName != null && participantName.Length > 0 && driversToBeProcessed.Contains(participantName))
@@ -1995,7 +1995,7 @@ namespace CrewChiefV4.assetto
             Boolean raceSessionIsUnderway)
         {
             OpponentData opponentData = new OpponentData();
-            String participantName = getNameFromBytes(participantStruct.driverName).ToLower();
+            String participantName = getNameFromBytes(participantStruct.driverName);
             opponentData.DriverRawName = participantName;
             opponentData.DriverNameSet = true;
             // note that in AC, drivers may be added to the session during the race - we don't want to load these driver names
