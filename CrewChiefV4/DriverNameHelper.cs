@@ -48,6 +48,8 @@ namespace CrewChiefV4
 
         private static Dictionary<String, String> usableNamesForSession = new Dictionary<String, String>();
 
+        private static HashSet<string> failingNames = new HashSet<string>(); 
+
         private static HashSet<string> suppressFuzzyMatchesOnTheseNames = new HashSet<string>();
 
         private static string generatedDriverNamesPath;
@@ -243,6 +245,10 @@ namespace CrewChiefV4
 
         public static String getUsableDriverName(String rawDriverName)
         {
+            if (failingNames.Contains(rawDriverName))
+            {
+                return null;
+            }
             string matchedDriverName;
             if (usableNamesForSession.ContainsKey(rawDriverName))
             {   // We found a match previously
@@ -251,7 +257,11 @@ namespace CrewChiefV4
             else
             {
                 matchedDriverName = tryToMatchDriverName(rawDriverName);
-                if (matchedDriverName != null)
+                if (matchedDriverName == null)
+                {
+                    failingNames.Add(rawDriverName);
+                }
+                else
                 {
                     usableNamesForSession.Add(rawDriverName, matchedDriverName);
                 }

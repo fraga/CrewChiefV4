@@ -1737,6 +1737,10 @@ namespace CrewChiefV4
                 if (initialised)
                 {
                     String usableName = DriverNameHelper.getUsableDriverName(rawDriverName);
+                    if (usableName == null)
+                    {
+                        return;
+                    }
                     if (!opponentsAddedMidSession.Contains(usableName))
                     {
                         opponentsAddedMidSession.Add(usableName);
