@@ -16,6 +16,7 @@ using NAudio.CoreAudioApi;
 using NAudio.CoreAudioApi.Interfaces;
 using NAudio.Wave;
 using System.Runtime.InteropServices;
+using CrewChiefV4.UserInterface.Models;
 
 namespace CrewChiefV4.Audio
 {
@@ -851,10 +852,9 @@ namespace CrewChiefV4.Audio
                 }
                 personalisationsArray = personalisationsList.ToArray();
             }
-            String savedPersonalisation = UserSettings.GetUserSettings().getString("PERSONALISATION_NAME");
-            if (savedPersonalisation != null && savedPersonalisation.Length > 0)
+            if (MyName.myName != null && MyName.myName.Length > 0)
             {
-                selectedPersonalisation = savedPersonalisation;
+                selectedPersonalisation = MyName.myName;
             }
         }
 

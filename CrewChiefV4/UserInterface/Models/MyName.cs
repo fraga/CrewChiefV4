@@ -5,6 +5,7 @@ using System.Linq;
 using System.IO;
 using System.Media;
 using System.Collections.Generic;
+using WebSocketSharp;
 
 namespace CrewChiefV4.UserInterface.Models
 {
@@ -14,6 +15,38 @@ namespace CrewChiefV4.UserInterface.Models
     internal class MyName
     {
         private readonly MyName_VM viewModel;
+        private const string NO_NAME_SELECTED = "NO_NAME_SELECTED";
+
+        public static string myName
+        {
+            get {
+                string name = UserSettings.GetUserSettings().getString("PERSONALISATION_NAME");
+                if (name == NO_NAME_SELECTED)
+                {
+                    return string.Empty;
+                }
+                else
+                {
+                    return name;
+                }
+            }
+
+            set
+            {
+                string name;
+                if (value == string.Empty)
+                {
+                    name = NO_NAME_SELECTED;
+                }
+                else
+                {
+
+                    name = value;
+                }
+                UserSettings.GetUserSettings().setProperty("PERSONALISATION_NAME", name);
+            }
+        }
+
         public MyName(MyName_VM _viewModel)
         {
             viewModel = _viewModel;
@@ -136,12 +169,20 @@ namespace CrewChiefV4.UserInterface.Models
         }
         public void SelectPersonalisation(string name)
         {
-            if (!UserSettings.GetUserSettings().getString("PERSONALISATION_NAME").Equals(name))
+            if (!myName.Equals(name))
             {
-                UserSettings.GetUserSettings().setProperty("PERSONALISATION_NAME", name);
+                if (!name.IsNullOrEmpty())
+                {
+                    Log.Info($"My name '{name}' selected");
+                }
+                else
+                {
+                    Log.Warning("Didn't select a name");
+                    //name = NO_NAME_SELECTED;
+                }
+                myName = name;
                 UserSettings.GetUserSettings().saveUserSettings();
                 viewModel.doRestart();
-                Log.Info($"My name '{name}' selected");
             }
         }
         public void SelectDriverName(string name)

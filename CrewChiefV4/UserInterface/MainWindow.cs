@@ -22,6 +22,7 @@ using CrewChiefV4.ScreenCapture;
 using CrewChiefV4.VirtualReality;
 using System.Globalization;
 using CrewChiefV4.UserInterface;
+using CrewChiefV4.UserInterface.Models;
 
 namespace CrewChiefV4
 {
@@ -2916,9 +2917,9 @@ namespace CrewChiefV4
         }
         private void personalisationSelected(object sender, EventArgs e)
         {
-            if (!UserSettings.GetUserSettings().getString("PERSONALISATION_NAME").Equals(this.personalisationBox.Text))
+            if (!MyName.myName.Equals(this.personalisationBox.Text))
             {
-                UserSettings.GetUserSettings().setProperty("PERSONALISATION_NAME", this.personalisationBox.Text);
+                MyName.myName = this.personalisationBox.Text;
                 UserSettings.GetUserSettings().saveUserSettings();
                 doRestart(Configuration.getUIString("the_application_must_be_restarted_to_load_the_new_sounds"), Configuration.getUIString("load_new_sounds"));
             }
@@ -3851,12 +3852,12 @@ namespace CrewChiefV4
 
         private void buttonMyName_Click(object sender, EventArgs e)
         {
-            var win = new MyName_V(this, UserSettings.GetUserSettings().getString("PERSONALISATION_NAME"));
+            var win = new MyName_V(this, MyName.myName);
             win.ShowDialog(this);
         }
         public void SetButtonMyNameText()
         {
-            this.buttonMyName.Text = $"{Configuration.getUIString("personalisation_label")} {UserSettings.GetUserSettings().getString("PERSONALISATION_NAME")}";
+            this.buttonMyName.Text = $"{Configuration.getUIString("personalisation_label")} {MyName.myName}";
         }
     }
 

@@ -2,6 +2,7 @@
 using CrewChiefV4.UserInterface.VMs;
 
 using System;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace CrewChiefV4.UserInterface
@@ -27,6 +28,13 @@ namespace CrewChiefV4.UserInterface
             labelOtherDriverName.Text = Configuration.getUIString("other_driver_name");
             //buttonPlayName.Text = Configuration.getUIString("play_name_sample");
             buttonNameSelect.Text = Configuration.getUIString("select");
+            // Set the Play and Search button icon sizes
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MyName_V));
+            var img = (System.Drawing.Image)(resources.GetObject("buttonPlayName.Image"));
+            buttonPlayName.Image = new Bitmap(img, new Size(12, 12));
+            img = (System.Drawing.Image)(resources.GetObject("buttonSearch.Image"));
+            buttonSearch.Image = new Bitmap(img, new Size(10, 10));
+
             if (textBoxMyName.Text.Length > 0)
             {
                 // Run the model
@@ -42,7 +50,21 @@ namespace CrewChiefV4.UserInterface
                 model.NameEntry(textBoxMyName.Text);
                 e.SuppressKeyPress = true;  // Prevent the error beep
             }
+            if (e.KeyCode == Keys.Escape)
+            {
+                this.Close();
+            }
         }
+
+        private void buttonSearch_Click(object sender, EventArgs e)
+        {
+            if (textBoxMyName.Text.Length > 0)
+            {
+                // Run the model
+                model.NameEntry(textBoxMyName.Text);
+            }
+        }
+
         public void fillPersonalisations(string[] names)
         {
             listBoxPersonalisations.Enabled = true;
@@ -172,6 +194,21 @@ namespace CrewChiefV4.UserInterface
         private void listBoxOtherDriverNames_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             buttonPlayName_Click(sender, e);
+        }
+
+        private void buttonNoName_Click(object sender, EventArgs e)
+        {
+            model.SelectDriverName(string.Empty);
+            mwi.SetButtonMyNameText();
+            this.Close();
+        }
+
+        private void MyName_V_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape)
+            {
+                this.Close();
+            }
         }
     }
 }
