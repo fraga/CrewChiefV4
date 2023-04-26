@@ -29,7 +29,7 @@ namespace CrewChiefV4
         // - if it's "Something Junior" then allow it, it it's "Something Somthingelse Junior" then remove it
         //
         // 2 part suffix list - remove these even if the name only has one other part
-        private static readonly String[] ignored2PartSuffixes = { "jr", "vr", "uk", "us", "fr", "de", "sw", "es", "dk", "div", "proam", "am", "pro" };
+        private static readonly String[] ignored2PartSuffixes = { "jr", "vr", "uk", "us", "fr", "de", "sw", "es", "dk", "div", "proam", "am", "pro", "arg" };
         // 3 part suffix list - remove these if the name 2 or more other parts
         private static readonly String[] ignored3PartSuffixes = { "junior", "senior", "division", "group" };
 

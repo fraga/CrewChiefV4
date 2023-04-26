@@ -226,6 +226,7 @@ namespace UnitTest.Misc
         [TestCase("Jim Britton [dude]", "britton")]
         [TestCase("<ejit> JimBritton", "britton")]
         [TestCase("<ejit> Jim Britton [dipstick]{smelly}", "britton")]
+        [TestCase("Jim   ARG", "jim")]
         public void Test_getUsableDriverName(string rawDriverName,
             string usableDriverName)
         {
