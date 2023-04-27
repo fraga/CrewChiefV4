@@ -18,9 +18,13 @@ namespace CrewChiefV4.UserInterface
         public MyName_V(MainWindow _mwi, string oldName)
         {
             mwi = _mwi;
+            
+            StartPosition = FormStartPosition.CenterParent;
             InitializeComponent();
+            
             vm = new MyName_VM(this);
             model = new MyName(vm);
+            this.SuspendLayout();
             labelEnterYourName.Text = Configuration.getUIString("enter_your_name");
             textBoxMyName.Text = oldName;
             labelFullPersonalisation.Text = Configuration.getUIString("full_personalisation");
@@ -40,6 +44,7 @@ namespace CrewChiefV4.UserInterface
                 // Run the model
                 model.NameEntry(textBoxMyName.Text);
             }
+            this.ResumeLayout(false);
         }
 
         private void textBoxMyName_KeyDown(object sender, KeyEventArgs e)
