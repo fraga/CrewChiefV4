@@ -1352,7 +1352,7 @@ namespace CrewChiefV4.GTR2
                 if (cgs.SessionData.SessionType == SessionType.Race)
                     cgs.OvertakingAids.DrsActivationsRemaining = shared.extended.mActiveDRSDTM18ActivationsPerRace - shared.extended.mCurrActivationsInRace;
             }
-            else if (shared.extended.mActiveDRSRuleSet == (char)GTR2DRSRuleSet.F1_2011)
+            else if (shared.extended.mActiveDRSRuleSet == (char)GTR2DRSRuleSet.F1_2011 || shared.extended.mActiveDRSRuleSet == (char)GTR2DRSRuleSet.F1_2013)
             {
                 cgs.OvertakingAids.DrsEnabled = shared.extended.mCurrDRSSystemState == (char)GTR2DRSSystemState.Enabled;
                 
