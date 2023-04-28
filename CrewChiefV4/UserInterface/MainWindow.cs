@@ -3730,7 +3730,8 @@ namespace CrewChiefV4
         {
             if (AudioPlayer.soundPackLanguage == null)
             {
-                DialogResult dialogResult = MessageBox.Show(Configuration.getUIString("unknown_sound_pack_language_text"),
+                DialogResult dialogResult = MessageBox.Show(
+                    Utilities.NewlinesInLongString(Configuration.getUIString("unknown_sound_pack_language_text")),
                     Configuration.getUIString("unknown_sound_pack_language_title"), MessageBoxButtons.YesNo);
                 if (dialogResult == DialogResult.Yes)
                 {
@@ -3756,7 +3757,8 @@ namespace CrewChiefV4
         {
             if (AudioPlayer.soundPackLanguage == null)
             {
-                DialogResult dialogResult = MessageBox.Show(Configuration.getUIString("unknown_driver_names_language_text"),
+                DialogResult dialogResult = MessageBox.Show(
+                    Utilities.NewlinesInLongString(Configuration.getUIString("unknown_driver_names_language_text")),
                     Configuration.getUIString("unknown_driver_names_language_title"), MessageBoxButtons.YesNo);
                 if (dialogResult == DialogResult.Yes)
                 {
@@ -3782,7 +3784,8 @@ namespace CrewChiefV4
         {
             if (AudioPlayer.soundPackLanguage == null)
             {
-                DialogResult dialogResult = MessageBox.Show(Configuration.getUIString("unknown_personalisations_language_text"),
+                DialogResult dialogResult = MessageBox.Show(
+                    Utilities.NewlinesInLongString(Configuration.getUIString("unknown_personalisations_language_text")),
                     Configuration.getUIString("unknown_personalisations_language_title"), MessageBoxButtons.YesNo);
                 if (dialogResult == DialogResult.Yes)
                 {
