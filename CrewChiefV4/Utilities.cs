@@ -581,104 +581,104 @@ namespace CrewChiefV4
                 }
             }
 
-    /// <summary>
-    /// Read the command line arguments into a dictionary
-    /// </summary>
-    public class CommandLineParametersReader
-    {
-        private string[] _args
-        {
-            get;
-        }
-        public Dictionary<string, string> _dict
-        {
-            get;
-        }
-
-        private bool CaseSensitive
-        {
-            get;
-        }
-
-        public CommandLineParametersReader(string[] args = null, bool isCaseSensitive = false)
-        {
-            if (args == null)
-            {
-                args = Environment.GetCommandLineArgs();
-            }
-            _args = args;
-            CaseSensitive = isCaseSensitive;
-            _dict = new Dictionary<string, string>();
-            Process();
-        }
-
-        // Process Arguments into KeyPairs
-        private void Process()
-        {
-            string currentKey = null;
-            foreach (var arg in _args)
-            {
-                var s = arg.Trim();
-                if (s.StartsWith("-"))
-                {
-                    currentKey = s.Substring(1);
-                    if (!CaseSensitive)
-                    {
-                        currentKey = currentKey.ToLower();
-                    }
-                    _dict[currentKey] = "";
-                }
-                else
-                {
-                    if (currentKey != null)
-                    {
-                        _dict[currentKey] = s;
-                        currentKey = null;
-                    }
-                }
-            }
-        }
-
-        // Return the Key with a default value
-        public string Get(string key, string defaultvalue = null)
-        {
-            if (!CaseSensitive)
-            {
-                key = key.ToLower();
-            }
-            return _dict.ContainsKey(key) ? _dict[key] : defaultvalue;
-        }
-
-        public void Add(string key, string value)
-        {
-            _dict[key] = value;
-        }
-        public void Remove(string key)
-        {
-            if (_dict.ContainsKey(key))
-            {
-                _dict.Remove(key);
-            }
-        }
         /// <summary>
-        /// Return a -c_[command] argument
+        /// Read the command line arguments into a dictionary
         /// </summary>
-        /// <returns>
-        /// The command or "" if none
-        /// </returns>
-        public string GetCommandArg()
+        public class CommandLineParametersReader
         {
-            string cmd = "";
-            foreach (var arg in _dict)
+            private string[] _args
             {
-                if (arg.Key.StartsWith("c_"))
+                get;
+            }
+            public Dictionary<string, string> _dict
+            {
+                get;
+            }
+
+            private bool CaseSensitive
+            {
+                get;
+            }
+
+            public CommandLineParametersReader(string[] args = null, bool isCaseSensitive = false)
+            {
+                if (args == null)
                 {
-                    cmd = "-" + arg.Key;
+                    args = Environment.GetCommandLineArgs();
+                }
+                _args = args;
+                CaseSensitive = isCaseSensitive;
+                _dict = new Dictionary<string, string>();
+                Process();
+            }
+
+            // Process Arguments into KeyPairs
+            private void Process()
+            {
+                string currentKey = null;
+                foreach (var arg in _args)
+                {
+                    var s = arg.Trim();
+                    if (s.StartsWith("-"))
+                    {
+                        currentKey = s.Substring(1);
+                        if (!CaseSensitive)
+                        {
+                            currentKey = currentKey.ToLower();
+                        }
+                        _dict[currentKey] = "";
+                    }
+                    else
+                    {
+                        if (currentKey != null)
+                        {
+                            _dict[currentKey] = s;
+                            currentKey = null;
+                        }
+                    }
                 }
             }
-            return cmd;
+
+            // Return the Key with a default value
+            public string Get(string key, string defaultvalue = null)
+            {
+                if (!CaseSensitive)
+                {
+                    key = key.ToLower();
+                }
+                return _dict.ContainsKey(key) ? _dict[key] : defaultvalue;
+            }
+
+            public void Add(string key, string value)
+            {
+                _dict[key] = value;
+            }
+            public void Remove(string key)
+            {
+                if (_dict.ContainsKey(key))
+                {
+                    _dict.Remove(key);
+                }
+            }
+            /// <summary>
+            /// Return a -c_[command] argument
+            /// </summary>
+            /// <returns>
+            /// The command or "" if none
+            /// </returns>
+            public string GetCommandArg()
+            {
+                string cmd = "";
+                foreach (var arg in _dict)
+                {
+                    if (arg.Key.StartsWith("c_"))
+                    {
+                        cmd = "-" + arg.Key;
+                    }
+                }
+                return cmd;
+            }
         }
-    }
 
         internal static void ReportException(Exception e, string msg, bool needReport)
         {
@@ -788,6 +788,26 @@ namespace CrewChiefV4
                 return char.ToUpper(str[0]) + str.Substring(1);
 
             return str.ToUpper();
+        }
+        /// <summary>
+        /// Put newlines into a long string e.g. for tooltips
+        /// </summary>
+        public static string NewlinesInLongString(string longString, int maxLength = 44)
+        {
+            string result = string.Empty;
+
+            while (longString.Length > maxLength)
+            {
+                int splitIndex = longString.Substring(0, maxLength).LastIndexOf(" ");
+                if (splitIndex == -1) // no space found
+                    splitIndex = maxLength; // split at max length anyway
+
+                result += (longString.Substring(0, splitIndex)) + Environment.NewLine;
+                longString = longString.Substring(splitIndex + 1);
+            }
+
+            result += longString; // add the last remaining part of the line
+            return result;
         }
         public static int SizeOf<T>()
         {

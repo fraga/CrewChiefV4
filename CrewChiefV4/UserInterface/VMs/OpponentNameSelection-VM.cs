@@ -3,22 +3,14 @@
 namespace CrewChiefV4.UserInterface.VMs
 {
     /// <summary>
-    /// View Model module of MyName dialog MVVM
+    /// View Model module of OpponentNameSelection dialog MVVM
     /// </summary>
-    internal class MyName_VM
+    internal class OpponentNameSelection_VM
     {
-        private readonly MyName_V view;
-        public MyName_VM(MyName_V _view)
+        private readonly OpponentNameSelection_V view;
+        public OpponentNameSelection_VM(OpponentNameSelection_V _view)
         {
             view = _view;
-        }
-        public void fillPersonalisations(string[] names)
-        {
-            view.fillPersonalisations(names);
-        }
-        public void selectPersonalisation(int index)
-        {
-            view.selectPersonalisation(index);
         }
         public void fillDriverNames(string[] names)
         {
@@ -32,9 +24,9 @@ namespace CrewChiefV4.UserInterface.VMs
         {
             view.fillOtherDriverNames(names);
         }
-        public void doRestart()
+        public void selectedDriverName(string name)
         {
-            view.doRestart();
+            view.selectedDriverName(name);
         }
     }
 }

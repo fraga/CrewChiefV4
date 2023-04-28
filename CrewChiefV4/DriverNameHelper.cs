@@ -52,7 +52,9 @@ namespace CrewChiefV4
 
         private static HashSet<string> suppressFuzzyMatchesOnTheseNames = new HashSet<string>();
 
-        private static string generatedDriverNamesPath;
+        private static string guessedDriverNamesPath;
+        private static string driverNamesPath;
+        private static string soundsFolderName = null;
 
         private static readonly bool useFuzzyDrivernameMatching = UserSettings.GetUserSettings().getBoolean("use_fuzzy_driver_name_matching");
 
@@ -63,21 +65,48 @@ namespace CrewChiefV4
         /// </summary>
         /// <param name="soundsFolderName">Where the lists are stored</param>
         /// Loads the list of driver name : sound file mappings into lowerCaseRawNameToUsableName{}
-        public static void ReadDriverNameMappings(String soundsFolderName)
+        public static void ReadDriverNameMappings(String _soundsFolderName = null)
         {
+            if (soundsFolderName == null)
+            {
+                if (_soundsFolderName == null)
+                {
+                    Log.Fatal("soundsFolderName not set");
+                }
+                soundsFolderName = _soundsFolderName;
+            }
             lowerCaseRawNameToUsableName.Clear();
-            readRawNamesToUsableNamesFile(soundsFolderName, @"driver_names\additional_names.txt");
-            readRawNamesToUsableNamesFile(soundsFolderName, @"driver_names\names.txt");
+            readRawNamesToUsableNamesFile(soundsFolderName, @"driver_names\additional_names.txt", lowerCaseRawNameToUsableName);
+            readRawNamesToUsableNamesFile(soundsFolderName, @"driver_names\names.txt", lowerCaseRawNameToUsableName);
+            driverNamesPath = Path.Combine(soundsFolderName, @"driver_names\names.txt");
             if (useFuzzyDrivernameMatching)
             {
                 // Generating fuzzy match driver names is costly so they're stored once
-                // they're generated
-                readRawNamesToUsableNamesFile(soundsFolderName, @"driver_names\generated_names.txt");
-                generatedDriverNamesPath = Path.Combine(soundsFolderName, @"driver_names\generated_names.txt");
+                // they're guessed
+                readRawNamesToUsableNamesFile(soundsFolderName, @"driver_names\guessed_names.txt", lowerCaseRawNameToUsableName);
+                guessedDriverNamesPath = Path.Combine(soundsFolderName, @"driver_names\guessed_names.txt");
             }
         }
+        public static Dictionary<string, string> getGuessedDriverNames()
+        {
+            Dictionary<String, String> lowerCaseGuessedNameToUsableName = new Dictionary<string, string>();
 
-        internal static void readRawNamesToUsableNamesFile(String soundsFolderName, String filename)
+            if (useFuzzyDrivernameMatching)
+            {
+                readRawNamesToUsableNamesFile(soundsFolderName, @"driver_names\guessed_names.txt", lowerCaseGuessedNameToUsableName);
+                // Append any ignored names
+                foreach (var name in suppressFuzzyMatchesOnTheseNames)
+                {
+                    if (!lowerCaseGuessedNameToUsableName.ContainsKey(name))
+                    {
+                        lowerCaseGuessedNameToUsableName.Add(name, "");
+                    }
+                }
+            }
+            return lowerCaseGuessedNameToUsableName;
+        }
+
+        internal static void readRawNamesToUsableNamesFile(String soundsFolderName, String filename, Dictionary<String, String> lowerCaseRawNameToUsableName)
         {
             Console.WriteLine("Reading driver name mappings");
             int counter = 0;
@@ -114,7 +143,7 @@ namespace CrewChiefV4
             {}
         }
         
-        internal static String validateAndCleanUpName(String name)
+        public static String validateAndCleanUpName(String name)
         {
             try
             {
@@ -313,7 +342,7 @@ namespace CrewChiefV4
                 {
                     matchedDriverName = fuzzyDriverLastName.driverNameMatches[0].ToLower();
                     // Clause 6: Using fuzzy matched driver name for cleaned up driver (last) name
-                    Utilities.AddLinesToFile(generatedDriverNamesPath, new List<string> { $"{anyFirstNamesRemoved}:{matchedDriverName}" });
+                    Utilities.AddLinesToFile(guessedDriverNamesPath, new List<string> { $"{anyFirstNamesRemoved}:{matchedDriverName}" });
                     Console.WriteLine($"Adding fuzzy mapping for name {anyFirstNamesRemoved}:{matchedDriverName}");
                     // add the newly-mapped name to the list
                     lowerCaseRawNameToUsableName[anyFirstNamesRemoved] = matchedDriverName;
@@ -369,6 +398,11 @@ namespace CrewChiefV4
                 availableDriverNames = SoundCache.availableDriverNamesForUIAsArray; // files in AppData\Local\CrewChiefV4\sounds\driver_names
             }
             return PhonixFuzzyMatches(driverName, getAvailableNamesWithCloseFirstLetters(driverName, availableDriverNames), 1);
+        }
+        private static void writeGuessedDriverName(string driverName, string wavFileName)
+        {
+            Utilities.AddLinesToFile(guessedDriverNamesPath,
+                                        new List<string> { $"{driverName}:{wavFileName}" });
         }
         public static FuzzyDriverNameResult PhonixFuzzyMatches(string driverName, string[] availableDriverNames, int numberOfNamesRqd = 1)
         {
@@ -464,6 +498,34 @@ namespace CrewChiefV4
                 }
             }
             return result;
+        }
+
+        public static void writeGuessedDriverNames(Dictionary<string, string> guessedOpponentNames)
+        {
+            File.Delete(guessedDriverNamesPath);
+            foreach (var driver in guessedOpponentNames.Keys)
+            {
+                Utilities.AddLinesToFile(guessedDriverNamesPath,
+                                            new List<string> { $"{driver}:{guessedOpponentNames[driver]}" });
+            }
+        }
+        public static void EditGuessedNames()
+        {
+            var process = new System.Diagnostics.Process
+            {
+                StartInfo = new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = "notepad.exe",
+                    Arguments = guessedDriverNamesPath
+                }
+            };
+            process.Start();
+            process.WaitForExit();
+        }
+
+        public static void EditNames()
+        {
+            System.Diagnostics.Process.Start("notepad.exe", driverNamesPath);
         }
 
         public static List<String> getUsableDriverNames(List<String> rawDriverNames)

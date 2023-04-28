@@ -81,7 +81,7 @@ clear_console = Clear c&onsole
 copy_console_text = Copy &all console text
 copy_selected_text = Copy &selected console text
 copy_crew_chief_settings = Copy Crew Chief &settings
-copy_crew_chief_settings_help = Copy to the clipboard the Crew Chief settings that differ from default
+copy_crew_chief_settings_tooltip = Copy to the clipboard the Crew Chief settings that differ from default
 game = &Game
 app_version = App version
 help_menu = &Help
@@ -161,6 +161,22 @@ driver_name = Driver names
 other_driver_name = Other possible driver names
 play_name_sample = Play name sample
 select = Select
+
+###################################### Opponent Names dialog ######################################################
+dialog_title_opponent_names = Opponent Names
+guessed_opponent_names = Guessed Opponent Names
+edit_guessed_names_file = Edit Guessed Names File
+delete_additional_names_file = Delete Additional Names File
+edit_opponent_names_file = Edit Opponent Names File
+edit_guessed_names_file_tooltip = Opens the file in Notepad which contains oppponent names that Crew Chief has guessed so you can edit the guesses or delete the contents completely
+edit_opponent_names_file_tooltip = Opens the file in Notepad which contains preset opponent names so you can edit them
+opponent_names_list_tooltip = Select then right click to listen to or change the sound
+
+###################################### Opponent Name Selection dialog ######################################################
+dialog_title_opponent_name_selection = Opponent Name Selection
+opponent_name = Opponent name
+none_of_the_above = None of the above
+none_of_the_above_tooltip = If none of the recorded names are suitable then Crew Chief will not use a name
 
 text_prop_type = (text)
 integer_prop_type = (integer)
@@ -2578,9 +2594,9 @@ codriver_dynamic_lookahead_help = Reduce co-driver look ahead distance when appr
 codriver_dynamic_lookahead_category = MISC
 codriver_dynamic_lookahead_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
 
-# Property: Min gap for auto-generated distance pace note (metres)
-codriver_min_space_for_auto_distance_call = Min gap for auto-generated distance pace note (metres)
-codriver_min_space_for_auto_distance_call_help = Insert auto-generated distance call when the next call is greater than this distance away
+# Property: Min gap for auto-guessed distance pace note (metres)
+codriver_min_space_for_auto_distance_call = Min gap for auto-guessed distance pace note (metres)
+codriver_min_space_for_auto_distance_call_help = Insert auto-guessed distance call when the next call is greater than this distance away
 codriver_min_space_for_auto_distance_call_category = AUDIO_VOICE_AND_CONTROLLERS
 codriver_min_space_for_auto_distance_call_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
 
