@@ -6,6 +6,8 @@
 #
 # Any text set in that file will replace the corresponding default here
 #
+# A few strings include a \ which inserts a newline (if the string is passed through Utilities.NewlinesInLongString)
+#
 ###################################### UI ######################################################
 main_window_title_prefix = Crew Chief V4 - Active Profile:
 checking_sound_pack_version = Checking Sound Pack version...
@@ -182,8 +184,8 @@ text_prop_type = (text)
 integer_prop_type = (integer)
 real_number_prop_type = (real number)
 
-save_prop_changes_warning = Profile '{0}' has unsaved changes. Click 'Yes' to save these changes and restart the application. Click 'No' to discard these changes
-save_prop_changes_warning_no_restart = Profile '{0}' has unsaved changes. Click 'Yes' to save these changes. Click 'No' to discard these changes
+save_prop_changes_warning = Profile '{0}' has unsaved changes.\Click 'Yes' to save these changes and restart the application.\Click 'No' to discard these changes
+save_prop_changes_warning_no_restart = Profile '{0}' has unsaved changes.\Click 'Yes' to save these changes.\Click 'No' to discard these changes
 save_changes = &Save changes
 save_changes_title = Save changes?
 save_and_restart = S&ave profile settings and restart
@@ -195,13 +197,13 @@ show_changed_props_tooltip = Show only changed/unsaved properties
 all_preferences_label = All Properties
 common_preferences_label = Common Properties
 
-unknown_sound_pack_language_text = The current Sound Pack has no language specified. Click "Yes" to proceed with the update (which will apply the default English Sound Pack update files and set the language to English). Click "No" to cancel.
+unknown_sound_pack_language_text = The current Sound Pack has no language specified.\Click "Yes" to proceed with the update (which will apply the default English Sound Pack update files and set the language to English).\Click "No" to cancel.
 unknown_sound_pack_language_title = No Sound Pack language defined
 
-unknown_driver_names_language_text = The current Sound Pack has no language specified. Click "Yes" to proceed with the update (which will download the default English driver name updates). Click "No" to cancel.
+unknown_driver_names_language_text = The current Sound Pack has no language specified.\Click "Yes" to proceed with the update (which will download the default English driver name updates).\Click "No" to cancel.
 unknown_driver_names_language_title = No Sound Pack language defined
 
-unknown_personalisations_language_text = The current Sound Pack has no language specified. Click "Yes" to proceed with the update (which will download the default English personalisations). Click "No" to cancel.
+unknown_personalisations_language_text = The current Sound Pack has no language specified.\Click "Yes" to proceed with the update (which will download the default English personalisations).\Click "No" to cancel.
 unknown_personalisations_language_title = No Sound Pack language defined
 
 personalisations_are_up_to_date = Personalisations are up to date
@@ -219,8 +221,8 @@ install_plugin_popup_error_text = Failed to Install or Update the Plugin.  Pleas
 install_plugin_popup_error_title = Plugin Install or Update failed
 
 install_speechplatform_popup_title = Missing dependency
-install_speechplatform_popup_text = It appears that your system is missing a dependency for speech recogniser to work. Press OK to get redirected to the download location, Or Cancel to return
-install_any_speechlanguage_popup_text = It appears that your system is missing a dependency for speech recogniser to work. Please download and install one of the following MSSpeech_SR_en-GB_TELE.msi, MSSpeech_SR_en-US_TELE.msi,MSSpeech_SR_en-AU_TELE.msi, MSSpeech_SR_en-CA_TELE.msi or MSSpeech_SR_en-IN_TELE.msi. Press OK to get redirected to the download location, Or Cancel to return
+install_speechplatform_popup_text = It appears that your system is missing a dependency for speech recogniser to work.\Press OK to get redirected to the download location\Or Cancel to return
+install_any_speechlanguage_popup_text = It appears that your system is missing a dependency for speech recogniser to work. Please download and install one of the following MSSpeech_SR_en-GB_TELE.msi, MSSpeech_SR_en-US_TELE.msi,MSSpeech_SR_en-AU_TELE.msi, MSSpeech_SR_en-CA_TELE.msi or MSSpeech_SR_en-IN_TELE.msi.\Press OK to get redirected to the download location\Or Cancel to return
 install_single_speechlanguage_popup_text_start = It appears that your system is missing a dependency for speech recogniser to work. Please download and install MSSpeech_SR_
 install_single_speechlanguage_popup_text_end = _TELE.msi. Press OK to get redirected to the download location, Or Cancel to return
 

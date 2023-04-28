@@ -1092,7 +1092,9 @@ namespace CrewChiefV4
             {
                 if (langCodes.langToUse == "en")
                 {
-                    if (MessageBox.Show(Configuration.getUIString("install_any_speechlanguage_popup_text"), Configuration.getUIString("install_speechplatform_popup_title"),
+                    if (MessageBox.Show(
+                        Utilities.NewlinesInLongString(Configuration.getUIString("install_any_speechlanguage_popup_text"), 55),
+                        Configuration.getUIString("install_speechplatform_popup_title"),
                     MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
                     {
                         Process.Start("https://www.microsoft.com/en-us/download/details.aspx?id=27224");
@@ -1194,7 +1196,9 @@ namespace CrewChiefV4
 
             if(sre == null)
             {
-                if (MessageBox.Show(Configuration.getUIString("install_speechplatform_popup_text"), Configuration.getUIString("install_speechplatform_popup_title"),
+                if (MessageBox.Show(
+                    Utilities.NewlinesInLongString(Configuration.getUIString("install_speechplatform_popup_text"), 55),
+                    Configuration.getUIString("install_speechplatform_popup_title"),
                     MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
                 {
                     Process.Start("https://www.microsoft.com/en-us/download/details.aspx?id=27225");

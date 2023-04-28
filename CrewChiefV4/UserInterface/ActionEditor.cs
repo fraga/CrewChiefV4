@@ -162,7 +162,8 @@ namespace CrewChiefV4
         {
             if (hasChanges)
             {
-                var warningMessage = string.Format(Configuration.getUIString("save_prop_changes_warning"), Path.GetFileNameWithoutExtension(UserSettings.GetUserSettings().getString("current_settings_profile")));
+                var warningMessage = string.Format(Utilities.NewlinesInLongString(Configuration.getUIString("save_prop_changes_warning")),
+                    Path.GetFileNameWithoutExtension(UserSettings.GetUserSettings().getString("current_settings_profile")));
                 if (CrewChief.Debugging)
                 {
                     warningMessage = "You have unsaved changes. Click 'Yes' to save these changes (you will need to manually restart the application). Click 'No' to discard these changes";
