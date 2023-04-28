@@ -29,9 +29,9 @@ namespace CrewChiefV4.UserInterface.Models
             foreach (var opponentName in guessedOpponentNames)
             {
 
-                var oppName = myTI.ToTitleCase(opponentName.Key);
-                var wavFile = char.ToUpper(opponentName.Value[0]) + opponentName.Value.Substring(1);
-                availableGuessedOpponentNames.Add($"{oppName} : {wavFile}");
+                // var oppName = myTI.ToTitleCase(opponentName.Key);
+                // var wavFile = char.ToUpper(opponentName.Value[0]) + opponentName.Value.Substring(1);
+                availableGuessedOpponentNames.Add($"{opponentName.Key}:{opponentName.Value}");
             }
             viewModel.fillGuessedOpponentNames(availableGuessedOpponentNames);
         }
@@ -43,7 +43,10 @@ namespace CrewChiefV4.UserInterface.Models
         }
         public void PlayOpponentDriverName(string name)
         {
-            MyName.PlayDriverName(guessedOpponentNames[name]);
+            if (guessedOpponentNames.ContainsKey(name))
+            {
+                MyName.PlayDriverName(guessedOpponentNames[name]);
+            }
         }
         public static void NewDriverName(string opponentName, string wavFileName)
         {
