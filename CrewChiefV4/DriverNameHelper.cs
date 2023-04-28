@@ -76,6 +76,7 @@ namespace CrewChiefV4
                 soundsFolderName = _soundsFolderName;
             }
             lowerCaseRawNameToUsableName.Clear();
+            suppressFuzzyMatchesOnTheseNames.Clear();
             readRawNamesToUsableNamesFile(soundsFolderName, @"driver_names\additional_names.txt", lowerCaseRawNameToUsableName);
             readRawNamesToUsableNamesFile(soundsFolderName, @"driver_names\names.txt", lowerCaseRawNameToUsableName);
             driverNamesPath = Path.Combine(soundsFolderName, @"driver_names\names.txt");
@@ -90,7 +91,6 @@ namespace CrewChiefV4
         public static Dictionary<string, string> getGuessedDriverNames()
         {
             Dictionary<String, String> lowerCaseGuessedNameToUsableName = new Dictionary<string, string>();
-
             if (useFuzzyDrivernameMatching)
             {
                 readRawNamesToUsableNamesFile(soundsFolderName, @"driver_names\guessed_names.txt", lowerCaseGuessedNameToUsableName);
