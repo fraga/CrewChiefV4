@@ -196,7 +196,8 @@ namespace GTR2SharedMemory
         {
             None = 0,
             DTM18,
-            F1_2011
+            F1_2011,
+            F1_2013
         }
 
         public enum GTR2DTM18DRSState
