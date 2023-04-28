@@ -3,6 +3,7 @@ using System.IO;
 using System.Collections.Generic;
 using System;
 using System.Text.RegularExpressions;
+using System.Globalization;
 
 namespace CrewChiefV4.UserInterface.Models
 {
@@ -17,16 +18,20 @@ namespace CrewChiefV4.UserInterface.Models
         {
             viewModel = _viewModel;
             LoadGuessedOpponentNames();
-            guessedOpponentNamePairs();
+            generateOpponentNamePairs();
             inst = this;
         }
 
-        private void guessedOpponentNamePairs()
+        private void generateOpponentNamePairs()
         {
             List<string> availableGuessedOpponentNames = new List<string>();
+            TextInfo myTI = new CultureInfo("en-GB", false).TextInfo;
             foreach (var opponentName in guessedOpponentNames)
             {
-                availableGuessedOpponentNames.Add($"{opponentName.Key}:{opponentName.Value}");
+
+                var oppName = myTI.ToTitleCase(opponentName.Key);
+                var wavFile = char.ToUpper(opponentName.Value[0]) + opponentName.Value.Substring(1);
+                availableGuessedOpponentNames.Add($"{oppName} : {wavFile}");
             }
             viewModel.fillGuessedOpponentNames(availableGuessedOpponentNames);
         }
@@ -43,7 +48,7 @@ namespace CrewChiefV4.UserInterface.Models
         public static void NewDriverName(string opponentName, string wavFileName)
         {
             inst.guessedOpponentNames[opponentName] = wavFileName;
-            inst.guessedOpponentNamePairs();
+            inst.generateOpponentNamePairs();
             DriverNameHelper.writeGuessedDriverNames(inst.guessedOpponentNames);
         }
         public void DeleteOpponentDriverName(string name)
@@ -51,19 +56,19 @@ namespace CrewChiefV4.UserInterface.Models
             guessedOpponentNames[name] = null;
             // Now save 
             DriverNameHelper.writeGuessedDriverNames(guessedOpponentNames);
-            guessedOpponentNamePairs();
+            generateOpponentNamePairs();
         }
         public void EditGuessedNames()
         {
             DriverNameHelper.EditGuessedNames();
             LoadGuessedOpponentNames();
-            guessedOpponentNamePairs();
+            generateOpponentNamePairs();
         }
         public void DeleteGuessedNames()
         {
             guessedOpponentNames.Clear();
             DriverNameHelper.writeGuessedDriverNames(guessedOpponentNames);
-            guessedOpponentNamePairs();
+            generateOpponentNamePairs();
         }
         public void EditNames()
         {
