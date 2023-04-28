@@ -795,18 +795,23 @@ namespace CrewChiefV4
         public static string NewlinesInLongString(string longString, int maxLength = 44)
         {
             string result = string.Empty;
+            var markedLines = longString.Split('\\');
 
-            while (longString.Length > maxLength)
+            foreach (var line in markedLines)
             {
-                int splitIndex = longString.Substring(0, maxLength).LastIndexOf(" ");
-                if (splitIndex == -1) // no space found
-                    splitIndex = maxLength; // split at max length anyway
+                string _line = line;
+                while (_line.Length > maxLength)
+                {
+                    int splitIndex = _line.Substring(0, maxLength).LastIndexOf(" ");
+                    if (splitIndex == -1) // no space found
+                        splitIndex = maxLength; // split at max length anyway
 
-                result += (longString.Substring(0, splitIndex)) + Environment.NewLine;
-                longString = longString.Substring(splitIndex + 1);
+                    result += (_line.Substring(0, splitIndex)) + Environment.NewLine;
+                    _line = _line.Substring(splitIndex + 1);
+                }
+                result += _line + Environment.NewLine; // add the last remaining part of the line
             }
 
-            result += longString; // add the last remaining part of the line
             return result;
         }
         public static int SizeOf<T>()

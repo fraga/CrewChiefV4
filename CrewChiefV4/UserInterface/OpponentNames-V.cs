@@ -28,7 +28,8 @@ namespace CrewChiefV4.UserInterface
                 Utilities.NewlinesInLongString(Configuration.getUIString("edit_guessed_names_file_tooltip")));
             toolTipEditOpponentNamesFile.SetToolTip(buttonEditOpponentNames,
                 Utilities.NewlinesInLongString(Configuration.getUIString("edit_opponent_names_file_tooltip")));
-            toolTipNamesList.SetToolTip(listBoxOpponentNames, Configuration.getUIString("opponent_names_list_tooltip"));
+            toolTipNamesList.SetToolTip(listBoxOpponentNames,
+                Utilities.NewlinesInLongString(Configuration.getUIString("opponent_names_list_tooltip")));
 
             vm = new OpponentNames_VM(this);
             model = new OpponentNames(vm);

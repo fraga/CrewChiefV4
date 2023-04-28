@@ -170,7 +170,7 @@ delete_additional_names_file = Delete Additional Names File
 edit_opponent_names_file = Edit Opponent Names File
 edit_guessed_names_file_tooltip = Opens the file in Notepad which contains oppponent names that Crew Chief has guessed so you can edit the guesses or delete the contents completely
 edit_opponent_names_file_tooltip = Opens the file in Notepad which contains preset opponent names so you can edit them
-opponent_names_list_tooltip = Select then right click to listen to or change the sound
+opponent_names_list_tooltip = Opponent name : Recorded name pairs\Select then right click to listen to or change the sound
 
 ###################################### Opponent Name Selection dialog ######################################################
 dialog_title_opponent_name_selection = Opponent Name Selection
