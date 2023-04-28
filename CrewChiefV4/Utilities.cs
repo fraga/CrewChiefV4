@@ -791,6 +791,8 @@ namespace CrewChiefV4
         }
         /// <summary>
         /// Put newlines into a long string e.g. for tooltips
+        /// A \ in the string is treated as a hard newline
+        /// e.g. Recorded name pairs\Select then...
         /// </summary>
         public static string NewlinesInLongString(string longString, int maxLength = 44)
         {
