@@ -118,7 +118,11 @@ namespace CrewChiefV4
                 {
                     if (line.Length > 1 && line.Trim().EndsWith(":"))
                     {
-                        suppressFuzzyMatchesOnTheseNames.Add(line.Trim(':').ToLower());
+                        string suppressedName = line.Trim(':');
+                        if (suppressedName.Length > 0)
+                        {
+                            suppressFuzzyMatchesOnTheseNames.Add(suppressedName.ToLower());
+                        }
                     }
                     else
                     {
