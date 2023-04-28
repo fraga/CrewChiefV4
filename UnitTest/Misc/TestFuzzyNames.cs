@@ -7,6 +7,7 @@ using System;
 using System.Linq;
 
 using CrewChiefV4;
+using CrewChiefV4.UserInterface.Models;
 using static CrewChiefV4.DriverNameHelper;
 
 namespace UnitTest.Misc
@@ -32,7 +33,7 @@ namespace UnitTest.Misc
                 line = sr.ReadLine();
             }
             availableDriverNames = aDN.ToArray();
-            readRawNamesToUsableNamesFile(@"../../../CrewChiefV4/sounds/driver_names", "names.txt");
+            readRawNamesToUsableNamesFile(@"../../../CrewChiefV4/sounds/driver_names", "names.txt", lowerCaseRawNameToUsableName);
         }
 
         #region Test_FuzzyMatches
@@ -132,7 +133,6 @@ namespace UnitTest.Misc
 
         public void test_FuzzyMatches(string driverName, string wavFile)
         {
-            // var result = DriverNameHelper.FuzzyMatch(driverName, availableDriverNames);
             var result = DriverNameHelper.MatchForOpponentName(driverName, availableDriverNames);
             if (wavFile == null && result.matched)
             {
@@ -167,6 +167,30 @@ namespace UnitTest.Misc
             {
                 driverName = result.driverNameMatches[i];
                 Log.Commentary(driverName);
+            }
+        }
+        [Test]
+        [Ignore("Takes forever!")]
+        public void test_unvocalisedNames()
+        {
+            StreamReader sr = new StreamReader(@"../../misc/unvocalisedNames.h");
+            var line = sr.ReadLine();
+            while (line != null)
+            {
+                if (line.Contains(","))
+                { // "a h", null
+                    var uvn = line.Split(',')[0].Trim(new char[] { ' ', '"' });
+                    var result = DriverNameHelper.MatchForOpponentName(uvn, availableDriverNames);
+                    if (result.matched)
+                    {
+                        Console.WriteLine($"'{uvn}' fuzzy matched with {result.driverNameMatches[0]}");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"'{uvn}' didn't match");
+                    }
+                }
+                line = sr.ReadLine();
             }
         }
         #endregion Test_FuzzyMatches

@@ -22,8 +22,7 @@ namespace UnitTestPitMenuEventHandler
             new CrewChiefV4.UserSettings(); // Avoids null pointer errors all over the shop
         }
         [TestMethod]
-        [ExpectedException(typeof(ArgumentOutOfRangeException),
-            "text")]
+        //[ExpectedException(typeof(ArgumentOutOfRangeException),"text")]
         /// RUNS OK AS LONG AS RF2 IS NOT LOADED
         /// can be used to create Documents\CrewChiefV4\rF2\TyreDictionary.json
         public void Test_EventHandler()

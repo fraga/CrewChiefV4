@@ -2,6 +2,8 @@
 using System.Drawing;
 using System.Windows.Forms;
 
+using CrewChiefV4.UserInterface;
+
 namespace CrewChiefV4
 {
     /// <summary>
@@ -18,6 +20,7 @@ namespace CrewChiefV4
     {
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem namesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem consoleToolStripMenuItem;
         private ContextMenuStrip consoleContextMenuStrip;
@@ -45,6 +48,7 @@ namespace CrewChiefV4
             this.mCopySelectedConsoleTextToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mCopyCrewChiefSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.consoleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.namesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.consoleContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.cSaveConsoleTextToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cSaveConsoleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -63,6 +67,7 @@ namespace CrewChiefV4
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
                 this.fileToolStripMenuItem,
                 this.consoleToolStripMenuItem,
+                this.namesToolStripMenuItem,
                 this.helpToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
@@ -70,6 +75,7 @@ namespace CrewChiefV4
             this.menuStrip1.Text = "menuStrip1";
             this.menuStrip1.Font = exemplarFont;
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(3, 1, 0, 1);
+            this.menuStrip1.Width = 400;
             //
             // fileToolStripMenuItem
             //
@@ -136,7 +142,17 @@ namespace CrewChiefV4
             this.mCopyCrewChiefSettingsToolStripMenuItem.Text = Configuration.getUIString("copy_crew_chief_settings");
             this.mCopySelectedConsoleTextToolStripMenuItem.Click += new System.EventHandler(this.saveSelectedConsoleText_Click);
             this.mCopyCrewChiefSettingsToolStripMenuItem.Click += new System.EventHandler(this.saveCrewChiefSettings_Click);
-            this.mCopyCrewChiefSettingsToolStripMenuItem.ToolTipText = Configuration.getUIString("copy_crew_chief_settings_help");
+            this.mCopyCrewChiefSettingsToolStripMenuItem.ToolTipText = Configuration.getUIString("copy_crew_chief_settings_tooltip");
+
+            //
+            // namesToolStripMenuItem
+            //
+            //this.namesToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            //    this.mOpponentNamesToolStripMenuItem });
+            this.namesToolStripMenuItem.Name = "namesToolStripMenuItem";
+            this.namesToolStripMenuItem.Size = new System.Drawing.Size(37, 22);
+            this.namesToolStripMenuItem.Text = "Opponent Names";
+            this.namesToolStripMenuItem.Click += new System.EventHandler(this.mOpponentNamesToolStripMenuItem_Click);
 
             //
             // helpToolStripMenuItem
@@ -198,7 +214,7 @@ namespace CrewChiefV4
             this.cCopyCrewChiefSettingsToolStripMenuItem.Size = new System.Drawing.Size(270, 22);
             this.cCopyCrewChiefSettingsToolStripMenuItem.Text = Configuration.getUIString("copy_crew_chief_settings");
             this.cCopyCrewChiefSettingsToolStripMenuItem.Click += new System.EventHandler(this.saveCrewChiefSettings_Click);
-            this.cCopyCrewChiefSettingsToolStripMenuItem.ToolTipText = Configuration.getUIString("copy_crew_chief_settings_help");
+            this.cCopyCrewChiefSettingsToolStripMenuItem.ToolTipText = Configuration.getUIString("copy_crew_chief_settings_tooltip");
 
             this.MainMenuStrip = this.menuStrip1;
             this.Controls.Add(this.menuStrip1);
@@ -217,12 +233,19 @@ namespace CrewChiefV4
             this.cSaveConsoleTextToolStripMenuItem.Text = Configuration.getUIString("save_console_output");
             this.cCopySelectedConsoleTextToolStripMenuItem.Text = Configuration.getUIString("copy_selected_text");
             this.cCopyCrewChiefSettingsToolStripMenuItem.Text = Configuration.getUIString("copy_crew_chief_settings");
+            this.namesToolStripMenuItem.Text = "Opponent Names";// Configuration.getUIString("file_menu");
             this.consoleTextBox.ContextMenuStrip = this.consoleContextMenuStrip;
         }
 
         private void mExitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void mOpponentNamesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var win = new OpponentNames_V(this);
+            win.ShowDialog(this);
         }
 
         private void helpToolStripMenuItem_Click(object sender, EventArgs e)

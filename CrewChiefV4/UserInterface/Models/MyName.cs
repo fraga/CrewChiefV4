@@ -155,16 +155,24 @@ namespace CrewChiefV4.UserInterface.Models
         }
         public void PlayRandomDriverName(string name)
         {
+            PlayDriverName(name);
+        }
+        public static void PlayDriverName(string name)
+        { 
             //DirectoryInfo soundsDirectory = new DirectoryInfo(AudioPlayer.soundFilesPath);
-            DirectoryInfo personalisationsDirectory = new DirectoryInfo(Path.Combine(AudioPlayer.soundFilesPath, "driver_names"));
+            DirectoryInfo driverNamesDirectory = new DirectoryInfo(Path.Combine(AudioPlayer.soundFilesPath, "driver_names"));
             //SoundCache.createCompositePrefixesAndSuffixes(soundsDirectory, personalisationsDirectory, name);
-            if (personalisationsDirectory.Exists)
+            if (driverNamesDirectory.Exists)
             {
-                string wavFile = personalisationsDirectory.FullName;
+                string wavFile = driverNamesDirectory.FullName;
                 name += ".wav";
-                Log.Info($"Playing {wavFile}\\{name}");
-                SoundPlayer simpleSound = new SoundPlayer(Path.Combine(wavFile, name));
-                simpleSound.Play();
+                string wavFilePath = Path.Combine(wavFile, name);
+                if (File.Exists(wavFilePath))
+                {
+                    Log.Info($"Playing {wavFile}\\{name}");
+                    SoundPlayer simpleSound = new SoundPlayer(wavFilePath);
+                    simpleSound.Play();
+                }
             }
         }
         public void SelectPersonalisation(string name)

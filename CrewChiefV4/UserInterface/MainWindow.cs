@@ -1021,20 +1021,24 @@ namespace CrewChiefV4
             this.propertiesButton.Text = Configuration.getUIString("properties");
             this.groupBox1.Text = Configuration.getUIString("voice_recognition_mode");
             SetButtonMyNameText();
-            voiceRecognitionToolTip.SetToolTip(this.groupBox1, Configuration.getUIString("voice_recognition_mode_help"));
+            voiceRecognitionToolTip.SetToolTip(this.groupBox1,
+                Utilities.NewlinesInLongString(Configuration.getUIString("voice_recognition_mode_help")));
             this.alwaysOnButton.Text = Configuration.getUIString("always_on");
             voiceRecognitionAlwaysOnToolTip.SetToolTip(this.alwaysOnButton, Configuration.getUIString("voice_recognition_always_on_help"));
             this.toggleButton.Text = Configuration.getUIString("toggle_button");
-            voiceRecognitionToggleButtonToolTip.SetToolTip(this.toggleButton, Configuration.getUIString("voice_recognition_toggle_button_help"));
+            voiceRecognitionToggleButtonToolTip.SetToolTip(this.toggleButton,
+                Utilities.NewlinesInLongString(Configuration.getUIString("voice_recognition_toggle_button_help")));
             this.holdButton.Text = Configuration.getUIString("hold_button");
             voiceRecognitionHoldButtonToolTip.SetToolTip(this.holdButton, Configuration.getUIString("voice_recognition_hold_button_help"));
             this.listenIfNotPressedButton.Text = Configuration.getUIString("voice_recognition_listen_if_not_pressed");
-            listenIfNotPressedButtonToolTip.SetToolTip(this.listenIfNotPressedButton, Configuration.getUIString("voice_recognition_release_button_help"));
+            listenIfNotPressedButtonToolTip.SetToolTip(this.listenIfNotPressedButton, 
+                Utilities.NewlinesInLongString(Configuration.getUIString("voice_recognition_release_button_help")));
 
             this.voiceDisableButton.Text = Configuration.getUIString("disabled");
             voiceRecognitionDisabledToolTip.SetToolTip(this.voiceDisableButton, Configuration.getUIString("voice_recognition_disabled_help"));
             this.triggerWordButton.Text = Configuration.getUIString("trigger_word") + " (\"" + UserSettings.GetUserSettings().getString("trigger_word_for_always_on_sre") + "\")";
-            voiceRecognitionTriggerWordToolTip.SetToolTip(this.triggerWordButton, Configuration.getUIString("voice_recognition_trigger_word_help"));
+            voiceRecognitionTriggerWordToolTip.SetToolTip(this.triggerWordButton, 
+                Utilities.NewlinesInLongString(Configuration.getUIString("voice_recognition_trigger_word_help")));
             this.messagesVolumeSliderLabel.Text = Configuration.getUIString("messages_volume");
             this.backgroundVolumeSliderLabel.Text = Configuration.getUIString("background_volume");
             this.label5.Text = Configuration.getUIString("game");
