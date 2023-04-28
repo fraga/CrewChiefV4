@@ -66,7 +66,7 @@ namespace CrewChiefV4.UserInterface
         }
         public void selectedDriverName(string wavFileName)
         {
-            model.NewDriverName(OpponentName, wavFileName);
+            model.NewDriverName(OpponentName, wavFileName.ToLower());
         }
         public void fillOtherDriverNames(string[] names)
         {

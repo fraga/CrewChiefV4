@@ -47,6 +47,7 @@ namespace CrewChiefV4.UserInterface
         {
             if (e.Button == MouseButtons.Right)
             {
+                listBoxOpponentNames.SelectedIndex = listBoxOpponentNames.IndexFromPoint(e.X, e.Y);
                 contextMenuStripOpponentNames.Show(Cursor.Position);
             }
         }
