@@ -334,7 +334,7 @@ namespace CrewChiefV4
                 {
                     // Clause 4: We have a sound file for the driver last name
                     Console.WriteLine("Using driver last name " + anyFirstNamesRemoved + " for driver raw name " + rawDriverName);
-                    return matchedDriverName;
+                    return anyFirstNamesRemoved;
                 }
                 if (lowerCaseRawNameToUsableName.TryGetValue(anyFirstNamesRemoved.ToLower(), out matchedDriverName))
                 {   // Clause 5: Using mapped driver name for cleaned up driver (last) name

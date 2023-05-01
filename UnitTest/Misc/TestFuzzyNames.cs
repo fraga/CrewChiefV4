@@ -90,6 +90,7 @@ namespace UnitTest.Misc
         [TestCase("rahal", "rahhal")]
         [TestCase("rezende", "resende")]
         [TestCase("bouille", "boule")]
+        [TestCase("senna", "senna")]
 
         // not so good...
         [TestCase("rits", "raats")]
@@ -266,8 +267,8 @@ namespace UnitTest.Misc
         [TestCase("Patricio Javier Alzamora", "alzamora", 1)] // Clause 1: A straight match
         // (Clause 2 is an error condition I can't see a way to generate)
         [TestCase("webber232", "weber", 1)]         // Clause 3: Using mapped driver name for cleaned up driver name
-        [TestCase("andy webber", "weber", 1)]       // Clause 4: Using mapped driver name for cleaned up driver (last) name
-        // (Clause 4 is a fuzzy match which the old method doesn't do)
+        [TestCase("andy weber", "weber", 1)]        // Clause 4: We have a sound file for the driver last name
+        [TestCase("jim whatshisname", "whats his name", 1)]       // Clause 5: Using mapped driver name for cleaned up driver (last) name
         [TestCase("andy wexxxer", "wexxxer", 1)]    // Clause 6a: Using unmapped driver last name for raw driver name
         [TestCase("weyyyer", "weyyyer", 1)]         // Clause 6b: Using unmapped driver name for raw driver name
 
@@ -277,8 +278,8 @@ namespace UnitTest.Misc
         [TestCase("Patricio Javier Alzamora", "alzamora", 0)] // Clause 1: A straight match
         // (Clause 2 is an error condition I can't see a way to generate)
         [TestCase("webber232", "weber", 0)]         // Clause 3: Using mapped driver name for cleaned up driver name
-        [TestCase("andy webber", "weber", 0)]       // Clause 4: Using mapped driver name for cleaned up driver (last) name
-        // (Clause 4 is a fuzzy match which the old method doesn't do)
+        [TestCase("andy weber", "weber", 0)]        // Clause 4: We have a sound file for the driver last name
+        [TestCase("jim whatshisname", "whats his name", 0)]       // Clause 5: Using mapped driver name for cleaned up driver (last) name
         [TestCase("andy wexxxer", "wexxxer", 0)]    // Clause 6a: Using unmapped driver last name for raw driver name
         [TestCase("weyyyer", "weyyyer", 0)]         // Clause 6b: Using unmapped driver name for raw driver name
 
