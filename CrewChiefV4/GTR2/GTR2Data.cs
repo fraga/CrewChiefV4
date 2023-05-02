@@ -554,8 +554,10 @@ namespace GTR2SharedMemory
             [JsonIgnore] public float mSteeringInput;
             [JsonIgnore] public float mThrottleInput;
             [JsonIgnore] public float mBrakeInput;
-
-            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 100)]
+           
+            [JsonIgnore] public byte mDRSLEDState;
+           
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 99)]
             [JsonIgnore] public byte[] mReserved;
         }
 
