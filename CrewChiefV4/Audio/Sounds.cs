@@ -490,13 +490,13 @@ namespace CrewChiefV4.Audio
 
         public static void loadDriverNameSound(String name, Boolean isMidSession = true)
         {
-            if (isMidSession)
-            {
-                Console.WriteLine("Loading (mid-session joined) opponent name sound: " + Environment.NewLine + name);
-            }
             if (name == null || name.Length == 0)
             {
                 return;
+            }
+            if (isMidSession)
+            {
+                Console.WriteLine("Loading (mid-session joined) opponent name sound: " + Environment.NewLine + name);
             }
             Boolean isInAvailableNames = availableDriverNames.Contains(name);
             if (dumpListOfUnvocalizedNames && !isInAvailableNames)
@@ -1007,7 +1007,7 @@ namespace CrewChiefV4.Audio
             }
         }
 
-        private void prepareDriverNamesWithoutLoading(DirectoryInfo driverNamesDirectory, bool verbose)
+        public static void prepareDriverNamesWithoutLoading(DirectoryInfo driverNamesDirectory, bool verbose)
         {
             if (verbose)
             {

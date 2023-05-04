@@ -9,6 +9,7 @@ using System.Linq;
 using CrewChiefV4;
 using CrewChiefV4.UserInterface.Models;
 using static CrewChiefV4.DriverNameHelper;
+using CrewChiefV4.Audio;
 
 namespace UnitTest.Misc
 {
@@ -16,6 +17,11 @@ namespace UnitTest.Misc
     public class TestFuzzyNames
     {
         string[] availableDriverNames = null;
+        [OneTimeSetUp]
+        public void InitSoundCache()
+        {
+            SoundCache.prepareDriverNamesWithoutLoading(new DirectoryInfo(@"../../../CrewChiefV4/sounds/driver_names"), false);
+        }
         [SetUp]
         public void Init()
         {
@@ -197,178 +203,105 @@ namespace UnitTest.Misc
         #endregion Test_FuzzyMatches
 
         #region Test_getUsableDriverName
-        [TestCase("J1mBr1tt0n", "brltton")] // note 1 is substituted for L (not I)
-        [TestCase("JimBri5tol", "bristol")]
-        [TestCase("JimBritton", "britton")]
-        [TestCase("jimBRITTON", "britton")]
-        [TestCase("jim BRITTON", "britton")]
-        [TestCase("jim BRITTON UK", "britton")]
-        [TestCase("JIM BRITTON", "britton")]
-        [TestCase("JIM_BRITTON!!!", "britton")]
-        [TestCase("BRITTON", "britton")]
-        [TestCase("JimBritton!!!!", "britton")]
-        [TestCase("Jim Britton!!!!", "britton")]
-        [TestCase("jim vanderbritton", "vanderbritton")]
-        [TestCase("Jim_Van_Der_Britton", "van der britton")]
-        [TestCase("jim_von_britton", "von britton")]
-        [TestCase("Jim Van Der Britton", "van der britton")]
-        [TestCase("JimVanDerBritton", "van der britton")]
-        [TestCase("Jim McShit", "mc shit")]
-        [TestCase("Jim Mcshit", "mcshit")]
-        [TestCase("Jim MacShit", "mac shit")]
-        [TestCase("Dave Mackay", "mackay")]
-        [TestCase("bobbyMoore", "moore")]
-        [TestCase("Jim Britton uk", "britton")]
-        [TestCase("JimBritton UK", "britton")]
-        [TestCase("Jim Britton [UK]", "britton")]
-        [TestCase("Jim Britt0n 69 UK", "britton")]
-        [TestCase("Jim Britton 69", "britton")]
-        [TestCase("Jim Britton Junior UK", "britton")]
-        [TestCase("Jim Britton Junior", "britton")]
-        [TestCase("Jim Britton jr", "britton")]
-        [TestCase("Jim Junior", "junior")]
-        [TestCase("Jim LeClerc", "le clerc")]
-        [TestCase("Jim le Clerc", "le clerc")]
-        [TestCase("Charles Leclerc", "leclerc")]
-        [TestCase("Jim Ng", "ng")]
-        [TestCase("jim", "jim")]
-        [TestCase("a", null)]
-        [TestCase("ba", "ba")]
-        [TestCase("aaaa", "aaaa")]
-        [TestCase("345hf9237f", "hff")]
-        [TestCase("9999", null)]
-        [TestCase("Jim Britton DIV 2", "britton")]
-        [TestCase("jimBritton DIV 2", "britton")]
-        [TestCase("jimBritton pro", "britton")]
-        [TestCase("jimBritton proam", "britton")]
-        [TestCase("jim DIV 2", "jim")]
-        [TestCase("Jim Britton division 2", "britton")]
-        [TestCase("Jim [da man] Britton", "britton")]
-        [TestCase("JimBritton {some nonsense} UK", "britton")]
-        [TestCase("Britton {some other nonsense} UK", "britton")]
-        [TestCase("Jim <boss> Britton (is ace)", "britton")]
+        [TestCase("J1mBr1tt0n", "brltton", null)] // note 1 is substituted for L (not I)
+        [TestCase("JimBri5tol", "bristol", "bristol")]
+        [TestCase("JimBritton", "britton", "britton")]
+        [TestCase("jimBRITTON", "britton", "britton")]
+        [TestCase("jim BRITTON", "britton", "britton")]
+        [TestCase("jim BRITTON UK", "britton", "britton")]
+        [TestCase("JIM BRITTON", "britton", "britton")]
+        [TestCase("JIM_BRITTON!!!", "britton", "britton")]
+        [TestCase("BRITTON", "britton", "britton")]
+        [TestCase("JimBritton!!!!", "britton", "britton")]
+        [TestCase("Jim Britton!!!!", "britton", "britton")]
+        [TestCase("jim vanderbritton", "vanderbritton", null)]
+        [TestCase("Jim_Van_Der_Britton", "van der britton", "van der drift")]   // !!!!
+        [TestCase("jim_von_britton", "von britton", null)]
+        [TestCase("Jim Van Der Britton", "van der britton", "van der drift")]   // !!!!
+        [TestCase("JimVanDerBritton", "van der britton", "van der drift")]  // !!!!
+        [TestCase("Jim McShit", "mc shit", null)]
+        [TestCase("Jim Mcshit", "mcshit", null)]
+        [TestCase("Jim MacShit", "mac shit", null)]
+        [TestCase("Dave Mackay", "mackay", "mackay")]
+        [TestCase("bobbyMoore", "moore", "moore")]
+        [TestCase("Jim Britton uk", "britton", "britton")]
+        [TestCase("JimBritton UK", "britton", "britton")]
+        [TestCase("Jim Britton [UK]", "britton", "britton")]
+        [TestCase("Jim Britt0n 69 UK", "britton", "britton")]
+        [TestCase("Jim Britton 69", "britton", "britton")]
+        [TestCase("Jim Britton Junior UK", "britton", "britton")]
+        [TestCase("Jim Britton Junior", "britton", "britton")]
+        [TestCase("Jim Britton jr", "britton", "britton")]
+        [TestCase("Jim Junior", "junior", "junior")]
+        [TestCase("Jim LeClerc", "le clerc", "le clercq")]
+        [TestCase("Jim le Clerc", "le clerc", "le clercq")]
+        [TestCase("Charles Leclerc", "leclerc", "le clercq")]
+        [TestCase("Jim Ng", "ng", "ng")]
+        [TestCase("jim", "jim", "jm")]
+        [TestCase("a", null, null)]
+        [TestCase("ba", "ba", "bao")]
+        [TestCase("aaaa", "aaaa", null)]
+        [TestCase("345hf9237f", "hff", "huff")]
+        [TestCase("9999", null, null)]
+        [TestCase("Jim Britton DIV 2", "britton", "britton")]
+        [TestCase("jimBritton DIV 2", "britton", "britton")]
+        [TestCase("jimBritton pro", "britton", "britton")]
+        [TestCase("jimBritton proam", "britton", "britton")]
+        [TestCase("jim DIV 2", "jim", "jm")]
+        [TestCase("Jim Britton division 2", "britton", "britton")]
+        [TestCase("Jim [da man] Britton", "britton", "britton")]
+        [TestCase("JimBritton {some nonsense} UK", "britton", "britton")]
+        [TestCase("Britton {some other nonsense} UK", "britton", "britton")]
+        [TestCase("Jim <boss> Britton (is ace)", "britton", "britton")]
         // [TestCase("Jim <boss> Britton [][]<>{} ()", "britton")]  fails because it removes everything between the first < and the last >
-        [TestCase("Jim Britton [dude]", "britton")]
-        [TestCase("<ejit> JimBritton", "britton")]
-        [TestCase("<ejit> Jim Britton [dipstick]{smelly}", "britton")]
-        [TestCase("Jim   ARG", "jim")]
+        [TestCase("Jim Britton [dude]", "britton", "britton")]
+        [TestCase("<ejit> JimBritton", "britton", "britton")]
+        [TestCase("<ejit> Jim Britton [dipstick]{smelly}", "britton", "britton")]
+        [TestCase("Jim   ARG", "jim", "jm")]
         public void Test_getUsableDriverName(string rawDriverName,
-            string usableDriverName)
+            string usableDriverNameForSRE, string usableDriverNameForAudio)
         {
-            var driverName = getUsableDriverName(rawDriverName);
-            Assert.AreEqual(usableDriverName, driverName);
+            var driverNameForAudio = getUsableDriverName(rawDriverName);
+            var driverNameForSRE = getUsableDriverNameForSRE(rawDriverName);
+            Assert.AreEqual(usableDriverNameForAudio, driverNameForAudio);
+            Assert.AreEqual(usableDriverNameForSRE, driverNameForSRE);
         }
         #endregion Test_getUsableDriverName
 
-        #region Test_getUsableDriverNameAB
-        static int BEFORE_usableNamesForSessionCount = 0;
-        static int AFTER_usableNamesForSessionCount = 0;
-        [TestCase("michael holtz", "holts", "holtz", 1)]
+        #region Test_getUsableDriverNameCaching
+        [TestCase("michael holtz", "holts", "holts", 1)]
         [TestCase("Patricio Javier Alzamora", "alzamora", "alzamora", 1)] // Clause 1: A straight match
         // (Clause 2 is an error condition I can't see a way to generate)
         [TestCase("webber232", "weber", "weber", 1)]         // Clause 3: Using mapped driver name for cleaned up driver name
         [TestCase("andy weber", "weber", "weber", 1)]        // Clause 4: We have a sound file for the driver last name
-        [TestCase("jim whatshisname", "whats his name", "whatshisname", 1)]       // Clause 6: Using mapped driver name for cleaned up driver (last) name
-        [TestCase("andy wexxxer", "wexxxer", "wexxxer", 1)]    // Clause 7a: Using unmapped driver last name for raw driver name
-        [TestCase("weyyyer", "weyyyer", "weyyyer", 1)]         // Clause 7b: Using unmapped driver name for raw driver name
+        [TestCase("jim whatshisname", "whats his name", "whats his name", 1)]       // Clause 6: Using mapped driver name for cleaned up driver (last) name
+        [TestCase("andy wexxxer", "wexxxer", null, 0)]    // Clause 7a: Using unmapped driver last name for raw driver name
+        [TestCase("weyyyer", "weyyyer", null, 0)]         // Clause 7b: Using unmapped driver name for raw driver name
 
         // Rerun the same cases and no new names should be added
         // ...assuming the tests are run in this order
-        [TestCase("michael holtz", "holts", "holtz", 0)]
+        [TestCase("michael holtz", "holts", "holts", 0)]
         [TestCase("Patricio Javier Alzamora", "alzamora", "alzamora", 0)] // Clause 1: A straight match
         // (Clause 2 is an error condition I can't see a way to generate)
         //[TestCase("webber232", "weber", "webber", 0)]         // Clause 3: Using mapped driver name for cleaned up driver name
         [TestCase("andy weber", "weber", "weber", 0)]        // Clause 4: We have a sound file for the driver last name
-        [TestCase("jim whatshisname", "whats his name", "whatshisname", 0)]       // Clause 6: Using mapped driver name for cleaned up driver (last) name
-        [TestCase("andy wexxxer", "wexxxer", "wexxxer", 0)]    // Clause 7a: Using unmapped driver last name for raw driver name
-        [TestCase("weyyyer", "weyyyer", "weyyyer", 0)]         // Clause 7b: Using unmapped driver name for raw driver name
+        [TestCase("jim whatshisname", "whats his name", "whats his name", 0)]       // Clause 6: Using mapped driver name for cleaned up driver (last) name
+        [TestCase("andy wexxxer", "wexxxer", null, 0)]    // Clause 7a: Using unmapped driver last name for raw driver name
+        [TestCase("weyyyer", "weyyyer", null, 0)]         // Clause 7b: Using unmapped driver name for raw driver name
 
-        public void AB_Test_getUsableDriverName(string rawDriverName,
-            string usableDriverName,
-            string surname,
+        public void Test_getUsableDriverNameCaching(string rawDriverName,
+            string usableDriverNameForSRE,
+            string usableDriverNameForAudio,
             int adds1to_usableNamesForSession)
         {
-            Assert.AreEqual(BEFORE_usableNamesForSessionCount, AFTER_usableNamesForSessionCount);
-            var driverName = BEFORE_DriverNameHelper.BEFORE_getUsableDriverName(rawDriverName);
-            Assert.AreEqual(driverName, usableDriverName);
-            BEFORE_usableNamesForSessionCount += adds1to_usableNamesForSession;
-            Assert.AreEqual(BEFORE_usableNamesForSessionCount,
-                BEFORE_DriverNameHelper.getSize_usableNamesForSession());
-
-            // Old method passes, check the new method
-            driverName = getUsableDriverName(rawDriverName);
-            Assert.AreEqual(driverName, usableDriverName);
+            int initialCacheSize = GetSize_usableNamesForSession();
+            var driverName = getUsableDriverName(rawDriverName);
+            Assert.AreEqual(usableDriverNameForAudio, driverName);
             var driverSurname = getUsableDriverNameForSRE(rawDriverName);
-            Assert.AreEqual(driverSurname, surname);
-            AFTER_usableNamesForSessionCount += adds1to_usableNamesForSession;
-            Assert.AreEqual(AFTER_usableNamesForSessionCount,
+            Assert.AreEqual(usableDriverNameForSRE, driverSurname);
+            Assert.AreEqual(initialCacheSize + adds1to_usableNamesForSession,
                 GetSize_usableNamesForSession());
         }
-    }
-
-    // Copy of getUsableDriverName() before refactoring.
-    class BEFORE_DriverNameHelper
-    {
-        private static Dictionary<String, String> usableNamesForSession = new Dictionary<String, String>();
-        private static bool useLastNameWherePossible = true;
-        internal static int getSize_usableNamesForSession()
-        {
-            return usableNamesForSession.Count;
-        }
-        public static String BEFORE_getUsableDriverName(String rawDriverName)
-        {
-            if (!usableNamesForSession.ContainsKey(rawDriverName))
-            {
-                String usableDriverName = null;
-                if (lowerCaseRawNameToUsableName.TryGetValue(rawDriverName.ToLower(), out usableDriverName))
-                {
-                    Console.WriteLine("BEFORE_Using mapped drivername " + usableDriverName + " for raw driver name " + rawDriverName);
-                    usableNamesForSession.Add(rawDriverName, usableDriverName);
-                }
-                else
-                {
-                    usableDriverName = validateAndCleanUpName(rawDriverName);
-                    if (usableDriverName != null)
-                    {
-                        Boolean usedLastName = false;
-                        if (useLastNameWherePossible)
-                        {
-                            String lastName = getUnambiguousLastName(usableDriverName);
-                            if (lastName != null && lastName.Count() > 1)
-                            {
-                                if (lowerCaseRawNameToUsableName.TryGetValue(lastName.ToLower(), out usableDriverName))
-                                {
-                                    Console.WriteLine("BEFORE_Using mapped driver last name " + usableDriverName + " for raw driver last name " + lastName);
-                                    usableNamesForSession.Add(rawDriverName, usableDriverName);
-                                    usedLastName = true;
-                                }
-                                else
-                                {
-                                    Console.WriteLine("BEFORE_Using unmapped driver last name " + lastName + " for raw driver name " + rawDriverName);
-                                    usableDriverName = lastName;
-                                    usableNamesForSession.Add(rawDriverName, usableDriverName);
-                                    usedLastName = true;
-                                }
-                            }
-                        }
-                        if (!usedLastName)
-                        {
-                            Console.WriteLine("BEFORE_Using unmapped drivername " + usableDriverName + " for raw driver name " + rawDriverName);
-                            usableNamesForSession.Add(rawDriverName, usableDriverName);
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine("BEFORE_Unable to create a usable driver name for " + rawDriverName);
-                    }
-                }
-                return usableDriverName;
-            }
-            else
-            {
-                return usableNamesForSession[rawDriverName];
-            }
-        }
-        #endregion Test_getUsableDriverName
+        #endregion Test_getUsableDriverNameCaching
     }
 }

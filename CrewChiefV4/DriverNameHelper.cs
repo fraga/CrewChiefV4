@@ -375,7 +375,7 @@ namespace CrewChiefV4
                 {
                     matchedDriverName = fuzzyDriverLastName.driverNameMatches[0].ToLower();
                     // Clause 7: Using fuzzy matched driver name for cleaned up driver (last) name
-                    Utilities.AddLinesToFile(guessedDriverNamesPath, new List<string> { $"{anyFirstNamesRemoved}:{matchedDriverName}" });
+                    if (guessedDriverNamesPath != null) Utilities.AddLinesToFile(guessedDriverNamesPath, new List<string> { $"{anyFirstNamesRemoved}:{matchedDriverName}" });
                     Console.WriteLine($"Adding fuzzy mapping for name {anyFirstNamesRemoved}:{matchedDriverName}");
                     // add the newly-mapped name to the list
                     lowerCaseLastNameToFuzzyMatchedName[anyFirstNamesRemoved] = matchedDriverName;
