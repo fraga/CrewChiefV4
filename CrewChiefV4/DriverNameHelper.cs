@@ -293,19 +293,23 @@ namespace CrewChiefV4
             }
             return null;
         }
-        public static String getUsableDriverName(String rawDriverName)
+        public static String getUsableDriverName(String rawDriverName, bool returnSurnameIfNoSoundExists = false)
         {
-            if (failingNames.Contains(rawDriverName))
+            // in most cases this method is called when we want to get a driver's sound file so if there's no sound file
+            // we return null. For TTS we actually want the last name even if there's no sound
+            if (!returnSurnameIfNoSoundExists && failingNames.Contains(rawDriverName))
             {
                 return null;
             }
-            string matchedDriverName;
+            string matchedDriverName = null;
             if (usableNamesForSession.ContainsKey(rawDriverName))
             {   // We found a match previously
                 matchedDriverName = usableNamesForSession[rawDriverName];
             }
-            else
+            else if (!failingNames.Contains(rawDriverName))
             {
+                // we might be asking for a driver name for TTS, in which case we want to check if we already established that this
+                // driver has no match
                 matchedDriverName = tryToMatchDriverName(rawDriverName);
                 if (matchedDriverName == null)
                 {
@@ -315,6 +319,10 @@ namespace CrewChiefV4
                 {
                     usableNamesForSession.Add(rawDriverName, matchedDriverName);
                 }
+            }
+            if (returnSurnameIfNoSoundExists && matchedDriverName == null && rawDriverNameSurname.ContainsKey(rawDriverName))
+            {
+                return rawDriverNameSurname[rawDriverName];
             }
             return matchedDriverName;
         }

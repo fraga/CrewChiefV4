@@ -145,7 +145,7 @@ namespace CrewChiefV4.Events
                             break;
                         }
                         // fall back to matching on surnames only
-                        else if (name.Equals(DriverNameHelper.getUsableDriverName(entry.Value.DriverRawName), StringComparison.InvariantCultureIgnoreCase))
+                        else if (name.Equals(DriverNameHelper.getUsableDriverName(entry.Value.DriverRawName, true), StringComparison.InvariantCultureIgnoreCase))
                         {
                             surnameMatch = entry.Key;
                         }

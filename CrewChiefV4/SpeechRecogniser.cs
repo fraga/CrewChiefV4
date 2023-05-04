@@ -1741,7 +1741,7 @@ namespace CrewChiefV4
                 String usableNameForSRE = DriverNameHelper.getUsableDriverNameForSRE(rawDriverName);
                 Console.WriteLine("Adding new (mid-session joined) opponent name to speech recogniser: " + Environment.NewLine + usableNameForSRE);
                 Tuple<HashSet<string>, HashSet<string>> choices = getDriverChoices(usableNameForSRE, carNumberString);
-                loadNameAndNamePossessiveChoices(choices.Item1, choices.Item2, SREWrapperFactory.createNewChoicesWrapper(), SREWrapperFactory.createNewChoicesWrapper());
+                loadNameAndNamePossessiveChoices(choices.Item1, choices.Item2);
             }
             catch (Exception e)
             {
@@ -1780,50 +1780,51 @@ namespace CrewChiefV4
                 nameChoices.UnionWith(choices.Item1);
                 namePossessiveChoices.UnionWith(choices.Item2);
             }
-            ChoicesWrapper opponentNameOrPositionChoices = SREWrapperFactory.createNewChoicesWrapper();
-            ChoicesWrapper opponentNameOrPositionPossessiveChoices = SREWrapperFactory.createNewChoicesWrapper();
+            ChoicesWrapper opponentNameChoices = SREWrapperFactory.createNewChoicesWrapper();
+            ChoicesWrapper opponentNamePossessiveChoices = SREWrapperFactory.createNewChoicesWrapper();
+            opponentNameChoices.Add(THE_CAR_AHEAD);
+            opponentNameChoices.Add(THE_CAR_BEHIND);
+            opponentNameChoices.Add(THE_LEADER);
+            opponentNamePossessiveChoices.Add(THE_CAR_AHEAD);
+            opponentNamePossessiveChoices.Add(THE_CAR_BEHIND);
+            opponentNamePossessiveChoices.Add(THE_LEADER);
+
+            if (!disable_alternative_voice_commands)
+            {
+                opponentNameChoices.Add(THE_GUY_AHEAD);
+                opponentNameChoices.Add(THE_CAR_IN_FRONT);
+                opponentNameChoices.Add(THE_GUY_IN_FRONT);
+                opponentNameChoices.Add(THE_GUY_BEHIND);
+                opponentNamePossessiveChoices.Add(THE_GUY_AHEAD);
+                opponentNamePossessiveChoices.Add(THE_CAR_IN_FRONT);
+                opponentNamePossessiveChoices.Add(THE_GUY_IN_FRONT);
+                opponentNamePossessiveChoices.Add(THE_GUY_BEHIND);
+            }
+            loadNameAndNamePossessiveChoices(nameChoices, namePossessiveChoices, opponentNameChoices, opponentNamePossessiveChoices);
 
             if (identifyOpponentsByPosition)
             {
-                ChoicesWrapper opponentPositionChoices = SREWrapperFactory.createNewChoicesWrapper();
+                ChoicesWrapper whosInPositionChoices = SREWrapperFactory.createNewChoicesWrapper();
+                HashSet<string> positions = new HashSet<string>();
+                HashSet<string> positionsPossessive = new HashSet<string>();
                 foreach (KeyValuePair<String[], int> entry in racePositionNumberToNumber)
                 {
                     foreach (String numberStr in entry.Key)
                     {
-                        opponentNameOrPositionChoices.Add(POSITION_LONG + " " + numberStr);
-                        opponentPositionChoices.Add(POSITION_LONG + " " + numberStr);
-                        opponentNameOrPositionPossessiveChoices.Add(POSITION_LONG + " " + numberStr + POSSESSIVE);
-                        // the short position sounds start with "pea" ("pea ten" etc). These are too close to driver names
-                        // like Piquet so we'll disable them for now
-                        /*if (!disable_alternative_voice_commands)
+                        positions.Add(POSITION_SHORT + " " + numberStr);
+                        positionsPossessive.Add(POSITION_SHORT + " " + numberStr + POSSESSIVE);
+                        whosInPositionChoices.Add(POSITION_SHORT + " " + numberStr);
+                        if (!disable_alternative_voice_commands)
                         {
-                            opponentNameOrPositionChoices.Add(POSITION_SHORT + " " + numberStr);
-                            opponentPositionChoices.Add(POSITION_SHORT + " " + numberStr);
-                            opponentNameOrPositionPossessiveChoices.Add(POSITION_SHORT + " " + numberStr + POSSESSIVE);
-                        }*/
+                            positions.Add(POSITION_LONG + " " + numberStr);
+                            positionsPossessive.Add(POSITION_LONG + " " + numberStr + POSSESSIVE);
+                            whosInPositionChoices.Add(POSITION_LONG + " " + numberStr);
+                        }
                     }
                 }
-                opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHOS_IN }, false, opponentPositionChoices, null, true));
+                opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHOS_IN }, false, whosInPositionChoices, null, true));
+                loadNameAndNamePossessiveChoices(positions, positionsPossessive);
             }
-            opponentNameOrPositionChoices.Add(THE_CAR_AHEAD);
-            opponentNameOrPositionChoices.Add(THE_CAR_BEHIND);
-            opponentNameOrPositionChoices.Add(THE_LEADER);
-            opponentNameOrPositionPossessiveChoices.Add(THE_CAR_AHEAD);
-            opponentNameOrPositionPossessiveChoices.Add(THE_CAR_BEHIND);
-            opponentNameOrPositionPossessiveChoices.Add(THE_LEADER);
-
-            if (!disable_alternative_voice_commands)
-            {
-                opponentNameOrPositionChoices.Add(THE_GUY_AHEAD);
-                opponentNameOrPositionChoices.Add(THE_CAR_IN_FRONT);
-                opponentNameOrPositionChoices.Add(THE_GUY_IN_FRONT);
-                opponentNameOrPositionChoices.Add(THE_GUY_BEHIND);
-                opponentNameOrPositionPossessiveChoices.Add(THE_GUY_AHEAD);
-                opponentNameOrPositionPossessiveChoices.Add(THE_CAR_IN_FRONT);
-                opponentNameOrPositionPossessiveChoices.Add(THE_GUY_IN_FRONT);
-                opponentNameOrPositionPossessiveChoices.Add(THE_GUY_BEHIND);
-            }
-            loadNameAndNamePossessiveChoices(nameChoices, namePossessiveChoices, opponentNameOrPositionChoices, opponentNameOrPositionPossessiveChoices);
         }
 
         private Tuple<HashSet<string>, HashSet<string>> getDriverChoices(string usableNameForSRE, string carNumberString)
@@ -1873,8 +1874,16 @@ namespace CrewChiefV4
         }
 
         private void loadNameAndNamePossessiveChoices(HashSet<string> nameChoices, HashSet<string> namePossessiveChoices,
-            ChoicesWrapper opponentNameChoices, ChoicesWrapper opponentNamePossessiveChoices)
+            ChoicesWrapper opponentNameChoices = null, ChoicesWrapper opponentNamePossessiveChoices = null)
         {
+            if (opponentNameChoices == null)
+            {
+                opponentNameChoices = SREWrapperFactory.createNewChoicesWrapper();
+            }
+            if (opponentNamePossessiveChoices == null)
+            {
+                opponentNamePossessiveChoices = SREWrapperFactory.createNewChoicesWrapper();
+            }
             if (nameChoices.Count() > 0)
             {
                 foreach (string nameChoice in nameChoices)
