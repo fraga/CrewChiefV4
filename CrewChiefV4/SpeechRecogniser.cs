@@ -1739,12 +1739,9 @@ namespace CrewChiefV4
             try
             {
                 String usableNameForSRE = DriverNameHelper.getUsableDriverNameForSRE(rawDriverName);
-                if (usableNameForSRE != null && usableNameForSRE.Length > 0)
-                {
-                    Console.WriteLine("Adding new (mid-session joined) opponent name to speech recogniser: " + Environment.NewLine + usableNameForSRE);
-                    Tuple<HashSet<string>, HashSet<string>> choices = getDriverChoices(usableNameForSRE, carNumberString);
-                    loadNameAndNamePossessiveChoices(choices.Item1, choices.Item2, SREWrapperFactory.createNewChoicesWrapper(), SREWrapperFactory.createNewChoicesWrapper());
-                }
+                Console.WriteLine("Adding new (mid-session joined) opponent name to speech recogniser: " + Environment.NewLine + usableNameForSRE);
+                Tuple<HashSet<string>, HashSet<string>> choices = getDriverChoices(usableNameForSRE, carNumberString);
+                loadNameAndNamePossessiveChoices(choices.Item1, choices.Item2, SREWrapperFactory.createNewChoicesWrapper(), SREWrapperFactory.createNewChoicesWrapper());
             }
             catch (Exception e)
             {
