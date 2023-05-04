@@ -463,7 +463,7 @@ namespace CrewChiefV4.Audio
                             return;
 
                         loadedCount++;
-                        loadDriverNameSound(name);
+                        loadDriverNameSound(name, false);
                     }
                     if (AudioPlayer.playWithNAudio)
                     {
@@ -488,8 +488,12 @@ namespace CrewChiefV4.Audio
             SoundCache.loadDriverNameSoundsThread.Start();
         }
 
-        public static void loadDriverNameSound(String name)
+        public static void loadDriverNameSound(String name, Boolean isMidSession = true)
         {
+            if (isMidSession)
+            {
+                Console.WriteLine("Loading (mid-session joined) opponent name sound: " + Environment.NewLine + name);
+            }
             if (name == null || name.Length == 0)
             {
                 return;
