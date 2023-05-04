@@ -1785,9 +1785,9 @@ namespace CrewChiefV4
             opponentNameChoices.Add(THE_CAR_AHEAD);
             opponentNameChoices.Add(THE_CAR_BEHIND);
             opponentNameChoices.Add(THE_LEADER);
-            opponentNamePossessiveChoices.Add(THE_CAR_AHEAD);
-            opponentNamePossessiveChoices.Add(THE_CAR_BEHIND);
-            opponentNamePossessiveChoices.Add(THE_LEADER);
+            opponentNamePossessiveChoices.Add(THE_CAR_AHEAD + POSSESSIVE);
+            opponentNamePossessiveChoices.Add(THE_CAR_BEHIND + POSSESSIVE);
+            opponentNamePossessiveChoices.Add(THE_LEADER + POSSESSIVE);
 
             if (!disable_alternative_voice_commands)
             {
@@ -1795,10 +1795,10 @@ namespace CrewChiefV4
                 opponentNameChoices.Add(THE_CAR_IN_FRONT);
                 opponentNameChoices.Add(THE_GUY_IN_FRONT);
                 opponentNameChoices.Add(THE_GUY_BEHIND);
-                opponentNamePossessiveChoices.Add(THE_GUY_AHEAD);
-                opponentNamePossessiveChoices.Add(THE_CAR_IN_FRONT);
-                opponentNamePossessiveChoices.Add(THE_GUY_IN_FRONT);
-                opponentNamePossessiveChoices.Add(THE_GUY_BEHIND);
+                opponentNamePossessiveChoices.Add(THE_GUY_AHEAD + POSSESSIVE);
+                opponentNamePossessiveChoices.Add(THE_CAR_IN_FRONT + POSSESSIVE);
+                opponentNamePossessiveChoices.Add(THE_GUY_IN_FRONT + POSSESSIVE);
+                opponentNamePossessiveChoices.Add(THE_GUY_BEHIND + POSSESSIVE);
             }
             loadNameAndNamePossessiveChoices(nameChoices, namePossessiveChoices, opponentNameChoices, opponentNamePossessiveChoices);
 
