@@ -147,6 +147,10 @@ namespace CrewChiefV4.SRE
 
         public static ChoicesWrapper createNewChoicesWrapper(string[] choices)
         {
+            if (choices.Length == 0)
+            {
+                return createNewChoicesWrapper();
+            }
             if (useSystem)
             {
                 return new SystemChoicesWrapper(choices);

@@ -440,8 +440,9 @@ namespace CrewChiefV4.Audio
             return availableDriverNames.Contains(soundName) || singleSounds.ContainsKey(soundName);
         }
 
-        public static void loadDriverNameSounds(List<String> names)
+        public static void loadDriverNameSounds(HashSet<String> names)
         {
+            Console.WriteLine("Loading driver name sounds: " + Environment.NewLine + String.Join(", ", names));
             if (SoundCache.cancelDriverNameLoading
                 || GlobalBehaviourSettings.racingType != CrewChief.RacingType.Circuit)
                 return;
@@ -489,6 +490,10 @@ namespace CrewChiefV4.Audio
 
         public static void loadDriverNameSound(String name)
         {
+            if (name == null || name.Length == 0)
+            {
+                return;
+            }
             Boolean isInAvailableNames = availableDriverNames.Contains(name);
             if (dumpListOfUnvocalizedNames && !isInAvailableNames)
             {

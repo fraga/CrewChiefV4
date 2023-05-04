@@ -13,6 +13,7 @@ using CrewChiefV4.Events;
 using rF2SharedMemory;
 using static rF2SharedMemory.rFactor2Constants;
 using rF2SharedMemory.rFactor2Data;
+using CrewChiefV4.Audio;
 
 /**
  * Maps memory mapped file to a local game-agnostic representation.
@@ -1516,7 +1517,7 @@ namespace CrewChiefV4.rFactor2
                 {
                     if (!csd.IsNewSession && this.speechRecogniser != null)
                         this.speechRecogniser.addNewOpponentName(opponent.DriverRawName, "-1");
-
+                    SoundCache.loadDriverNameSound(DriverNameHelper.getUsableDriverName(opponent.DriverRawName));
                     Console.WriteLine("New driver \"" + driverName +
                         "\" is using car class " + opponent.CarClass.getClassIdentifier() +
                         " at position " + opponent.OverallPosition.ToString());

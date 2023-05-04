@@ -13,6 +13,7 @@ using CrewChiefV4.Events;
 using GTR2SharedMemory;
 using static GTR2SharedMemory.GTR2Constants;
 using GTR2SharedMemory.GTR2Data;
+using CrewChiefV4.Audio;
 
 /**
  * Maps memory mapped file to a local game-agnostic representation.
@@ -1558,6 +1559,7 @@ namespace CrewChiefV4.GTR2
                 {
                     if (!csd.IsNewSession && this.speechRecogniser != null)
                         this.speechRecogniser.addNewOpponentName(opponent.DriverRawName, "-1");
+                    SoundCache.loadDriverNameSound(DriverNameHelper.getUsableDriverName(opponent.DriverRawName));
 
                     Console.WriteLine("New driver \"" + driverName +
                         "\" is using car class " + opponent.CarClass.getClassIdentifier() +

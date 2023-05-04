@@ -5,6 +5,7 @@ using System.Text;
 using CrewChiefV4.GameState;
 using CrewChiefV4.Events;
 using CrewChiefV4.rFactor1.rFactor1Data;
+using CrewChiefV4.Audio;
 
 /**
  * Maps memory mapped file to a local game-agnostic representation.
@@ -770,6 +771,7 @@ namespace CrewChiefV4.rFactor1
                 if (opponent.DriverNameSet && opponentPrevious == null && CrewChief.enableDriverNames)
                 {
                     if (speechRecogniser != null) speechRecogniser.addNewOpponentName(opponent.DriverRawName, "-1");
+                    SoundCache.loadDriverNameSound(DriverNameHelper.getUsableDriverName(opponent.DriverRawName));
                     Console.WriteLine("New driver " + opponent.DriverRawName + 
                         " is using car class " + opponent.CarClass.getClassIdentifier() +
                         " at position " + opponent.OverallPosition.ToString());

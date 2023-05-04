@@ -7,6 +7,7 @@ using CrewChiefV4.GameState;
 using CrewChiefV4.Events;
 using System.Diagnostics;
 using CrewChiefV4.Overlay;
+using CrewChiefV4.Audio;
 
 namespace CrewChiefV4.iRacing
 {
@@ -1287,6 +1288,7 @@ namespace CrewChiefV4.iRacing
                 opponentData.DriverRawName = driverName;
                 opponentData.CostId = CostId;
                 if (speechRecogniser != null) speechRecogniser.addNewOpponentName(driverName, opponentData.CarNumber);
+                SoundCache.loadDriverNameSound(DriverNameHelper.getUsableDriverName(opponentData.DriverRawName));
             }
             Boolean validSpeed = true;
             if (speed > 500)
@@ -1527,6 +1529,7 @@ namespace CrewChiefV4.iRacing
             if (loadDriverName && CrewChief.enableDriverNames)
             {
                 if (speechRecogniser != null) speechRecogniser.addNewOpponentName(driverName, driver.CarNumber);
+                SoundCache.loadDriverNameSound(DriverNameHelper.getUsableDriverName(driverName));
             }
             OpponentData opponentData = new OpponentData();
             opponentData.IsActive = true;

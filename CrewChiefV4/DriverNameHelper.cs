@@ -29,7 +29,7 @@ namespace CrewChiefV4
         // - if it's "Something Junior" then allow it, it it's "Something Somthingelse Junior" then remove it
         //
         // 2 part suffix list - remove these even if the name only has one other part
-        private static readonly String[] ignored2PartSuffixes = { "jr", "vr", "uk", "us", "fr", "de", "sw", "es", "dk", "div", "proam", "am", "pro", "arg" };
+        private static readonly String[] ignored2PartSuffixes = { "jr", "vr", "uk", "us", "fr", "de", "sw", "es", "dk", "rp", "div", "proam", "am", "pro", "arg" };
         // 3 part suffix list - remove these if the name 2 or more other parts
         private static readonly String[] ignored3PartSuffixes = { "junior", "senior", "division", "group" };
 
@@ -45,6 +45,7 @@ namespace CrewChiefV4
         // all the above could be in a JSON file...
 
         internal static Dictionary<String, String> lowerCaseRawNameToUsableName = new Dictionary<String, String>();
+        internal static Dictionary<String, String> loadedFuzzyMatches = new Dictionary<String, String>();
 
         private static Dictionary<String, String> usableNamesForSession = new Dictionary<String, String>();
 
@@ -84,7 +85,11 @@ namespace CrewChiefV4
             {
                 // Generating fuzzy match driver names is costly so they're stored once
                 // they're guessed
-                readRawNamesToUsableNamesFile(soundsFolderName, @"driver_names\guessed_names.txt", lowerCaseRawNameToUsableName);
+                readRawNamesToUsableNamesFile(soundsFolderName, @"driver_names\guessed_names.txt", loadedFuzzyMatches);
+                lowerCaseRawNameToUsableName = lowerCaseRawNameToUsableName.Union(loadedFuzzyMatches)
+                                                .GroupBy(kvp => kvp.Key)
+                                                .Select(grp => grp.First())
+                                                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
                 guessedDriverNamesPath = Path.Combine(soundsFolderName, @"driver_names\guessed_names.txt");
             }
         }
@@ -212,6 +217,7 @@ namespace CrewChiefV4
             }
             name = name.Replace('-', ' ');
             name = name.Replace('.', ' ');
+            name = name.Replace('|', ' ');
             name = name.Replace("$", "s");
             // trim the string and replace any multiple whitespace chars with a single space
             return Regex.Replace(name.Trim(), @"\s+", " ");
@@ -276,6 +282,25 @@ namespace CrewChiefV4
             return name;
         }
 
+        private static Dictionary<string, string> rawDriverNameSurname = new Dictionary<string, string>();
+        public static String getUsableDriverNameForSRE(String rawDriverName)
+        {
+            if (loadedFuzzyMatches.ContainsKey(rawDriverName))
+            {
+                return getUnambiguousLastName(validateAndCleanUpName(rawDriverName));
+            }
+            if (!rawDriverNameSurname.ContainsKey(rawDriverName))
+            {
+                // this will populate the rawDriverNameSurname dict with the last name (regardless of the fuzzy match).
+                // It returns the fuzzy-matched name, which we don't want - allow it to populate then use the last name from the dict
+                tryToMatchDriverName(rawDriverName);
+            }
+            if (rawDriverNameSurname.ContainsKey(rawDriverName))
+            {
+                return rawDriverNameSurname[rawDriverName];
+            }
+            return null;
+        }
         public static String getUsableDriverName(String rawDriverName)
         {
             if (failingNames.Contains(rawDriverName))
@@ -309,6 +334,7 @@ namespace CrewChiefV4
             if (lowerCaseRawNameToUsableName.TryGetValue(rawDriverName.ToLower(), out matchedDriverName))
             {   // Clause 1: A straight match
                 Console.WriteLine("Using mapped drivername " + matchedDriverName + " for raw driver name " + rawDriverName);
+                rawDriverNameSurname[rawDriverName] = matchedDriverName;
                 return matchedDriverName;
             }
 
@@ -322,6 +348,7 @@ namespace CrewChiefV4
             if (lowerCaseRawNameToUsableName.TryGetValue(usableDriverName.ToLower(), out matchedDriverName))
             {   // Clause 3: Using mapped driver name for cleaned up driver name
                 Console.WriteLine("Using mapped driver name " + matchedDriverName + " for cleaned up raw driver name " + rawDriverName);
+                rawDriverNameSurname[rawDriverName] = matchedDriverName;
                 return matchedDriverName;
             }
 
@@ -334,11 +361,13 @@ namespace CrewChiefV4
                 {
                     // Clause 4: We have a sound file for the driver last name
                     Console.WriteLine("Using driver last name " + anyFirstNamesRemoved + " for driver raw name " + rawDriverName);
+                    rawDriverNameSurname[rawDriverName] = anyFirstNamesRemoved;
                     return anyFirstNamesRemoved;
                 }
                 if (lowerCaseRawNameToUsableName.TryGetValue(anyFirstNamesRemoved.ToLower(), out matchedDriverName))
                 {   // Clause 5: Using mapped driver name for cleaned up driver (last) name
                     Console.WriteLine("Using mapped driver name " + matchedDriverName + " for cleaned up driver (last) name " + anyFirstNamesRemoved);
+                    rawDriverNameSurname[rawDriverName] = anyFirstNamesRemoved;
                     return matchedDriverName;
                 }
                 var fuzzyDriverLastName = MatchForOpponentName(anyFirstNamesRemoved);
@@ -350,14 +379,19 @@ namespace CrewChiefV4
                     Console.WriteLine($"Adding fuzzy mapping for name {anyFirstNamesRemoved}:{matchedDriverName}");
                     // add the newly-mapped name to the list
                     lowerCaseRawNameToUsableName[anyFirstNamesRemoved] = matchedDriverName;
+                    rawDriverNameSurname[rawDriverName] = anyFirstNamesRemoved;
                     return matchedDriverName;
                 }
                 // Clause 6: Using unmapped driver last name for raw driver name
                 Console.WriteLine("Using unvocalised driver (last) name " + anyFirstNamesRemoved + " for raw driver name " + rawDriverName);
-                return anyFirstNamesRemoved;
+                rawDriverNameSurname[rawDriverName] = anyFirstNamesRemoved;
+                unvocalizedNames.Add(anyFirstNamesRemoved);
+                return null;
             }
             Console.WriteLine("Using unvocalised drivername " + usableDriverName + " for raw driver name " + rawDriverName);
-            return usableDriverName;
+            rawDriverNameSurname[rawDriverName] = usableDriverName;
+            unvocalizedNames.Add(usableDriverName);
+            return null;
         }
         // For unit testing
         internal static int GetSize_usableNamesForSession()
@@ -532,16 +566,24 @@ namespace CrewChiefV4
             System.Diagnostics.Process.Start("notepad.exe", driverNamesPath);
         }
 
-        public static List<String> getUsableDriverNames(List<String> rawDriverNames)
+        public static HashSet<String> getUsableDriverNameSounds(List<String> rawDriverNames)
         {
             usableNamesForSession.Clear();
             foreach (String rawDriverName in rawDriverNames)
             {
                 getUsableDriverName(rawDriverName);                
             }
-            return usableNamesForSession.Values.ToList();
+            return usableNamesForSession.Values.ToHashSet();
         }
-
+        public static List<String> getUsableDriverNamesForSRE(List<String> rawDriverNames)
+        {
+            List<string> namesForSre = new List<string>();
+            foreach (String rawDriverName in rawDriverNames)
+            {
+                namesForSre.Add(getUsableDriverNameForSRE(rawDriverName));
+            }
+            return namesForSre;
+        }
         private static bool firstLettersCloseEnough(string s1, string s2)
         {
             foreach (var pairs in closeFirstLetters)

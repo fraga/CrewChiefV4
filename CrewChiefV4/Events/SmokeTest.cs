@@ -68,7 +68,7 @@ namespace CrewChiefV4.Events
             if (rawDriverNames.Count > 0)
             {
                 Console.WriteLine("Playing test sounds for drivers " + String.Join(", ", rawDriverNames));
-                List<String> usableDriverNames = DriverNameHelper.getUsableDriverNames(rawDriverNames);
+                HashSet<String> usableDriverNames = DriverNameHelper.getUsableDriverNameSounds(rawDriverNames);
                 int index = 0;
                 foreach (OpponentData driverToTest in driversToTest)
                 {
