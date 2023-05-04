@@ -403,7 +403,9 @@ namespace CrewChiefV4.Events
                 foreach (KeyValuePair<string, OpponentData> entry in currentGameState.OpponentData)
                 {
                     String usableDriverNameForSRE = DriverNameHelper.getUsableDriverNameForSRE(entry.Value.DriverRawName);
-                    if (voiceMessage.Contains(usableDriverNameForSRE))
+                    // check for full username match so we're not triggering on substrings within other words
+                    if (usableDriverNameForSRE != null
+                        && (voiceMessage.Contains(" " + usableDriverNameForSRE + " ") || voiceMessage.EndsWith(" " + usableDriverNameForSRE)))
                     {
                         opponentKey = entry.Key;
                         break;
