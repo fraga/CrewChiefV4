@@ -616,8 +616,8 @@ namespace CrewChiefV4.Events
             {
                 foreach (KeyValuePair<string, OpponentData> entry in currentGameState.OpponentData)
                 {
-                    String usableDriverName = DriverNameHelper.getUsableDriverName(entry.Value.DriverRawName);
-                    if (voiceMessage.Contains(usableDriverName))
+                    String usableDriverNameForSRE = DriverNameHelper.getUsableDriverNameForSRE(entry.Value.DriverRawName);
+                    if (voiceMessage.Contains(usableDriverNameForSRE))
                     {
                         opponentKey = entry.Key;
                         break;

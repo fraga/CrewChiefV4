@@ -5,6 +5,7 @@ using System.Text;
 using CrewChiefV4.GameState;
 using CrewChiefV4.Events;
 using System.Diagnostics;
+using CrewChiefV4.Audio;
 
 /**
  * Maps memory mapped file to a local game-agnostic representation.
@@ -1420,6 +1421,7 @@ namespace CrewChiefV4.AMS2
             if (participantName != null && participantName.Length > 0 && loadDriverName && CrewChief.enableDriverNames)
             {
                 if (speechRecogniser != null) speechRecogniser.addNewOpponentName(opponentData.DriverRawName, "-1");
+                SoundCache.loadDriverNameSound(DriverNameHelper.getUsableDriverName(opponentData.DriverRawName));
             }
             opponentData.OverallPosition = (int)participantStruct.mRacePosition;
             opponentData.CompletedLaps = (int)participantStruct.mLapsCompleted;

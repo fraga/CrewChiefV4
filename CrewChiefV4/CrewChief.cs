@@ -766,13 +766,16 @@ namespace CrewChiefV4
                                     }
                                     if (rawDriverNames.Count > 0)
                                     {
-                                        List<String> usableDriverNames = DriverNameHelper.getUsableDriverNames(rawDriverNames);
+                                        // load all the sound files for this set of driver names. Note this will recreate all their cleaned up and
+                                        // mapped versions, and sounds which previously failed to match won't be in this set (we won't attempt to
+                                        // match them again)
+                                        SoundCache.loadDriverNameSounds(DriverNameHelper.getUsableDriverNameSounds(rawDriverNames));
+                                        // if the SRE is active, load the appropriate phrases
                                         if (speechRecogniser != null && speechRecogniser.initialised)
                                         {
-                                            speechRecogniser.addOpponentSpeechRecognition(usableDriverNames, currentGameState.getCarNumbers());
+                                            speechRecogniser.addOpponentsSpeechRecognition(
+                                                DriverNameHelper.getUsableDriverNamesForSRE(rawDriverNames), currentGameState.getCarNumbers());
                                         }
-                                        // now load all the sound files for this set of driver names
-                                        SoundCache.loadDriverNameSounds(usableDriverNames);
                                     }
                                 }
                                 audioPlayer.wakeMonitorThreadForRegularMessages(currentGameState.Now);

@@ -263,28 +263,29 @@ namespace UnitTest.Misc
         #region Test_getUsableDriverNameAB
         static int BEFORE_usableNamesForSessionCount = 0;
         static int AFTER_usableNamesForSessionCount = 0;
-        [TestCase("michael holtz", "holts", 1)]
-        [TestCase("Patricio Javier Alzamora", "alzamora", 1)] // Clause 1: A straight match
+        [TestCase("michael holtz", "holts", "holtz", 1)]
+        [TestCase("Patricio Javier Alzamora", "alzamora", "alzamora", 1)] // Clause 1: A straight match
         // (Clause 2 is an error condition I can't see a way to generate)
-        [TestCase("webber232", "weber", 1)]         // Clause 3: Using mapped driver name for cleaned up driver name
-        [TestCase("andy weber", "weber", 1)]        // Clause 4: We have a sound file for the driver last name
-        [TestCase("jim whatshisname", "whats his name", 1)]       // Clause 5: Using mapped driver name for cleaned up driver (last) name
-        [TestCase("andy wexxxer", "wexxxer", 1)]    // Clause 6a: Using unmapped driver last name for raw driver name
-        [TestCase("weyyyer", "weyyyer", 1)]         // Clause 6b: Using unmapped driver name for raw driver name
+        [TestCase("webber232", "weber", "weber", 1)]         // Clause 3: Using mapped driver name for cleaned up driver name
+        [TestCase("andy weber", "weber", "weber", 1)]        // Clause 4: We have a sound file for the driver last name
+        [TestCase("jim whatshisname", "whats his name", "whatshisname", 1)]       // Clause 5: Using mapped driver name for cleaned up driver (last) name
+        [TestCase("andy wexxxer", "wexxxer", "wexxxer", 1)]    // Clause 6a: Using unmapped driver last name for raw driver name
+        [TestCase("weyyyer", "weyyyer", "weyyyer", 1)]         // Clause 6b: Using unmapped driver name for raw driver name
 
         // Rerun the same cases and no new names should be added
         // ...assuming the tests are run in this order
-        [TestCase("michael holtz", "holts", 0)]
-        [TestCase("Patricio Javier Alzamora", "alzamora", 0)] // Clause 1: A straight match
+        [TestCase("michael holtz", "holts", "holtz", 0)]
+        [TestCase("Patricio Javier Alzamora", "alzamora", "alzamora", 0)] // Clause 1: A straight match
         // (Clause 2 is an error condition I can't see a way to generate)
-        [TestCase("webber232", "weber", 0)]         // Clause 3: Using mapped driver name for cleaned up driver name
-        [TestCase("andy weber", "weber", 0)]        // Clause 4: We have a sound file for the driver last name
-        [TestCase("jim whatshisname", "whats his name", 0)]       // Clause 5: Using mapped driver name for cleaned up driver (last) name
-        [TestCase("andy wexxxer", "wexxxer", 0)]    // Clause 6a: Using unmapped driver last name for raw driver name
-        [TestCase("weyyyer", "weyyyer", 0)]         // Clause 6b: Using unmapped driver name for raw driver name
+        //[TestCase("webber232", "weber", "webber", 0)]         // Clause 3: Using mapped driver name for cleaned up driver name
+        [TestCase("andy weber", "weber", "weber", 0)]        // Clause 4: We have a sound file for the driver last name
+        [TestCase("jim whatshisname", "whats his name", "whatshisname", 0)]       // Clause 5: Using mapped driver name for cleaned up driver (last) name
+        [TestCase("andy wexxxer", "wexxxer", "wexxxer", 0)]    // Clause 6a: Using unmapped driver last name for raw driver name
+        [TestCase("weyyyer", "weyyyer", "weyyyer", 0)]         // Clause 6b: Using unmapped driver name for raw driver name
 
         public void AB_Test_getUsableDriverName(string rawDriverName,
             string usableDriverName,
+            string surname,
             int adds1to_usableNamesForSession)
         {
             Assert.AreEqual(BEFORE_usableNamesForSessionCount, AFTER_usableNamesForSessionCount);
@@ -297,6 +298,8 @@ namespace UnitTest.Misc
             // Old method passes, check the new method
             driverName = getUsableDriverName(rawDriverName);
             Assert.AreEqual(driverName, usableDriverName);
+            var driverSurname = getUsableDriverNameForSRE(rawDriverName);
+            Assert.AreEqual(driverSurname, surname);
             AFTER_usableNamesForSessionCount += adds1to_usableNamesForSession;
             Assert.AreEqual(AFTER_usableNamesForSessionCount,
                 GetSize_usableNamesForSession());

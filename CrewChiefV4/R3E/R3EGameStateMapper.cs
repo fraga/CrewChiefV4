@@ -7,6 +7,7 @@ using CrewChiefV4.Events;
 using CrewChiefV4.RaceRoom.RaceRoomData;
 using System.Diagnostics;
 using CrewChiefV4.R3E;
+using CrewChiefV4.Audio;
 
 /**
  * Maps memory mapped file to a local game-agnostic representation.
@@ -1954,6 +1955,7 @@ namespace CrewChiefV4.RaceRoom
             if (loadDriverName && CrewChief.enableDriverNames)
             {
                 if (speechRecogniser != null) speechRecogniser.addNewOpponentName(driverName, participantStruct.DriverInfo.CarNumber.ToString());
+                SoundCache.loadDriverNameSound(DriverNameHelper.getUsableDriverName(driverName));
             }
             OpponentData opponentData = new OpponentData();
             opponentData.DriverRawName = driverName;

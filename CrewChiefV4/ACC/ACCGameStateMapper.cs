@@ -1,4 +1,5 @@
 ﻿using CrewChiefV4.ACC.accData;
+using CrewChiefV4.Audio;
 using CrewChiefV4.Events;
 using CrewChiefV4.GameState;
 using System;
@@ -1714,6 +1715,7 @@ namespace CrewChiefV4.ACC
             if (participantName != null && participantName.Length > 0 && loadDriverName && CrewChief.enableDriverNames && !raceSessionIsUnderway)
             {
                 if (speechRecogniser != null) speechRecogniser.addNewOpponentName(opponentData.DriverRawName, "-1");
+                SoundCache.loadDriverNameSound(DriverNameHelper.getUsableDriverName(opponentData.DriverRawName));
             }
 
             // when we first create an opponent use the game-provided leadboard position. Subsequent updates will use the realtime position
