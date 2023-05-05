@@ -1159,25 +1159,36 @@ namespace CrewChiefV4
             if (UserSettings.GetUserSettings().initFailed)
             {
                 String path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4");
-                if (!Directory.Exists(path))
+                try
                 {
-                    Directory.CreateDirectory(path);
+                    if (!Directory.Exists(path))
+                    {
+                        Directory.CreateDirectory(path);
+                    }
+                    File.WriteAllText(path + @"\startupError.txt", "Message: " +
+                        UserSettings.GetUserSettings().initFailedMessage + "\nStack" + UserSettings.GetUserSettings().initFailedStack);
                 }
-                File.WriteAllText(path + @"\startupError.txt", "Message: " +
-                    UserSettings.GetUserSettings().initFailedMessage + "\nStack" + UserSettings.GetUserSettings().initFailedStack);
+                catch (Exception e)
+                {
+                    // oh dear, now we are in a pickle.
+                    // throw a new exception to be shown in the "oh shit" popup message
+                    throw new Exception("Unable to write startup error logs: " + e.Message + "\n please ensure CrewChief can access " + path +
+                        "\nStartup error is " + UserSettings.GetUserSettings().initFailedMessage + "\nStack" + UserSettings.GetUserSettings().initFailedStack);
+                }
                 Console.WriteLine("Unable to upgrade properties from previous version, settings will be reset to default");
                 try
                 {
                     UserSettings.ForceablyDeleteConfigDirectory();
                     // note we can't load these from the UI settings because loading stuff will be broken at this point
                     doRestart("Failed to load user settings. The app will automatically restart in order to recreate this file. " +
-                        "Once the app has restarted, please restart it again manually.", "Failed to load user settings");
+                              "Once the app has restarted, please restart it again manually.", "Failed to load user settings");
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
                     // oh dear, now we are in a pickle.
                     // throw a new exception to be shown in the "oh shit" popup message
-                    throw new Exception("Unable to remove broken app settings file\n Please exit the app and manually delete folder " + UserSettings.userConfigFolder);
+                    throw new Exception("Unable to remove broken app settings file: " + e.Message +
+                        "\n Please exit the app and manually delete folder " + UserSettings.userConfigFolder);
                 }
             }
 
