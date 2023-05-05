@@ -437,6 +437,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.17.1.2: Fixed TTS (text-to-speech) for driver names; fix some speech recognition issues and reinstated the short position phrases disabled in the last release
+
 Version 4.17.1.1: Correct some bugs in the driver name mapping which was preventing some valid driver names from being read; Speech recognition bug fixes for driver names - note this includes removing the short position phrases ("who's in P1", "where's P12" etc) - use the longer versions ("who's in position 1", "where's position 12" etc) instead; GTR2 - plugin update
 
 Version 4.17.1.0: Rework opponent name matching to be more accurate and more conservative; added UI to modify suppress or manually override guessed opponent name matches ("Opponent Names" from the app's menu bar)
