@@ -107,7 +107,7 @@ namespace CrewChiefV4
             return lowerCaseGuessedNameToUsableName;
         }
 
-        internal static void readRawNamesToUsableNamesFile(String soundsFolderName, String filename, Dictionary<String, String> lowerCaseRawNameToUsableName)
+        internal static void readRawNamesToUsableNamesFile(String soundsFolderName, String filename, Dictionary<String, String> lowerCaseRawNameToUsableNameToUse)
         {
             Console.WriteLine("Reading driver name mappings");
             int counter = 0;
@@ -135,7 +135,7 @@ namespace CrewChiefV4
                             if (usableName != null && usableName.Length > 0)
                             {
                                 // add new or replace the existing mapping - last one wins
-                                lowerCaseRawNameToUsableName[lowerCaseRawName] = usableName;
+                                lowerCaseRawNameToUsableNameToUse[lowerCaseRawName] = usableName;
                             }
                         }
                     }
@@ -357,13 +357,6 @@ namespace CrewChiefV4
             String anyFirstNamesRemoved = getUnambiguousLastName(usableDriverName);
             if (anyFirstNamesRemoved != null && anyFirstNamesRemoved.Count() > 1)
             {
-                if (lowerCaseLastNameToFuzzyMatchedName.TryGetValue(anyFirstNamesRemoved.ToLower(), out matchedDriverName))
-                {
-                    // Clause 4: we have a saved fuzzy match
-                    Console.WriteLine("Using fuzzy mapped driver name " + matchedDriverName + " for cleaned up driver (last) name " + anyFirstNamesRemoved);
-                    rawDriverNameSurname[rawDriverName] = anyFirstNamesRemoved;
-                    return matchedDriverName;
-                }
                 if (SoundCache.availableDriverNames.Contains(anyFirstNamesRemoved))
                 {
                     // Clause 5: We have a sound file for the driver last name
@@ -376,6 +369,13 @@ namespace CrewChiefV4
                     // Clause 6: Using mapped driver name for cleaned up driver (last) name
                     Console.WriteLine("Using mapped driver name " + matchedDriverName + " for cleaned up driver (last) name " + anyFirstNamesRemoved);
                     rawDriverNameSurname[rawDriverName] = matchedDriverName;
+                    return matchedDriverName;
+                }
+                if (lowerCaseLastNameToFuzzyMatchedName.TryGetValue(anyFirstNamesRemoved.ToLower(), out matchedDriverName))
+                {
+                    // Clause 4: we have a saved fuzzy match
+                    Console.WriteLine("Using fuzzy mapped driver name " + matchedDriverName + " for cleaned up driver (last) name " + anyFirstNamesRemoved);
+                    rawDriverNameSurname[rawDriverName] = anyFirstNamesRemoved;
                     return matchedDriverName;
                 }
                 var fuzzyDriverLastName = MatchForOpponentName(anyFirstNamesRemoved);
