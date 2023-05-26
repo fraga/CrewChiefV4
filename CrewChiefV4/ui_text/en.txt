@@ -6,7 +6,7 @@
 #
 # Any text set in that file will replace the corresponding default here
 #
-# A few strings include a \ which inserts a newline (if the string is passed through Utilities.NewlinesInLongString)
+# A few _help or _tooltip strings include a \ which inserts a newline
 #
 ###################################### UI ######################################################
 main_window_title_prefix = Crew Chief V4 - Active Profile:
@@ -30,6 +30,7 @@ stop_and_save = &Stop and Save trace
 start_application = &Start Crew Chief
 incremental_updates_count = updates to apply
 
+all_games = All games
 pcars_64_bit = pCARS (64 bit)
 pcars_32_bit = pCARS (32 bit)
 pcars_2 = pCARS 2
@@ -1397,7 +1398,7 @@ launch_iracing_metadata = RESTART_REQUIRED
 
 # Property: Run immediately
 run_immediately = Run immediately
-run_immediately_help = If this is checked the application will start running Crew Chief as soon as you start it up, using whatever options you previously set
+run_immediately_help = The application will start running Crew Chief as soon as you start it up, using whatever options you previously set
 run_immediately_category = UI_STARTUP_AND_PATHS
 run_immediately_metadata = RESTART_REQUIRED
 
@@ -1594,7 +1595,7 @@ load_sound_files_on_startup_metadata = RESTART_REQUIRED
 
 # Property: Update game plugins on startup
 enable_automatic_plugin_update = Update game plugins on startup
-enable_automatic_plugin_update_help = If checked, CC will check if latest plugin is installed and will prompt to install plugin if it is not found or out of date.
+enable_automatic_plugin_update_help = Crew Chief will check if latest plugin is installed and will prompt to install plugin if it is not found or out of date.
 enable_automatic_plugin_update_category = UI_STARTUP_AND_PATHS
 
 # Property: pCARS character encoding
@@ -1617,7 +1618,7 @@ enable_pcars_pit_window_messages_category = PIT_STOPS_AND_MULTICLASS
 
 # Property: Report yellows in all sectors
 report_yellows_in_all_sectors = Report yellows in all sectors
-report_yellows_in_all_sectors_help = If this is disabled the app will report yellow flags only in the current and next sector
+report_yellows_in_all_sectors_help = If this is unchecked the app will report yellow flags only in the current and next sector
 report_yellows_in_all_sectors_category = FLAGS_AND_RULES
 
 # Property: Max distance moved for yellow announcement
@@ -1726,7 +1727,7 @@ use_metric_category = INTERNATIONALISATION;PIT_STOPS_AND_MULTICLASS
 
 # Property: Realistic mode
 realistic_mode = Realistic mode
-realistic_mode_help = Experimental: Restrict available message types based on the car and track in use
+realistic_mode_help = Restrict available message types based on the car and track in use
 realistic_mode_metadata = RESTART_REQUIRED
 
 # Property: Always report time in hundredths
@@ -1778,19 +1779,19 @@ enable_rf2_frozen_order_messages_category = FLAGS_AND_RULES
 
 # Property: Enable rF2 cut track heuristic detection
 enable_rf2_cut_track_heuristics = Enable rF2 cut track heuristic detection
-enable_rf2_cut_track_heuristics_help = If checked, CC will try to detect if user cut track.  If disabled, cut track will only be reported if game reported that lap got invalidated.
+enable_rf2_cut_track_heuristics_help = Crew Chief will try to detect if user cut track.  If unchecked, cut track will only be reported if game reported that lap got invalidated.
 enable_rf2_cut_track_heuristics_filter = RF2_64BIT
 enable_rf2_cut_track_heuristics_category = FLAGS_AND_RULES
 
 # Property: Enable GTR 2 cut track heuristic detection
 enable_gtr2_cut_track_heuristics = Enable GTR 2 cut track heuristic detection
-enable_gtr2_cut_track_heuristics_help = If checked, CC will try to detect if user cut track.  If disabled, cut track will only be reported if game reported that lap got invalidated.
+enable_gtr2_cut_track_heuristics_help = Crew Chief will try to detect if user cut track.  If unchecked, cut track will only be reported if game reported that lap got invalidated.
 enable_gtr2_cut_track_heuristics_filter = GTR2
 enable_gtr2_cut_track_heuristics_category = FLAGS_AND_RULES
 
 # Property: Enable rF2 pit lane approach detection
 enable_rf2_pit_lane_approach_heuristics = Enable rF2 pit lane approach detection
-enable_rf2_pit_lane_approach_heuristics_help = Experimental: If checked, CC will try to detect if user approaches the pit lane entry and remind him to respect speed limit.  Might not work correctly for all tracks.
+enable_rf2_pit_lane_approach_heuristics_help = Crew Chief will try to detect if user approaches the pit lane entry and remind him to respect speed limit.  Might not work correctly for all tracks.
 enable_rf2_pit_lane_approach_heuristics_filter = RF2_64BIT
 enable_rf2_pit_lane_approach_heuristics_category = PIT_STOPS_AND_MULTICLASS
 
@@ -1807,13 +1808,13 @@ pcars_enable_rain_prediction_filter = PCARS_64BIT;PCARS_32BIT;PCARS_NETWORK
 
 # Property: Disable alternative voice commands
 disable_alternative_voice_commands = Disable alternative voice commands
-disable_alternative_voice_commands_help = Experimental: If checked, CC will only use the first item from each voice command set - may improve recognition accuracy
+disable_alternative_voice_commands_help = Crew Chief will only use the first item from each voice command set - may improve recognition accuracy
 disable_alternative_voice_commands_category = AUDIO_VOICE_AND_CONTROLLERS
 disable_alternative_voice_commands_metadata = RESTART_REQUIRED
 
 # Property: Use verbose command responses
 use_verbose_responses = Use verbose command responses
-use_verbose_responses_help = If checked, will automatically request more info for the previously issued voice or button command
+use_verbose_responses_help = Automatically request more info for the previously issued voice or button command
 use_verbose_responses_category = AUDIO_VOICE_AND_CONTROLLERS
 use_verbose_responses_metadata = RESTART_REQUIRED
 
@@ -1992,7 +1993,7 @@ iracing_fast_parsing_metadata = RESTART_REQUIRED
 
 # Property: Enable iRacing pit stop voice commands
 enable_iracing_pit_stop_commands = Enable iRacing pit stop voice commands
-enable_iracing_pit_stop_commands_help = If you do not use iRacing pit stop commands, you may disable this.  If disabled, CC will exclude iRacing pit stop commands from the command set - may improve recognition accuracy
+enable_iracing_pit_stop_commands_help = If you do not use iRacing pit stop commands, you may disable this.  If unchecked, Crew Chief will exclude iRacing pit stop commands from the command set - may improve recognition accuracy
 enable_iracing_pit_stop_commands_filter = IRACING
 enable_iracing_pit_stop_commands_category = AUDIO_VOICE_AND_CONTROLLERS;PIT_STOPS_AND_MULTICLASS
 
@@ -2118,7 +2119,7 @@ trigger_word_listen_timeout_metadata = RESTART_REQUIRED
 
 # Property: Enable alarm clock voice commands
 enable_alarm_clock_voice_recognition = Enable alarm clock voice commands
-enable_alarm_clock_voice_recognition_help = Enable this if you want to use the alarm clock feature, this is disabled by default to limit the number of voice commands
+enable_alarm_clock_voice_recognition_help = Enable this if you want to use the alarm clock feature, this is unchecked by default to limit the number of voice commands
 enable_alarm_clock_voice_recognition_category = AUDIO_VOICE_AND_CONTROLLERS;TIMINGS
 
 # Property: Alarm time(s)
@@ -2128,13 +2129,13 @@ alarm_clock_times_category = AUDIO_VOICE_AND_CONTROLLERS;TIMINGS
 
 # Property: Disable behaviour voice commands
 disable_behavior_altering_voice_commands = Disable behaviour voice commands
-disable_behavior_altering_voice_commands_help = When checked, will disable all voice commands that affect CC behaviour, for example: "Spot", "Don't spot", "Keep quiet" etc.
+disable_behavior_altering_voice_commands_help = Disable all voice commands that affect Crew Chief behaviour, for example: "Spot", "Don't spot", "Keep quiet" etc.
 disable_behavior_altering_voice_commands_category = AUDIO_VOICE_AND_CONTROLLERS
 disable_behavior_altering_voice_commands_metadata = RESTART_REQUIRED
 
 # Property: Disable overlay voice commands
 disable_overlay_voice_commands = Disable overlay voice commands
-disable_overlay_voice_commands_help = When checked, will disable all voice commands that affect CC overlays, for example: "Show subtitles", "Toggle VR overlays" etc.
+disable_overlay_voice_commands_help = Disable all voice commands that affect Crew Chief overlays, for example: "Show subtitles", "Toggle VR overlays" etc.
 disable_overlay_voice_commands_category = AUDIO_VOICE_AND_CONTROLLERS;UI_STARTUP_AND_PATHS;VR_SETTINGS
 disable_overlay_voice_commands_metadata = RESTART_REQUIRED
 
@@ -2306,8 +2307,8 @@ prefer_system_sre_help = Use Windows' built-in speech recogniser, can be trained
 prefer_system_sre_category = AUDIO_VOICE_AND_CONTROLLERS
 prefer_system_sre_metadata = RESTART_REQUIRED
 
-# Property: Enable free dictation chat messages (experimental)
-use_free_dictation_for_chat = Enable free dictation chat messages (experimental)
+# Property: Enable free dictation chat messages
+use_free_dictation_for_chat = Enable free dictation chat messages
 use_free_dictation_for_chat_help = Use free dictation for chat messages (Windows Speech recogniser only)
 use_free_dictation_for_chat_category = AUDIO_VOICE_AND_CONTROLLERS
 use_free_dictation_for_chat_metadata = RESTART_REQUIRED
@@ -2453,7 +2454,7 @@ watched_opponent_names_help = Comma separated list of opponent names to report o
 
 # Property: Always show VR Settings window as overlay
 show_vr_settings_as_overlay = Always show VR Settings window as overlay
-show_vr_settings_as_overlay_help = If checked, SteamVR Settings window is always shown as an overlay.  Disable if it gets in a way of other windows
+show_vr_settings_as_overlay_help = SteamVR Settings window is always shown as an overlay.  Disable if it gets in a way of other windows
 show_vr_settings_as_overlay_category = VR_SETTINGS
 
 # Property: Co-driver rushing speed threshold (km/h)
@@ -2509,7 +2510,7 @@ show_splash_screen_category = MISC
 
 # Property: Enable GTR 2 pit lane approach detection
 enable_gtr2_pit_lane_approach_heuristics = Enable GTR 2 pit lane approach detection
-enable_gtr2_pit_lane_approach_heuristics_help = Experimental: If checked, CC will try to detect if user approaches the pit lane entry and remind him to respect speed limit.  Might not work correctly for all tracks.
+enable_gtr2_pit_lane_approach_heuristics_help = Crew Chief will try to detect if user approaches the pit lane entry and remind him to respect speed limit.  Might not work correctly for all tracks.
 enable_gtr2_pit_lane_approach_heuristics_filter = GTR2
 enable_gtr2_pit_lane_approach_heuristics_category = PIT_STOPS_AND_MULTICLASS
 
@@ -2645,7 +2646,7 @@ enable_frozen_order_messages_category = FLAGS_AND_RULES
 
 # Property: Force Seated tracking mode on Reset VR View
 force_seated_on_vr_view_reset = Force Seated tracking mode on Reset VR View
-force_seated_on_vr_view_reset_help = If checked, will force Seated position reset on Reset VR View.  If disabled, will respect the current SteamVR tracking mode.
+force_seated_on_vr_view_reset_help = Force Seated position reset on Reset VR View.  If unchecked, will respect the current SteamVR tracking mode.
 force_seated_on_vr_view_reset_category = VR_SETTINGS
 
 # Property: Speak only when spoken to

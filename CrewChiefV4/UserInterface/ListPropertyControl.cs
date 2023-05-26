@@ -159,7 +159,7 @@ namespace CrewChiefV4
             this.comboBox1.SelectedIndex = availableValues.IndexOf(this.originalValue);
 
             this.defaultValue = ListPropertyValues.getLabelForInvariantItem(propertyId, defaultValue);
-            helpText = Utilities.SplitString(helpText, 50);
+            helpText = Utilities.Strings.SplitString(helpText, 50);
             this.toolTip1.SetToolTip(this.comboBox1, helpText);
             this.toolTip1.SetToolTip(this.label1, helpText);
             

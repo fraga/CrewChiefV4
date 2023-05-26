@@ -1028,14 +1028,14 @@ namespace CrewChiefV4.Audio
                         var nameForUI = new StringBuilder();
                         foreach (var part in nameParts)
                         {
-                            nameForUI.Append($"{Utilities.FirstLetterToUpper(part)} ");
+                            nameForUI.Append($"{Utilities.Strings.FirstLetterToUpper(part)} ");
                         }
 
                         availableDriverNamesForUI.Add(nameForUI.ToString().TrimEnd());
                     }
                     else
                     {
-                        availableDriverNamesForUI.Add(Utilities.FirstLetterToUpper(name));
+                        availableDriverNamesForUI.Add(Utilities.Strings.FirstLetterToUpper(name));
                     }
                 }
             }
@@ -1583,7 +1583,7 @@ namespace CrewChiefV4.Audio
                 {
                     this.subtitle = Path.GetFileNameWithoutExtension(fullPath);
                     if (!string.IsNullOrWhiteSpace(this.subtitle))
-                        this.subtitle = Utilities.FirstLetterToUpper(this.subtitle);
+                        this.subtitle = Utilities.Strings.FirstLetterToUpper(this.subtitle);
                 }
                 else if (fullPath.Contains("prefixes_and_suffixes"))
                 {
