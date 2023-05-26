@@ -656,7 +656,7 @@ namespace CrewChiefV4.Overlay
                     }
 
                     string subtitle = settings.capitalLetter ? phrases[i].voiceName.ToUpper() + ": " + phrases[i].phrase.ToUpper() :
-                        phrases[i].voiceName + ": " + Utilities.FirstLetterToUpper(phrases[i].phrase);
+                        phrases[i].voiceName + ": " + Utilities.Strings.FirstLetterToUpper(phrases[i].phrase);
                     System.Drawing.SizeF textSize = textBox.font.MeasureString(subtitle);
                     if (textSize.Width > textBox.rectangle.Width)
                     {

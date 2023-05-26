@@ -521,47 +521,6 @@ namespace CrewChiefV4
             }
             return newArgs;
         }
-    
-        /// <summary>
-        /// If 'text' is longer than 'maxLength' insert a newline near
-        /// the middle after a word break
-        /// </summary>
-        /// <param name="text"></param>
-        /// <param name="maxLength"></param>
-        /// <returns></returns>
-        public static string SplitString(string text, int maxLength)
-        {
-            if (text.Length <= maxLength)
-            {
-                return text;
-            }
-            //Degenerate case with only 1 word
-            if (!text.Any(Char.IsWhiteSpace))
-            {
-                return text;
-            }
-
-            int mid = text.Length / 2;
-            if (!Char.IsWhiteSpace(text[mid]))
-            {
-                for (int i = 1; i < mid; i += i)
-                {
-                    if (Char.IsWhiteSpace(text[mid + i]))
-                    {
-                        mid = mid + i;
-                        break;
-                    }
-                    if (Char.IsWhiteSpace(text[mid - i]))
-                    {
-                        mid = mid - i;
-                        break;
-                    }
-                }
-            }
-
-            return text.Substring(0, mid)
-                   + Environment.NewLine + text.Substring(mid + 1);
-        }
 
         public static void AddLinesToFile(string filePath, List<string> lines)
             {
@@ -580,6 +539,88 @@ namespace CrewChiefV4
                     }
                 }
             }
+
+        public class Strings
+        {
+
+            /// <summary>
+            /// If 'text' is longer than 'maxLength' insert a newline near
+            /// the middle after a word break
+            /// </summary>
+            /// <param name="text"></param>
+            /// <param name="maxLength"></param>
+            /// <returns></returns>
+            public static string SplitString(string text, int maxLength)
+            {
+                if (text.Length <= maxLength)
+                {
+                    return text;
+                }
+                //Degenerate case with only 1 word
+                if (!text.Any(Char.IsWhiteSpace))
+                {
+                    return text;
+                }
+
+                int mid = text.Length / 2;
+                if (!Char.IsWhiteSpace(text[mid]))
+                {
+                    for (int i = 1; i < mid; i += i)
+                    {
+                        if (Char.IsWhiteSpace(text[mid + i]))
+                        {
+                            mid = mid + i;
+                            break;
+                        }
+                        if (Char.IsWhiteSpace(text[mid - i]))
+                        {
+                            mid = mid - i;
+                            break;
+                        }
+                    }
+                }
+
+                return text.Substring(0, mid)
+                       + Environment.NewLine + text.Substring(mid + 1);
+            }
+            internal static string FirstLetterToUpper(string str)
+            {
+                if (str == null)
+                    return null;
+
+                if (str.Length > 1)
+                    return char.ToUpper(str[0]) + str.Substring(1);
+
+                return str.ToUpper();
+            }
+            /// <summary>
+            /// Put newlines into a long string e.g. for tooltips
+            /// A \ in the string is treated as a hard newline
+            /// e.g. Recorded name pairs\Select then...
+            /// </summary>
+            public static string NewlinesInLongString(string longString, int maxLength = 44)
+            {
+                string result = string.Empty;
+                var markedLines = longString.Split('\\');
+
+                foreach (var line in markedLines)
+                {
+                    string _line = line;
+                    while (_line.Length > maxLength)
+                    {
+                        int splitIndex = _line.Substring(0, maxLength).LastIndexOf(" ");
+                        if (splitIndex == -1) // no space found
+                            splitIndex = maxLength; // split at max length anyway
+
+                        result += (_line.Substring(0, splitIndex)) + Environment.NewLine;
+                        _line = _line.Substring(splitIndex + 1);
+                    }
+                    result += _line + Environment.NewLine; // add the last remaining part of the line
+                }
+
+                return result;
+            }
+        }
 
         /// <summary>
         /// Read the command line arguments into a dictionary
@@ -779,43 +820,6 @@ namespace CrewChiefV4
             return true;
         }
 
-        internal static string FirstLetterToUpper(string str)
-        {
-            if (str == null)
-                return null;
-
-            if (str.Length > 1)
-                return char.ToUpper(str[0]) + str.Substring(1);
-
-            return str.ToUpper();
-        }
-        /// <summary>
-        /// Put newlines into a long string e.g. for tooltips
-        /// A \ in the string is treated as a hard newline
-        /// e.g. Recorded name pairs\Select then...
-        /// </summary>
-        public static string NewlinesInLongString(string longString, int maxLength = 44)
-        {
-            string result = string.Empty;
-            var markedLines = longString.Split('\\');
-
-            foreach (var line in markedLines)
-            {
-                string _line = line;
-                while (_line.Length > maxLength)
-                {
-                    int splitIndex = _line.Substring(0, maxLength).LastIndexOf(" ");
-                    if (splitIndex == -1) // no space found
-                        splitIndex = maxLength; // split at max length anyway
-
-                    result += (_line.Substring(0, splitIndex)) + Environment.NewLine;
-                    _line = _line.Substring(splitIndex + 1);
-                }
-                result += _line + Environment.NewLine; // add the last remaining part of the line
-            }
-
-            return result;
-        }
         public static int SizeOf<T>()
         {
             return Marshal.SizeOf(typeof(T));

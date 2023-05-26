@@ -36,7 +36,7 @@ namespace CrewChiefV4.UserInterface
                 buttonNameSelect.Text = Configuration.getUIString("select");
                 buttonNoneOfTheAbove.Text = Configuration.getUIString("none_of_the_above");
                 toolTipNoneOfTheAbove.SetToolTip(buttonNoneOfTheAbove,
-                    Utilities.NewlinesInLongString(Configuration.getUIString("none_of_the_above_tooltip")));
+                    Configuration.getUIString("none_of_the_above_tooltip"));
                 labelOpponentNameEntry.Text = opponentName;
                 // Set the Play button icon size
                 System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MyName_V));

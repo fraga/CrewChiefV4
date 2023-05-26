@@ -1093,7 +1093,7 @@ namespace CrewChiefV4
                 if (langCodes.langToUse == "en")
                 {
                     if (MessageBox.Show(
-                        Utilities.NewlinesInLongString(Configuration.getUIString("install_any_speechlanguage_popup_text"), 55),
+                        Utilities.Strings.NewlinesInLongString(Configuration.getUIString("install_any_speechlanguage_popup_text"), 55),
                         Configuration.getUIString("install_speechplatform_popup_title"),
                     MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
                     {
@@ -1197,7 +1197,7 @@ namespace CrewChiefV4
             if (sre == null)
             {
                 if (MessageBox.Show(
-                    Utilities.NewlinesInLongString(Configuration.getUIString("install_speechplatform_popup_text"), 55),
+                    Utilities.Strings.NewlinesInLongString(Configuration.getUIString("install_speechplatform_popup_text"), 55),
                     Configuration.getUIString("install_speechplatform_popup_title"),
                     MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
                 {
