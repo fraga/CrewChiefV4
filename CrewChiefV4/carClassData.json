@@ -1359,6 +1359,9 @@
 		{
 			"carClassEnum": "TRUCK",
 			"ams2ClassNames": [ "CopaTruck" ],
+			"raceroomClassIds": [ 9989 ],
+			"spotterVehicleWidth": 3,
+			"spotterVehicleLength": 7,
 			"allMembersAreRWD": true
 		},
 		{
