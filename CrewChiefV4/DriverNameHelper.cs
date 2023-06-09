@@ -22,16 +22,25 @@ namespace CrewChiefV4
     {
         public static HashSet<String> unvocalizedNames = new HashSet<string>();
 
-        private static readonly String[] middleBits = { "de la", "de le", "van der", "van de", "van", "de", "da", "le", "la", "von", "di",
-            "eg", "du", "el", "del", "saint", "st", "mac", "mc" }; // mac and mc may have been split off during CamelCase processing
+        private static readonly String[] middleBits = {
+            "de la", "de le", "van der", "van de", "van", "de", "da", "le", "la", "von", "di",
+            "eg", "du", "el", "del", "saint", "st",
+            "mac", "mc" // mac and mc may have been split off during CamelCase processing
+        };
 
         // need a special case here for "junior" and "senior"
         // - if it's "Something Junior" then allow it, it it's "Something Somthingelse Junior" then remove it
         //
         // 2 part suffix list - remove these even if the name only has one other part
-        private static readonly String[] ignored2PartSuffixes = { "jr", "vr", "uk", "us", "fr", "de", "sw", "es", "dk", "rp", "div", "proam", "am", "pro", "arg" };
-        // 3 part suffix list - remove these if the name 2 or more other parts
-        private static readonly String[] ignored3PartSuffixes = { "junior", "senior", "division", "group" };
+        private static readonly String[] ignored2PartSuffixes = {
+            "jr", "sr", "vr", "uk", "us", "fr", "de", "sw", "es", "dk", "rp", "div", "proam", "am", "pro", "arg",
+            "ii", "iii", "iv", "v"
+        };
+
+        // 3 part suffix list - remove these if the name has 2 or more other parts
+        private static readonly String[] ignored3PartSuffixes = {
+            "junior", "senior", "division", "group"
+        };
 
         // provide a hint to the phonics matcher - only allow names whose first letters match these pairs
         private static readonly (string, string)[] closeFirstLetters = {
