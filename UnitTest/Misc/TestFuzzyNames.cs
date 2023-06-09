@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 
 using Assert = NUnit.Framework.Assert;
 using System.IO;
@@ -241,7 +241,7 @@ namespace UnitTest.Misc
         [TestCase("a", null, null)]
         [TestCase("ba", "ba", "bao")]
         [TestCase("aaaa", "aaaa", null)]
-        [TestCase("345hf9237f", "hff", "huff")]
+        [TestCase("345hf9237f", "hff", "hoff")]
         [TestCase("9999", null, null)]
         [TestCase("Jim Britton DIV 2", "britton", "britton")]
         [TestCase("jimBritton DIV 2", "britton", "britton")]
