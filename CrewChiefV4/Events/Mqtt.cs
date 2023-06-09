@@ -120,7 +120,9 @@ namespace CrewChiefV4.Events
 
             var fragment = MessageFragment.Text(text);
             fragment.allowTTS = true;
-            var message = new QueuedMessage($"mqtt_response_{text}", 10,
+            string messageName = $"mqtt_response_{text}_{distance}";
+            // Console.WriteLine($"MQTT: playMessage {messageName}");
+            var message = new QueuedMessage(messageName, 10,
                               messageFragments: MessageContents(fragment),
                               abstractEvent: this, type: SoundType.REGULAR_MESSAGE, priority: priority,
                               triggerFunction: (GameStateData gsd) =>
