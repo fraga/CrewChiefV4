@@ -310,17 +310,21 @@ namespace CrewChiefV4.Events
             // only track fuel data after the session has settled down
             if (fuelUseActive && !GameStateData.onManualFormationLap &&
                 currentGameState.SessionData.SessionRunningTime > 15 &&  // seconds
+
                 ((currentGameState.SessionData.SessionType == SessionType.Race &&
                     (currentGameState.SessionData.SessionPhase == SessionPhase.Green ||
                      currentGameState.SessionData.SessionPhase == SessionPhase.FullCourseYellow ||
                      currentGameState.SessionData.SessionPhase == SessionPhase.Checkered)) ||
+
                  ((currentGameState.SessionData.SessionType == SessionType.Qualify ||
                    currentGameState.SessionData.SessionType == SessionType.Practice ||
                    currentGameState.SessionData.SessionType == SessionType.HotLap ||
                    currentGameState.SessionData.SessionType == SessionType.LonePractice) &&
+
                     (currentGameState.SessionData.SessionPhase == SessionPhase.Green ||
                      currentGameState.SessionData.SessionPhase == SessionPhase.FullCourseYellow ||
                      currentGameState.SessionData.SessionPhase == SessionPhase.Countdown) &&
+
                     // don't process fuel data in prac and qual until we're actually moving:
                     currentGameState.PositionAndMotionData.CarSpeed > 10)))
             {
@@ -1528,7 +1532,7 @@ namespace CrewChiefV4.Events
                 }
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.CALCULATE_FUEL_FOR))
-            {
+            {   // Laps, minutes or hours
                 int unit = 0;
                 foreach (KeyValuePair<String[], int> entry in SpeechRecogniser.numberToNumber)
                 {
