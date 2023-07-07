@@ -432,7 +432,7 @@ namespace CrewChiefV4.PitManager
         {
             int roundedLitresNeeded = -1;
             Fuel fuelEvent = (Fuel)CrewChief.getEvent("Fuel");
-            float additionaLitresNeeded = fuelEvent.getLitresToEndOfRace(true);
+            float additionaLitresNeeded = fuelEvent.getAdditionalFuelToEndOfRace(true);
 
             Log.Fuel($"Laps of extra fuel: {addAdditionalFuelLaps}");
             Log.Fuel($"Fuel calculations based on max fuel consumption: {baseCalculationsOnMaxConsumption}");
