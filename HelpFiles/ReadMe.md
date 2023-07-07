@@ -2,7 +2,7 @@
 
 To simplify creating the content for HTML help files HelpFiles.exe inserts each content HTML file into menu.HTML to create the published pages.
 
-The process is automatic, AppVeyor (see appveyor.yml) is used to build HelpFiles.exe which create the HTML files and commits the results in /public from where they will be published in a GitLab Pages website 
+The process is automatic when a change is submitted to master that has the commit message `update Help`, AppVeyor (see appveyor.yml) is used to build HelpFiles.exe which create the HTML files and commits the results in /public from where they will be published in a GitLab Pages website 
 (https://mr_belowski.gitlab.io/CrewChiefV4/index.html) by the GitLab CI/CD on the main branch (see .gitlab-ci.yml). Also, change_log_for_auto_updated.html is used to create the **About/Change log** page.
 
 **To add a Page**
