@@ -5,6 +5,7 @@ using System.Text;
 using CrewChiefV4.GameState;
 using CrewChiefV4.Events;
 using CrewChiefV4.rFactor1.rFactor1Data;
+using CrewChiefV4.Audio;
 
 /**
  * Maps memory mapped file to a local game-agnostic representation.
@@ -148,7 +149,7 @@ namespace CrewChiefV4.rFactor1
             }
             if (playerName == null)
             {
-                String driverName = getStringFromBytes(player.driverName).ToLower();
+                String driverName = getStringFromBytes(player.driverName);
                 AdditionalDataProvider.validate(driverName);
                 playerName = driverName;
             }
@@ -225,7 +226,7 @@ namespace CrewChiefV4.rFactor1
 
             currentGameState.carClass = getCarClass(getStringFromBytes(shared.vehicleName), true);
             brakeTempThresholdsForPlayersCar = CarData.getBrakeTempThresholds(currentGameState.carClass);
-            currentGameState.SessionData.DriverRawName = getStringFromBytes(player.driverName).ToLower();
+            currentGameState.SessionData.DriverRawName = getStringFromBytes(player.driverName);
             currentGameState.SessionData.TrackDefinition = new TrackDefinition(getStringFromBytes(shared.trackName), shared.lapDist);
             if (previousGameState != null)
             {
@@ -331,6 +332,7 @@ namespace CrewChiefV4.rFactor1
             currentGameState.SessionData.PositionAtStartOfCurrentLap = currentGameState.SessionData.IsNewLap ? currentGameState.SessionData.OverallPosition : previousGameState.SessionData.PositionAtStartOfCurrentLap;
             currentGameState.SessionData.IsDisqualified = (rFactor1Constant.rfFinishStatus)player.finishStatus == rFactor1Constant.rfFinishStatus.dq;
             currentGameState.SessionData.CompletedLaps = shared.lapNumber < 0 ? 0 : shared.lapNumber;
+            currentGameState.SessionData.LapCount = currentGameState.SessionData.CompletedLaps + 1;
             currentGameState.SessionData.LapTimeCurrent = currentGameState.SessionData.SessionRunningTime - player.lapStartET;
             currentGameState.SessionData.LapTimePrevious = player.lastLapTime > 0 ? player.lastLapTime : -1;
 
@@ -358,9 +360,10 @@ namespace CrewChiefV4.rFactor1
             {
                 // Preserve current timing values.
                 // Those values change on sector/lap change, otherwise stay the same between updates.
-                previousGameState.SessionData.restorePlayerTimings(currentGameState.SessionData);
+                previousGameState.SessionData.RestorePlayerTimings(currentGameState.SessionData);
 
                 currentGameState.SessionData.DeltaTime = previousGameState.SessionData.DeltaTime;
+                currentGameState.Conditions.CurrentConditions = previousGameState.Conditions.CurrentConditions;
                 currentGameState.Conditions.samples = previousGameState.Conditions.samples;
                 currentGameState.TimingData = previousGameState.TimingData;
             }
@@ -391,7 +394,7 @@ namespace CrewChiefV4.rFactor1
             {
                 currentGameState.SessionData.playerCompleteLapWithProvidedLapTime(currentGameState.SessionData.OverallPosition, currentGameState.SessionData.SessionRunningTime,
                         lastSectorTime, lastSectorTime > 0, player.inPits == 1, false, shared.trackTemp, shared.ambientTemp, 
-                        currentGameState.SessionData.SessionHasFixedTime, currentGameState.SessionData.SessionTimeRemaining, 3, currentGameState.TimingData);
+                        currentGameState.SessionData.SessionHasFixedTime, currentGameState.SessionData.SessionTimeRemaining, 3, currentGameState.TimingData, null, null);
                 currentGameState.SessionData.playerStartNewLap(currentGameState.SessionData.CompletedLaps + 1, currentGameState.SessionData.OverallPosition, player.inPits == 1 || player.lapDist < 0, currentGameState.SessionData.SessionRunningTime);
             }
             else if (currentGameState.SessionData.IsNewSector)
@@ -508,7 +511,7 @@ namespace CrewChiefV4.rFactor1
             if (currentGameState.SessionData.IsNewSession)
             {
                 currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength,
-                    currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.Now);
+                    currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.PositionAndMotionData.CarSpeed, currentGameState.Now);
             }
 
             // --------------------------------
@@ -635,7 +638,7 @@ namespace CrewChiefV4.rFactor1
                 nextConditionsSampleDue = currentGameState.Now.Add(ConditionsMonitor.ConditionsSampleFrequency);
                 currentGameState.Conditions.addSample(currentGameState.Now, currentGameState.SessionData.CompletedLaps, currentGameState.SessionData.SectorNumber,
                     shared.ambientTemp, shared.trackTemp, 0, (float)Math.Sqrt((double)(shared.wind.x * shared.wind.x + shared.wind.y * shared.wind.y + shared.wind.z * shared.wind.z)),
-                    0, 0, 0, currentGameState.SessionData.IsNewLap);
+                    0, 0, 0, currentGameState.SessionData.IsNewLap, ConditionsMonitor.TrackStatus.UNKNOWN);
             }
 
             // --------------------------------
@@ -649,7 +652,7 @@ namespace CrewChiefV4.rFactor1
             for (int i = 0; i < shared.numVehicles; ++i)
             {
                 var vehicle = shared.vehicle[i];
-                String driverName = getStringFromBytes(vehicle.driverName).ToLower();
+                String driverName = getStringFromBytes(vehicle.driverName);
                 if (isOfflineSession && (rFactor1Constant.rfControl)vehicle.control == rFactor1Constant.rfControl.remote)
                 {
                     isOfflineSession = false;
@@ -688,7 +691,7 @@ namespace CrewChiefV4.rFactor1
                     default:
                         break;
                 }
-                String driverName = getStringFromBytes(vehicle.driverName).ToLower();
+                String driverName = getStringFromBytes(vehicle.driverName);
                 OpponentData opponentPrevious;
                 int duplicatesCount = driverNameCounts[driverName];
                 string opponentKey;
@@ -768,6 +771,7 @@ namespace CrewChiefV4.rFactor1
                 if (opponent.DriverNameSet && opponentPrevious == null && CrewChief.enableDriverNames)
                 {
                     if (speechRecogniser != null) speechRecogniser.addNewOpponentName(opponent.DriverRawName, "-1");
+                    SoundCache.loadDriverNameSound(DriverNameHelper.getUsableDriverName(opponent.DriverRawName));
                     Console.WriteLine("New driver " + opponent.DriverRawName + 
                         " is using car class " + opponent.CarClass.getClassIdentifier() +
                         " at position " + opponent.OverallPosition.ToString());
@@ -792,6 +796,7 @@ namespace CrewChiefV4.rFactor1
                 opponent.PreviousBestLapTime = opponentPrevious != null && opponentPrevious.CurrentBestLapTime > 0 && 
                     opponentPrevious.CurrentBestLapTime > opponent.CurrentBestLapTime ? opponentPrevious.CurrentBestLapTime : -1;
                 float previousDistanceRoundTrack = opponentPrevious != null ? opponentPrevious.DistanceRoundTrack : 0;
+                float previousSpeed = opponentPrevious != null ? opponentPrevious.Speed : 0;
 
                 if (previousDistanceRoundTrack > 0)
                 {
@@ -810,7 +815,8 @@ namespace CrewChiefV4.rFactor1
                 }
                 else
                 {
-                    opponent.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, opponent.DistanceRoundTrack, DateTime.UtcNow);
+                    opponent.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, 
+                        opponent.DistanceRoundTrack, opponent.Speed, DateTime.UtcNow);
                 }
                 opponent.DeltaTime.SetNextDeltaPoint(opponent.DistanceRoundTrack, opponent.CompletedLaps, opponent.Speed, currentGameState.Now, vehicle.inPits != 1);
 
@@ -909,6 +915,12 @@ namespace CrewChiefV4.rFactor1
                 if (!currentGameState.OpponentData.ContainsKey(opponentKey))
                 {
                     currentGameState.OpponentData.Add(opponentKey, opponent);
+                }
+
+                // if the opponent is stopping in the pits, update his pit position
+                if (opponent.InPits && opponent.Speed > 0 && opponent.Speed < 0.1 && previousSpeed > opponent.Speed)
+                {
+                    Strategy.checkIfOpponentSharesPlayerPitBox(opponentKey, opponent.DistanceRoundTrack, opponent.WorldPosition);
                 }
             }
 
@@ -1341,7 +1353,7 @@ namespace CrewChiefV4.rFactor1
                 OpponentData o = null;
                 if (previousGameState.OpponentData.TryGetValue(possibleKey, out o))
                 {
-                    if (o.DriverRawName != getStringFromBytes(vehicle.driverName).ToLower() ||
+                    if (o.DriverRawName != getStringFromBytes(vehicle.driverName) ||
                         !CarData.IsCarClassEqual(o.CarClass, getCarClass(getStringFromBytes(vehicle.vehicleName), false)) ||
                         opponentKeysProcessed.Contains(possibleKey))
                     {

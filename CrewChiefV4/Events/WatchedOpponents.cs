@@ -131,16 +131,38 @@ namespace CrewChiefV4.Events
             if (loadNamesFromProperty
                 && (currentGameState.SessionData.IsNewSession || (currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.SessionData.JustGoneGreen)))
             {
-                foreach (KeyValuePair<string, OpponentData> entry in currentGameState.OpponentData)
+                foreach (string name in namesSetFromProperty)
                 {
-                    String usableDriverName = DriverNameHelper.getUsableDriverName(entry.Value.DriverRawName);
-                    foreach (string name in namesSetFromProperty)
+                    string fullMatch = null;
+                    string surnameMatch = null;
+                    foreach (KeyValuePair<string, OpponentData> entry in currentGameState.OpponentData)
                     {
-                        if (usableDriverName.Equals(name, StringComparison.InvariantCultureIgnoreCase))
+                        // check for full name match against all the names first
+                        if (entry.Value.DriverRawName.Equals(name, StringComparison.InvariantCultureIgnoreCase))
                         {
-                            watchedOpponentKeys.Add(entry.Key);
+                            fullMatch = entry.Key;
+                            // no need to check any more opponents with a full match
                             break;
                         }
+                        // fall back to matching on surnames only
+                        else if (name.Equals(DriverNameHelper.getUsableDriverName(entry.Value.DriverRawName, true), StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            surnameMatch = entry.Key;
+                        }
+                    }
+                    if (fullMatch != null)
+                    {
+                        Console.WriteLine("Watching driver " + fullMatch + " (name set in watched opponents property = " + name + ")");
+                        watchedOpponentKeys.Add(fullMatch);
+                    }
+                    else if (surnameMatch != null)
+                    {
+                        Console.WriteLine("Watching driver " + surnameMatch + " (name set in watched opponents property = " + name + ")");
+                        watchedOpponentKeys.Add(surnameMatch);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Watched driver " + name + " doesn't appear in this session");
                     }
                 }
             }
@@ -202,7 +224,7 @@ namespace CrewChiefV4.Events
                                     else if(opponentData.CarNumber != "-1")
                                     {
                                         audioPlayer.playMessage(new QueuedMessage("watched opponent laptime", 10,
-                                            messageFragments: MessageContents(Opponents.folderCarNumber, int.Parse(opponentData.CarNumber), folderHasJustDoneA,
+                                            messageFragments: MessageContents(Opponents.folderCarNumber, new CarNumber(opponentData.CarNumber), folderHasJustDoneA,
                                             TimeSpanWrapper.FromSeconds(opponentData.LastLapTime, Precision.AUTO_LAPTIMES))));
                                     }
                                     else
@@ -212,7 +234,7 @@ namespace CrewChiefV4.Events
                                 }
                             }
                             // pitting is handled by the Strategy class                            
-                            else if (isRaceSession && opponentData.isExitingPits())
+                            else if (isRaceSession && opponentData.isOnOutLap() && !opponentData.InPits)
                             {
                                 int alreadyPlayedForLapNumber = -1;
                                 // if we've no previously played pit exit for this opponent, or the last pit exit message was played on an earlier lap, we can play it
@@ -237,7 +259,7 @@ namespace CrewChiefV4.Events
                                     else if (opponentData.CarNumber != "-1")
                                     {
                                         audioPlayer.playMessage(new QueuedMessage("watched opponent exiting pit", 10,
-                                            messageFragments: MessageContents(Opponents.folderCarNumber, int.Parse(opponentData.CarNumber), folderIsLeavingThePit)));
+                                            messageFragments: MessageContents(Opponents.folderCarNumber, new CarNumber(opponentData.CarNumber), folderIsLeavingThePit)));
                                     }
                                     else
                                     {
@@ -270,7 +292,7 @@ namespace CrewChiefV4.Events
                                     else if (opponentData.CarNumber != "-1")
                                     {
                                         audioPlayer.playMessage(new QueuedMessage("watched opponent position change", 10,
-                                            messageFragments: MessageContents(Opponents.folderCarNumber, int.Parse(opponentData.CarNumber), folderIsNowInPosition, opponentData.ClassPosition)));
+                                            messageFragments: MessageContents(Opponents.folderCarNumber, new CarNumber(opponentData.CarNumber), folderIsNowInPosition, opponentData.ClassPosition)));
                                     }
                                     else
                                     {
@@ -380,8 +402,10 @@ namespace CrewChiefV4.Events
             {
                 foreach (KeyValuePair<string, OpponentData> entry in currentGameState.OpponentData)
                 {
-                    String usableDriverName = DriverNameHelper.getUsableDriverName(entry.Value.DriverRawName);
-                    if (voiceMessage.Contains(usableDriverName))
+                    String usableDriverNameForSRE = DriverNameHelper.getUsableDriverNameForSRE(entry.Value.DriverRawName);
+                    // check for full username match so we're not triggering on substrings within other words
+                    if (usableDriverNameForSRE != null
+                        && (voiceMessage.Contains(" " + usableDriverNameForSRE + " ") || voiceMessage.EndsWith(" " + usableDriverNameForSRE)))
                     {
                         opponentKey = entry.Key;
                         break;
@@ -422,7 +446,7 @@ namespace CrewChiefV4.Events
                 {
                     // eewwww
                     messageFragments.Add(MessageFragment.Text(Opponents.folderCarNumber));
-                    messageFragments.Add(MessageFragment.Integer(int.Parse(opponent.CarNumber)));
+                    messageFragments.AddRange((new CarNumber(opponent.CarNumber)).getMessageFragments());
                 }
                 messageFragments.Add(triggeredFromPitExit ? MessageFragment.Text(folderIsInPosition) : MessageFragment.Text(folderIsNowInPosition));
                 messageFragments.Add(MessageFragment.Integer(opponentClassPosition));
@@ -514,7 +538,7 @@ namespace CrewChiefV4.Events
                             {
                                 watchedOpponentKeys.Add(opponentKey);
                                 audioPlayer.playMessageImmediately(new QueuedMessage("add watch acknowledge with driver number", 0,
-                                    messageFragments: MessageContents(folderAcknowledgeWatchOpponentWithCarNumber, int.Parse(opponent.CarNumber))));
+                                    messageFragments: MessageContents(folderAcknowledgeWatchOpponentWithCarNumber, new CarNumber(opponent.CarNumber))));
                             }
                             else
                             {
@@ -554,7 +578,7 @@ namespace CrewChiefV4.Events
                         else if (opponent.CarNumber != "-1")
                         {
                             audioPlayer.playMessageImmediately(new QueuedMessage("stop watching car number", 0,
-                                    messageFragments: MessageContents(folderAcknowledgeStopWatchingCarNumber, int.Parse(opponent.CarNumber))));
+                                    messageFragments: MessageContents(folderAcknowledgeStopWatchingCarNumber, new CarNumber(opponent.CarNumber))));
                         }
                         else
                         {

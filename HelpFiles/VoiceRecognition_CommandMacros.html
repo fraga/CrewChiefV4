@@ -13,13 +13,12 @@
     alink="#EE0000">
     <div style="font-family:'Lucida Sans Unicode';font-size:13px;"
       class="main">
-      The app can send sequences of key presses in response to voice
-      command. These can be used for anything you like, but their
+      Crew Chief can send sequences of key presses in response to voice
+      command or a button / key press. These can be used for anything you like, but their
       primary function is to ease the pain of navigating the awkward
-      in-game pit menus. The app comes with a default set of command
-      macros which (at the time of writing) are for PCars2 and Raceroom
-      only. More will be added for other games. The default commands can
-      be found in [install folder]/saved_command_macros.json. The app
+      in-game pit menus. Crew Chief comes with a default set of command
+      macros which for AMS2, iRacing, PCars2 and Raceroom. The default commands can
+      be found in [install folder]/saved_command_macros.json. Crew Chief
       includes a macro edit function which allows existing macros to be
       customised and new ones created. This will create a file
       Documents/CrewChiefV4/save_commands_macros.json with the macros
@@ -78,11 +77,6 @@
         </tbody>
       </table>
       <br>
-      Ensure that there are at least <i>two</i> Pitstop Presets defined
-      (from the in-game pit menu). This is necessary because if there's
-      only one preset (or zero) the game doesn't allow the 'Pit preset'
-      menu item to be highlighted, which messes up the button press
-      sequences.<br>
       <br>
       You can request a pit stop by saying "pit request", "in this lap"
       or "box this lap". This will open the pit menu, select 'pit
@@ -264,7 +258,7 @@
       <br>
       <h3>Advanced command macros</h3>
       As you can see from the previous section, key press macros are
-      fiddly and a bit dumb - the app has only limited knowledge of what
+      fiddly and a bit dumb - Crew Chief has only limited knowledge of what
       state the pit menu is in so it has to either make assumptions or
       work quite hard to put the menu into a known state.<br>
       <br>
@@ -325,15 +319,15 @@
       <h3>R3E Pit Menu Interactions</h3>
       R3E exposes some additional information describing the state of
       the popup pit menu - I use this where I can to make the macros a
-      little more reliable. The app is also able to navigate the menu by
+      little more reliable. Crew Chief is also able to navigate the menu by
       pressing sequences of key to make specific pit requests. This
       depends on the in-game key bindings matching the keys set up in
-      the app's command macros. By default, these macros require the
+      Crew Chief's command macros. By default, these macros require the
       in-game pit menu actions to be bound to W (menu up), A (menu left
       / decrease), S (menu down), D (menu right / increase), Q (menu
       toggle), E (menu select) and R (request pit). It uses the menu
       navigation command macros (single button presses to move the
-      cursor) to locate and select the approprate commands for most
+      cursor) to locate and select Crew Chiefroprate commands for most
       actions like selecting / deselecting tyres and repairs. Choosing a
       refuelling amount is not possible with this new approach - it
       still relies on the auto fuelling macros. The commands which use
@@ -357,7 +351,7 @@
       "what are the pit actions" / "what's the pitstop plan" (reports
       the selected actions for the next pitstop)<br>
       <br>
-      The app will also read out the planned pit actions automatially
+      Crew Chief will also read out the planned pit actions automatially
       when you get near the pit entrance after requesting a stop.<br>
       <br>
       <br>

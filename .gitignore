@@ -88,6 +88,9 @@ _ReSharper*/
 # JustCode is a .NET coding addin-in
 .JustCode
 
+# CodeRush
+.cr/
+
 # TeamCity is a build add-in
 _TeamCity*
 
@@ -205,3 +208,5 @@ ModelManifest.xml
 
 /CrewChiefV4_installer/ComponentsGenerated.wxs
 /CrewChiefV4/HelpFiles
+/UnitTest/Packages
+/XunitTest/Packages

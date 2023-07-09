@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CrewChiefV4;
+using System;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -41,20 +42,6 @@ namespace ksBroadcastingNetwork
             ConnectAndRun();
         }
 
-        public async Task LockForReadingAsync(Action action)
-        {
-            await udpTaskSemaphore.WaitAsync();
-
-            try
-            {
-                action();
-            }
-            finally
-            {
-                udpTaskSemaphore.Release();
-            }
-        }
-
         private UdpClient GetUdpClient(bool isSending = false)
         {
             lock(udpLock)
@@ -63,7 +50,7 @@ namespace ksBroadcastingNetwork
                 {
                     if (_client != null)
                     {
-                        try { _client.Close(); } catch { }
+                        try { _client.Close(); } catch (Exception e) { Log.Exception(e); }
                     }
 
                     _client = new UdpClient();
@@ -90,7 +77,7 @@ namespace ksBroadcastingNetwork
 
             if (_client != null)
             {
-                try { _client.Close(); } catch { }
+                try { _client.Close(); } catch (Exception e) { Log.Exception(e); }
             }
         }
 
@@ -107,8 +94,6 @@ namespace ksBroadcastingNetwork
 
                 while (allowRun)
                 {
-                    await udpTaskSemaphore.WaitAsync();
-
                     try
                     {
                         UdpClient client = GetUdpClient();
@@ -127,7 +112,7 @@ namespace ksBroadcastingNetwork
 
                         if (udpReceiveTask.Status == TaskStatus.WaitingForActivation)
                         {
-                            try { client.Close(); } catch { }
+                            try { client.Close(); } catch (Exception e) { Log.Exception(e); }
                             _client = null;
                         }
                         else
@@ -148,10 +133,6 @@ namespace ksBroadcastingNetwork
                     }
                     catch
                     {
-                    }
-                    finally
-                    {
-                        udpTaskSemaphore.Release();
                     }
                 }
             });

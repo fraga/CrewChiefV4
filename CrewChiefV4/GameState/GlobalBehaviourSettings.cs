@@ -33,7 +33,7 @@ namespace CrewChiefV4.GameState
      */
     class GlobalBehaviourSettings
     {
-        public static CrewChief.RacingType racingType = CrewChief.RacingType.Circuit;
+        public static CrewChief.RacingType racingType = CrewChief.RacingType.Undefined;
         private static float defaultSpotterVehicleLength = 4.5f;
         private static float defaultSpotterVehicleWidth = 1.8f;
 
@@ -42,6 +42,9 @@ namespace CrewChiefV4.GameState
         public static Boolean defaultToAmericanTerms = UserSettings.GetUserSettings().getBoolean("use_american_terms");
         private static Boolean enableOvalSpotterBehaviours = UserSettings.GetUserSettings().getBoolean("enable_oval_spotter_enhancements");
         public static Boolean playPitSpeedLimitWarnings = UserSettings.GetUserSettings().getBoolean("play_pit_speed_limit_warnings");
+        public static Boolean enableFrozenOrderMessages = UserSettings.GetUserSettings().getBoolean("enable_frozen_order_messages");
+        public static Boolean speakOnlyWhenSpokenTo = UserSettings.GetUserSettings().getBoolean("speak_only_when_spoken_to");
+        public static Boolean justTheFacts = UserSettings.GetUserSettings().getBoolean("just_the_facts");
 
         public static Boolean useAmericanTerms = false; // if true we use american phrasing where appropriate ("pace car" etc).
         public static Boolean useMetric = false; // if true we use metric units (KPH)
@@ -64,10 +67,9 @@ namespace CrewChiefV4.GameState
         public static readonly List<MessageTypes> defaultBatteryPoweredEnabledMessageTypes = new List<MessageTypes> {
             MessageTypes.TYRE_TEMPS, MessageTypes.TYRE_WEAR, MessageTypes.BRAKE_TEMPS, MessageTypes.BRAKE_DAMAGE, MessageTypes.BATTERY, MessageTypes.LOCKING_AND_SPINNING };
         public static List<MessageTypes> enabledMessageTypes = new List<MessageTypes>();
-
-        public static Boolean complaintsDisabled = false;
+        
         public static int complaintsCountInThisSession = 0;
-        public static int maxComplaintsPerSession = UserSettings.GetUserSettings().getInt("max_complaints_per_session");
+        public static int maxComplaintsPerSession = Math.Min(int.MaxValue - 10000, UserSettings.GetUserSettings().getInt("max_complaints_per_session"));
 
         static GlobalBehaviourSettings()
         {
@@ -83,15 +85,18 @@ namespace CrewChiefV4.GameState
             GlobalBehaviourSettings.spotterEnabledInitialState = UserSettings.GetUserSettings().getBoolean("enable_spotter");
             GlobalBehaviourSettings.spotterEnabled = spotterEnabledInitialState;
             GlobalBehaviourSettings.cutTrackWarningsEnabledInitialState = UserSettings.GetUserSettings().getBoolean("play_cut_track_warnings");
-            GlobalBehaviourSettings.maxComplaintsPerSession = UserSettings.GetUserSettings().getInt("max_complaints_per_session");
+            GlobalBehaviourSettings.maxComplaintsPerSession = Math.Min(int.MaxValue - 10000, UserSettings.GetUserSettings().getInt("max_complaints_per_session"));
             GlobalBehaviourSettings.spotterVehicleLength = defaultSpotterVehicleLength;
             GlobalBehaviourSettings.spotterVehicleWidth = defaultSpotterVehicleWidth;
             GlobalBehaviourSettings.enableBreathIn = UserSettings.GetUserSettings().getBoolean("enable_breath_in") && SoundCache.availableSounds.Contains(AudioPlayer.folderBreathIn);
             GlobalBehaviourSettings.useMetric = UserSettings.GetUserSettings().getBoolean("use_metric");
             GlobalBehaviourSettings.playPitSpeedLimitWarnings = UserSettings.GetUserSettings().getBoolean("play_pit_speed_limit_warnings");
+            GlobalBehaviourSettings.enableFrozenOrderMessages = UserSettings.GetUserSettings().getBoolean("enable_frozen_order_messages");
+            GlobalBehaviourSettings.speakOnlyWhenSpokenTo = UserSettings.GetUserSettings().getBoolean("speak_only_when_spoken_to");
+            GlobalBehaviourSettings.justTheFacts = UserSettings.GetUserSettings().getBoolean("just_the_facts");
         }
 
-        public static void UpdateFromCarClass(CarData.CarClass carClass)
+        public static void UpdateFromCarClass(CarData.CarClass carClass, bool isBatteryPowered = false)
         {
             useAmericanTerms = carClass.useAmericanTerms || defaultToAmericanTerms;
             useHundredths = carClass.timesInHundredths || alwaysUseHundredths;
@@ -102,7 +107,7 @@ namespace CrewChiefV4.GameState
             }
             else
             {
-                enabledMessageTypes.AddRange(carClass.isBatteryPowered ? defaultBatteryPoweredEnabledMessageTypes : defaultEnabledMessageTypes);
+                enabledMessageTypes.AddRange(carClass.isBatteryPowered || isBatteryPowered ? defaultBatteryPoweredEnabledMessageTypes : defaultEnabledMessageTypes);
             }
 
             if (carClass.spotterVehicleLength > 0)
@@ -163,16 +168,33 @@ namespace CrewChiefV4.GameState
             Console.WriteLine("Using metric: " + GlobalBehaviourSettings.useMetric);
         }
 
+        /// <summary>
+        /// Set whether the spotter is enabled.
+        /// </summary>
         public static void UpdateFromTrackDefinition(TrackDefinition trackDefinition)
         {
-            useOvalLogic = trackDefinition.isOval;
+            useOvalLogic = spotterEnabled = trackDefinition.isOval;
             // this is called when we start a session, so update the spotter enabled flag based on the initial state
-            spotterEnabled = spotterEnabledInitialState && (useOvalLogic || !realisticMode);
-            ovalSpotterMode = useOvalLogic && enableOvalSpotterBehaviours;
-            if (useOvalLogic)
+            if (spotterEnabledInitialState)
             {
-                Console.WriteLine("Track is marked as oval");
+                if (useOvalLogic)
+                {
+                    Console.WriteLine("Track is marked as oval");
+                }
+                else
+                {
+                    if (!realisticMode)
+                    {
+                        spotterEnabled = true;
+                        Log.Commentary("Spotter enabled on road circuit because Realistic Mode is not checked");
+                    }
+                    else
+                    {
+                        Log.Warning("SPOTTER NOT ENABLED on road circuit because Realistic Mode is checked");
+                    }
+                }
             }
+            ovalSpotterMode = useOvalLogic && enableOvalSpotterBehaviours;
         }
 
         private static void parseMessageTypes(String messageTypes)

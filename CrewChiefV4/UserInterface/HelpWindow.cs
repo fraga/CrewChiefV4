@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
 using System.Reflection;
+using System.Text.RegularExpressions;
+using System.Net;
 
 namespace CrewChiefV4
 {
@@ -19,20 +21,21 @@ namespace CrewChiefV4
 
         public HelpWindow(System.Windows.Forms.Form parent)
         {
+            Uri uri;
             StartPosition = FormStartPosition.CenterParent;
             InitializeComponent();
             if (!CrewChief.Debugging)
             {
                 //For now at least load the help directly from the Internet
                 //so it can be changed without having to update CC
-                Uri uri = new Uri(@"https://mr_belowski.gitlab.io/CrewChiefV4/index.html");
+                uri = new Uri(@"https://mr_belowski.gitlab.io/CrewChiefV4/index.html");
                 webBrowser.Navigate(uri);
             }
             else
             {
                 string p = System.IO.Path.GetDirectoryName(Application.ExecutablePath);
                 this.Text = p;
-                Uri uri = new Uri(p + @"\..\..\..\Public\index.html");
+                uri = new Uri(p + @"\..\..\..\Public\index.html");
                 webBrowser.Navigate(uri);
             }
             webBrowser.Navigating += webBrowser_Navigating;
@@ -40,6 +43,8 @@ namespace CrewChiefV4
             this.webBrowser.PreviewKeyDown += WebBrowser1_PreviewKeyDown;
             this.KeyPreview = true;
             this.KeyDown += HelpWindow_KeyDown;
+
+            readHelpWindowSize(uri);
         }
 
         private void WebBrowser1_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
@@ -50,7 +55,7 @@ namespace CrewChiefV4
             }
         }
 
-        public void webBrowser_Navigating(object sender, WebBrowserNavigatingEventArgs e)
+        private void webBrowser_Navigating(object sender, WebBrowserNavigatingEventArgs e)
         {
             if (!e.Url.AbsolutePath.StartsWith("/CrewChiefV4/") &&
                 !e.Url.AbsolutePath.StartsWith("/Public/") &&
@@ -88,6 +93,43 @@ namespace CrewChiefV4
             this.Name = "HelpWindow";
             this.Text = Configuration.getUIString("crew_chief_help_title");
             this.ResumeLayout(false);
+        }
+        /// <summary>
+        /// Read the Help window height/width from the file 
+        /// and set it (if found)
+        /// </summary>
+        /// <param name="indexHtmlUri"></param>
+        private void readHelpWindowSize(Uri indexHtmlUri)
+        {
+            // Simple regex rather than anything clever with HTML
+            string indexHtml = new WebClient().DownloadString(indexHtmlUri);
+
+            // Regex.Match for <!--menu window height=634-->
+            Match matchHeight = Regex.Match(indexHtml,
+                @"<!--menu window height=([0-9]+)-->",
+                RegexOptions.IgnoreCase);
+            Match matchWidth = Regex.Match(indexHtml,
+                @"<!--menu window width=([0-9]+)-->",
+                RegexOptions.IgnoreCase);
+
+            int width = 0;
+            int height = 0;
+            // Check the Matches.
+            if (matchHeight.Success)
+            {
+                string key = matchHeight.Groups[1].Value;
+                int.TryParse(key, out height);
+            }
+            if (matchWidth.Success)
+            {
+                string key = matchWidth.Groups[1].Value;
+                int.TryParse(key, out width);
+            }
+            if (height > 0 && width > 0)
+            {
+                this.webBrowser.Size = new System.Drawing.Size(width, height);
+                this.ClientSize = new System.Drawing.Size(width, height);
+            }
         }
 
         private void HelpWindow_KeyDown(object sender, KeyEventArgs e)

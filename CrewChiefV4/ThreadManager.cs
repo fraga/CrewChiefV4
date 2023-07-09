@@ -178,7 +178,7 @@ namespace CrewChiefV4
                         }
                         catch (Exception ex)
                         {
-                            Utilities.ReportException(ex, "Error while trying to stop temporary thread", needReport: true);
+                            Utilities.ReportException(ex, "Error while trying to stop temporary thread", needReport: false);
                         }
                     }
                     else

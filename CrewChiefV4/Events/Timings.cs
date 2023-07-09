@@ -321,7 +321,7 @@ namespace CrewChiefV4.Events
             {
                 return;
             }
-            if (!currentGameState.PitData.InPitlane && enableGapMessages && !currentGameState.FlagData.currentLapIsFCY && !isNearRaceEnd(currentGameState) && !Penalties.playerMustPitThisLap)
+            if (!currentGameState.PitData.InPitlane && enableGapMessages && !currentGameState.FlagData.currentLapIsFCY && !isNearRaceEnd(currentGameState) && !PitStops.isPittingThisLap)
             {
                 // as soon as there's a position change in front, reset the being-held-up-by value
                 if (!currentGameState.SessionData.IsRacingSameCarInFront)
@@ -376,52 +376,55 @@ namespace CrewChiefV4.Events
                     {
                         if (gapInFrontStatus == GapStatus.CLOSE)
                         {
-                            OpponentData opponent = currentGameState.getOpponentAtClassPosition(currentGameState.SessionData.ClassPosition - 1, currentGameState.carClass);
-                            if (opponent.DriverRawName != this.carHoldingUsUp)
+                            if (!GlobalBehaviourSettings.justTheFacts)
                             {
-                                this.carHoldingUsUp = opponent.DriverRawName;
-                                this.timeWeStartedBeingHeldUp = currentGameState.Now;
-                            }
-                            else if (!GlobalBehaviourSettings.useOvalLogic && 
-                                sectorsSinceLastCloseCarAheadReport >= sectorsUntilNextCloseCarAheadReport && 
-                                !currentGameState.FlagData.isLocalYellow &&
-                                (currentGameState.Now - timeWeStartedBeingHeldUp).TotalSeconds > 60 /* don't grumble about being held up until we've been behind this car for one minute */)
-                            {
-                                sectorsSinceLastCloseCarAheadReport = 0;
-                                // only prefer mid-lap gap reports if we're on a track with no ad-hoc gapPoints
-                                if (currentGameState.SessionData.TrackDefinition.gapPoints.Count() > 0)
+                                OpponentData opponent = currentGameState.getOpponentAtClassPosition(currentGameState.SessionData.ClassPosition - 1, currentGameState.carClass);
+                                if (opponent.DriverRawName != this.carHoldingUsUp)
                                 {
-                                    sectorsUntilNextCloseCarAheadReport = Utilities.random.Next(closeAheadMinSectorWait, closeAheadMaxSectorWait);
+                                    this.carHoldingUsUp = opponent.DriverRawName;
+                                    this.timeWeStartedBeingHeldUp = currentGameState.Now;
                                 }
-                                else
+                                else if (!GlobalBehaviourSettings.useOvalLogic &&
+                                    sectorsSinceLastCloseCarAheadReport >= sectorsUntilNextCloseCarAheadReport &&
+                                    !currentGameState.FlagData.isLocalYellow &&
+                                    (currentGameState.Now - timeWeStartedBeingHeldUp).TotalSeconds > 60 /* don't grumble about being held up until we've been behind this car for one minute */)
                                 {
-                                    sectorsUntilNextCloseCarAheadReport = adjustForMidLapPreference(currentGameState.SessionData.SectorNumber,
-                                        Utilities.random.Next(closeAheadMinSectorWait, closeAheadMaxSectorWait));
-                                }
-                                Console.WriteLine("Being held up by " + opponent.DriverRawName);
-                                Dictionary<string, object> validationData = new Dictionary<string, object> { { "position", currentGameState.SessionData.ClassPosition } };
-                                audioPlayer.playMessage(new QueuedMessage(folderBeingHeldUp, 3, abstractEvent: this, validationData: validationData, priority: 10));
-                                if (opponent != null)
-                                {
-                                    DateTime lastTimeDriverNameUsed = DateTime.MinValue;
-                                    if (!trackLandmarkAttackDriverNamesUsed.TryGetValue(opponent.DriverRawName, out lastTimeDriverNameUsed) ||
-                                        lastTimeDriverNameUsed + minTimeBetweenAttackOrDefendByDriver < currentGameState.Now)
+                                    sectorsSinceLastCloseCarAheadReport = 0;
+                                    // only prefer mid-lap gap reports if we're on a track with no ad-hoc gapPoints
+                                    if (currentGameState.SessionData.TrackDefinition.gapPoints.Count() > 0)
                                     {
-                                        CrewChiefV4.GameState.TrackLandmarksTiming.LandmarkAndDeltaType landmarkAndDeltaType =
-                                                    currentGameState.SessionData.trackLandmarksTiming.getLandmarkWhereIAmFaster(opponent.trackLandmarksTiming, true, false);
-                                        if (landmarkAndDeltaType.landmarkName != null)
+                                        sectorsUntilNextCloseCarAheadReport = Utilities.random.Next(closeAheadMinSectorWait, closeAheadMaxSectorWait);
+                                    }
+                                    else
+                                    {
+                                        sectorsUntilNextCloseCarAheadReport = adjustForMidLapPreference(currentGameState.SessionData.SectorNumber,
+                                            Utilities.random.Next(closeAheadMinSectorWait, closeAheadMaxSectorWait));
+                                    }
+                                    Console.WriteLine("Being held up by " + opponent.DriverRawName);
+                                    Dictionary<string, object> validationData = new Dictionary<string, object> { { "position", currentGameState.SessionData.ClassPosition } };
+                                    audioPlayer.playMessage(new QueuedMessage(folderBeingHeldUp, 3, abstractEvent: this, validationData: validationData, priority: 10));
+                                    if (opponent != null)
+                                    {
+                                        DateTime lastTimeDriverNameUsed = DateTime.MinValue;
+                                        if (!trackLandmarkAttackDriverNamesUsed.TryGetValue(opponent.DriverRawName, out lastTimeDriverNameUsed) ||
+                                            lastTimeDriverNameUsed + minTimeBetweenAttackOrDefendByDriver < currentGameState.Now)
                                         {
-                                            // either we're faster on entry or faster through
-                                            String attackFolder = landmarkAndDeltaType.deltaType == TrackLandmarksTiming.DeltaType.Time ? folderHeIsSlowerThroughCorner : folderHeIsSlowerEnteringCorner;
-                                            audioPlayer.playMessage(new QueuedMessage("Timings/corner_to_attack_in", 5,
-                                                messageFragments: MessageContents(Pause(200), attackFolder, "corners/" + landmarkAndDeltaType.landmarkName), abstractEvent: this, 
-                                                validationData: validationData, priority: 5));
-                                            trackLandmarkAttackDriverNamesUsed[opponent.DriverRawName] = currentGameState.Now;
+                                            CrewChiefV4.GameState.TrackLandmarksTiming.LandmarkAndDeltaType landmarkAndDeltaType =
+                                                        currentGameState.SessionData.trackLandmarksTiming.getLandmarkWhereIAmFaster(opponent.trackLandmarksTiming, true, false);
+                                            if (landmarkAndDeltaType.landmarkName != null)
+                                            {
+                                                // either we're faster on entry or faster through
+                                                String attackFolder = landmarkAndDeltaType.deltaType == TrackLandmarksTiming.DeltaType.Time ? folderHeIsSlowerThroughCorner : folderHeIsSlowerEnteringCorner;
+                                                audioPlayer.playMessage(new QueuedMessage("Timings/corner_to_attack_in", 5,
+                                                    messageFragments: MessageContents(Pause(200), attackFolder, "corners/" + landmarkAndDeltaType.landmarkName), abstractEvent: this,
+                                                    validationData: validationData, priority: 5));
+                                                trackLandmarkAttackDriverNamesUsed[opponent.DriverRawName] = currentGameState.Now;
+                                            }
                                         }
                                     }
+                                    checkForAndAddReputationMessage(opponent, validationData, true);
+                                    gapInFrontAtLastReport = gapsInFront[0].timeDelta;
                                 }
-                                checkForAndAddReputationMessage(opponent, validationData, true);
-                                gapInFrontAtLastReport = gapsInFront[0].timeDelta;
                             }
                         }
                         else if (gapInFrontStatus != GapStatus.NONE && sectorsSinceLastGapAheadReport >= sectorsUntilNextGapAheadReport)
@@ -517,43 +520,46 @@ namespace CrewChiefV4.Events
                     {
                         if (gapBehindStatus == GapStatus.CLOSE)
                         {
-                            if (!GlobalBehaviourSettings.useOvalLogic && sectorsSinceLastCloseCarBehindReport >= sectorsUntilNextCloseCarBehindReport && !currentGameState.FlagData.isLocalYellow)
+                            if (!GlobalBehaviourSettings.justTheFacts)
                             {
-                                sectorsSinceLastCloseCarBehindReport = 0;
-                                // only prefer mid-lap gap reports if we're on a track with no ad-hoc gapPoints
-                                if (currentGameState.SessionData.TrackDefinition.gapPoints.Count() > 0)
+                                if (!GlobalBehaviourSettings.useOvalLogic && sectorsSinceLastCloseCarBehindReport >= sectorsUntilNextCloseCarBehindReport && !currentGameState.FlagData.isLocalYellow)
                                 {
-                                    sectorsUntilNextCloseCarBehindReport = Utilities.random.Next(closeBehindMinSectorWait, closeBehindMaxSectorWait);
-                                }
-                                else
-                                {
-                                    sectorsUntilNextCloseCarBehindReport = adjustForMidLapPreference(currentGameState.SessionData.SectorNumber,
-                                        Utilities.random.Next(closeBehindMinSectorWait, closeBehindMaxSectorWait));
-                                }
-                                Dictionary<string, object> validationData = new Dictionary<string, object> { { "position", currentGameState.SessionData.ClassPosition } };
-                                audioPlayer.playMessage(new QueuedMessage(folderBeingPressured, 3, abstractEvent: this, validationData:validationData, priority: 10));
-                                OpponentData opponent = currentGameState.getOpponentAtClassPosition(currentGameState.SessionData.ClassPosition + 1, currentGameState.carClass);
-                                if (opponent != null)
-                                {
-                                    DateTime lastTimeDriverNameUsed = DateTime.MinValue;
-                                    if (!trackLandmarkDefendDriverNamesUsed.TryGetValue(opponent.DriverRawName, out lastTimeDriverNameUsed) ||
-                                        lastTimeDriverNameUsed + minTimeBetweenAttackOrDefendByDriver < currentGameState.Now)
+                                    sectorsSinceLastCloseCarBehindReport = 0;
+                                    // only prefer mid-lap gap reports if we're on a track with no ad-hoc gapPoints
+                                    if (currentGameState.SessionData.TrackDefinition.gapPoints.Count() > 0)
                                     {
-                                        CrewChiefV4.GameState.TrackLandmarksTiming.LandmarkAndDeltaType landmarkAndDeltaType =
-                                                currentGameState.SessionData.trackLandmarksTiming.getLandmarkWhereIAmSlower(opponent.trackLandmarksTiming, true, false);
-                                        if (landmarkAndDeltaType.landmarkName != null)
+                                        sectorsUntilNextCloseCarBehindReport = Utilities.random.Next(closeBehindMinSectorWait, closeBehindMaxSectorWait);
+                                    }
+                                    else
+                                    {
+                                        sectorsUntilNextCloseCarBehindReport = adjustForMidLapPreference(currentGameState.SessionData.SectorNumber,
+                                            Utilities.random.Next(closeBehindMinSectorWait, closeBehindMaxSectorWait));
+                                    }
+                                    Dictionary<string, object> validationData = new Dictionary<string, object> { { "position", currentGameState.SessionData.ClassPosition } };
+                                    audioPlayer.playMessage(new QueuedMessage(folderBeingPressured, 3, abstractEvent: this, validationData: validationData, priority: 10));
+                                    OpponentData opponent = currentGameState.getOpponentAtClassPosition(currentGameState.SessionData.ClassPosition + 1, currentGameState.carClass);
+                                    if (opponent != null)
+                                    {
+                                        DateTime lastTimeDriverNameUsed = DateTime.MinValue;
+                                        if (!trackLandmarkDefendDriverNamesUsed.TryGetValue(opponent.DriverRawName, out lastTimeDriverNameUsed) ||
+                                            lastTimeDriverNameUsed + minTimeBetweenAttackOrDefendByDriver < currentGameState.Now)
                                         {
-                                            // either we're slower on entry or slower through
-                                            String defendFolder = landmarkAndDeltaType.deltaType == TrackLandmarksTiming.DeltaType.Time ? folderHeIsFasterThroughCorner : folderHeIsFasterEnteringCorner;
-                                            audioPlayer.playMessage(new QueuedMessage("Timings/corner_to_defend_in", 5,
-                                                messageFragments: MessageContents(Pause(200), defendFolder, "corners/" + landmarkAndDeltaType.landmarkName), abstractEvent: this,
-                                                validationData: validationData, priority: 5));
-                                            trackLandmarkDefendDriverNamesUsed[opponent.DriverRawName] = currentGameState.Now;
+                                            CrewChiefV4.GameState.TrackLandmarksTiming.LandmarkAndDeltaType landmarkAndDeltaType =
+                                                    currentGameState.SessionData.trackLandmarksTiming.getLandmarkWhereIAmSlower(opponent.trackLandmarksTiming, true, false);
+                                            if (landmarkAndDeltaType.landmarkName != null)
+                                            {
+                                                // either we're slower on entry or slower through
+                                                String defendFolder = landmarkAndDeltaType.deltaType == TrackLandmarksTiming.DeltaType.Time ? folderHeIsFasterThroughCorner : folderHeIsFasterEnteringCorner;
+                                                audioPlayer.playMessage(new QueuedMessage("Timings/corner_to_defend_in", 5,
+                                                    messageFragments: MessageContents(Pause(200), defendFolder, "corners/" + landmarkAndDeltaType.landmarkName), abstractEvent: this,
+                                                    validationData: validationData, priority: 5));
+                                                trackLandmarkDefendDriverNamesUsed[opponent.DriverRawName] = currentGameState.Now;
+                                            }
                                         }
                                     }
+                                    checkForAndAddReputationMessage(opponent, validationData, false);
+                                    gapBehindAtLastReport = gapsBehind[0].timeDelta;
                                 }
-                                checkForAndAddReputationMessage(opponent, validationData, false);
-                                gapBehindAtLastReport = gapsBehind[0].timeDelta;
                             }
                         }
                         else if (gapBehindStatus != GapStatus.NONE && sectorsSinceLastGapBehindReport >= sectorsUntilNextGapBehindReport)

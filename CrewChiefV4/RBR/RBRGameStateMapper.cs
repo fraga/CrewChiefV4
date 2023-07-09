@@ -11,6 +11,7 @@ using System.Diagnostics;
 using static CrewChiefV4.RBR.Constants;
 using System.Threading;
 using System.IO;
+using System.Text.RegularExpressions;
 
 /**
  * Maps memory mapped file to a local game-agnostic representation.
@@ -22,15 +23,16 @@ namespace CrewChiefV4.RBR
         public RBRGameStateMapper()
         {}
 
-        private int[] minimumSupportedVersionParts = new int[] { 1, 0, 0, 0 };
+        private int[] minimumSupportedVersionParts = new int[] { 1, 3, 0, 0 };
         public static bool pluginVerified = false;
         private static int reinitWaitAttempts = 0;
+        // regex using the chars .Net says are invalid
+        private string tracknameToValidFolderNameRegex = string.Format("[{0}]", Regex.Escape(new string(Path.GetInvalidPathChars())));
+        // max length for track name folder
+        private int maxLengthForTrackNameFolder = 65;
 
-        public override void setSpeechRecogniser(SpeechRecogniser speechRecogniser)
-        {
-            speechRecogniser.addRallySpeechRecogniser();
-            this.speechRecogniser = speechRecogniser;
-        }
+        // BTB tracks all use track ID 41
+        private int BTBTrackID = 41;
 
         private class CarID
         {
@@ -169,6 +171,13 @@ namespace CrewChiefV4.RBR
             public string country;
             public RBRGameStateMapper.RBRSurfaceType surface;
             public double approxLengthKM;
+        }
+
+        // BTB tracks all use slot ID 41, but they'll have a different name from the expected track in slot 41
+        private bool IsBTBTrack(string trackName, int trackID)
+        {
+            return trackID == BTBTrackID
+                && knownTracks.TryGetValue(BTBTrackID, out var trackDefinitionForBTBSlot) && trackDefinitionForBTBSlot.name != trackName;
         }
 
         // List from RBRCZ.
@@ -471,8 +480,25 @@ namespace CrewChiefV4.RBR
                 this.ClearState();
 
                 // Initialize variables that persist for the duration of a session.
-                if (this.knownTracks.TryGetValue(shared.perFrame.mRBRMapSettings.trackID, out var rbrtd))
-                    csd.TrackDefinition = new TrackDefinition(rbrtd.name, (float)rbrtd.approxLengthKM * 1000.0f);
+                string trackName = GetWideStringFromBytes(shared.perFrame.currentLocationStringWide);
+                // workaround for RBR CZ tracks plugin. The track may be reported as "Rally HQ"
+                if ((string.IsNullOrEmpty(trackName) || "Rally HQ".Equals(trackName))
+                    && this.knownTracks.TryGetValue(shared.perFrame.mRBRMapSettings.trackID, out var trackDefinitionForMissingName))
+                {
+                    trackName = trackDefinitionForMissingName.name;
+                }
+                // version of the track name that can be used for a folder name
+                string trackNameValidFolderName = Regex.Replace(trackName, tracknameToValidFolderNameRegex, "");
+                trackNameValidFolderName = trackNameValidFolderName.Substring(0, Math.Min(trackNameValidFolderName.Length, maxLengthForTrackNameFolder));
+
+                // use track length from known tracks, or -1 for BTB and unknown tracks
+                double trackLength = -1;
+                if (!IsBTBTrack(trackName, shared.perFrame.mRBRMapSettings.trackID)
+                    && this.knownTracks.TryGetValue(shared.perFrame.mRBRMapSettings.trackID, out var rbrtd))
+                {
+                    trackLength = rbrtd.approxLengthKM;
+                }
+                csd.TrackDefinition = new TrackDefinition(trackNameValidFolderName, (float) trackLength);
             }
 
             // Restore cumulative data.
@@ -547,6 +573,7 @@ namespace CrewChiefV4.RBR
             }
 
             if (!this.pacenotesLoaded
+                && !cgs.UseCrewchiefPaceNotes
                 && ((csd.SessionPhase == SessionPhase.Countdown
                         && csd.SessionType == SessionType.Race
                         && csd.SessionRunningTime > -6.9f)
@@ -655,34 +682,6 @@ namespace CrewChiefV4.RBR
             return cgs;
         }
 
-        private readonly int[] rbrRanges = new int[]
-        {
-            30,
-            40,
-            50,
-            60,
-            70,
-            80,
-            100,
-            120,
-            140,
-            150,
-            160,
-            180,
-            200,
-            250,
-            300,
-            350,
-            400,
-            450,
-            500,
-            600,
-            700,
-            800,
-            900,
-            1000
-        };
-
         // Weird stuff:
         // * I saw some pace notes before detail_start at some tracks.  Those also have weird flags on them, maybe worth ignoring all pre-start entries?
         // * Distance call calculation ignores Care/Caution possibly more stuff.  Needs polishing.
@@ -690,7 +689,7 @@ namespace CrewChiefV4.RBR
         {
             Debug.Assert(!this.pacenotesLoaded);
             this.pacenotesLoaded = true;
-
+            int undefinedPacenoteTypesCount = 0;
             var numPacenotes = shared.coDriver.mRBRPacenoteInfo.numPacenotes;
             if (numPacenotes == 0)
             {
@@ -705,7 +704,10 @@ namespace CrewChiefV4.RBR
 
                 if (!Enum.IsDefined(typeof(CoDriver.PacenoteType), pacenote))
                 {
+                    undefinedPacenoteTypesCount++;
+#if DEBUG
                     Console.WriteLine($"LoadPacenotes: WARNING: unknown pacenote type at: {i}  type: {shared.coDriver.mPacenotes[i].type}  flags: {shared.coDriver.mPacenotes[i].flags}  distance: {distance.ToString("0.000")}.  Skipping.");
+#endif  // DEBUG
                     continue;
                 }
 
@@ -752,14 +754,17 @@ namespace CrewChiefV4.RBR
                 }
 
                 // TODO: Investigate modifer 256 at harwood forest 2
+#if DEBUG
                 if (flagsSum != (int)modifier)
                     Console.WriteLine($"LoadPacenotes: WARNING: unknown pacenote modifiers at: {i}  {pacenote}  flags: {shared.coDriver.mPacenotes[i].flags}  distance: {distance.ToString("0.000")}.");
-
+#endif  // DEBUG
                 // Skip pacenotes that are no longer relevant (mid-session connect with CC started after countdown).
                 if (cgs.SessionData.SessionPhase == SessionPhase.Green
                     && (cgs.PositionAndMotionData.DistanceRoundTrack + 4.0f * cgs.PositionAndMotionData.CarSpeed > distance))
                 {
+#if DEBUG
                     Console.WriteLine($"LoadPacenotes: WARNING: mid-session load detected.  Skipping call at: {i}.");
+#endif  // DEBUG
                     continue;
                 }
 
@@ -768,7 +773,9 @@ namespace CrewChiefV4.RBR
                 {
                     if (i + 1 >= numPacenotes)
                     {
+#if DEBUG
                         Console.WriteLine($"LoadPacenotes: no more elements after distance call at: {i}.  Skipping.");
+#endif  // DEBUG
                         continue;
                     }
 
@@ -789,13 +796,17 @@ namespace CrewChiefV4.RBR
                             || typeAhead == (int)CoDriver.PacenoteType.detail_keep_out
                             || typeAhead == (int)CoDriver.PacenoteType.detail_keep_in)
                         {
+#if DEBUG
                             Console.WriteLine($"LoadPacenotes: skipping element: {(CoDriver.PacenoteType)typeAhead} in distance call calculation at: {i}.");
+#endif  // DEBUG
                             ++lookAheadIdx;
                             continue;
                         }
                         else if (!CoDriver.terminologies.chainedNotes.Contains(((CoDriver.PacenoteType)typeAhead).ToString()))
                         {
-                            Console.WriteLine($"LoadPacenotes: skipping element: {(CoDriver.PacenoteType)typeAhead} in distance call calculation  at: {i}.  No it in a list of chained types.");
+#if DEBUG
+                            Console.WriteLine($"LoadPacenotes: skipping element: {(CoDriver.PacenoteType)typeAhead} in distance call calculation  at: {i}. Not in a list of chained types.");
+#endif  // DEBUG
                             ++lookAheadIdx;
                             continue;
                         }
@@ -810,32 +821,25 @@ namespace CrewChiefV4.RBR
 
                     if (distanceToNext < 25.0f || distanceToNext > 1050.0f)
                     {
+#if DEBUG
                         Console.WriteLine($"LoadPacenotes: unable to process distance call at: {i} distance to next: {distanceToNext.ToString("0.000")}.  Skipping.");
+#endif  // DEBUG
                         continue;
                     }
 
-                    var closestRange = 1000;
-                    var minDistance = Math.Abs(closestRange - distanceToNext);
-                    foreach (var r in rbrRanges)
-                    {
-                        var distToRange = Math.Abs(r - distanceToNext);
-                        if (distToRange < minDistance)
-                        {
-                            minDistance = distToRange;
-                            closestRange = r;
-                        }
-                    }
-
-                    options = closestRange;
+                    options = CoDriver.GetClosestValueForDistanceCall(distanceToNext);
                 }
 
                 if (pacenote == CoDriver.PacenoteType.detail_finish)
                 {
                     this.finishDistance = distance;
+#if DEBUG
                     Console.WriteLine($"LoadPacenotes: finish distance: {distance.ToString("0.000")}");
+#endif  // DEBUG
                 }
-
+#if DEBUG
                 Console.WriteLine($"LoadPacenotes: pacenote loaded at: {i}      {distance.ToString("0.000")},       {pacenote},     { (options == null ? "null" : options.ToString()) },      [{modifier}]");
+#endif  // DEBUG
                 cgs.CoDriverPacenotes.Add(new CoDriverPacenote() {
                     Distance = distance,
                     Pacenote = pacenote,
@@ -843,6 +847,7 @@ namespace CrewChiefV4.RBR
                     Modifier = modifier
                 });
             }
+            Console.WriteLine("LoadPacenotes: loaded " + cgs.CoDriverPacenotes.Count + " pacenotes with " + undefinedPacenoteTypesCount + " unrecognised pacenotes");
         }
 
         public SessionType MapToSessionType(object wrapper)

@@ -4,9 +4,6 @@ using CrewChiefV4.RaceRoom;
 using CrewChiefV4.rFactor1;
 using CrewChiefV4.assetto;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using CrewChiefV4.rFactor2;
 using CrewChiefV4.iRacing;
 using CrewChiefV4.PCars2;
@@ -15,7 +12,10 @@ using CrewChiefV4.ACC;
 using CrewChiefV4.F1_2019;
 using CrewChiefV4.AMS2;
 using CrewChiefV4.F1_2020;
+using CrewChiefV4.F1_2021;
 using CrewChiefV4.RBR;
+using CrewChiefV4.GTR2;
+using CrewChiefV4.Dirt;
 
 namespace CrewChiefV4
 {
@@ -40,7 +40,10 @@ namespace CrewChiefV4
         private AMS2UDPreader ams2UDPReader;
         private AMS2SharedMemoryReader ams2SharedMemoryReader;
         private F12020UDPreader f12020UDPReader;
+        private F12021UDPreader f12021UDPReader;
         private RBRSharedMemoryReader rbrSharedMemoryReader;
+        private GTR2SharedMemoryReader gtr2SharedMemoryReader;
+        private DirtUDPreader dirtUDPMemoryReader;
 
         public static GameStateReaderFactory getInstance()
         {
@@ -93,6 +96,7 @@ namespace CrewChiefV4
                         return rf1SharedMemoryReader;
                     case GameEnum.ASSETTO_64BIT:
                     case GameEnum.ASSETTO_32BIT:
+                    case GameEnum.ASSETTO_64BIT_RALLY:
                         if (ascSharedMemoryReader == null)
                         {
                             ascSharedMemoryReader = new ACSSharedMemoryReader();
@@ -134,6 +138,12 @@ namespace CrewChiefV4
                             f12020UDPReader = new F12020UDPreader();
                         }
                         return f12020UDPReader;
+                    case GameEnum.F1_2021:
+                        if (f12021UDPReader == null)
+                        {
+                            f12021UDPReader = new F12021UDPreader();
+                        }
+                        return f12021UDPReader;
                     case GameEnum.AMS2:
                         if (ams2SharedMemoryReader == null)
                         {
@@ -152,6 +162,21 @@ namespace CrewChiefV4
                             rbrSharedMemoryReader = new RBRSharedMemoryReader();
                         }
                         return rbrSharedMemoryReader;
+                    case GameEnum.GTR2:
+                        if (gtr2SharedMemoryReader == null)
+                        {
+                            gtr2SharedMemoryReader = new GTR2SharedMemoryReader();
+                        }
+                        return gtr2SharedMemoryReader;
+                    case GameEnum.DIRT:
+                    case GameEnum.DIRT_2:
+                        if (dirtUDPMemoryReader == null)
+                        {
+                            dirtUDPMemoryReader = new DirtUDPreader();
+                        }
+                        return dirtUDPMemoryReader;
+                    default:
+                        return new DummyGameDataReader();
                 }
             }
             return null;
@@ -175,6 +200,7 @@ namespace CrewChiefV4
                     return new RF1GameStateMapper();
                 case GameEnum.ASSETTO_64BIT:
                 case GameEnum.ASSETTO_32BIT:
+                case GameEnum.ASSETTO_64BIT_RALLY:
                     return new ACSGameStateMapper();
                 case GameEnum.RF2_64BIT:
                     return new RF2GameStateMapper();
@@ -188,14 +214,21 @@ namespace CrewChiefV4
                     return new F12019GameStateMapper();
                 case GameEnum.F1_2020:
                     return new F12020GameStateMapper();
+                case GameEnum.F1_2021:
+                    return new F12021GameStateMapper();
                 case GameEnum.AMS2:
                 case GameEnum.AMS2_NETWORK:
                     return new AMS2GameStateMapper();
                 case GameEnum.RBR:
                     return new RBRGameStateMapper();
+                case GameEnum.GTR2:
+                    return new GTR2GameStateMapper();
+                case GameEnum.DIRT:
+                case GameEnum.DIRT_2:
+                    return new DirtGameStateMapper();
                 default:
                     Console.WriteLine("No mapper is defined for GameDefinition " + gameDefinition.friendlyName);
-                    return null;
+                    return new DummyGameStateMapper();
             }
         }
     }

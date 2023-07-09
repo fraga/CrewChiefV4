@@ -10,8 +10,8 @@ namespace CrewChiefV4.Events
 {
     class Penalties : AbstractEvent
     {
-        // time (in seconds) to delay messages about penalty laps to go - 
-        // we need this because the play might cross the start line while serving 
+        // time (in seconds) to delay messages about penalty laps to go -
+        // we need this because the play might cross the start line while serving
         // a penalty, so we should wait before telling them how many laps they have to serve it
         private int pitstopDelay = 20;
 
@@ -47,7 +47,7 @@ namespace CrewChiefV4.Events
         private String folderTimePenalty = "penalties/time_penalty";
 
         private String folderPossibleTrackLimitsViolation = "penalties/possible_track_limits_warning";
-       
+
         private String folderPenaltyNotServed = "penalties/penalty_not_served";
 
         // for voice requests
@@ -104,6 +104,8 @@ namespace CrewChiefV4.Events
 
         private String folderWarningBlueFlagMoveOrBePenalized = "penalties/blue_move_now_or_be_penalized";
 
+        private String folderWarningPointsWillBeAwardedThisLap = "penalties/points_will_be_awarded_this_lap";
+
         private String folderDisqualifiedIgnoredStopAndGo = "penalties/disqualified_ignored_stop_and_go";
 
         private String folderDisqualifiedIgnoredDriveThrough = "penalties/disqualified_ignored_drive_through";
@@ -123,7 +125,7 @@ namespace CrewChiefV4.Events
         private static bool useNewCutTrackSounds = false;
 
         public static String folderCutTrackPracticeOrQualNextLapInvalid = "penalties/cut_track_in_prac_or_qual_next_invalid";
-        
+
         public static String folderCarToCarCollision = "penalties/car_to_car_collision";
         public static String folderTooManyCarToCarCollisions = "penalties/too_many_car_to_car_collisions";
         public static String folderWillBeKickedAfterOneMoreCollision = "penalties/one_more_collision_before_kick";
@@ -169,7 +171,7 @@ namespace CrewChiefV4.Events
         private Boolean playedTrackCutWarningInPracticeOrQualOnThisLap = false;
 
         private DateTime lastCutTrackWarningTime;
-    
+
         private Boolean playedNotServedPenalty;
 
         private Boolean warnedOfPossibleTrackLimitsViolationOnThisLap = false;
@@ -179,8 +181,6 @@ namespace CrewChiefV4.Events
         private DateTime timeToNotifyOfSlowdown = DateTime.MinValue;
 
         private Boolean playedSlowdownNotificationOnThisLap = false;
-
-        public static Boolean playerMustPitThisLap = false;
 
         private int incidentPointsForCarToCarCollision = 4;
 
@@ -232,7 +232,7 @@ namespace CrewChiefV4.Events
             waitingToNotifyOfSlowdown = false;
             timeToNotifyOfSlowdown = DateTime.MinValue;
             playedSlowdownNotificationOnThisLap = false;
-            playerMustPitThisLap = false;
+            PitStops.isPittingThisLap = false;
             trackLimitsMode = TrackLimitsMode.OK;
             totalAnnouncableCutWarnings = 0;
             // not used (yet) - might be helpful for establishing trends?
@@ -251,7 +251,7 @@ namespace CrewChiefV4.Events
             outstandingPenaltyCause = PenatiesData.DetailedPenaltyCause.NONE;
             // edge case here: if a penalty is given and immediately served (slow down penalty), then
             // the player gets another within the next 20 seconds, the 'you have 3 laps to come in to serve'
-            // message would be in the queue and would be made valid again, so would play. So we explicity 
+            // message would be in the queue and would be made valid again, so would play. So we explicity
             // remove this message from the queue
             audioPlayer.removeQueuedMessage(folderThreeLapsToServe);
             playedPitNow = false;
@@ -265,6 +265,14 @@ namespace CrewChiefV4.Events
         {
             if (base.isMessageStillValid(eventSubType, currentGameState, validationData))
             {
+                if (eventSubType == folderCarToCarCollision
+                    || eventSubType == folderTooManyCarToCarCollisions
+                    || eventSubType == folderWillBeKickedAfterOneMoreCollision
+                    || eventSubType == folderWillBeKickedAfterOneMoreOffTrack
+                    || eventSubType == folderBlackAndOrangeFlag)
+                {
+                    return currentGameState.SessionData.SessionPhase != SessionPhase.Finished;
+                }
                 if (eventSubType == folderPossibleTrackLimitsViolation)
                 {
                     return currentGameState.PositionAndMotionData.CarSpeed > 10;
@@ -294,7 +302,7 @@ namespace CrewChiefV4.Events
                     return currentGameState.PenaltiesData.HasSlowDown;
                 }
                 else if (eventSubType == folderPenaltyServed &&
-                    (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT))
+                    (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT || CrewChief.gameDefinition.gameEnum == GameEnum.GTR2))
                 {
                     // Don't validate "Penalty served" in rF1/rF2, hasOutstandingPenalty is false by the time we get here.
                     return true;
@@ -320,7 +328,7 @@ namespace CrewChiefV4.Events
             if (previousGameState != null && currentGameState.SessionData.CurrentIncidentCount > previousGameState.SessionData.CurrentIncidentCount)
             {
                 Console.WriteLine("incident points increased from " + previousGameState.SessionData.CurrentIncidentCount + " to " + currentGameState.SessionData.CurrentIncidentCount);
-                // for R3E we have no idea what type of incident has occurred - we know it's 
+                // for R3E we have no idea what type of incident has occurred - we know it's
                 // 4 points for a car-to-car collision so we can, at least, do *something* with it
                 if (CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM
                     && currentGameState.SessionData.CurrentIncidentCount - previousGameState.SessionData.CurrentIncidentCount >= incidentPointsForCarToCarCollision)
@@ -391,7 +399,7 @@ namespace CrewChiefV4.Events
                         if (!currentGameState.PitData.HasRequestedPitStop)
                         {
                             warningMsg = folderWarningEnterPitsToAvoidExceedingLaps;
-                            playerMustPitThisLap = true;
+                            PitStops.isPittingThisLap = true;
                         }
                         break;
                     case PenatiesData.WarningMessage.DISQUALIFIED_DRIVING_WITHOUT_HEADLIGHTS:
@@ -402,14 +410,17 @@ namespace CrewChiefV4.Events
                         break;
                     case PenatiesData.WarningMessage.ONE_LAP_TO_SERVE_DRIVE_THROUGH:
                         warningMsg = folderWarningOneLapToServeDriveThrough;
-                        playerMustPitThisLap = true;
+                        PitStops.isPittingThisLap = true;
                         break;
                     case PenatiesData.WarningMessage.ONE_LAP_TO_SERVE_STOP_AND_GO:
                         warningMsg = folderWarningOneLapToServeStopAndGo;
-                        playerMustPitThisLap = true;
+                        PitStops.isPittingThisLap = true;
                         break;
                     case PenatiesData.WarningMessage.BLUE_MOVE_OR_BE_PENALIZED:
                         warningMsg = folderWarningBlueFlagMoveOrBePenalized;
+                        break;
+                    case PenatiesData.WarningMessage.POINTS_WILL_BE_AWARDED_THIS_LAP:
+                        warningMsg = folderWarningPointsWillBeAwardedThisLap;
                         break;
                     case PenatiesData.WarningMessage.DISQUALIFIED_IGNORED_STOP_AND_GO:
                         warningMsg = folderDisqualifiedIgnoredStopAndGo;
@@ -435,7 +446,7 @@ namespace CrewChiefV4.Events
                 }
             }
 
-            if (CrewChief.gameDefinition.gameEnum != GameEnum.RF2_64BIT
+            if (CrewChief.gameDefinition.gameEnum != GameEnum.RF2_64BIT && CrewChief.gameDefinition.gameEnum != GameEnum.GTR2
                 && currentGameState.SessionData.SessionPhase == SessionPhase.FullCourseYellow)
             {
                 // Do not allow penalty/warning messagess under FCY unless this is rF2.
@@ -447,11 +458,11 @@ namespace CrewChiefV4.Events
                 warnedOfPossibleTrackLimitsViolationOnThisLap = false;
                 playedTrackCutWarningInPracticeOrQualOnThisLap = false;
                 playedSlowdownNotificationOnThisLap = false;
-                playerMustPitThisLap = false;
+                PitStops.isPittingThisLap = false;
             }
             if (CrewChief.gameDefinition.gameEnum != GameEnum.ACC &&
                 (currentGameState.SessionData.SessionType == SessionType.Race || CrewChief.gameDefinition.gameEnum == GameEnum.IRACING) && previousGameState != null &&
-                (currentGameState.PenaltiesData.HasDriveThrough || currentGameState.PenaltiesData.HasStopAndGo || currentGameState.PenaltiesData.HasTimeDeduction || 
+                (currentGameState.PenaltiesData.HasDriveThrough || currentGameState.PenaltiesData.HasStopAndGo || currentGameState.PenaltiesData.HasTimeDeduction ||
                 currentGameState.PenaltiesData.HasPitStop || currentGameState.PenaltiesData.HasMeatballFlag))
             {
                 if (currentGameState.PenaltiesData.HasDriveThrough && !previousGameState.PenaltiesData.HasDriveThrough)
@@ -513,7 +524,7 @@ namespace CrewChiefV4.Events
                 }
                 else if (CrewChief.gameDefinition.gameEnum == GameEnum.IRACING && currentGameState.PenaltiesData.HasMeatballFlag && !previousGameState.PenaltiesData.HasMeatballFlag)
                 {
-                    audioPlayer.playMessage(new QueuedMessage(folderBlackAndOrangeFlag, 0, abstractEvent: this, priority: 10));                    
+                    audioPlayer.playMessage(new QueuedMessage(folderBlackAndOrangeFlag, 0, abstractEvent: this, priority: 10));
                 }
                 else if (currentGameState.PitData.InPitlane && currentGameState.PitData.OnOutLap && !playedNotServedPenalty &&
                     (currentGameState.PenaltiesData.HasStopAndGo || currentGameState.PenaltiesData.HasDriveThrough))
@@ -580,7 +591,7 @@ namespace CrewChiefV4.Events
                     if (cutMessage != null)
                     {
                         audioPlayer.playMessage(new QueuedMessage(cutMessage, 5, secondsDelay: Utilities.random.Next(2, 4), abstractEvent: this, priority: 10));
-                    }                    
+                    }
                 }
             }
             else if (currentGameState.PositionAndMotionData.CarSpeed > 10 && GlobalBehaviourSettings.cutTrackWarningsEnabled && currentGameState.SessionData.SessionType != SessionType.Race &&
@@ -603,7 +614,7 @@ namespace CrewChiefV4.Events
             else if ((currentGameState.SessionData.SessionType == SessionType.Race || currentGameState.SessionData.SessionType == SessionType.Qualify
                         || currentGameState.SessionData.SessionType == SessionType.Practice || currentGameState.SessionData.SessionType == SessionType.LonePractice)
                     && previousGameState != null && currentGameState.PenaltiesData.NumOutstandingPenalties > 0
-                    && (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT || CrewChief.gameDefinition.gameEnum == GameEnum.ACC ||
+                    && (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT || CrewChief.gameDefinition.gameEnum == GameEnum.ACC || CrewChief.gameDefinition.gameEnum == GameEnum.GTR2 ||
                 (CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM && currentGameState.PenaltiesData.PenaltyType != PenatiesData.DetailedPenaltyType.NONE)))
             {
                 if (currentGameState.PenaltiesData.NumOutstandingPenalties > previousGameState.PenaltiesData.NumOutstandingPenalties)
@@ -616,7 +627,7 @@ namespace CrewChiefV4.Events
                     outstandingPenaltyCause = currentGameState.PenaltiesData.PenaltyCause;
 
                     var message = getPenaltyMessge(outstandingPenaltyType, outstandingPenaltyCause);
-                    audioPlayer.playMessage(new QueuedMessage(message, delay1 + 6, secondsDelay: delay1, abstractEvent: this, priority: 15));
+                    audioPlayer.playMessage(new QueuedMessage(message, delay1 + 10, secondsDelay: delay1, abstractEvent: this, priority: 15));
 
                     // queue a '3 laps to serve penalty' message - this might not get played if player crosses s/f line before
                     audioPlayer.playMessage(new QueuedMessage(folderThreeLapsToServe, delay2 + 6, secondsDelay: delay2, abstractEvent: this, priority: 12));
@@ -626,7 +637,7 @@ namespace CrewChiefV4.Events
                     {
                         penaltyLap = currentGameState.SessionData.CompletedLaps;
                     }
-                    
+
                     hasOutstandingPenalty = true;
                     hasHadAPenalty = true;
                     // don't know if this is for cutting, just in case we reset the cutting enum
@@ -691,6 +702,8 @@ namespace CrewChiefV4.Events
             else
             {
                 clearPenaltyState();
+                // always keep the local cut count up to date even if we've not triggered any warnings.
+                cutTrackWarningsCount = currentGameState.PenaltiesData.CutTrackWarnings;
             }
             if ((currentGameState.SessionData.SessionType == SessionType.Race ||
                 currentGameState.SessionData.SessionType == SessionType.Qualify ||
@@ -700,7 +713,7 @@ namespace CrewChiefV4.Events
                 (previousGameState.PenaltiesData.HasDriveThrough && !currentGameState.PenaltiesData.HasDriveThrough) ||
                 // can't read penalty type in Automobilista (and presumably in rF2).
                 (previousGameState.PenaltiesData.NumOutstandingPenalties > currentGameState.PenaltiesData.NumOutstandingPenalties &&
-                (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT))))
+                (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT || CrewChief.gameDefinition.gameEnum == GameEnum.GTR2))))
             {
                 audioPlayer.playMessage(new QueuedMessage(folderPenaltyServed, 0, abstractEvent: this, priority: 10));
             }
@@ -708,8 +721,10 @@ namespace CrewChiefV4.Events
 
         private void updateCuttingEnum(GameStateData currentGameState)
         {
-            if (currentGameState.SessionData.SessionRunningTime < 60)
+            if (currentGameState.SessionData.SessionRunningTime < 60 || GlobalBehaviourSettings.justTheFacts
+                || GlobalBehaviourSettings.complaintsCountInThisSession >= GlobalBehaviourSettings.maxComplaintsPerSession)
             {
+                trackLimitsMode = TrackLimitsMode.OK;
                 return;
             }
             float cutsPerMinute = (60f * (float)totalAnnouncableCutWarnings) / currentGameState.SessionData.SessionRunningTime;

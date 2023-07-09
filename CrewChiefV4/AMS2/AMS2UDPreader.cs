@@ -411,7 +411,7 @@ namespace CrewChiefV4.AMS2
                     }
                     udpClient.Close();
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
             }
             initialised = false;
         }

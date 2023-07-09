@@ -20,7 +20,7 @@ namespace CrewChiefV4
             ForceablyDeleteDirectory(userConfigFolder);
         }
 
-        /// Depth-first recursive delete, with handling for descendant 
+        /// Depth-first recursive delete, with handling for descendant
         /// directories open in Windows Explorer and other Windows "not doing what its been told" arseholery.
         private static void ForceablyDeleteDirectory(string path)
         {
@@ -47,9 +47,9 @@ namespace CrewChiefV4
         public string initFailedStack = "";
         public string initFailedMessage = "";
 
-        private static  String[] reservedNameStarts = new String[] { "CHANNEL_", "TOGGLE_", "VOICE_OPTION", "background_volume", 
+        private static  String[] reservedNameStarts = new String[] { "CHANNEL_", "TOGGLE_", "VOICE_OPTION", "background_volume",
             "messages_volume", "last_game_definition", "UpdateSettings",ControllerConfiguration.ControllerData.PROPERTY_CONTAINER,
-            "PERSONALISATION_NAME", "app_version", "spotter_name", "codriver_name", "codriver_style", "racing_type", "update_notify_attempted", "last_trace_file_name",
+            "PERSONALISATION_NAME", "app_version", "spotter_name", "codriver_name", "codriver_style", "update_notify_attempted", "last_trace_file_name",
             "NAUDIO_DEVICE_GUID", "NAUDIO_RECORDING_DEVICE_GUID", "chief_name", "current_settings_profile", "main_window_position"};
 
         private static String defaultUserSettingsfileName = "defaultSettings.json";
@@ -69,7 +69,7 @@ namespace CrewChiefV4
 
         public Dictionary<string, object> currentApplicationSettings = new Dictionary<string, object>();
 
-        public void loadActiveUserSettingsProfile(String fileName)
+        public void loadActiveUserSettingsProfile(String fileName, Boolean loadingDefault)
         {
             Boolean settingsProfileBroken = false;
             // Create a user profile with the users current settings if it does not yet exist(new user, first time upgrade to new format, default file deleted)
@@ -117,6 +117,14 @@ namespace CrewChiefV4
             {
                 settingsProfileBroken = true;
             }
+
+            if (settingsProfileBroken
+                && loadingDefault)
+            {
+                Console.WriteLine($"Failed to Load default settings file at: '{fileName}', giving up.");
+                return;
+            }
+
             try
             {
                 if (settingsProfileBroken)
@@ -136,7 +144,7 @@ namespace CrewChiefV4
                     saveUserSettings();
                     currentUserProfileFileName = getString("current_settings_profile");
                     // Load default file
-                    loadActiveUserSettingsProfile(Path.Combine(userProfilesPath, defaultUserSettingsfileName));
+                    loadActiveUserSettingsProfile(fileName:Path.Combine(userProfilesPath, defaultUserSettingsfileName), loadingDefault:true);
                 }
             }
             catch (Exception e)
@@ -170,7 +178,7 @@ namespace CrewChiefV4
             return null;
         }
         public static void saveUserSettingsFile(UserProfileSettings profileSettings, String fileName)
-        {                        
+        {
             if (!Directory.Exists(userProfilesPath))
             {
                 try
@@ -254,29 +262,23 @@ namespace CrewChiefV4
             }
         }
 
-        private UserSettings()
+        /// <summary>
+        /// Load the user settings from either "current_settings_profile"
+        /// or the profile specified in the command line arg -profile <profile name>
+        /// If the command line profile file does not exist use the default
+        /// (not the current) profile instead.
+        /// </summary>
+        internal UserSettings()
         {
             // Set profile from command line '-profile "file name without extension" ...'.  This needs to be
             // done here, because this executes before Main.
-            var commandLineArgs = Environment.GetCommandLineArgs();
-            var profileRequestedFromCommandLine = "";
-            for (int argIdx = 1; argIdx < commandLineArgs.Length; ++argIdx)
-            {
-                var arg = (string)commandLineArgs.GetValue(argIdx);
-                if (arg.StartsWith("-profile", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    // Next argument should specify the desired profile name.
-                    if (argIdx + 1 < commandLineArgs.Length)
-                    {
-                        profileRequestedFromCommandLine = (string)commandLineArgs.GetValue(argIdx + 1);
-                    }
-
-                    break;
-                }
-            }
+            var profileRequestedFromCommandLine = CrewChief.CommandLine.Get("profile");
 
             if (!string.IsNullOrWhiteSpace(profileRequestedFromCommandLine))
             {
+                // Initialise to defaultUserSettingsfileName for the case where
+                // the specified profile does not exist
+                Properties.Settings.Default["current_settings_profile"] = defaultUserSettingsfileName;
                 var files = Directory.GetFiles(userProfilesPath, "*.json", SearchOption.TopDirectoryOnly).ToList();
                 foreach (var file in files)
                 {
@@ -285,15 +287,13 @@ namespace CrewChiefV4
                     {
                         var fileName = Path.GetFileName(file);
                         Properties.Settings.Default["current_settings_profile"] = fileName;
-                        // hmm not sure this will ever get displayed as this init happens before main window is initialized 
-                        Console.WriteLine($"Setting profile ({fileName}.json) from the command line");
                         break;
                     }
                 }
             }
             try
             {
-                // start by checked we can actually read a property value - this will throw an exception if the 
+                // start by checked we can actually read a property value - this will throw an exception if the
                 // user settings in AppData are broken
                 int x = Properties.Settings.Default.main_window_position.X;
 
@@ -329,11 +329,11 @@ namespace CrewChiefV4
 
                 if (!string.IsNullOrWhiteSpace(currentUserProfileFileName))
                 {
-                    loadActiveUserSettingsProfile(Path.Combine(userProfilesPath, currentUserProfileFileName));
+                    loadActiveUserSettingsProfile(fileName: Path.Combine(userProfilesPath, currentUserProfileFileName), loadingDefault: false);
                 }
                 else
                 {
-                    loadActiveUserSettingsProfile(Path.Combine(userProfilesPath, defaultUserSettingsfileName));
+                    loadActiveUserSettingsProfile(fileName: Path.Combine(userProfilesPath, defaultUserSettingsfileName), loadingDefault: true);
                 }
             }
             catch (Exception exception)
@@ -401,36 +401,43 @@ namespace CrewChiefV4
             return props.OrderBy(x => x.Name).ToList();
         }
 
-        private static readonly UserSettings _userSettings = new UserSettings();
+        private static UserSettings _userSettings = new UserSettings();
 
         private Boolean propertiesUpdated = false;
         private Boolean userProfilePropertiesUpdated = false;
 
         public static UserSettings GetUserSettings()
         {
+            if (_userSettings == null)
+            {
+                _userSettings = new UserSettings();
+            }
             return _userSettings;
         }
 
         public String getString(String name)
         {
-            try
+            if (!string.IsNullOrWhiteSpace(name))
             {
-                if (currentActiveProfile.userSettings.TryGetValue(name, out object value))
+                try
                 {
-                    return (String)value;
+                    if (currentActiveProfile.userSettings.TryGetValue(name, out object value))
+                    {
+                        return (String)value;
+                    }
+                    else if (currentApplicationSettings.TryGetValue(name, out value))
+                    {
+                        return (String)value;
+                    }
+                    else
+                    {
+                        return (String)Properties.Settings.Default[name];
+                    }
                 }
-                else if (currentApplicationSettings.TryGetValue(name, out value))
+                catch (Exception)
                 {
-                    return (String)value;
+                    Console.WriteLine("PROPERTY " + name + " NOT FOUND");
                 }
-                else
-                {
-                    return (String)Properties.Settings.Default[name];
-                }                   
-            }
-            catch (Exception)
-            {
-                Console.WriteLine("PROPERTY " + name + " NOT FOUND");
             }
 
             return "";
@@ -458,7 +465,7 @@ namespace CrewChiefV4
             {
                 Console.WriteLine("PROPERTY " + name + " NOT FOUND");
             }
-            
+
             return 0f;
         }
 
@@ -520,7 +527,7 @@ namespace CrewChiefV4
                     if (!value.Equals(currentActiveProfile.userSettings[name]))
                     {
                         userProfilePropertiesUpdated = true;
-                        currentActiveProfile.userSettings[name] = value;                 
+                        currentActiveProfile.userSettings[name] = value;
                     }
                 }
                 else if (!value.Equals(Properties.Settings.Default[name]))
@@ -549,6 +556,45 @@ namespace CrewChiefV4
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Return the settings that have been changed
+        /// </summary>
+        /// <returns>String of lines, one per changed setting</returns>
+        public static string getNonDefaultUserSettings()
+        {
+            string changes = null;
+            string value = null;
+            foreach (SettingsProperty prop in getProperties())
+            {
+                if (currentActiveProfile.userSettings.ContainsKey(prop.Name))
+                {
+                    if (prop.PropertyType == typeof(string))
+                    {
+                        if (prop.DefaultValue.Equals(currentActiveProfile.userSettings[prop.Name]))
+                        {
+                            continue;
+                        }
+                        // Quote strings to show up any white space
+                        value = $"'{currentActiveProfile.userSettings[prop.Name]}'";
+                    }
+                    else
+                    {
+                        if (prop.DefaultValue.Equals(currentActiveProfile.userSettings[prop.Name].ToString()))
+                        {
+                            continue;
+                        }
+                        value = $"{currentActiveProfile.userSettings[prop.Name]}";
+                    }
+                    changes += $"{prop.Name}: {value}\n";
+                }
+                else
+                {
+                    changes += $"Error: '{prop.Name}' not in userSettings\n";
+                }
+            }
+            return changes;
         }
     }
 }

@@ -22,21 +22,43 @@ namespace CrewChiefV4
         private static Dictionary<String, String> SpeechRecognitionConfig = LoadSpeechRecognitionConfig();
         private static Dictionary<String, String> SoundsConfig = LoadSoundsConfig();
 
-        public static String getUIString(String key) {
+        public static String getUIStringMaybeNull(String key, int maxLength = 44)
+        {
             string uiString = null;
-            if (UIStrings.TryGetValue(key, out uiString)) {
+            if (UIStrings.TryGetValue(key, out uiString)) 
+            {
+                if (key.EndsWith("_tooltip") ||
+                    key.EndsWith("_help"))
+                {
+                    return Utilities.Strings.NewlinesInLongString(uiString, maxLength);
+                }
                 return uiString;
             }
             return key;
         }
 
-        public static String getUIStringStrict(String key)
+        public static String getUIString(String key, int maxLength = 44)
+        {
+            string uiString = getUIStringMaybeNull(key, maxLength);
+            if (uiString == null)
+            {
+                Log.Debug($"No UI string for '{key}'");
+            }
+            return uiString;
+        }
+        public static String getUIStringStrict(String key, int maxLength = 44)
         {
             string uiString = null;
             if (UIStrings.TryGetValue(key, out uiString))
             {
+                if (key.EndsWith("_tooltip") ||
+                    key.EndsWith("_help"))
+                {
+                    return Utilities.Strings.NewlinesInLongString(uiString, maxLength);
+                }
                 return uiString;
             }
+            Log.Verbose($"No UI string for '{key}'");
             return null;
         }
 
@@ -60,14 +82,14 @@ namespace CrewChiefV4
             return key;
         }
 
-        public static String[] getSpeechRecognitionPhrases(String key)
+        public static String[] getSpeechRecognitionPhrases(String key, bool loadHomophones = false)
         {
+            List<string> phrasesList = new List<string>();
             string options = null;
             if (SpeechRecognitionConfig.TryGetValue(key, out options))
             {
                 if (options.Contains(":"))
                 {
-                    List<String> phrasesList = new List<string>();
                     var phrases = options.Split(':');
                     for (int i = 0; i < phrases.Length; ++i)
                     {
@@ -77,14 +99,36 @@ namespace CrewChiefV4
                             phrasesList.Add(phrase);
                         }
                     }
-                    return phrasesList.ToArray();
                 }
                 else if (options.Length > 0)
                 {
-                    return new String[] {options};
+                    phrasesList.Add(options);
+                }
+                if (loadHomophones)
+                {
+                    string homophonesOptions = null;
+                    if (SpeechRecognitionConfig.TryGetValue(key + "_HOMOPHONES", out homophonesOptions))
+                    {
+                        if (homophonesOptions.Contains(":"))
+                        {
+                            var phrases = homophonesOptions.Split(':');
+                            for (int i = 0; i < phrases.Length; ++i)
+                            {
+                                String phrase = phrases[i].Trim();
+                                if (phrase.Length > 0)
+                                {
+                                    phrasesList.Add(phrase);
+                                }
+                            }
+                        }
+                        else if (homophonesOptions.Length > 0)
+                        {
+                            phrasesList.Add(homophonesOptions);
+                        }
+                    }
                 }
             }
-            return new String[] {};
+            return phrasesList.ToArray();
         }
 
         public static String getDefaultFileLocation(String filename)
@@ -101,26 +145,28 @@ namespace CrewChiefV4
         {
             String regularPath = Application.StartupPath + @"\" + name;
             String debugPath = Application.StartupPath + @"\..\..\" + name;
+            // Unit tests path:
+            String utPath = Directory.GetCurrentDirectory() + @"\..\..\..\CrewChiefV4\" + name;
             if (CrewChief.UseDebugFilePaths)
             {
                 if (isFile)
                 {
-                    return File.Exists(debugPath) ? debugPath : regularPath;
+                    return File.Exists(debugPath) ? debugPath : File.Exists(regularPath) ? regularPath : utPath;
                 }
                 else
                 {
-                    return Directory.Exists(debugPath) ? debugPath : regularPath;
+                    return Directory.Exists(debugPath) ? debugPath : Directory.Exists(regularPath) ? regularPath : utPath;
                 }
             }
             else
             {
                 if (isFile)
                 {
-                    return File.Exists(regularPath) ? regularPath : debugPath;
+                    return File.Exists(regularPath) ? regularPath : File.Exists(debugPath) ? debugPath : utPath;
                 }
                 else
                 {
-                    return Directory.Exists(regularPath) ? regularPath : debugPath;
+                    return Directory.Exists(regularPath) ? regularPath : Directory.Exists(debugPath) ? debugPath : utPath;
                 }
             }
         }
@@ -199,25 +245,32 @@ namespace CrewChiefV4
             return dict;
         }
 
-        private static void LoadAndMerge(Dictionary<string, string> dict, string language)
+        private static void LoadAndMerge(Dictionary<string, string> dict, string languageFilepath)
         {
-            using (var file = new StreamReader(language))
+            try
             {
-                try
+                using (var file = new StreamReader(languageFilepath))
                 {
-
-                    merge(file, dict);
-                }
-                catch (Exception)
-                {
-                }
-                finally
-                {
-                    if (file != null)
+                    try
                     {
-                        file.Close();
+
+                        merge(file, dict);
+                    }
+                    catch (Exception)
+                    {
+                    }
+                    finally
+                    {
+                        if (file != null)
+                        {
+                            file.Close();
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                Utilities.ReportException(ex, $"Couldn't find language file {languageFilepath}", false);
             }
         }
 

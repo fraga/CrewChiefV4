@@ -59,7 +59,12 @@ namespace CrewChiefV4
             this.textBoxRotationY = new System.Windows.Forms.TextBox();
             this.textBoxRotationX = new System.Windows.Forms.TextBox();
             this.groupBoxScaleTransCurve = new System.Windows.Forms.GroupBox();
+            this.lblTransparentColor = new System.Windows.Forms.Label();
             this.labelGazeScale = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this.lblTransparentTolerance = new System.Windows.Forms.Label();
+            this.txtTransparentColor = new System.Windows.Forms.MaskedTextBox();
+            this.numericTransparencyTolerance = new System.Windows.Forms.NumericUpDown();
             this.trackBarGazeScale = new System.Windows.Forms.TrackBar();
             this.labelGazeTransparency = new System.Windows.Forms.Label();
             this.trackBarGazeTransparency = new System.Windows.Forms.TrackBar();
@@ -69,6 +74,7 @@ namespace CrewChiefV4
             this.labelCurvature = new System.Windows.Forms.Label();
             this.trackBarScale = new System.Windows.Forms.TrackBar();
             this.labelTransparency = new System.Windows.Forms.Label();
+            this.checkBoxTransparentBackground = new System.Windows.Forms.CheckBox();
             this.trackBarCurvature = new System.Windows.Forms.TrackBar();
             this.labelSale = new System.Windows.Forms.Label();
             this.textBoxCurvature = new System.Windows.Forms.TextBox();
@@ -83,6 +89,10 @@ namespace CrewChiefV4
             this.labelToggleKey = new System.Windows.Forms.Label();
             this.comboBoxModifierKeys = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
+            this.comboBoxSetTrackingSpace = new System.Windows.Forms.ComboBox();
+            this.groupBoxTrackingUniverse = new System.Windows.Forms.GroupBox();
+            this.buttonReCenter = new System.Windows.Forms.Button();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.trackBarPositionX)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarPositionY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarPositionZ)).BeginInit();
@@ -92,11 +102,13 @@ namespace CrewChiefV4
             ((System.ComponentModel.ISupportInitialize)(this.trackBarRotationZ)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarRotationY)).BeginInit();
             this.groupBoxScaleTransCurve.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericTransparencyTolerance)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarGazeScale)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarGazeTransparency)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarScale)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarCurvature)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarTransparency)).BeginInit();
+            this.groupBoxTrackingUniverse.SuspendLayout();
             this.SuspendLayout();
             // 
             // timer5sec
@@ -227,7 +239,7 @@ namespace CrewChiefV4
             // 
             // buttonSaveSettings
             // 
-            this.buttonSaveSettings.Location = new System.Drawing.Point(673, 412);
+            this.buttonSaveSettings.Location = new System.Drawing.Point(669, 508);
             this.buttonSaveSettings.Name = "buttonSaveSettings";
             this.buttonSaveSettings.Size = new System.Drawing.Size(136, 23);
             this.buttonSaveSettings.TabIndex = 9;
@@ -257,7 +269,7 @@ namespace CrewChiefV4
             this.groupBoxRotation.Controls.Add(this.textBoxRotationX);
             this.groupBoxRotation.Location = new System.Drawing.Point(213, 232);
             this.groupBoxRotation.Name = "groupBoxRotation";
-            this.groupBoxRotation.Size = new System.Drawing.Size(295, 203);
+            this.groupBoxRotation.Size = new System.Drawing.Size(295, 221);
             this.groupBoxRotation.TabIndex = 4;
             this.groupBoxRotation.TabStop = false;
             this.groupBoxRotation.Text = "vr_overlay_rotation";
@@ -356,7 +368,12 @@ namespace CrewChiefV4
             // 
             // groupBoxScaleTransCurve
             // 
+            this.groupBoxScaleTransCurve.Controls.Add(this.lblTransparentColor);
             this.groupBoxScaleTransCurve.Controls.Add(this.labelGazeScale);
+            this.groupBoxScaleTransCurve.Controls.Add(this.label1);
+            this.groupBoxScaleTransCurve.Controls.Add(this.lblTransparentTolerance);
+            this.groupBoxScaleTransCurve.Controls.Add(this.txtTransparentColor);
+            this.groupBoxScaleTransCurve.Controls.Add(this.numericTransparencyTolerance);
             this.groupBoxScaleTransCurve.Controls.Add(this.trackBarGazeScale);
             this.groupBoxScaleTransCurve.Controls.Add(this.labelGazeTransparency);
             this.groupBoxScaleTransCurve.Controls.Add(this.trackBarGazeTransparency);
@@ -366,6 +383,7 @@ namespace CrewChiefV4
             this.groupBoxScaleTransCurve.Controls.Add(this.labelCurvature);
             this.groupBoxScaleTransCurve.Controls.Add(this.trackBarScale);
             this.groupBoxScaleTransCurve.Controls.Add(this.labelTransparency);
+            this.groupBoxScaleTransCurve.Controls.Add(this.checkBoxTransparentBackground);
             this.groupBoxScaleTransCurve.Controls.Add(this.trackBarCurvature);
             this.groupBoxScaleTransCurve.Controls.Add(this.labelSale);
             this.groupBoxScaleTransCurve.Controls.Add(this.textBoxCurvature);
@@ -374,10 +392,18 @@ namespace CrewChiefV4
             this.groupBoxScaleTransCurve.Controls.Add(this.textBoxScale);
             this.groupBoxScaleTransCurve.Location = new System.Drawing.Point(514, 25);
             this.groupBoxScaleTransCurve.Name = "groupBoxScaleTransCurve";
-            this.groupBoxScaleTransCurve.Size = new System.Drawing.Size(295, 356);
+            this.groupBoxScaleTransCurve.Size = new System.Drawing.Size(295, 428);
             this.groupBoxScaleTransCurve.TabIndex = 5;
             this.groupBoxScaleTransCurve.TabStop = false;
             this.groupBoxScaleTransCurve.Text = "vr_overlay_scale_trans_curve";
+            // 
+            // lblTransparentColor
+            // 
+            this.lblTransparentColor.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.lblTransparentColor.Location = new System.Drawing.Point(77, 390);
+            this.lblTransparentColor.Name = "lblTransparentColor";
+            this.lblTransparentColor.Size = new System.Drawing.Size(51, 20);
+            this.lblTransparentColor.TabIndex = 31;
             // 
             // labelGazeScale
             // 
@@ -387,6 +413,54 @@ namespace CrewChiefV4
             this.labelGazeScale.Size = new System.Drawing.Size(76, 13);
             this.labelGazeScale.TabIndex = 26;
             this.labelGazeScale.Text = "vr_gaze_scale";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(10, 374);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(104, 13);
+            this.label1.TabIndex = 27;
+            this.label1.Text = "vr_transparent_color";
+            // 
+            // lblTransparentTolerance
+            // 
+            this.lblTransparentTolerance.AutoSize = true;
+            this.lblTransparentTolerance.Location = new System.Drawing.Point(155, 374);
+            this.lblTransparentTolerance.Name = "lblTransparentTolerance";
+            this.lblTransparentTolerance.Size = new System.Drawing.Size(125, 13);
+            this.lblTransparentTolerance.TabIndex = 29;
+            this.lblTransparentTolerance.Text = "vr_transparent_tolerance";
+            // 
+            // txtTransparentColor
+            // 
+            this.txtTransparentColor.Location = new System.Drawing.Point(11, 390);
+            this.txtTransparentColor.Mask = "\\#AAAAAA";
+            this.txtTransparentColor.Name = "txtTransparentColor";
+            this.txtTransparentColor.Size = new System.Drawing.Size(60, 20);
+            this.txtTransparentColor.TabIndex = 26;
+            this.txtTransparentColor.ValidatingType = typeof(CrewChiefV4.VROverlaySettings.HexColorValidator);
+            this.txtTransparentColor.TypeValidationCompleted += new System.Windows.Forms.TypeValidationEventHandler(this.txtTransparentColor_TypeValidationCompleted);
+            this.txtTransparentColor.TextChanged += new System.EventHandler(this.txtTransparentColor_TextChanged);
+            // 
+            // numericTransparencyTolerance
+            // 
+            this.numericTransparencyTolerance.DecimalPlaces = 2;
+            this.numericTransparencyTolerance.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            65536});
+            this.numericTransparencyTolerance.Location = new System.Drawing.Point(158, 390);
+            this.numericTransparencyTolerance.Maximum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numericTransparencyTolerance.Name = "numericTransparencyTolerance";
+            this.numericTransparencyTolerance.Size = new System.Drawing.Size(63, 20);
+            this.numericTransparencyTolerance.TabIndex = 30;
+            this.numericTransparencyTolerance.ValueChanged += new System.EventHandler(this.numericTransparencyTolerance_ValueChanged);
             // 
             // trackBarGazeScale
             // 
@@ -482,6 +556,18 @@ namespace CrewChiefV4
             this.labelTransparency.Size = new System.Drawing.Size(83, 13);
             this.labelTransparency.TabIndex = 18;
             this.labelTransparency.Text = "vr_transparency";
+            // 
+            // checkBoxTransparentBackground
+            // 
+            this.checkBoxTransparentBackground.AutoSize = true;
+            this.checkBoxTransparentBackground.Location = new System.Drawing.Point(7, 355);
+            this.checkBoxTransparentBackground.Margin = new System.Windows.Forms.Padding(2);
+            this.checkBoxTransparentBackground.Name = "checkBoxTransparentBackground";
+            this.checkBoxTransparentBackground.Size = new System.Drawing.Size(157, 17);
+            this.checkBoxTransparentBackground.TabIndex = 25;
+            this.checkBoxTransparentBackground.Text = "vr_transparent_background";
+            this.checkBoxTransparentBackground.UseVisualStyleBackColor = true;
+            this.checkBoxTransparentBackground.CheckedChanged += new System.EventHandler(this.checkBoxTransparentBackground_CheckedChanged);
             // 
             // trackBarCurvature
             // 
@@ -619,11 +705,46 @@ namespace CrewChiefV4
             this.label2.TabIndex = 20;
             this.label2.Text = "+";
             // 
+            // comboBoxSetTrackingSpace
+            // 
+            this.comboBoxSetTrackingSpace.FormattingEnabled = true;
+            this.comboBoxSetTrackingSpace.Location = new System.Drawing.Point(4, 20);
+            this.comboBoxSetTrackingSpace.Margin = new System.Windows.Forms.Padding(2);
+            this.comboBoxSetTrackingSpace.Name = "comboBoxSetTrackingSpace";
+            this.comboBoxSetTrackingSpace.Size = new System.Drawing.Size(124, 21);
+            this.comboBoxSetTrackingSpace.TabIndex = 21;
+            this.comboBoxSetTrackingSpace.SelectedIndexChanged += new System.EventHandler(this.comboBoxSetTrackingSpace_SelectedIndexChanged);
+            // 
+            // groupBoxTrackingUniverse
+            // 
+            this.groupBoxTrackingUniverse.Controls.Add(this.buttonReCenter);
+            this.groupBoxTrackingUniverse.Controls.Add(this.comboBoxSetTrackingSpace);
+            this.groupBoxTrackingUniverse.Location = new System.Drawing.Point(514, 458);
+            this.groupBoxTrackingUniverse.Margin = new System.Windows.Forms.Padding(2);
+            this.groupBoxTrackingUniverse.Name = "groupBoxTrackingUniverse";
+            this.groupBoxTrackingUniverse.Padding = new System.Windows.Forms.Padding(2);
+            this.groupBoxTrackingUniverse.Size = new System.Drawing.Size(295, 45);
+            this.groupBoxTrackingUniverse.TabIndex = 24;
+            this.groupBoxTrackingUniverse.TabStop = false;
+            this.groupBoxTrackingUniverse.Text = "vr_tracking_universe_overwrite";
+            // 
+            // buttonReCenter
+            // 
+            this.buttonReCenter.Location = new System.Drawing.Point(152, 17);
+            this.buttonReCenter.Margin = new System.Windows.Forms.Padding(2);
+            this.buttonReCenter.Name = "buttonReCenter";
+            this.buttonReCenter.Size = new System.Drawing.Size(139, 24);
+            this.buttonReCenter.TabIndex = 22;
+            this.buttonReCenter.Text = "vr_recenter_pose";
+            this.buttonReCenter.UseVisualStyleBackColor = true;
+            this.buttonReCenter.Click += new System.EventHandler(this.buttonReCenter_Click);
+            // 
             // VROverlaySettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(823, 449);
+            this.ClientSize = new System.Drawing.Size(823, 544);
+            this.Controls.Add(this.groupBoxTrackingUniverse);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.comboBoxModifierKeys);
             this.Controls.Add(this.labelToggleKey);
@@ -655,11 +776,13 @@ namespace CrewChiefV4
             ((System.ComponentModel.ISupportInitialize)(this.trackBarRotationY)).EndInit();
             this.groupBoxScaleTransCurve.ResumeLayout(false);
             this.groupBoxScaleTransCurve.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericTransparencyTolerance)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarGazeScale)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarGazeTransparency)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarScale)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarCurvature)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarTransparency)).EndInit();
+            this.groupBoxTrackingUniverse.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -715,5 +838,15 @@ namespace CrewChiefV4
         private System.Windows.Forms.Label labelToggleKey;
         private System.Windows.Forms.ComboBox comboBoxModifierKeys;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.ComboBox comboBoxSetTrackingSpace;
+        private System.Windows.Forms.GroupBox groupBoxTrackingUniverse;
+        private System.Windows.Forms.Button buttonReCenter;
+        private System.Windows.Forms.CheckBox checkBoxTransparentBackground;
+        private System.Windows.Forms.MaskedTextBox txtTransparentColor;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label lblTransparentTolerance;
+        private System.Windows.Forms.NumericUpDown numericTransparencyTolerance;
+        private System.Windows.Forms.Label lblTransparentColor;
+        private System.Windows.Forms.ToolTip toolTip1;
     }
 }

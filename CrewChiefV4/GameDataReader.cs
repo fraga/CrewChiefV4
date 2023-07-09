@@ -43,22 +43,25 @@ namespace CrewChiefV4
             else
             {
                 dataFilesPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4", "debugLogs");
-                try
-                {
-                    System.IO.Directory.CreateDirectory(dataFilesPath);
-                }
-                catch (Exception)
-                {
-                    Console.WriteLine("Unable to create folder for data file, no session record will be available");
-                    dataFilesPath = null;
-                }
+            }
+            try
+            {
+                System.IO.Directory.CreateDirectory(dataFilesPath);
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Unable to create folder for data file, no session record will be available");
+                dataFilesPath = null;
             }
         }
 
         // NOTE: InitialiseInternal must be synchronized internally.
         public Boolean Initialise()
         {
-            Console.WriteLine("Initialising...");
+            if (CrewChief.gameDefinition.gameEnum != GameEnum.NONE)
+            {
+                Console.WriteLine("Initialising...");
+            }
             Boolean initialised = InitialiseInternal();
             if (dataFilesPath == null)
             {

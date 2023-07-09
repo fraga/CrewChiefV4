@@ -101,19 +101,19 @@ namespace CrewChiefV4.assetto
                 {
                     try
                     {
-                        memoryMappedPhysicsFile = MemoryMappedFile.OpenExisting(assettoConstant.SharedMemoryNamePhysics);
+                        memoryMappedPhysicsFile = MemoryMappedFile.OpenExisting(assettoConstant.SharedMemoryNamePhysics, MemoryMappedFileRights.Read);
                         sharedmemoryPhysicssize = Marshal.SizeOf(typeof(SPageFilePhysics));
                         sharedMemoryPhysicsReadBuffer = new byte[sharedmemoryPhysicssize];
 
-                        memoryMappedGraphicFile = MemoryMappedFile.OpenExisting(assettoConstant.SharedMemoryNameGraphic);
+                        memoryMappedGraphicFile = MemoryMappedFile.OpenExisting(assettoConstant.SharedMemoryNameGraphic, MemoryMappedFileRights.Read);
                         sharedmemoryGraphicsize = Marshal.SizeOf(typeof(SPageFileGraphic));
                         sharedMemoryGraphicReadBuffer = new byte[sharedmemoryGraphicsize];
 
-                        memoryMappedStaticFile = MemoryMappedFile.OpenExisting(assettoConstant.SharedMemoryNameStatic);
+                        memoryMappedStaticFile = MemoryMappedFile.OpenExisting(assettoConstant.SharedMemoryNameStatic, MemoryMappedFileRights.Read);
                         sharedmemoryStaticsize = Marshal.SizeOf(typeof(SPageFileStatic));
                         sharedMemoryStaticReadBuffer = new byte[sharedmemoryStaticsize];
                         
-                        memoryMappedCrewChiefFile = MemoryMappedFile.OpenExisting(assettoConstant.SharedMemoryNameCrewChief);
+                        memoryMappedCrewChiefFile = MemoryMappedFile.OpenExisting(assettoConstant.SharedMemoryNameCrewChief, MemoryMappedFileRights.Read);
                         sharedmemoryCrewChiefsize = Marshal.SizeOf(typeof(SPageFileCrewChief));
                         sharedMemoryCrewChiefReadBuffer = new byte[sharedmemoryCrewChiefsize];
 
@@ -148,7 +148,7 @@ namespace CrewChiefV4.assetto
                 {
                     if(!forSpotter)
                     {
-                        using (var sharedMemoryStreamView = memoryMappedStaticFile.CreateViewStream())
+                        using (var sharedMemoryStreamView = memoryMappedStaticFile.CreateViewStream(0, sharedmemoryStaticsize, MemoryMappedFileAccess.Read))
                         {
                             BinaryReader _SharedMemoryStream = new BinaryReader(sharedMemoryStreamView);
                             sharedMemoryStaticReadBuffer = _SharedMemoryStream.ReadBytes(sharedmemoryStaticsize);
@@ -157,7 +157,7 @@ namespace CrewChiefV4.assetto
                             handleStatic.Free();
                         }
                     }
-                    using (var sharedMemoryStreamView = memoryMappedGraphicFile.CreateViewStream())
+                    using (var sharedMemoryStreamView = memoryMappedGraphicFile.CreateViewStream(0, sharedmemoryGraphicsize, MemoryMappedFileAccess.Read))
                     {
                         BinaryReader _SharedMemoryStream = new BinaryReader(sharedMemoryStreamView);
                         sharedMemoryGraphicReadBuffer = _SharedMemoryStream.ReadBytes(sharedmemoryGraphicsize);
@@ -165,7 +165,7 @@ namespace CrewChiefV4.assetto
                         acsShared.acsGraphic = (SPageFileGraphic)Marshal.PtrToStructure(handleGraphic.AddrOfPinnedObject(), typeof(SPageFileGraphic));
                         handleGraphic.Free();
                     }
-                    using (var sharedMemoryStreamView = memoryMappedPhysicsFile.CreateViewStream())
+                    using (var sharedMemoryStreamView = memoryMappedPhysicsFile.CreateViewStream(0, sharedmemoryPhysicssize, MemoryMappedFileAccess.Read))
                     {
                         BinaryReader _SharedMemoryStream = new BinaryReader(sharedMemoryStreamView);
                         sharedMemoryPhysicsReadBuffer = _SharedMemoryStream.ReadBytes(sharedmemoryPhysicssize);
@@ -173,7 +173,7 @@ namespace CrewChiefV4.assetto
                         acsShared.acsPhysics = (SPageFilePhysics)Marshal.PtrToStructure(handlePhysics.AddrOfPinnedObject(), typeof(SPageFilePhysics));
                         handlePhysics.Free();
                     }
-                    using (var sharedMemoryStreamView = memoryMappedCrewChiefFile.CreateViewStream())
+                    using (var sharedMemoryStreamView = memoryMappedCrewChiefFile.CreateViewStream(0, sharedmemoryCrewChiefsize, MemoryMappedFileAccess.Read))
                     {
                         BinaryReader _SharedMemoryStream = new BinaryReader(sharedMemoryStreamView);
                         sharedMemoryCrewChiefReadBuffer = _SharedMemoryStream.ReadBytes(sharedmemoryCrewChiefsize);
@@ -225,7 +225,7 @@ namespace CrewChiefV4.assetto
                     memoryMappedPhysicsFile.Dispose();
                     memoryMappedPhysicsFile = null;
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
             }
             if (memoryMappedGraphicFile != null)
             {
@@ -234,7 +234,7 @@ namespace CrewChiefV4.assetto
                     memoryMappedGraphicFile.Dispose();
                     memoryMappedGraphicFile = null;
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
             }
             if (memoryMappedStaticFile != null)
             {
@@ -243,7 +243,7 @@ namespace CrewChiefV4.assetto
                     memoryMappedStaticFile.Dispose();
                     memoryMappedStaticFile = null;
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
             }
             if (memoryMappedCrewChiefFile != null)
             {
@@ -252,7 +252,7 @@ namespace CrewChiefV4.assetto
                     memoryMappedCrewChiefFile.Dispose();
                     memoryMappedCrewChiefFile = null;
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
             }
             initialised = false;
         }

@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 using PitMenuAPI;
 
 // Pit stop texts
@@ -40,49 +43,80 @@ using PitMenuAPI;
 // R WING:
 // REAR DF:
 //
+// Player.JSON entries relevant to the Pit Menu:
 //"Relative Fuel Strategy":false,
 //"Relative Fuel Strategy#":"Show how much fuel to ADD, rather than how much TOTAL fuel to fill the tank up to (note: new default is true)",
+//      Pit Manager handles true or false
 //"Smart Pitcrew":true,
 //"Smart Pitcrew#":"Pitcrew does things even if you mistakenly forgot to ask (one example is changing a damaged tire)",
+//      Doesn't affect Pit Manager
 
 namespace CrewChiefV4.PitManager
 {
-    internal class PitManagerEventHandlers_RF2
+    public class PitManagerEventHandlers_RF2 // public for unit testing
     {
         private static readonly PitMenuAbstractionLayer Pmal = new PitMenuAbstractionLayer();
 
-        #region Private Fields
+        #region Public struct
+#pragma warning disable S3925 // "ISerializable" should be implemented correctly
+        public class TyreDictionary : Dictionary<string, List<string>>
+#pragma warning restore S3925 // "ISerializable" should be implemented correctly
+        {
+            public TyreDictionary()
+            {
+                TyreTranslationDict = new Dictionary<string, List<string>>();
+            }
+            public Dictionary<string, List<string>> TyreTranslationDict
+            {
+                get; set;
+            }
+        }
+        #endregion Public struct
 
+        public static class FuelVoiceCommand
+        {
+            private static bool _fuelVoiceCommandGiven = false;
+
+            public static bool Given
+            {
+                get { return _fuelVoiceCommandGiven; }
+                set { _fuelVoiceCommandGiven = value; }
+            }
+        }
+        #region Private field made Public for unit testing
         // Complicated because rF2 has many names for tyres so use a dict of
         // possible alternative names for each type
         // Each entry has a list of possible matches in declining order
-        // Sample:
-        private static readonly Dictionary<string, List<string>> SampleTyreTranslationDict =
-          new Dictionary<string, List<string>>() {
-            { "Hypersoft",    new List <string> {"hypersoft", "ultrasoft", "supersoft", "soft",
-                        "s310", "slick", "dry", "all-weather", "medium" } },
-            { "Ultrasoft",    new List <string> {"ultrasoft","hypersoft", "supersoft", "soft",
-                        "s310", "slick", "dry", "all-weather", "medium" } },
-            { "Supersoft",    new List <string> {"supersoft", "hypersoft", "ultrasoft", "soft",
-                        "s310", "slick", "dry", "all-weather", "medium" } },
-            { "Soft",         new List <string> {"soft",
-                        "s310", "slick", "dry", "all-weather", "medium" } },
-            { "Medium",       new List <string> { "medium", "default",
-                        "s310", "slick", "dry", "all-weather" } },
-            { "Hard",         new List <string> {"hard", "p310", "endur",
+        // This is the default dict which is loaded into MyDocuments\CrewChiefV4\rF2\TyreDictionary.json
+        // The user can edit that file to add new names if required
+        public static readonly TyreDictionary SampleTyreTranslationDict =
+          new TyreDictionary() {
+            { "Hypersoft",    new List <string> {"hypersoft", "c1", "ultrasoft", "supersoft", "soft", "alternates",
+                        "s310", "slick", "dry", "race", "allweather", "medium" } },
+            { "Ultrasoft",    new List <string> {"ultrasoft","c1", "hypersoft", "supersoft", "soft", "alternates",
+                        "s310", "slick", "dry", "race", "allweather", "medium" } },
+            { "Supersoft",    new List <string> {"supersoft", "c2", "hypersoft", "ultrasoft", "soft", "alternates",
+                        "s310", "slick", "dry", "race", "allweather", "medium" } },
+            { "Soft",         new List <string> {"soft", "c3", "alternates",
+                        "s310", "slick", "dry", "race", "allweather", "medium" } },
+            { "Medium",       new List <string> { "medium", "c4", "default",
+                        "s310", "slick", "dry", "race", "allweather" } },
+            { "Hard",         new List <string> {"hard", "c5", "p310", "endur", "primary",
                         "medium", "default",
-                                "slick", "dry", "all-weather" } },
-            { "Intermediate", new List <string> { "intermediate",
-                        "wet", "rain", "monsoon", "all-weather" } },
+                                "slick", "dry", "race", "allweather" } },
+            { "Intermediate", new List <string> { "intermediate", "inter", "inters",
+                        "wet", "rain", "monsoon", "allweather" } },
             { "Wet",          new List <string> {
-                        "wet", "rain", "monsoon", "all-weather", "intermediate" } },
+                        "wet", "rain", "monsoon", "allweather", "intermediate", "inter", "inters" } },
             { "Monsoon",      new List <string> {"monsoon",
-                        "wet", "rain",  "all-weather", "intermediate" } },
+                        "wet", "rain",  "allweather", "intermediate", "inter", "inters" } },
             { "No Change",    new List <string> {"no change"} }
             };
+        #endregion Private field made Public for unit testing
 
-        static private Dictionary<string, List<string>> tyreTranslationDict =
-                    SampleTyreTranslationDict;
+        #region Private Fields
+        static private TyreDictionary tyreTranslationDict =
+                    TyreDictFile.getTyreDictionaryFromFile();
 
         static private CurrentRf2TyreType currentRf2TyreType = new CurrentRf2TyreType();
 
@@ -92,7 +126,7 @@ namespace CrewChiefV4.PitManager
 
         /// <summary>
         /// Take a list of tyre types available in the menu and map them on to
-        /// the set of generic tyre types
+        /// the set of cc tyre types
         /// Hypersoft
         /// Ultrasoft
         /// Supersoft
@@ -108,6 +142,9 @@ namespace CrewChiefV4.PitManager
         /// Check the first list item for each key in tyreDict
         /// if the word is in inMenu then that key is DONE
         /// if not, check the 2nd list item
+        /// If there are no exact matches in the whole dictionary then see if
+        /// one of the tyre dict values is a sub-string of one of the game's entries
+        /// e.g. "soft" in "Soft COMPOUND"
         /// </summary>
         /// <param name="tyreDict">
         /// The dict used for translation
@@ -116,39 +153,71 @@ namespace CrewChiefV4.PitManager
         /// The list returned by GetTyreTypes()
         /// </param>
         /// <returns>
-        /// Dictionary mapping generic tyre types to names of those available
+        /// Dictionary mapping CC tyre types to names of those available
         /// </returns>
         public static Dictionary<string, string> TranslateTyreTypes(
-          Dictionary<string, List<string>> tyreDict,
+          TyreDictionary tyreDict,
           List<string> inMenu)
         {
             Dictionary<string, string> result = new Dictionary<string, string>();
+            inMenu.Remove("No Change");
             int columnCount = 1; // will increase
 
-            for (var col = 0; col < columnCount; col++)
-            {
-                foreach (var genericTyretype in tyreDict)
-                { // "Hypersoft", "Ultrasoft", "Supersoft", "Soft"...
-                    foreach (var availableTyretype in inMenu)
-                    {  // Tyre type in the menu
-                        if (genericTyretype.Value.Count > columnCount)
-                        {
-                            columnCount = genericTyretype.Value.Count;
-                        }
-                        if (col < genericTyretype.Value.Count)
-                        {
-                            var tyreName = genericTyretype.Value[col];
-                            // Type that generic type can match to
-                            if (availableTyretype.IndexOf(tyreName, StringComparison.OrdinalIgnoreCase) >= 0)
-                            {
-                                if (!result.ContainsKey(genericTyretype.Key))
+            for (var run = 0; run < 2; run++)
+            {   // run = 0, exact match; run = 1, any matching word
+                for (var col = 0; col < columnCount; col++)
+                {
+                    foreach (var ccTyreType in tyreDict)
+                    { // "Hypersoft", "Ultrasoft", "Supersoft", "Soft"...
+                        if (!result.ContainsKey(ccTyreType.Key))
+                        { // Didn't match in run 0
+                            foreach (var rF2TyreType in inMenu)
+                            {  // Tyre type in the menu
+                                if (ccTyreType.Value.Count > columnCount)
                                 {
-                                    result[genericTyretype.Key] = availableTyretype;
-                                    break;
+                                    columnCount = ccTyreType.Value.Count;
+                                }
+                                if (col < ccTyreType.Value.Count)
+                                {
+                                    var dictTyreName = ccTyreType.Value[col];
+                                    // Normalise the rF2 tyre type name by removing spaces and -
+                                    var normalisedRf2TyreType = Regex.Replace(rF2TyreType, " |-|_", "");
+                                    if (run == 0)
+                                    {
+                                        if (normalisedRf2TyreType.Length == dictTyreName.Length &&
+                                            normalisedRf2TyreType.IndexOf(dictTyreName, StringComparison.OrdinalIgnoreCase) >= 0)
+                                        {
+#pragma warning disable S1066
+                                            if (!result.ContainsKey(ccTyreType.Key))
+                                            {
+                                                result[ccTyreType.Key] = rF2TyreType;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // Didn't find an exact match, see if dictTyreName
+                                        // is in one of the menu items, e.g. "soft" in "Soft COMPOUND"
+                                        if (normalisedRf2TyreType.IndexOf(dictTyreName, StringComparison.OrdinalIgnoreCase) >= 0)
+                                        {
+                                            // (Already checked that it's not in result)
+                                            result[ccTyreType.Key] = rF2TyreType;
+                                            break;
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
+                }
+            }
+            foreach (var ccTyretype in tyreDict)
+            {
+                if (!result.ContainsKey(ccTyretype.Key))
+                {
+                // Still didn't match, give it something
+                result[ccTyretype.Key] = inMenu[0];
                 }
             }
             return result;
@@ -160,8 +229,13 @@ namespace CrewChiefV4.PitManager
         static public bool PMrF2eh_initialise(string __)
         {
             Pmal.PmalConnect();
-            currentRf2TyreType.Set(Pmal.GetTyreTypeNames()[0]);
+            List<string> tyreTypeNames = Pmal.GetTyreTypeNames();
+            currentRf2TyreType.Set(tyreTypeNames[0]);
             Log.Commentary("Pit Manager initialise");
+            foreach (var tyre in tyreTypeNames)
+            {
+                Log.Commentary($"Tyre type '{tyre}'");
+            }
             return true;
         }
         static public bool PMrF2eh_teardown(string __)
@@ -175,7 +249,8 @@ namespace CrewChiefV4.PitManager
         /// </summary>
         static public bool PMrF2eh_prepareToUseMenu(string __)
         {
-            PitMenu.startUsingPitMenu();
+            PitMenu pm = new PitMenu();
+            pm.startUsingPitMenu();
             return true;
         }
 
@@ -218,9 +293,19 @@ namespace CrewChiefV4.PitManager
             return setTyreCompound("Hypersoft");
         }
 
+        static public bool PMrF2eh_TyreCompoundIntermediate(string __)
+        {
+            return setTyreCompound("Intermediate");
+        }
+
         static public bool PMrF2eh_TyreCompoundWet(string __)
         {
             return setTyreCompound("Wet");
+        }
+
+        static public bool PMrF2eh_TyreCompoundMonsoon(string __)
+        {
+            return setTyreCompound("Monsoon");
         }
 
         static public bool PMrF2eh_TyreCompoundOption(string __)
@@ -243,7 +328,6 @@ namespace CrewChiefV4.PitManager
             // Select the next compound available for this car
             // Get the current tyre type
             // Get the list of tyre type, remove "No Change"
-            bool response = false;
             List<string> tyreTypes = Pmal.GetTyreTypeNames();
             tyreTypes.Remove("No Change");
             string currentTyreTypeStr = Pmal.GetCurrentTyreType();
@@ -251,7 +335,6 @@ namespace CrewChiefV4.PitManager
             int currentTyreTypeIndex = tyreTypes.IndexOf(currentTyreTypeStr) + 1;
             if (currentTyreTypeIndex >= tyreTypes.Count)
                 currentTyreTypeIndex = 0;
-            response = true;
             currentRf2TyreType.Set(tyreTypes[currentTyreTypeIndex]);
             return PMrF2eh_changeAllTyres(null);
         }
@@ -342,6 +425,7 @@ namespace CrewChiefV4.PitManager
             {
                 amount = (int)PitManagerVoiceCmds.getFuelCapacity();
             }
+            FuelVoiceCommand.Given = true;
             return rF2SetFuel(amount + current);
         }
         static public bool PMrF2eh_FuelAddXlitres(string voiceMessage)
@@ -355,22 +439,20 @@ namespace CrewChiefV4.PitManager
 
         static public bool PMrF2eh_FuelToEnd(string __)
         {
-            if (UserSettings.GetUserSettings().getBoolean("rf2_enable_auto_fuel_to_end_of_race"))
-            {   // Ignore the voice command if we're going to do it automatically
-                return false;
-            }
             var litresNeeded = PitFuelling.fuelToEnd(
                 PitManagerVoiceCmds.getFuelCapacity(),
                 PitManagerVoiceCmds.getCurrentFuel());
-            if (litresNeeded == 0)
+            if (litresNeeded < 0)
             {
-                return false;
+                return true;    // Couldn't calculate
             }
+            FuelVoiceCommand.Given = true;
             return rF2SetFuel(litresNeeded);
         }
 
         static public bool PMrF2eh_FuelNone(string __)
         {
+            FuelVoiceCommand.Given = true;
             return rF2SetFuel(1);
         }
 
@@ -474,24 +556,80 @@ namespace CrewChiefV4.PitManager
 
         #endregion Public Methods
 
+        #region MFD
+        static string currentMFD = "MFDF";
+        static private bool changeMFD(string mfd)
+        {
+            if (Pmal.MfdPage(mfd))
+            {
+                currentMFD = mfd;
+                Log.Commentary($"Displaying {currentMFD}");
+                return true;
+            }
+            return false;
+        }
+        static public bool PMrF2eh_DisplaySectors(string __)
+        {
+            return changeMFD("MFDA");
+        }
+        static public bool PMrF2eh_DisplayPitMenu(string __)
+        {
+            return changeMFD("MFDB");
+        }
+        static public bool PMrF2eh_DisplayTyres(string __)
+        {
+            return changeMFD("MFDC");
+        }
+        // MFDD is Driving Aids, not worth a command
+        static public bool PMrF2eh_DisplayTemps(string __)
+        {
+            return changeMFD("MFDE");
+        }
+        static public bool PMrF2eh_DisplayRaceInfo(string __)
+        {
+            return changeMFD("MFDF");
+        }
+        static public bool PMrF2eh_DisplayStandings(string __)
+        {
+            return changeMFD("MFDG");
+        }
+        static public bool PMrF2eh_DisplayPenalties(string __)
+        {
+            return changeMFD("MFDH");
+        }
+        /// <summary>
+        /// Display the next MFD screen
+        /// </summary>
+        static public bool PMrF2eh_DisplayNext(string __)
+        {
+            var lastLetter = currentMFD[currentMFD.Length - 1] + 1;
+            if (lastLetter == 'I')
+            {
+                lastLetter = 'A';
+            }
+            return changeMFD("MFD" + (char)lastLetter);
+        }
+        #endregion MFD
+
         #region Private Methods
 
         /// <summary>
-        /// Set the current tyre compound
+        /// Set the current tyre compound and fit them
         /// </summary>
-        /// <param name="genericTyreType">Soft / Medium / Wet etc.</param>
+        /// <param name="ccTyreType">Soft / Medium / Wet etc.</param>
         /// <returns></returns>
-        static private bool setTyreCompound(string genericTyreType)
+        static private bool setTyreCompound(string ccTyreType)
         {
             var inMenu = Pmal.GetTyreTypeNames();
             var result = TranslateTyreTypes(tyreTranslationDict, inMenu);
-            if (!result.ContainsKey(genericTyreType))
+            if (!result.ContainsKey(ccTyreType))
             {   // Didn't find a match
                 PitManagerResponseHandlers.PMrh_TyreCompoundNotAvailable();
                 return false;
             }
 
-            currentRf2TyreType.Set(result[genericTyreType]);
+            currentRf2TyreType.Set(result[ccTyreType]);
+            Log.Commentary($"Fitting {result[ccTyreType]}");
             return PMrF2eh_changeAllTyres(null);
         }
 
@@ -511,10 +649,10 @@ namespace CrewChiefV4.PitManager
                 response = Pmal.SetCategoryAndChoice(tyreCategory, tyreType);
                 if (response)
                 {
-                    // dict is the other direction currentGenericTyreCompound = ttDict[tyreType];
+                    // dict is the other direction currentccTyreCompound = ttDict[tyreType];
                     if (CrewChief.Debugging)
                     {
-                        Log.Commentary("Pit Manager tyre compound set to (" +
+                        Log.Info("Pit Manager tyre compound set to (" +
                             tyreCategory + ") " + tyreType);
                     }
                 }
@@ -525,7 +663,7 @@ namespace CrewChiefV4.PitManager
             }
             else
             {   // Category is not available
-                PitManagerResponseHandlers.PMrh_CantDoThat();
+                PitManagerResponseHandlers.PMrh_CantChangeThose();
             }
             return response;
         }
@@ -581,7 +719,7 @@ namespace CrewChiefV4.PitManager
         {
             #region Private Fields
 
-            private static string currentTyreType = "No Change";
+            private string currentTyreType = "No Change";
 
             #endregion Private Fields
 
@@ -609,5 +747,86 @@ namespace CrewChiefV4.PitManager
         }
 
         #endregion Private Classes
+
+        public static class TyreDictFile
+        {
+            private static Tuple<string,  string> getUserTyreDictionaryFileLocation()
+            {
+                var path = Path.Combine(Environment.GetFolderPath(
+                    Environment.SpecialFolder.MyDocuments), "CrewChiefV4", "RF2");
+
+                return new Tuple<string, string>(path, "TyreDictionary.json");
+            }
+            public static TyreDictionary getTyreDictionaryFromFile()
+            {
+                var filepath = Path.Combine(getUserTyreDictionaryFileLocation().Item1,
+                    getUserTyreDictionaryFileLocation().Item2);
+                if (File.Exists(filepath))
+                {
+                    try
+                    {
+                        using (StreamReader r = new StreamReader(filepath))
+                        {
+                            string json = r.ReadToEnd();
+                            // Check if file contents are the old version
+                            int hash = json.GetHashCode();
+                            if (hash != 0X37AF3AAF) // It's not
+                            {
+                                TyreDictionary data = JsonConvert.DeserializeObject<TyreDictionary>(json);
+                                if (data != null)
+                                {
+                                    return data;
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error($"Error parsing {filepath}: {e.Message}");
+                    }
+                }
+                // else
+                // No file or file is an old version so create a default one
+                saveTyreDictionaryFile(SampleTyreTranslationDict);
+                return SampleTyreTranslationDict;
+            }
+
+            public static void saveTyreDictionaryFile(TyreDictionary tyreDict)
+            {
+                var path = getUserTyreDictionaryFileLocation().Item1;
+                var fileName = getUserTyreDictionaryFileLocation().Item2;
+                var filePath = Path.Combine(path, fileName);
+
+                if (!Directory.Exists(path))
+                {
+                    try
+                    {
+                        Directory.CreateDirectory(path);
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Fatal($"Error creating {path}: {e.Message}");
+                    }
+                }
+
+
+                if (fileName != null)
+                {
+                    try
+                    {
+                        using (StreamWriter file = File.CreateText(filePath))
+                        {
+                            JsonSerializer serializer = new JsonSerializer();
+                            serializer.Formatting = Newtonsoft.Json.Formatting.Indented;
+                            serializer.Serialize(file, tyreDict);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error($"Error serialising {filePath}: {e.Message}");
+                    }
+                }
+            }
+        }
     }
 }

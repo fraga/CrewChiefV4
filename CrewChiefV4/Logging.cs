@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("UnitTest")]
 
 namespace CrewChiefV4
 {
@@ -14,29 +13,35 @@ namespace CrewChiefV4
         /// Each log has its type prepended before it is written to the console.
         /// </summary>
         [Flags]
-        public enum LogType
+        internal enum LogType
         {
             FatalError = 1 << 0,
             Error = 1 << 1,
             Warning = 1 << 2,
             Commentary = 1 << 3,
-            Subtitle = 1 << 4,
+            Subtitle = 1 << 4,  // All here and up show in release builds
             Info = 1 << 5,
-            Debug = 1 << 6,
-            Verbose = 1 << 7,
+            Fuel = 1 << 6,
+            Debug = 1 << 7,     // All here and up show in debug builds, shown if log_type_debug is set
+            Verbose = 1 << 8,   // Shown if log_type_verbose is set
+            Exception = 1 << 9
         };
-        private static LogType _logMask = setLogLevel(LogType.Verbose);
+        private static LogType _logMask = UserSettings.GetUserSettings().getBoolean("log_type_debug") ?
+            setLogLevel(LogType.Debug) : (UserSettings.GetUserSettings().getBoolean("log_type_verbose") ?
+            setLogLevel(LogType.Verbose) : setLogLevel(LogType.Subtitle));
         private static readonly Dictionary<LogType, string> logPrefixes = new
             Dictionary<LogType, string>
         {
             { LogType.FatalError, "FATAL ERROR: " },
-            { LogType.Error     , "ERROR:   " },
-            { LogType.Warning   , "Warning: " },
-            { LogType.Commentary, "Comment: " },
-            { LogType.Subtitle,   "Subtitle:" },
-            { LogType.Info      , "Info:    " },
-            { LogType.Verbose   , "Verbose: " },
-            { LogType.Debug     , "Debug:   " }
+            { LogType.Error     , "ERROR: " },
+            { LogType.Warning   , "Warn: " },
+            { LogType.Commentary, "Cmnt: " },
+            { LogType.Subtitle,   "Subt: " },
+            { LogType.Info      , "Info: " },
+            { LogType.Fuel      , "Fuel: " },
+            { LogType.Debug     , "Dbug: " },
+            { LogType.Verbose   , "Verb: " },
+            { LogType.Exception , "EXCEPTION: " }
         };
         /// <summary>
         /// Set the log mask so all logs up to "logType" are shown
@@ -53,31 +58,47 @@ namespace CrewChiefV4
             }
             return _logMask;
         }
-        /// <summary>
-        /// Set the log mask so all logs matching "logMask" are shown
-        /// Can set individual types of log, for example
-        ///   setLogMask(LogType.Error | LogType.Subtitle);
-        /// </summary>
-        /// <param name="logMask"> log mask</param>
-        /// <returns></returns>
-        public static void setLogMask(LogType logMask)
-        {
-            _logMask = logMask;
-        }
 
+        public static LogType LogMask
+        {
+            get
+            {
+                return _logMask;
+            }
+            /// <summary>
+            /// Set the log mask so all logs matching "logMask" are shown
+            /// Can set individual types of log, for example
+            ///   setLogMask(LogType.Error | LogType.Subtitle);
+            /// </summary>
+            /// <param name="logMask"> log mask</param>
+            /// <returns></returns>
+            set
+            {
+                _logMask = value;
+            }
+        }
         /// <summary>
         /// Write "log" to Console if logType is enabled
         /// "log" has its type prepended before it is written.
         /// </summary>
         /// <param name="logType"></param>
         /// <param name="log"></param>
-        public static void _Log(LogType logType, string log)
+        internal static void _Log(LogType logType, string log)
         {
-            if ((logType & _logMask) != 0 || CrewChief.Debugging)
+            if ((logType & _logMask) != 0)
             {
-                Console.WriteLine(logPrefixes[logType] + log);
+                if (logType == LogType.FatalError)
+                {
+                    Console.WriteLine(new string('*', (logPrefixes[logType] + log).Length));
+                    Console.WriteLine(logPrefixes[logType] + log);
+                    Console.WriteLine(new string('*', (logPrefixes[logType] + log).Length));
+                }
+                else
+                {
+                    Console.WriteLine(logPrefixes[logType] + log);
+                }
             }
-            // tbd: Also write to log whatever the logLogMask
+            // tbd: Also write to log whatever the logMask
         }
         /// <summary>
         /// Write "log" with object to Console if LogType is enabled
@@ -87,11 +108,11 @@ namespace CrewChiefV4
         /// <param name="logType"></param>
         /// <param name="log">format string containing {0}</param>
         /// <param name="arg0">the object to replace {0}</param>
-        public static void _Log(LogType logType, string log, object arg0)
+        internal static void _Log(LogType logType, string log, object arg0)
         {
             _Log(logType, String.Format(log, arg0));
         }
-        public static void _Log(LogType logType, string log, object arg0, object arg1)
+        internal static void _Log(LogType logType, string log, object arg0, object arg1)
         {
             _Log(logType, String.Format(log, arg0, arg1));
         }
@@ -150,6 +171,14 @@ namespace CrewChiefV4
             _Log(LogType.Info, log);
         }
         /// <summary>
+        /// Write "log" to Console if logType.Fuel is enabled
+        /// </summary>
+        /// <param name="log"></param>
+        public static void Fuel(string log)
+        {
+            _Log(LogType.Fuel, log);
+        }
+        /// <summary>
         /// Write "log" to Console if logType.Debug is enabled
         /// </summary>
         /// <param name="log"></param>
@@ -164,6 +193,20 @@ namespace CrewChiefV4
         public static void Verbose(string log)
         {
             _Log(LogType.Verbose, log);
+        }
+        /// <summary>
+        /// Write Exception details to Console if logType.Exception is enabled
+        /// Precede with log if the arg is included
+        /// </summary>
+        /// <param name="e">Exception</param>
+        /// <param name="log">Optional text</param>
+        public static void Exception(Exception e, string log="")
+        {
+            if (!string.IsNullOrEmpty(log))
+            {
+                log = log + Environment.NewLine;
+            }
+            _Log(LogType.Exception, log + e.ToString());
         }
         #endregion Shorthand calls
     }

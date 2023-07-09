@@ -13,6 +13,7 @@ using CrewChiefV4.Events;
 using rF2SharedMemory;
 using static rF2SharedMemory.rFactor2Constants;
 using rF2SharedMemory.rFactor2Data;
+using CrewChiefV4.Audio;
 
 /**
  * Maps memory mapped file to a local game-agnostic representation.
@@ -255,12 +256,6 @@ namespace CrewChiefV4.rFactor2
         private Int64 lastSessionEndTicks = -1;
         private bool lastInRealTimeState = false;
 
-        public override void setSpeechRecogniser(SpeechRecogniser speechRecogniser)
-        {
-            speechRecogniser.addPitManagerSpeechRecogniser();
-            this.speechRecogniser = speechRecogniser;
-        }
-
         private void ClearState()
         {
             this.lastPlayerTelemetryET = -1.0;
@@ -291,7 +286,7 @@ namespace CrewChiefV4.rFactor2
             this.lastHistoryMessageUpdatedTicks = 0L;
         }
 
-    public override GameStateData mapToGameStateData(Object memoryMappedFileStruct, GameStateData previousGameState)
+        public override GameStateData mapToGameStateData(Object memoryMappedFileStruct, GameStateData previousGameState)
         {
             var pgs = previousGameState;
             var shared = memoryMappedFileStruct as RF2SharedMemoryReader.RF2StructWrapper;
@@ -658,6 +653,8 @@ namespace CrewChiefV4.rFactor2
 
                 cgs.PitData.PitBoxPositionEstimate = playerScoring.mPitLapDist;
                 Console.WriteLine("Pit box position = " + (cgs.PitData.PitBoxPositionEstimate < 0.0f ? "Unknown" : cgs.PitData.PitBoxPositionEstimate.ToString("0.000")));
+
+                cgs.trackName = csd.TrackDefinition.name;
             }
 
             // Restore cumulative data.
@@ -682,7 +679,9 @@ namespace CrewChiefV4.rFactor2
                 cgs.FlagData.currentLapIsFCY = pgs.FlagData.currentLapIsFCY;
                 cgs.FlagData.previousLapWasFCY = pgs.FlagData.previousLapWasFCY;
 
+                cgs.Conditions.CurrentConditions = pgs.Conditions.CurrentConditions;
                 cgs.Conditions.samples = pgs.Conditions.samples;
+                
                 cgs.PitData.PitBoxPositionEstimate = pgs.PitData.PitBoxPositionEstimate;
 
                 cgs.hardPartsOnTrackData = pgs.hardPartsOnTrackData;
@@ -693,7 +692,13 @@ namespace CrewChiefV4.rFactor2
 
                 csd.IsLastLap = psd.IsLastLap;
                 csd.OverallLeaderIsOnLastLap = psd.OverallLeaderIsOnLastLap;
+
+                cgs.trackName = pgs.trackName;
+                cgs.carName = pgs.carName;
             }
+
+            if (cgs.carName == null && playerTelemetryAvailable)
+                cgs.carName = RF2GameStateMapper.GetStringFromBytes(playerTelemetry.mVehicleName);
 
             csd.SessionStartTime = csd.IsNewSession ? cgs.Now : psd.SessionStartTime;
             csd.SessionHasFixedTime = csd.SessionTotalRunTime > 0.0f;
@@ -726,6 +731,7 @@ namespace CrewChiefV4.rFactor2
             // NOTE: Telemetry contains mLapNumber, which might be ahead of Scoring due to higher refresh rate.  However,
             // since we use Scoring fields for timing calculations, stick to Scoring here as well.
             csd.CompletedLaps = playerScoring.mTotalLaps;
+            csd.LapCount = csd.CompletedLaps + 1;
 
             ////////////////////////////////////
             // motion data
@@ -753,7 +759,7 @@ namespace CrewChiefV4.rFactor2
 
             // Initialize DeltaTime.
             if (csd.IsNewSession)
-                csd.DeltaTime = new DeltaTime(csd.TrackDefinition.trackLength, cgs.PositionAndMotionData.DistanceRoundTrack, cgs.Now);
+                csd.DeltaTime = new DeltaTime(csd.TrackDefinition.trackLength, cgs.PositionAndMotionData.DistanceRoundTrack, cgs.PositionAndMotionData.CarSpeed, cgs.Now);
 
             // Is online session?
             for (int i = 0; i < shared.scoring.mScoringInfo.mNumVehicles; ++i)
@@ -969,7 +975,7 @@ namespace CrewChiefV4.rFactor2
             {
                 // Preserve current values.
                 // Those values change on sector/lap change, otherwise stay the same between updates.
-                psd.restorePlayerTimings(csd);
+                psd.RestorePlayerTimings(csd);
             }
 
             this.processPlayerTimingData(ref shared.scoring, cgs, pgs, ref playerScoring);
@@ -1202,6 +1208,7 @@ namespace CrewChiefV4.rFactor2
             {
                 if (this.useRealWheelSizeForLockingAndSpinning && playerTelemetryAvailable)
                 {
+                    // TODO: remove.
                     float minRotatingSpeedOld = (float)Math.PI * cgs.PositionAndMotionData.CarSpeed / cgs.carClass.maxTyreCircumference;
                     float maxRotatingSpeedOld = 3 * (float)Math.PI * cgs.PositionAndMotionData.CarSpeed / cgs.carClass.minTyreCircumference;
 
@@ -1277,12 +1284,12 @@ namespace CrewChiefV4.rFactor2
                 cgs.Conditions.addSample(cgs.Now, csd.CompletedLaps, csd.SectorNumber,
                     (float)shared.scoring.mScoringInfo.mAmbientTemp, (float)shared.scoring.mScoringInfo.mTrackTemp, (float)shared.scoring.mScoringInfo.mRaining,
                     (float)Math.Sqrt((double)(shared.scoring.mScoringInfo.mWind.x * shared.scoring.mScoringInfo.mWind.x + shared.scoring.mScoringInfo.mWind.y * shared.scoring.mScoringInfo.mWind.y + shared.scoring.mScoringInfo.mWind.z * shared.scoring.mScoringInfo.mWind.z)),
-                    0, 0, 0, csd.IsNewLap);
+                    0, 0, 0, csd.IsNewLap, ConditionsMonitor.TrackStatus.UNKNOWN);
             }
 
             // --------------------------------
             // DRS data
-            cgs.OvertakingAids.DrsAvailable = playerTelemetry.mRearFlapLegalStatus == (int)rFactor2Constants.rF2RearFlapLegalStatus.Alllowed;
+            cgs.OvertakingAids.DrsAvailable = playerTelemetry.mRearFlapLegalStatus == (int)rFactor2Constants.rF2RearFlapLegalStatus.Allowed;
 
             // Many of rF2 tracks have no DRS zones defined.  One of the symptoms is DRS alloweved immediately on race start.
             // Disallow DRS messages in such case.
@@ -1510,7 +1517,7 @@ namespace CrewChiefV4.rFactor2
                 {
                     if (!csd.IsNewSession && this.speechRecogniser != null)
                         this.speechRecogniser.addNewOpponentName(opponent.DriverRawName, "-1");
-
+                    SoundCache.loadDriverNameSound(DriverNameHelper.getUsableDriverName(opponent.DriverRawName));
                     Console.WriteLine("New driver \"" + driverName +
                         "\" is using car class " + opponent.CarClass.getClassIdentifier() +
                         " at position " + opponent.OverallPosition.ToString());
@@ -1571,7 +1578,7 @@ namespace CrewChiefV4.rFactor2
                 }
                 else
                 {
-                    opponent.DeltaTime = new DeltaTime(csd.TrackDefinition.trackLength, opponent.DistanceRoundTrack, DateTime.UtcNow);
+                    opponent.DeltaTime = new DeltaTime(csd.TrackDefinition.trackLength, opponent.DistanceRoundTrack, opponent.Speed, DateTime.UtcNow);
                 }
                 opponent.DeltaTime.SetNextDeltaPoint(opponent.DistanceRoundTrack, opponent.CompletedLaps, opponent.Speed, cgs.Now, vehicleScoring.mInPits != 1);
 
@@ -1729,7 +1736,7 @@ namespace CrewChiefV4.rFactor2
                 if (opponentPrevious != null)
                 {
                     opponent.trackLandmarksTiming = opponentPrevious.trackLandmarksTiming;
-                    String stoppedInLandmark = opponent.trackLandmarksTiming.updateLandmarkTiming(csd.TrackDefinition,
+                    var stoppedInLandmark = opponent.trackLandmarksTiming.updateLandmarkTiming(csd.TrackDefinition,
                         csd.SessionRunningTime, previousDistanceRoundTrack, opponent.DistanceRoundTrack, opponent.Speed, opponent.CarClass);
                     opponent.stoppedInLandmark = opponent.InPits ? null : stoppedInLandmark;
                 }
@@ -2041,10 +2048,10 @@ namespace CrewChiefV4.rFactor2
                     " to " + csd.SessionPhase);
                 if (csd.SessionPhase == SessionPhase.Checkered ||
                     csd.SessionPhase == SessionPhase.Finished)
-                    Console.WriteLine("Checkered - completed " + csd.CompletedLaps + " laps, session running time = " + csd.SessionRunningTime);
+                    Console.WriteLine("Checkered - completed " + csd.CompletedLaps + " laps, session running time = " + csd.SessionRunningTime + "  (" + TimeSpan.FromSeconds(csd.SessionRunningTime).ToString(@"hh\:mm\:ss\:fff") + ")");
             }
             if (pgs != null && !psd.LeaderHasFinishedRace && csd.LeaderHasFinishedRace)
-                Console.WriteLine("Leader has finished race, player has done " + csd.CompletedLaps + " laps, session time = " + csd.SessionRunningTime);
+                Console.WriteLine("Leader has finished race, player has done " + csd.CompletedLaps + " laps, session time = " + csd.SessionRunningTime + "  (" + TimeSpan.FromSeconds(csd.SessionRunningTime).ToString(@"hh\:mm\:ss\:fff") + ")");
 
             CrewChief.trackName = csd.TrackDefinition.name;
             CrewChief.carClass = cgs.carClass.carClassEnum;
@@ -2311,7 +2318,7 @@ namespace CrewChiefV4.rFactor2
             else if (msg.Length > this.scrLuckyDogIsPrefix.Length
                 && msg.StartsWith(this.scrLuckyDogIsPrefix))
             {
-                scrData.luckyDogNameRaw = msg.Substring(this.scrLuckyDogIsPrefix.Length).ToLowerInvariant();
+                scrData.luckyDogNameRaw = msg.Substring(this.scrLuckyDogIsPrefix.Length);
                 scrData.luckyDogNameRaw = RF2GameStateMapper.GetSanitizedDriverName(scrData.luckyDogNameRaw);
                 scrData.stockCarRuleApplicable = StockCarRule.NEW_LUCKY_DOG;
             }
@@ -2457,7 +2464,8 @@ namespace CrewChiefV4.rFactor2
                         (float)scoring.mScoringInfo.mAmbientTemp,
                         csd.SessionHasFixedTime,
                         csd.SessionTimeRemaining,
-                        3, cgs.TimingData);
+                        3, cgs.TimingData,
+                        null, null);
                 }
 
                 csd.playerStartNewLap(
@@ -3005,7 +3013,7 @@ namespace CrewChiefV4.rFactor2
                     }
                 }
 
-                var playerDist = RF2GameStateMapper.GetDistanceCompleteded(ref scoring, ref vehicle);
+                var playerDist = RF2GameStateMapper.GetDistanceCompleted(ref scoring, ref vehicle);
                 var toFollowDist = -1.0;
 
                 if (!followSC)
@@ -3021,7 +3029,7 @@ namespace CrewChiefV4.rFactor2
 
                             fod.DriverToFollowRaw = cci.driverNameRawSanitized;
 
-                            toFollowDist = RF2GameStateMapper.GetDistanceCompleteded(ref scoring, ref v);
+                            toFollowDist = RF2GameStateMapper.GetDistanceCompleted(ref scoring, ref v);
                             break;
                         }
                     }
@@ -3040,7 +3048,7 @@ namespace CrewChiefV4.rFactor2
                         var veh = scoring.mVehicles[i];
                         if (veh.mPlace == (vehicle.mPlace == 1 ? 2 : 1))
                         {
-                            neighborDist = RF2GameStateMapper.GetDistanceCompleteded(ref scoring, ref veh);
+                            neighborDist = RF2GameStateMapper.GetDistanceCompleted(ref scoring, ref veh);
                             break;
                         }
                     }
@@ -3206,7 +3214,7 @@ namespace CrewChiefV4.rFactor2
                                 SCassignedAhead = true;
                             }
                         }
-                        catch (Exception) { }
+                        catch (Exception e) { Log.Exception(e); }
 
                         // Remove [-0.2 laps] if it is there.
                         var lastOpenBckt = orderInstruction.LastIndexOf('[');
@@ -3216,7 +3224,7 @@ namespace CrewChiefV4.rFactor2
                             {
                                 orderInstruction = orderInstruction.Substring(0, lastOpenBckt - 1);
                             }
-                            catch (Exception) { }
+                            catch (Exception e) { Log.Exception(e); }
                         }
 
                         var column = FrozenOrderColumn.None;
@@ -3317,7 +3325,7 @@ namespace CrewChiefV4.rFactor2
             return fod;
         }
 
-        private static double GetDistanceCompleteded(ref rF2Scoring scoring, ref rF2VehicleScoring vehicle)
+        private static double GetDistanceCompleted(ref rF2Scoring scoring, ref rF2VehicleScoring vehicle)
         {
             // Note: Can be interpolated a bit.
             return vehicle.mTotalLaps * scoring.mScoringInfo.mLapDist + vehicle.mLapDist;
@@ -3350,7 +3358,7 @@ namespace CrewChiefV4.rFactor2
             if (this.idToCarInfoMap.TryGetValue(vehicleScoring.mID, out ci))
                 return ci;
 
-            var driverName = RF2GameStateMapper.GetStringFromBytes(vehicleScoring.mDriverName).ToLowerInvariant();
+            var driverName = RF2GameStateMapper.GetStringFromBytes(vehicleScoring.mDriverName);
             driverName = RF2GameStateMapper.GetSanitizedDriverName(driverName);
 
             var carClassId = RF2GameStateMapper.GetStringFromBytes(vehicleScoring.mVehicleClass);

@@ -30,6 +30,8 @@ namespace CrewChiefV4.Overlay
         public bool isDiskData = false;
         [JsonConverter(typeof(StringEnumConverter))]
         public OverlayDataType overlayDataType;
+        [JsonConverter(typeof(StringEnumConverter))]
+        public DataSeriesType dataSeriesType;
         public string[] labels;
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public float yMin = 0;
@@ -45,37 +47,63 @@ namespace CrewChiefV4.Overlay
         public string[] coloursBestLap;
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string[] coloursOpponentBestLap;
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string yAxisFormat;
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string[] groupMemberIds;
         public string voiceCommandFragment; // this is just a fragment like "car speed", used as a convenience var where we don't want to define a list of possibilities
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string[] voiceCommandFragments;
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string histogramXLabel;
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int? histogramSteps;
+
+        // internal fields derived from the fields in the JSON:
+        [JsonIgnore]
+        public string[] coloursLastLap_Internal;
+        [JsonIgnore]
+        public string[] coloursBestLap_Internal;
+        [JsonIgnore]
+        public string[] coloursOpponentBestLap_Internal;
+        [JsonIgnore]
+        public string voiceCommandFragment_Internal;
+        [JsonIgnore]
+        public string[] voiceCommandFragments_Internal;
 
         [JsonConstructor]
         public OverlaySubscription(string id, OverlayDataType overlayDataType, string[] labels, string rawDataFieldName = null, string mappedDataFieldName = null,
             YAxisScaling yAxisMinScaling = YAxisScaling.AUTO, YAxisScaling yAxisMaxScaling = YAxisScaling.AUTO, float yMin = 0, float yMax = 0,
             string[] coloursLastLap = null, string[] coloursBestLap = null, string[] coloursOpponentBestLap = null, string yAxisFormat = null, bool includeOpponentData = false,
-            string opponentDataFieldname = null, string[] groupMemberIds = null, string diskDataFieldname = null, string voiceCommandFragment = null, string[] voiceCommandFragments = null)
-            : this(id, opponentDataFieldname, overlayDataType, rawDataFieldName, mappedDataFieldName, yAxisMinScaling, yAxisMaxScaling, yMin, yMax, yAxisFormat, groupMemberIds, diskDataFieldname)
+            string opponentDataFieldname = null, string[] groupMemberIds = null, string diskDataFieldname = null, string voiceCommandFragment = null, string[] voiceCommandFragments = null,
+            DataSeriesType dataSeriesType = DataSeriesType.TIMESERIES, string histogramXLabel = null, int? histogramSteps = null)
+            : this(id, opponentDataFieldname, overlayDataType, rawDataFieldName, mappedDataFieldName, yAxisMinScaling, yAxisMaxScaling, yMin, yMax,
+                  yAxisFormat, groupMemberIds, diskDataFieldname, dataSeriesType, histogramXLabel, histogramSteps)
         {
             this.labels = labels;
-            this.coloursLastLap = coloursLastLap == null ? new string[0] : coloursLastLap;
-            this.coloursBestLap = coloursBestLap == null ? new string[0] : coloursBestLap;
-            this.coloursOpponentBestLap = coloursOpponentBestLap == null ? new string[0] : coloursOpponentBestLap;
+            this.coloursLastLap = coloursLastLap;
+            this.coloursBestLap = coloursBestLap;
+            this.coloursOpponentBestLap = coloursOpponentBestLap;
+            this.voiceCommandFragment = voiceCommandFragment;
+            this.voiceCommandFragments = voiceCommandFragments;
+
+            this.coloursLastLap_Internal = coloursLastLap == null ? new string[0] : coloursLastLap;
+            this.coloursBestLap_Internal = coloursBestLap == null ? new string[0] : coloursBestLap;
+            this.coloursOpponentBestLap_Internal = coloursOpponentBestLap == null ? new string[0] : coloursOpponentBestLap;
             if (voiceCommandFragments == null || voiceCommandFragments.Count() == 0)
             {
-                this.voiceCommandFragments = voiceCommandFragment.Split(':').Select(p => p.Trim()).ToArray();
+                this.voiceCommandFragments_Internal = voiceCommandFragment.Split(':').Select(p => p.Trim()).ToArray();
             }
             else
             {
-                this.voiceCommandFragments = voiceCommandFragments;
+                this.voiceCommandFragments_Internal = voiceCommandFragments;
             }
-            this.voiceCommandFragment = this.voiceCommandFragments[0];
+            this.voiceCommandFragment_Internal = this.voiceCommandFragments_Internal[0];
         }
 
         private OverlaySubscription(string id, string opponentDataFieldname, OverlayDataType overlayDataType, string rawDataFieldName,
-            string mappedDataFieldName, YAxisScaling yAxisMinScaling, YAxisScaling yAxisMaxScaling, float yMin, float yMax, string yAxisFormat, string[] groupMemberIds, string diskDataFieldname)
+            string mappedDataFieldName, YAxisScaling yAxisMinScaling, YAxisScaling yAxisMaxScaling, float yMin, float yMax, string yAxisFormat, string[] groupMemberIds,
+            string diskDataFieldname, DataSeriesType dataSeriesType, string histogramXLabel, int? histogramSteps)
         {
             this.id = id;
             this.rawDataFieldName = rawDataFieldName;
@@ -92,12 +120,16 @@ namespace CrewChiefV4.Overlay
                 this.fieldName = mappedDataFieldName;
             }
             this.overlayDataType = overlayDataType;
+            this.dataSeriesType = dataSeriesType;
+            this.dataSeriesType = dataSeriesType;
             this.yAxisMinScaling = yAxisMinScaling;
             this.yAxisMaxScaling = yAxisMaxScaling;
             this.yMin = yMin;
             this.yMax = yMax;
             this.yAxisFormat = yAxisFormat;
             this.opponentDataFieldname = opponentDataFieldname;
+            this.histogramXLabel = histogramXLabel;
+            this.histogramSteps = histogramSteps;
             if (opponentDataFieldname != null)
             {
                 OverlayDataSource.mapOpponentData = true;
@@ -122,27 +154,27 @@ namespace CrewChiefV4.Overlay
             {
                 foreach (string lastLapFragment in SpeechRecogniser.CHART_COMMAND_LAST_LAP)
                 {
-                    foreach (string singleVoiceCommandFragment in voiceCommandFragments)
+                    foreach (string singleVoiceCommandFragment in voiceCommandFragments_Internal)
                     {
                         commands.Add(addFragment + " " + lastLapFragment + " " + singleVoiceCommandFragment);
                     }
                 }
                 // special case for last lap - allow a shortened command "show me car speed":
-                foreach (string singleVoiceCommandFragment in voiceCommandFragments)
+                foreach (string singleVoiceCommandFragment in voiceCommandFragments_Internal)
                 {
                     commands.Add(addFragment + " " + singleVoiceCommandFragment);
                 }
 
                 foreach (string bestLapFragment in SpeechRecogniser.CHART_COMMAND_BEST_LAP)
                 {
-                    foreach (string singleVoiceCommandFragment in voiceCommandFragments)
+                    foreach (string singleVoiceCommandFragment in voiceCommandFragments_Internal)
                     {
                         commands.Add(addFragment + " " + bestLapFragment + " " + singleVoiceCommandFragment);
                     }
                 }
                 foreach (string opponentBestLapFragment in SpeechRecogniser.CHART_COMMAND_OPPONENT_BEST_LAP)
                 {
-                    foreach (string singleVoiceCommandFragment in voiceCommandFragments)
+                    foreach (string singleVoiceCommandFragment in voiceCommandFragments_Internal)
                     {
                         commands.Add(addFragment + " " + opponentBestLapFragment + " " + singleVoiceCommandFragment);
                     }
@@ -152,28 +184,28 @@ namespace CrewChiefV4.Overlay
             {
                 foreach (string lastLapFragment in SpeechRecogniser.CHART_COMMAND_LAST_LAP)
                 {
-                    foreach (string singleVoiceCommandFragment in voiceCommandFragments)
+                    foreach (string singleVoiceCommandFragment in voiceCommandFragments_Internal)
                     {
                         commands.Add(removeFragment + " " + lastLapFragment + " " + singleVoiceCommandFragment);
                     }
                 }
                 // special case for last lap - allow a shortened command - "chart, remove car speed":
-                foreach (string singleVoiceCommandFragment in voiceCommandFragments)
+                foreach (string singleVoiceCommandFragment in voiceCommandFragments_Internal)
                 {
                     commands.Add(removeFragment + " " + singleVoiceCommandFragment);
                 }
                 foreach (string bestLapFragment in SpeechRecogniser.CHART_COMMAND_BEST_LAP)
                 {
-                    foreach (string singleVoiceCommandFragment in voiceCommandFragments)
+                    foreach (string singleVoiceCommandFragment in voiceCommandFragments_Internal)
                     {
                         commands.Add(removeFragment + " " + bestLapFragment + " " + singleVoiceCommandFragment);
                     }
                 }
                 foreach (string opponentBestLapFragment in SpeechRecogniser.CHART_COMMAND_OPPONENT_BEST_LAP)
                 {
-                    foreach (string singleVoiceCommandFragment in voiceCommandFragments)
+                    foreach (string singleVoiceCommandFragment in voiceCommandFragments_Internal)
                     {
-                        commands.Add(removeFragment + " " + opponentBestLapFragment + " " + voiceCommandFragment);
+                        commands.Add(removeFragment + " " + opponentBestLapFragment + " " + voiceCommandFragment_Internal);
                     }
                 }
             }

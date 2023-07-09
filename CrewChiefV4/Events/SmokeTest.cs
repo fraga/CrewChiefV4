@@ -68,7 +68,7 @@ namespace CrewChiefV4.Events
             if (rawDriverNames.Count > 0)
             {
                 Console.WriteLine("Playing test sounds for drivers " + String.Join(", ", rawDriverNames));
-                List<String> usableDriverNames = DriverNameHelper.getUsableDriverNames(rawDriverNames);
+                HashSet<String> usableDriverNames = DriverNameHelper.getUsableDriverNameSounds(rawDriverNames);
                 int index = 0;
                 foreach (OpponentData driverToTest in driversToTest)
                 {
@@ -122,7 +122,6 @@ namespace CrewChiefV4.Events
                 audioPlayer.playMessageImmediately(new QueuedMessage(SMOKE_TEST_CODRIVER, 0,
                     messageFragments: MessageContents(CoDriver.folderMicCheck)), false);
             }
-
             PlaybackModerator.SetTracing(true /*enabled*/);
             
             DirectoryInfo soundDirectory = new DirectoryInfo(AudioPlayer.soundFilesPath);

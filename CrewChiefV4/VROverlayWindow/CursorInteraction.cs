@@ -29,7 +29,29 @@ namespace CrewChiefV4
         [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
         static extern bool PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
 
+        public class MouseCursor
+        {
+            internal Win32Stuff.CURSORINFO Info = new Win32Stuff.CURSORINFO();
+            public bool GotInfo = false;
+            public Point RelativePosition { get; set; }
 
+            public bool InBounds(SharpDX.Rectangle rectAbs)
+            {
+                return (RelativePosition.X >= 0 && RelativePosition.X <= rectAbs.Width)
+                    && (RelativePosition.Y >= 0 && RelativePosition.Y <= rectAbs.Height)
+                    && GotInfo
+                    && Info.flags == Win32Stuff.CURSOR_SHOWING;
+            }
+
+            public static MouseCursor Capture(SharpDX.Rectangle rectScreen)
+            {
+                var result = new MouseCursor();
+                result.Info.cbSize = Marshal.SizeOf(result.Info);
+                result.GotInfo = Win32Stuff.GetCursorInfo(out result.Info);
+                result.RelativePosition = GetCursorPosRelativeWindow(rectScreen);
+                return result;
+            }
+        }
 
 #pragma warning disable 649
         #region SendInput Structs

@@ -276,7 +276,7 @@ namespace CrewChiefV4.F1_2020
                     }
                     udpClient.Close();
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
             }
             initialised = false;
         }

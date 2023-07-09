@@ -296,6 +296,9 @@
     <Setting Name="enable_push_to_pass_messages" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
+    <Setting Name="enable_drs_beeps" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
     <Setting Name="UpdateSettings" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
@@ -417,6 +420,9 @@
       <Value Profile="(Default)">-applaunch 365960</Value>
     </Setting>
     <Setting Name="rf2_spotter_car_length" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">4.5</Value>
+    </Setting>
+    <Setting Name="gtr2_spotter_car_length" Type="System.Single" Scope="User">
       <Value Profile="(Default)">4.5</Value>
     </Setting>
     <Setting Name="enable_rf2_pit_stop_prediction" Type="System.Boolean" Scope="User">
@@ -669,7 +675,7 @@
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="use_naudio" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
+      <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="NAUDIO_DEVICE_GUID_MESSAGES" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
@@ -825,7 +831,7 @@
       <Value Profile="(Default)">NEVER</Value>
     </Setting>
     <Setting Name="trigger_word_for_always_on_sre" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Chief</Value>
+      <Value Profile="(Default)">Crew Chief</Value>
     </Setting>
     <Setting Name="trigger_word_sre_min_confidence" Type="System.Single" Scope="User">
       <Value Profile="(Default)">0.7</Value>
@@ -1014,7 +1020,7 @@
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="prefer_system_sre" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
+      <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="use_free_dictation_for_chat" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
@@ -1023,7 +1029,7 @@
       <Value Profile="(Default)">chat</Value>
     </Setting>
     <Setting Name="max_complaints_per_session" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">50</Value>
+      <Value Profile="(Default)">60</Value>
     </Setting>
     <Setting Name="enable_on_hold_close_channel_beep" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
@@ -1142,22 +1148,43 @@
     <Setting Name="f1_2020_udp_data_port" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">20777</Value>
     </Setting>
+    <Setting Name="f1_2021_launch_exe" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:/Program Files (x86)/Steam/Steam.exe</Value>
+    </Setting>
+    <Setting Name="f1_2021_launch_params" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="launch_f1_2021" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="f1_2021_spotter_car_length" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">5</Value>
+    </Setting>
+    <Setting Name="f1_2021_udp_data_port" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">20777</Value>
+    </Setting>
     <Setting Name="show_vr_settings_as_overlay" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="codriver_name" Type="System.String" Scope="User">
       <Value Profile="(Default)">Jim (default)</Value>
     </Setting>
-    <Setting Name="racing_type" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">0</Value>
-    </Setting>
     <Setting Name="rbr_launch_exe" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="rbr_install_path" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">C:/RBR</Value>
     </Setting>
     <Setting Name="launch_rbr" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="gtr2_launch_exe" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="gtr2_install_path" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="launch_gtr2" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="codriver_style" Type="System.Int32" Scope="User">
@@ -1174,9 +1201,6 @@
     </Setting>
     <Setting Name="codriver_rushed_lookahead_seconds" Type="System.Single" Scope="User">
       <Value Profile="(Default)">2</Value>
-    </Setting>
-    <Setting Name="Setting" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
     </Setting>
     <Setting Name="pcars3_launch_exe" Type="System.String" Scope="User">
       <Value Profile="(Default)">C:/Program Files (x86)/Steam/steamapps/common/Project CARS 3/pCARS3.exe</Value>
@@ -1199,6 +1223,12 @@
     <Setting Name="rf2_enable_pit_manager" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
+    <Setting Name="enable_gtr2_pit_stop_prediction" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="enable_gtr2_cut_track_heuristics" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
     <Setting Name="enable_watch_car_command" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
@@ -1217,8 +1247,128 @@
     <Setting Name="show_splash_screen" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
+    <Setting Name="enable_gtr2_pit_lane_approach_heuristics" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
     <Setting Name="scroll_bars_on_main_window" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="launch_dirt" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="launch_dirt2" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="dirt_launch_exe" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="dirt2_launch_exe" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="dirt_launch_params" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="dirt2_launch_params" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="use_dictation_grammar_for_rally" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="minimum_rally_voice_recognition_confidence_system_sre" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">0.55</Value>
+    </Setting>
+    <Setting Name="confirm_recce_pace_notes" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="minimum_rally_voice_recognition_confidence_microsoft_sre" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">0.35</Value>
+    </Setting>
+    <Setting Name="dirt_rally_udp_data_port" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">20777</Value>
+    </Setting>
+    <Setting Name="dirt_rally_2_udp_data_port" Type="System.String" Scope="User">
+      <Value Profile="(Default)">20777</Value>
+    </Setting>
+    <Setting Name="log_type_debug" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="log_type_verbose" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="allow_composite_personalisations" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="codriver_min_space_for_auto_distance_call" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">40</Value>
+    </Setting>
+    <Setting Name="codriver_dynamic_lookahead" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="include_start_pos_in_dirt_stage_names" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="save_sre_debug_data" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="sre_button_release_delay" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="log_type_fuel" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="sre_enable_threshold_tuning" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="enable_rf1_box_sharing_warnings" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="force_resample" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="enable_frozen_order_messages" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="force_seated_on_vr_view_reset" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="enable_tyre_dirt_pickup_warnings" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="speak_only_when_spoken_to" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="just_the_facts" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="ams2_character_encoding" Type="System.String" Scope="User">
+      <Value Profile="(Default)">UTF-8</Value>
+    </Setting>
+    <Setting Name="asr_launch_exe" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="launch_asr" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="asr_install_path" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="pause_between_message_fragments" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="enable_mqtt_telemetry" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="mqtt_topic_drivername" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Jim</Value>
+    </Setting>
+    <Setting Name="rf2_enable_auto_clear_tyre_change" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="report_fuel_laps_left_in_timed_races" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="use_fuzzy_driver_name_matching" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>
 </SettingsFile>

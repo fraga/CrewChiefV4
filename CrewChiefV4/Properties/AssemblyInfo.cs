@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Britton IT Ltd")]
 [assembly: AssemblyProduct("CrewChiefV4")]
-[assembly: AssemblyCopyright("Copyright © 2015-2020")]
+[assembly: AssemblyCopyright("Copyright © 2015-2023")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: System.Windows.Media.DisableDpiAwareness]
@@ -34,6 +34,6 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 
-[assembly: AssemblyVersion("4.13.1.8")]
+[assembly: AssemblyVersion("4.17.1.2")]
 
 [assembly: AssemblyFileVersion("1.0.0.0")]

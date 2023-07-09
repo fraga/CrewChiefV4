@@ -16,6 +16,7 @@ namespace CrewChiefV4.NumberProcessing
         private static String NUMBER_READER_IMPL_SOURCE_NAME = "NumberReaderOverride.cs";
         private static NumberReaderFactory INSTANCE = new NumberReaderFactory();
         private NumberReader numberReader;
+        public static bool IS_ENGLISH = true;
 
         private NumberReaderFactory()
         {
@@ -23,6 +24,7 @@ namespace CrewChiefV4.NumberProcessing
             // select the correct implementation for the language pack
             if ("it".Equals(AudioPlayer.soundPackLanguage, StringComparison.InvariantCultureIgnoreCase))
             {
+                IS_ENGLISH = false;
                 if (SoundPackVersionsHelper.currentSoundPackVersion >= 150)
                 {
                     Console.WriteLine("Using NumberReaderIt2 for soundPackLanguage " + AudioPlayer.soundPackLanguage);
@@ -36,6 +38,7 @@ namespace CrewChiefV4.NumberProcessing
             }
             else if ("pt-br".Equals(AudioPlayer.soundPackLanguage, StringComparison.InvariantCultureIgnoreCase))
             {
+                IS_ENGLISH = false;
                 Console.WriteLine("Using NumberReaderPtBr for soundPackLanguage " + AudioPlayer.soundPackLanguage);
                 numberReader = new NumberReaderPtBr();
             }
@@ -92,7 +95,7 @@ namespace CrewChiefV4.NumberProcessing
                 LoadNumberReader(sb.ToString());
                 loadedOverride = true;
             }
-            catch (Exception) {}
+            catch (Exception e) { Log.Exception(e); }
             finally
             {
                 if (file != null)

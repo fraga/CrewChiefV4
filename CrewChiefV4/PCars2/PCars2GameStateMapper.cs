@@ -5,6 +5,7 @@ using System.Text;
 using CrewChiefV4.GameState;
 using CrewChiefV4.Events;
 using System.Diagnostics;
+using CrewChiefV4.Audio;
 
 /**
  * Maps memory mapped file to a local game-agnostic representation.
@@ -197,6 +198,10 @@ namespace CrewChiefV4.PCars2
             }
 
             int playerIndex = getPlayerIndex(shared);
+            if (playerIndex == -1 || playerIndex >= shared.mParticipantData.Length)
+            {
+                return previousGameState;
+            }
             pCars2APIParticipantStruct playerData = shared.mParticipantData[playerIndex];
 
             String playerName = StructHelper.getNameFromBytes(shared.mParticipantData[playerIndex].mName);
@@ -211,6 +216,7 @@ namespace CrewChiefV4.PCars2
 
             AdditionalDataProvider.validate(playerName);
             currentGameState.SessionData.CompletedLaps = (int)playerData.mLapsCompleted;
+            currentGameState.SessionData.LapCount = currentGameState.SessionData.CompletedLaps + 1;
             currentGameState.SessionData.SectorNumber = (int)playerData.mCurrentSector + 1; // zero indexed
             currentGameState.SessionData.OverallPosition = (int)playerData.mRacePosition;
             if (currentGameState.SessionData.OverallPosition == 1)
@@ -385,7 +391,7 @@ namespace CrewChiefV4.PCars2
                 for (int i = 0; i < shared.mParticipantData.Length; i++)
                 {
                     pCars2APIParticipantStruct participantStruct = shared.mParticipantData[i];
-                    String participantName = StructHelper.getNameFromBytes(participantStruct.mName).ToLower();
+                    String participantName = StructHelper.getNameFromBytes(participantStruct.mName);
                     if (i != playerIndex && participantStruct.mIsActive && participantName != null && participantName.Length > 0
                         && !opponentDriverNamesProcessedForThisTick.Contains(participantName) && !positionsFilledForThisTick.Contains(participantStruct.mRacePosition))
                     {
@@ -418,7 +424,8 @@ namespace CrewChiefV4.PCars2
                         }
                     }
                 }
-                currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.Now);
+                currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength,
+                    currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.PositionAndMotionData.CarSpeed, currentGameState.Now);
 
                 currentGameState.PitData.MandatoryPitStopCompleted = false;
                 currentGameState.PitData.PitWindow = shared.mEnforcedPitStopLap > 0 ? PitWindow.Closed : PitWindow.Unavailable;
@@ -490,7 +497,8 @@ namespace CrewChiefV4.PCars2
                         currentGameState.PitData.MandatoryPitStopCompleted = false;
                         currentGameState.PitData.PitWindow = shared.mEnforcedPitStopLap > 0 ? PitWindow.Closed : PitWindow.Unavailable;
 
-                        currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.Now);
+                        currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, 
+                            currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.PositionAndMotionData.CarSpeed, currentGameState.Now);
 
                         Console.WriteLine("Just gone green, session details...");
                         Console.WriteLine("SessionType " + currentGameState.SessionData.SessionType);
@@ -561,6 +569,7 @@ namespace CrewChiefV4.PCars2
                     currentGameState.SessionData.PlayerBestLapSector1Time = previousGameState.SessionData.PlayerBestLapSector1Time;
                     currentGameState.SessionData.PlayerBestLapSector2Time = previousGameState.SessionData.PlayerBestLapSector2Time;
                     currentGameState.SessionData.PlayerBestLapSector3Time = previousGameState.SessionData.PlayerBestLapSector3Time;
+                    currentGameState.Conditions.CurrentConditions = previousGameState.Conditions.CurrentConditions;
                     currentGameState.Conditions.samples = previousGameState.Conditions.samples;
                     currentGameState.SessionData.trackLandmarksTiming = previousGameState.SessionData.trackLandmarksTiming;
                     currentGameState.SessionData.PlayerLapData = previousGameState.SessionData.PlayerLapData;
@@ -649,7 +658,7 @@ namespace CrewChiefV4.PCars2
                 currentGameState.SessionData.playerCompleteLapWithProvidedLapTime(currentGameState.SessionData.OverallPosition, currentGameState.SessionData.SessionRunningTime,
                         shared.mLastLapTime, currentGameState.SessionData.CurrentLapIsValid, currentGameState.PitData.InPitlane, shared.mRainDensity > 0, 
                         shared.mTrackTemperature, shared.mAmbientTemperature, currentGameState.SessionData.SessionHasFixedTime,
-                        currentGameState.SessionData.SessionTimeRemaining, 3, currentGameState.TimingData);
+                        currentGameState.SessionData.SessionTimeRemaining, 3, currentGameState.TimingData, null, null);
                 currentGameState.SessionData.playerStartNewLap(currentGameState.SessionData.CompletedLaps + 1,
                     currentGameState.SessionData.OverallPosition, currentGameState.PitData.InPitlane, currentGameState.SessionData.SessionRunningTime);
             }
@@ -710,7 +719,7 @@ namespace CrewChiefV4.PCars2
                         // discard this participant element because the race position is already occupied
                         continue;
                     }
-                    String participantName = StructHelper.getNameFromBytes(participantStruct.mName).ToLower();
+                    String participantName = StructHelper.getNameFromBytes(participantStruct.mName);
                     if (participantName != null && participantName.Length > 0 && !opponentDriverNamesProcessedForThisTick.Contains(participantName))
                     {
                         opponentDriverNamesProcessedForThisTick.Add(participantName);
@@ -750,7 +759,6 @@ namespace CrewChiefV4.PCars2
                                     int previousOpponentCompletedLaps = 0;
                                     int previousOpponentPosition = 0;
                                     Boolean previousOpponentIsEnteringPits = false;
-                                    Boolean previousOpponentIsExitingPits = false;
 
                                     float[] previousOpponentWorldPosition = new float[] { 0, 0, 0 };
                                     float previousDistanceRoundTrack = 0;
@@ -761,7 +769,6 @@ namespace CrewChiefV4.PCars2
                                         previousOpponentCompletedLaps = previousOpponentData.CompletedLaps;
                                         previousOpponentPosition = previousOpponentData.OverallPosition;
                                         previousOpponentIsEnteringPits = previousOpponentData.isEnteringPits();
-                                        previousOpponentIsExitingPits = previousOpponentData.isExitingPits();
                                         previousOpponentWorldPosition = previousOpponentData.WorldPosition;
                                         previousDistanceRoundTrack = previousOpponentData.DistanceRoundTrack;
                                         currentOpponentData.ClassPositionAtPreviousTick = previousOpponentData.ClassPosition;
@@ -1158,7 +1165,7 @@ namespace CrewChiefV4.PCars2
                 nextConditionsSampleDue = currentGameState.Now.Add(ConditionsMonitor.ConditionsSampleFrequency);
                 currentGameState.Conditions.addSample(currentGameState.Now, currentGameState.SessionData.CompletedLaps, currentGameState.SessionData.SectorNumber,
                     shared.mAmbientTemperature, shared.mTrackTemperature, shared.mRainDensity, shared.mWindSpeed, shared.mWindDirectionX, shared.mWindDirectionY, shared.mCloudBrightness,
-                    currentGameState.SessionData.IsNewLap);
+                    currentGameState.SessionData.IsNewLap, ConditionsMonitor.TrackStatus.UNKNOWN);
             }
             currentGameState.CloudBrightness = shared.mCloudBrightness;
             currentGameState.RainDensity = shared.mRainDensity;
@@ -1376,19 +1383,20 @@ namespace CrewChiefV4.PCars2
         private OpponentData createOpponentData(pCars2APIParticipantStruct participantStruct, Boolean loadDriverName, CarData.CarClass carClass, Boolean canUseName, float trackLength)
         {            
             OpponentData opponentData = new OpponentData();
-            String participantName = StructHelper.getNameFromBytes(participantStruct.mName).ToLower();
+            String participantName = StructHelper.getNameFromBytes(participantStruct.mName);
             opponentData.DriverRawName = participantName;
             opponentData.DriverNameSet = true;
             if (participantName != null && participantName.Length > 0 && loadDriverName && CrewChief.enableDriverNames)
             {
                 if (speechRecogniser != null) speechRecogniser.addNewOpponentName(opponentData.DriverRawName, "-1");
+                SoundCache.loadDriverNameSound(DriverNameHelper.getUsableDriverName(opponentData.DriverRawName));
             }
             opponentData.OverallPosition = (int)participantStruct.mRacePosition;
             opponentData.CompletedLaps = (int)participantStruct.mLapsCompleted;
             opponentData.CurrentSectorNumber = (int)participantStruct.mCurrentSector + 1;   // zero indexed
             opponentData.WorldPosition = new float[] { participantStruct.mWorldPosition[0], participantStruct.mWorldPosition[2] };
             opponentData.DistanceRoundTrack = participantStruct.mCurrentLapDistance;
-            opponentData.DeltaTime = new DeltaTime(trackLength, opponentData.DistanceRoundTrack, DateTime.UtcNow);
+            opponentData.DeltaTime = new DeltaTime(trackLength, opponentData.DistanceRoundTrack, opponentData.Speed, DateTime.UtcNow);
             opponentData.CarClass = carClass;
             opponentData.IsActive = true;
             String nameToLog = opponentData.DriverRawName == null ? "unknown" : opponentData.DriverRawName;

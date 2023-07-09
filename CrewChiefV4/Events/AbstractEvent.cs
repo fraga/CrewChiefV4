@@ -5,6 +5,7 @@ using System.Text;
 using CrewChiefV4.GameState;
 using CrewChiefV4.Audio;
 using CrewChiefV4.NumberProcessing;
+using System.Globalization;
 
 namespace CrewChiefV4.Events
 {
@@ -12,7 +13,10 @@ namespace CrewChiefV4.Events
     {
         private static String folderCelsius = "conditions/celsius";
         private static String folderFahrenheit = "conditions/fahrenheit";
+        private static String folderPSI = "tyre_monitor/psi";
+        private static String folderBar = "tyre_monitor/bar";   // if people grumble about this, 1bar = 100kPa
         private Boolean useFahrenheit = UserSettings.GetUserSettings().getBoolean("use_fahrenheit");
+        private Boolean usePSI = !UserSettings.GetUserSettings().getBoolean("use_metric");
 
         public enum SIMPLE_INCIDENT_DETECTION_SESSIONS { DISABLED, RACE_ONLY, ALL_SESSIONS };
         public static SIMPLE_INCIDENT_DETECTION_SESSIONS simpleIncidentDetectionSessions = SIMPLE_INCIDENT_DETECTION_SESSIONS.RACE_ONLY;
@@ -126,7 +130,8 @@ namespace CrewChiefV4.Events
             {
                 messageFragments.Add((MessageFragment)o);
             }
-            else if (o.GetType() == typeof(String)) {
+            else if (o.GetType() == typeof(String))
+            {
                 messageFragments.Add(MessageFragment.Text((String)o));
             }
             else if (o.GetType() == typeof(TimeSpan))
@@ -141,10 +146,41 @@ namespace CrewChiefV4.Events
             {
                 messageFragments.Add(MessageFragment.Opponent((OpponentData)o));
             }
-            else if (o.GetType() == typeof(int) || o.GetType() == typeof(double) || o.GetType() == typeof(float) ||
-                o.GetType() == typeof(short) || o.GetType() == typeof(long) || o.GetType() == typeof(decimal) || o.GetType() == typeof(uint))
+            else if (o.GetType() == typeof(CarNumber))
+            {
+                messageFragments.AddRange(((CarNumber)o).getMessageFragments());
+            }
+            else if (o.GetType() == typeof(int) || o.GetType() == typeof(short) || o.GetType() == typeof(long) || o.GetType() == typeof(uint))
             {
                 messageFragments.Add(MessageFragment.Integer(Convert.ToInt32(o)));
+            }
+            else if (o.GetType() == typeof(double) || o.GetType() == typeof(float) || o.GetType() == typeof(decimal))
+            {
+                double d = Convert.ToDouble(o);
+                string str = d.ToString("0.00", CultureInfo.InvariantCulture);
+                int dpPosition = str.IndexOf('.');
+                int integral = int.Parse(str.Substring(0, dpPosition));
+                int fraction1 = int.Parse(str.Substring(dpPosition + 1, 1));
+                int fraction2 = int.Parse(str.Substring(dpPosition + 2, 1));
+                Console.WriteLine("Converted real number " + o + " to " + integral + ", " + NumberReader.folderPoint + ", " + fraction1 + fraction2);
+                if (fraction1 == 0 && fraction2 == 0)
+                {
+                    // there's no 'right' answer here - do we read it as "x point zero" or just "x"? Really this is an issue in the event - it should be
+                    // doing the work to convert a real number to 'int point int' in accordance with its own requirements, so this is just a fallback.
+                    // So warn and read it anyway
+                    Console.WriteLine("Real number " + integral + ".00" + " will be read with a trailing \"point zero\"");
+                }
+                messageFragments.Add(MessageFragment.Integer(Convert.ToInt32(integral)));
+                messageFragments.Add(MessageFragment.Text(NumberReader.folderPoint));
+                messageFragments.Add(MessageFragment.Integer(Convert.ToInt32(fraction1)));
+                if (fraction2 != 0)
+                {
+                    messageFragments.Add(MessageFragment.Integer(Convert.ToInt32(fraction2)));
+                }
+            }
+            else
+            {
+                Console.WriteLine("Unexpected message fragment type of " + o.GetType() + " with content " + o.ToString());
             }
         }
 
@@ -279,11 +315,16 @@ namespace CrewChiefV4.Events
             return useFahrenheit ? folderFahrenheit : folderCelsius;
         }
 
+        public String getPressureUnit()
+        {
+            return CrewChief.gameDefinition.gameEnum == GameEnum.ACC || usePSI ? folderPSI : folderBar;
+        }
+
         public int convertTemp(float temp)
         {
             return convertTemp(temp, 1);
         }
-
+        
         public int convertTemp(float temp, int precision)
         {
             return useFahrenheit ? celciusToFahrenheit(temp, precision) : (int)(Math.Round(temp / (double)precision) * precision);
@@ -293,6 +334,21 @@ namespace CrewChiefV4.Events
         {
             float temp = (int)Math.Round((celcius * (9f / 5f)) + 32f);
             return (int)(Math.Round(temp / (double)precision) * precision);
+        }
+
+        public float convertPressure(float pressure, int decimalPlaces)
+        {
+            return CrewChief.gameDefinition.gameEnum == GameEnum.ACC || usePSI ? kpaToPsi(pressure, decimalPlaces) : kpaToBar(pressure, decimalPlaces);
+        }
+
+        private static float kpaToPsi(float kpa, int decimalPlaces)
+        {
+            return (float) Math.Round(kpa / 6.894f, decimalPlaces);
+        }
+
+        private static float kpaToBar(float kpa, int decimalPlaces)
+        {
+            return (float)Math.Round(kpa / 100f, 2);
         }
     }
 }

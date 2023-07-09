@@ -93,12 +93,25 @@ namespace CrewChiefV4.PitManager
 
             {PME.Tearoff,                 SRE.PIT_STOP_TEAROFF },    // iRacing
             {PME.TearOffNone,             SRE.PIT_STOP_CLEAR_WIND_SCREEN },
+
+            {PME.DisplaySectors,          SRE.DISPLAY_SECTORS },
+            {PME.DisplayPitMenu,          SRE.DISPLAY_PIT_MENU },
+            {PME.DisplayTyres,            SRE.DISPLAY_TYRES },
+            {PME.DisplayTemps,            SRE.DISPLAY_TEMPS },
+            {PME.DisplayRaceInfo,         SRE.DISPLAY_RACE_INFO },
+            {PME.DisplayStandings,        SRE.DISPLAY_STANDINGS },
+            {PME.DisplayPenalties,        SRE.DISPLAY_PENALTIES },
+            {PME.DisplayNext,             SRE.DISPLAY_NEXT }
             };
 
         private static float fuelCapacity = -1;
         private static float currentFuel = -1;
         // In the car (in real time)
         private static bool inCar = false;
+
+        private static Boolean rf2AutoFuelToEnd = UserSettings.GetUserSettings().getBoolean("rf2_enable_auto_fuel_to_end_of_race");
+
+        public static Boolean tyresAutoCleared = false;
 
         #endregion Private Fields
 
@@ -184,6 +197,7 @@ namespace CrewChiefV4.PitManager
         {
             fuelCapacity = -1;
             currentFuel = -1;
+            PitManagerEventHandlers_RF2.FuelVoiceCommand.Given = false;
             pmh.EventHandlerInit();
         }
 
@@ -211,41 +225,72 @@ namespace CrewChiefV4.PitManager
             return inCar;
         }
 
-        #endregion Public Methods
-
-        #region Protected Methods
-
-        /// <summary>
-        /// This is called on each 'tick' - the event subtype should
-        /// place its logic in here including calls to audioPlayer.queueClip
-        /// </summary>
-        /// <param name="previousGameState"></param>
-        /// <param name="currentGameState"></param>
-        override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
+        public static void startOfRace()
         {
-            Boolean autoFuelToEnd = UserSettings.GetUserSettings().getBoolean("rf2_enable_auto_fuel_to_end_of_race");
+            CrewChief.getEvent("PitManagerVoiceCmds").respond("pitstop clear tyres");
+            tyresAutoCleared = true;
+    }
+    #endregion Public Methods
 
+    #region Protected Methods
+
+    /// <summary>
+    /// This is called on each 'tick' - the event subtype should
+    /// place its logic in here including calls to audioPlayer.queueClip
+    /// </summary>
+    /// <param name="previousGameState"></param>
+    /// <param name="currentGameState"></param>
+    override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
+        {
             inCar = currentGameState.inCar;
             if (!previousGameState.inCar && currentGameState.inCar)
             {
                 pmh.EventHandlerInit();
+                Log.Debug($"Car name {currentGameState.carName}");
+                Log.Debug($"Track name {currentGameState.trackName}");
             }
 
             fuelCapacity = currentGameState.FuelData.FuelCapacity;
             currentFuel = currentGameState.FuelData.FuelLeft;
-            if (inCar && autoFuelToEnd
+            if (inCar
+#pragma warning disable S2589
                 && (previousGameState != null
-                    && (!previousGameState.PitData.InPitlane
-                    && currentGameState.PitData.InPitlane)
+#pragma warning restore S2589
                     && currentGameState.SessionData.SessionType == SessionType.Race
                     && currentGameState.SessionData.SessionRunningTime > 15
                     && !previousGameState.PitData.IsInGarage
                     && !currentGameState.PitData.JumpedToPits))
             {
-                var litres = PitFuelling.fuelToEnd(fuelCapacity, currentFuel);
-                if (CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT)
+                if (!previousGameState.PitData.InPitlane
+                    && currentGameState.PitData.InPitlane)
                 {
-                    PitManagerEventHandlers_RF2.rF2SetFuel(litres);
+                    Log.Commentary("Entered pit lane");
+                    if (rf2AutoFuelToEnd)
+                    {
+                        if (PitManagerEventHandlers_RF2.FuelVoiceCommand.Given)
+                        {
+                            Log.Warning("'rF2 auto refuelling' ignored as a pitstop fuel voice command has been given");
+                            PitManagerEventHandlers_RF2.FuelVoiceCommand.Given = false;  // auto refuel next pitstop
+                        }
+                        else
+                        {
+
+                            if (CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT)
+                            {
+                                var litres = PitFuelling.fuelToEnd(fuelCapacity, currentFuel);
+                                if (litres >= 0)
+                                {
+                                    PitManagerEventHandlers_RF2.rF2SetFuel(litres);
+                                }
+                                // else couldn't calculate fuel required
+                            }
+                        }
+                    }
+                }
+                else if (previousGameState.PitData.InPitlane
+                    && !currentGameState.PitData.InPitlane)
+                {
+                    Log.Commentary("Left pit lane");
                 }
             }
         }
@@ -285,7 +330,7 @@ namespace CrewChiefV4.PitManager
                     if (_voiceMessage.Contains(" " + numberStr))
                     {
                         amount = entry.Value;
-                        Log.Debug("processed number " + amount.ToString());
+                        Log.Verbose("processed number " + amount.ToString());
                         break;
                     }
                 }
@@ -368,31 +413,51 @@ namespace CrewChiefV4.PitManager
     {
         private static readonly CrewChief crewChief = MainWindow.instance.crewChief;
 
+        static private float addAdditionalFuelLaps = UserSettings.GetUserSettings().getFloat("add_additional_fuel");
+
+        static private Boolean baseCalculationsOnMaxConsumption = UserSettings.GetUserSettings().getBoolean("prefer_max_consumption_in_fuel_calculations");
+
         #region Public Methods
+        /// <summary>
+        /// Calculate how much fuel is needed to get to the end of the race
+        /// </summary>
+        /// <param name="fuelCapacity"></param>
+        /// <param name="currentFuel"></param>
+        /// <returns>
+        /// > 0: Litres needed
+        /// 0:   Enough fuel in car already
+        /// < 0: Couldn't calculate fuel required
+        /// </returns>
         static public int fuelToEnd(float fuelCapacity, float currentFuel)
         {
             int roundedLitresNeeded = -1;
             Fuel fuelEvent = (Fuel)CrewChief.getEvent("Fuel");
-            float additionaLitresNeeded = fuelEvent.getLitresToEndOfRace(true);
+            float additionaLitresNeeded = fuelEvent.getAdditionalFuelToEndOfRace(true);
+
+            Log.Fuel($"Laps of extra fuel: {addAdditionalFuelLaps}");
+            Log.Fuel($"Fuel calculations based on max fuel consumption: {baseCalculationsOnMaxConsumption}");
 
             if (additionaLitresNeeded == float.MaxValue)
             {
                 crewChief.audioPlayer.playMessage(new QueuedMessage(AudioPlayer.folderNoData, 0));
-                roundedLitresNeeded = 0;
+                Log.Fuel("Pit: couldn't calculate fuel needed");
+                roundedLitresNeeded = -1;
             }
             else if (additionaLitresNeeded <= 0)
             {
                 crewChief.audioPlayer.playMessage(new QueuedMessage(Fuel.folderPlentyOfFuel, 0));
+                Log.Fuel("Pit: no fuel needed");
                 roundedLitresNeeded = 0;
             }
             else if (additionaLitresNeeded > 0)
             {
                 roundedLitresNeeded = (int)Math.Ceiling(additionaLitresNeeded);
-                Log.Commentary("Auto refuel to the end of the race, adding " + roundedLitresNeeded + " litres of fuel");
+                Log.Fuel($"Pit: auto refuel to the end of the race, need to add {roundedLitresNeeded} litres of fuel");
                 if (roundedLitresNeeded > fuelCapacity - currentFuel)
                 {
                     // if we have a known fuel capacity and this is less than the calculated amount of fuel we need, warn about it.
                     crewChief.audioPlayer.playMessage(new QueuedMessage(Fuel.folderWillNeedToStopAgain, 0, secondsDelay: 4));
+                    Log.Fuel($"Pit: need {roundedLitresNeeded + currentFuel} but tank only holds {fuelCapacity} litres");
                 }
                 else
                 {

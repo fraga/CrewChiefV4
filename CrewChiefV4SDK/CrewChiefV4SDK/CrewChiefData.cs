@@ -1,5 +1,4 @@
 using System;
-
 namespace CrewChiefV4SharedMemory
 {
 	[Serializable]
@@ -16,6 +15,8 @@ namespace CrewChiefV4SharedMemory
 			phraseFileTimes = (System.Int64[])sdk.GetData("phraseFileTimes");
 			phraseVoiceNames = (System.String[])sdk.GetData("phraseVoiceNames");
 			phrasePhrases = (System.String[])sdk.GetData("phrasePhrases");
+			phrasesVoiceType = (System.Int32[])sdk.GetData("phrasesVoiceType");
+			phraseIsPlaying = (System.Boolean)sdk.GetData("phraseIsPlaying");
 		}
 
 		/// <summary>
@@ -62,5 +63,15 @@ namespace CrewChiefV4SharedMemory
 		/// phrases
 		/// <summary>
 		public System.String[] phrasePhrases;
+
+		/// <summary>
+		/// enum PhraseVoiceType { chief = 0, spotter, you }
+		/// <summary>
+		public System.Int32[] phrasesVoiceType;
+
+		/// <summary>
+		/// Is the phrase currently playing
+		/// <summary>
+		public System.Boolean phraseIsPlaying;
 	}
 }

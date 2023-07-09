@@ -14,6 +14,13 @@ namespace CrewChiefV4
 {
     public partial class PropertiesForm : Form
     {
+        public const int PREFERRED_X_SIZE = 1030;
+        public const int PREFERRED_Y_SIZE = 840;
+        private static int X_SIZE = Math.Min(PREFERRED_X_SIZE, Screen.PrimaryScreen.WorkingArea.Width);
+        private static int Y_SIZE = Math.Min(PREFERRED_Y_SIZE, Screen.PrimaryScreen.WorkingArea.Height);
+        private static bool NEED_H_SCROLL = X_SIZE < PREFERRED_X_SIZE;
+        private static bool NEED_V_SCROLL = Y_SIZE < PREFERRED_Y_SIZE;
+
         public HashSet<string> updatedPropertiesRequiringRestart = new HashSet<string>();
         public HashSet<string> updatedProperties = new HashSet<string>();
 
@@ -89,7 +96,8 @@ namespace CrewChiefV4
                 + Configuration.getUIString("search_box_tooltip_line6") + Environment.NewLine
                 + Configuration.getUIString("search_box_tooltip_line7") + Environment.NewLine
                 + Configuration.getUIString("search_box_tooltip_line8") + Environment.NewLine
-                + Configuration.getUIString("search_box_tooltip_line9") + Environment.NewLine;
+                + Configuration.getUIString("search_box_tooltip_line9") + Environment.NewLine
+                + Configuration.getUIString("search_box_tooltip_line10") + Environment.NewLine;
             this.searchBoxTooltip.SetToolTip(this.searchTextBox, tooltip);
             this.exitButton.Text = Configuration.getUIString("exit_without_saving");
             this.restoreButton.Text = Configuration.getUIString("restore_default_settings");
@@ -117,15 +125,34 @@ namespace CrewChiefV4
             updateSaveButtonText();
         }
 
+        /// <summary>
+        /// Get the tooltip text for a property
+        /// </summary>
+        /// <param name="propName"></param>
+        /// <returns>
+        /// "propName"_help
+        /// "No help provided" if "propName"_help does not exist
+        /// </returns>
+        private string GetHelpString(string propName)
+        {
+            propName = propName + "_help";
+            string result = Configuration.getUIStringMaybeNull(propName);
+            if (result == propName)
+            {
+                result = Configuration.getUIString("no_help_provided");
+            }
+            return result;
+        }
 
         // Note: vast majority of startup time is in ShowDialog.  Looks like pretty much the only way to speed it up is by reducing
         // number of controls or splitting in tabs.
         public PropertiesForm(Form parent)
         {
             StartPosition = FormStartPosition.CenterParent;
+            // if we're not forcing the window size, see if the regular layout will fit and shrink it if necessary
             if (MainWindow.forceMinWindowSize)
             {
-                this.MinimumSize = new Size(1030, 860);
+                this.MinimumSize = new Size(X_SIZE, Y_SIZE);
             }
 
             this.parent = parent;
@@ -144,84 +171,101 @@ namespace CrewChiefV4
 
             this.SuspendLayout();
             this.propertiesFlowLayoutPanel.SuspendLayout();
+            string propertyType;
 
             int widgetCount = 0;
+            propertyType = Configuration.getUIString("text_prop_type");
             foreach (SettingsProperty strProp in UserSettings.GetUserSettings().getProperties(typeof(String), null, null))
             {
                 if (strProp.Name.EndsWith(PropertiesForm.listPropPostfix) && ListPropertyValues.getListBoxLabels(strProp.Name) != null)
                 {
-                    this.propertiesFlowLayoutPanel.Controls.Add(new ListPropertyControl(strProp.Name, Configuration.getUIString(strProp.Name) + " " + Configuration.getUIString("text_prop_type"),
+                    this.propertiesFlowLayoutPanel.Controls.Add(new ListPropertyControl(strProp.Name, Configuration.getUIString(strProp.Name),
                        UserSettings.GetUserSettings().getString(strProp.Name), (String)strProp.DefaultValue,
-                       Configuration.getUIString(strProp.Name + "_help"), Configuration.getUIStringStrict(strProp.Name + "_filter"),
+                       GetHelpString(strProp.Name), // Property type note not needed for dropdown choice
+                       Configuration.getUIStringStrict(strProp.Name + "_filter"),
                        Configuration.getUIStringStrict(strProp.Name + "_category"), changeRequiresRestart(Configuration.getUIStringStrict(strProp.Name + "_metadata")),
                        Configuration.getUIStringStrict(strProp.Name + "_type"), this));
                 }
                 else
                 {
-                    this.propertiesFlowLayoutPanel.Controls.Add(new StringPropertyControl(strProp.Name, Configuration.getUIString(strProp.Name) + " " + Configuration.getUIString("text_prop_type"),
+                    this.propertiesFlowLayoutPanel.Controls.Add(new StringPropertyControl(strProp.Name, Configuration.getUIString(strProp.Name),
                        UserSettings.GetUserSettings().getString(strProp.Name), (String)strProp.DefaultValue,
-                       Configuration.getUIString(strProp.Name + "_help"), Configuration.getUIStringStrict(strProp.Name + "_filter"),
+                       GetHelpString(strProp.Name) + " " + propertyType, 
+                       Configuration.getUIStringStrict(strProp.Name + "_filter"),
                        Configuration.getUIStringStrict(strProp.Name + "_category"), changeRequiresRestart(Configuration.getUIStringStrict(strProp.Name + "_metadata")), this));
                 }
                 widgetCount++;
             }
             pad(widgetCount);
+
             widgetCount = 0;
             foreach (SettingsProperty boolProp in UserSettings.GetUserSettings().getProperties(typeof(Boolean), "enable", null))
             {
                 Boolean defaultValue;
                 Boolean.TryParse((String)boolProp.DefaultValue, out defaultValue);
-                this.propertiesFlowLayoutPanel.Controls.Add(new BooleanPropertyControl(boolProp.Name, Configuration.getUIString(boolProp.Name) + " " + Configuration.getUIString("boolean_prop_type"),
+                this.propertiesFlowLayoutPanel.Controls.Add(new BooleanPropertyControl(boolProp.Name, Configuration.getUIString(boolProp.Name),
                     UserSettings.GetUserSettings().getBoolean(boolProp.Name), defaultValue,
-                    Configuration.getUIString(boolProp.Name + "_help"), Configuration.getUIStringStrict(boolProp.Name + "_filter"),
+                    GetHelpString(boolProp.Name), // Property type note not needed for checkbox
+                    Configuration.getUIStringStrict(boolProp.Name + "_filter"),
                     Configuration.getUIStringStrict(boolProp.Name + "_category"), changeRequiresRestart(Configuration.getUIStringStrict(boolProp.Name + "_metadata")), this));
                 widgetCount++;
             }
             pad(widgetCount);
+
+            propertyType = Configuration.getUIString("integer_prop_type");
             widgetCount = 0;
             foreach (SettingsProperty intProp in UserSettings.GetUserSettings().getProperties(typeof(int), "frequency", null))
             {
                 int defaultValue;
                 int.TryParse((String)intProp.DefaultValue, out defaultValue);
-                this.propertiesFlowLayoutPanel.Controls.Add(new IntPropertyControl(intProp.Name, Configuration.getUIString(intProp.Name) + " " + Configuration.getUIString("integer_prop_type"),
+                this.propertiesFlowLayoutPanel.Controls.Add(new IntPropertyControl(intProp.Name, Configuration.getUIString(intProp.Name),
                     UserSettings.GetUserSettings().getInt(intProp.Name), defaultValue,
-                    Configuration.getUIString(intProp.Name + "_help"), Configuration.getUIStringStrict(intProp.Name + "_filter"),
+                    GetHelpString(intProp.Name) + " " + propertyType,
+                    Configuration.getUIStringStrict(intProp.Name + "_filter"),
                     Configuration.getUIStringStrict(intProp.Name + "_category"), changeRequiresRestart(Configuration.getUIStringStrict(intProp.Name + "_metadata")), this));
                 widgetCount++;
             }
             pad(widgetCount);
+
             widgetCount = 0;
             foreach (SettingsProperty boolProp in UserSettings.GetUserSettings().getProperties(typeof(Boolean), null, "enable"))
             {
                 Boolean defaultValue;
                 Boolean.TryParse((String)boolProp.DefaultValue, out defaultValue);
-                this.propertiesFlowLayoutPanel.Controls.Add(new BooleanPropertyControl(boolProp.Name, Configuration.getUIString(boolProp.Name) + " " + Configuration.getUIString("boolean_prop_type"),
+                this.propertiesFlowLayoutPanel.Controls.Add(new BooleanPropertyControl(boolProp.Name, Configuration.getUIString(boolProp.Name),
                     UserSettings.GetUserSettings().getBoolean(boolProp.Name), defaultValue,
-                    Configuration.getUIString(boolProp.Name + "_help"), Configuration.getUIStringStrict(boolProp.Name + "_filter"),
+                    GetHelpString(boolProp.Name), // Property type note not needed for checkbox
+                    Configuration.getUIStringStrict(boolProp.Name + "_filter"),
                     Configuration.getUIStringStrict(boolProp.Name + "_category"), changeRequiresRestart(Configuration.getUIStringStrict(boolProp.Name + "_metadata")), this));
                 widgetCount++;
             }
             pad(widgetCount);
+
+            propertyType = Configuration.getUIString("integer_prop_type");
             widgetCount = 0;
             foreach (SettingsProperty intProp in UserSettings.GetUserSettings().getProperties(typeof(int), null, "frequency"))
             {
                 int defaultValue;
                 int.TryParse((String)intProp.DefaultValue, out defaultValue);
-                this.propertiesFlowLayoutPanel.Controls.Add(new IntPropertyControl(intProp.Name, Configuration.getUIString(intProp.Name) + " " + Configuration.getUIString("integer_prop_type"),
+                this.propertiesFlowLayoutPanel.Controls.Add(new IntPropertyControl(intProp.Name, Configuration.getUIString(intProp.Name),
                     UserSettings.GetUserSettings().getInt(intProp.Name), defaultValue,
-                    Configuration.getUIString(intProp.Name + "_help"), Configuration.getUIStringStrict(intProp.Name + "_filter"),
+                    GetHelpString(intProp.Name) + " " + propertyType,
+                    Configuration.getUIStringStrict(intProp.Name + "_filter"),
                     Configuration.getUIStringStrict(intProp.Name + "_category"), changeRequiresRestart(Configuration.getUIStringStrict(intProp.Name + "_metadata")), this));
                 widgetCount++;
             }
             pad(widgetCount);
+
+            propertyType = Configuration.getUIString("real_number_prop_type");
             widgetCount = 0;
             foreach (SettingsProperty floatProp in UserSettings.GetUserSettings().getProperties(typeof(float), null, null))
             {
                 float defaultValue;
                 float.TryParse((String)floatProp.DefaultValue, out defaultValue);
-                this.propertiesFlowLayoutPanel.Controls.Add(new FloatPropertyControl(floatProp.Name, Configuration.getUIString(floatProp.Name) + " " + Configuration.getUIString("real_number_prop_type"),
+                this.propertiesFlowLayoutPanel.Controls.Add(new FloatPropertyControl(floatProp.Name, Configuration.getUIString(floatProp.Name),
                     UserSettings.GetUserSettings().getFloat(floatProp.Name), defaultValue,
-                    Configuration.getUIString(floatProp.Name + "_help"), Configuration.getUIStringStrict(floatProp.Name + "_filter"),
+                    GetHelpString(floatProp.Name)+ " " + propertyType,
+                    Configuration.getUIStringStrict(floatProp.Name + "_filter"),
                     Configuration.getUIStringStrict(floatProp.Name + "_category"), changeRequiresRestart(Configuration.getUIStringStrict(floatProp.Name + "_metadata")), this));
                 widgetCount++;
             }
@@ -266,14 +310,17 @@ namespace CrewChiefV4
                     foreach (var game in MainWindow.instance.gameDefinitionList.Items)
                     {
                         var friendlyGameName = game.ToString();
-                        this.filterBox.Items.Add(new ComboBoxItem<GameEnum>()
+                        if (friendlyGameName != GameDefinition.none.friendlyName)
                         {
-                            Label = friendlyGameName,
-                            Value = GameDefinition.getGameDefinitionForFriendlyName(friendlyGameName).gameEnum
-                        });
+                            this.filterBox.Items.Add(new ComboBoxItem<GameEnum>()
+                            {
+                                Label = friendlyGameName,
+                                Value = GameDefinition.getGameDefinitionForFriendlyName(friendlyGameName).gameEnum
+                            });
 
-                        if (friendlyGameName == currSelectedGameFriendlyName)
-                            this.filterBox.SelectedIndex = this.filterBox.Items.Count - 1;
+                            if (friendlyGameName == currSelectedGameFriendlyName)
+                                this.filterBox.SelectedIndex = this.filterBox.Items.Count - 1;
+                        }
                     }
                 }
             }
@@ -373,7 +420,20 @@ namespace CrewChiefV4
             this.loadActiveProfile();
 
             this.propertiesFlowLayoutPanel.ResumeLayout(false);
+
             this.ResumeLayout(false);
+
+            if (NEED_H_SCROLL || NEED_V_SCROLL)
+            {
+                this.Size = new System.Drawing.Size(X_SIZE, Y_SIZE);
+            }
+
+            bool forceHScrollbar = UserSettings.GetUserSettings().getBoolean("scroll_bars_on_main_window") || NEED_H_SCROLL;
+            bool forceVScrollbar = UserSettings.GetUserSettings().getBoolean("scroll_bars_on_main_window") || NEED_V_SCROLL;
+
+            this.AutoScroll = forceHScrollbar || forceVScrollbar;
+            this.HScroll = forceHScrollbar;
+            this.VScroll = forceVScrollbar;
         }
 
         public void saveActiveProfile()
@@ -475,7 +535,7 @@ namespace CrewChiefV4
             this.saveActiveProfile();
             if (requiresRestart)
             {
-                if (Utilities.RestartApp())
+                if (Utilities.RestartApp()) // Why not (app_restart:true)?
                 {
                     parent.Close(); //to turn off current app
                 }
@@ -506,7 +566,9 @@ namespace CrewChiefV4
             if (this.updatedProperties.Count() > 0)
             {
                 var requiresRestart = this.updatedPropertiesRequiringRestart.Count > 0;
-                var warningMessage = requiresRestart ? Configuration.getUIString("save_prop_changes_warning") : Configuration.getUIString("save_prop_changes_warning_no_restart");
+                var warningMessage = requiresRestart ? 
+                    Utilities.Strings.NewlinesInLongString(Configuration.getUIString("save_prop_changes_warning")) :
+                    Utilities.Strings.NewlinesInLongString(Configuration.getUIString("save_prop_changes_warning_no_restart"));
                 warningMessage = string.Format(warningMessage, Path.GetFileNameWithoutExtension(UserSettings.GetUserSettings().getString("current_settings_profile")));
                 if (CrewChief.Debugging && requiresRestart)
                 {
@@ -520,7 +582,7 @@ namespace CrewChiefV4
                     this.saveActiveProfile();
                     if (requiresRestart)
                     {
-                        if (Utilities.RestartApp(new List<string> { "-app_restart" }))
+                        if (Utilities.RestartApp(app_restart:true))
                         {
                             parent.Close(); // To turn off current app
                         }
@@ -989,7 +1051,9 @@ namespace CrewChiefV4
         {
             if (this.updatedProperties.Count() > 0)
             {
-                var warningMessage = string.Format(Configuration.getUIString("save_prop_changes_warning_no_restart"), Path.GetFileNameWithoutExtension(UserSettings.GetUserSettings().getString("current_settings_profile")));
+                var warningMessage = string.Format(
+                    Utilities.Strings.NewlinesInLongString(Configuration.getUIString("save_prop_changes_warning_no_restart")),
+                    Path.GetFileNameWithoutExtension(UserSettings.GetUserSettings().getString("current_settings_profile")));
                 if (MessageBox.Show(warningMessage, Configuration.getUIString("save_changes_title"), MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                     this.saveActiveProfile();
 
@@ -1001,7 +1065,7 @@ namespace CrewChiefV4
             {
                 UserSettings.GetUserSettings().saveUserSettings();
 
-                if (Utilities.RestartApp(new List<string> { "-app_restart" }))
+                if (Utilities.RestartApp(app_restart:true, removeProfile:true))
                 {
                     this.clearChangedState();
                     this.parent.Close(); //to turn off current app
@@ -1020,7 +1084,7 @@ namespace CrewChiefV4
 
                 // Hacks for debugging purposes only (may not be identical to the actual restart).
                 // Load activated profile into the active user profile.
-                UserSettings.GetUserSettings().loadActiveUserSettingsProfile(Path.Combine(UserSettings.userProfilesPath, activeProfileName));
+                UserSettings.GetUserSettings().loadActiveUserSettingsProfile(fileName: Path.Combine(UserSettings.userProfilesPath, activeProfileName), loadingDefault: false);
                 // Update active profile name so that settings are saved into correct file.
                 UserSettings.currentUserProfileFileName = activeProfileName;
 

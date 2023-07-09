@@ -106,7 +106,16 @@ namespace CrewChiefV4.PitManager
         FlipUpR,
 
         Tearoff,                // iRacing
-        TearOffNone
+        TearOffNone,
+
+        DisplaySectors,         // rF2 Multi-Function Display pages
+        DisplayPitMenu,
+        DisplayTyres,
+        DisplayTemps,
+        DisplayRaceInfo,
+        DisplayStandings,
+        DisplayPenalties,
+        DisplayNext
     }
 
     public class PitManager
@@ -213,11 +222,19 @@ namespace CrewChiefV4.PitManager
                                     if (result)
                                     {
                                         result = PM_event_dict[ev].PitManagerEventResponse.Invoke();
+                                        if (PitManagerVoiceCmds.tyresAutoCleared)
+                                        {   // Pit menu tyre change cleared at start of race
+                                            PitManagerVoiceCmds.tyresAutoCleared = false;
+                                            // Restore the MFD
+                                            PM_event_dict[PME.DisplayRaceInfo].PitManagerEventAction.Invoke(voiceMessage);
+                                        }
                                     }
                                     else
                                     {
                                         //TBD: default handler "Couldn't do event for this vehicle"
-                                        // e.g. change aero on non-aero car, option not in menu
+                                        // e.g. change aero on non-aero car, option not in menu,
+                                        // fuel a car
+                                        PitManagerResponseHandlers.PMrh_CantDoThat();
                                         Log.Commentary($"Pit Manager couldn't do {ev} for this vehicle");
                                     }
                                 }
@@ -232,6 +249,7 @@ namespace CrewChiefV4.PitManager
                         {
                             //TBD: default handler "Not available in this game"
                             PitManagerResponseHandlers.PMrh_CantDoThat();
+                            Log.Commentary($"Pit Manager couldn't do {ev} in this game");
                             //Alternatively event dicts for all games have all events
                             //and the response handler does the warning.
                         }
@@ -333,9 +351,9 @@ namespace CrewChiefV4.PitManager
             {PME.TyreCompoundSupersoft,   _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundSupersoft, PMER.PMrh_TyreCompoundSupersoft) },
             {PME.TyreCompoundUltrasoft,   _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundUltrasoft, PMER.PMrh_TyreCompoundUltrasoft) },
             {PME.TyreCompoundHypersoft,   _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundHypersoft, PMER.PMrh_TyreCompoundHypersoft) },
-            {PME.TyreCompoundIntermediate,_PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundWet,    PMER.PMrh_TyreCompoundIntermediate) },
+            {PME.TyreCompoundIntermediate,_PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundIntermediate, PMER.PMrh_TyreCompoundIntermediate) },
             {PME.TyreCompoundWet,         _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundWet,    PMER.PMrh_TyreCompoundWet) },
-            {PME.TyreCompoundMonsoon,     _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundWet,    PMER.PMrh_TyreCompoundMonsoon) },
+            {PME.TyreCompoundMonsoon,     _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundMonsoon, PMER.PMrh_TyreCompoundMonsoon) },
             {PME.TyreCompoundOption,      _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundOption, PMER.PMrh_TyreCompoundOption) },
             {PME.TyreCompoundPrime,       _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundPrime,  PMER.PMrh_TyreCompoundPrime) },
             {PME.TyreCompoundAlternate,   _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundAlternate, PMER.PMrh_TyreCompoundAlternate) },
@@ -343,7 +361,7 @@ namespace CrewChiefV4.PitManager
 
             {PME.FuelAddXlitres,          _PMet(_PMeh, PMEHrF2.PMrF2eh_FuelAddXlitres,     PMER.PMrh_FuelAddXlitres) },
             {PME.FuelFillToXlitres,       _PMet(_PMeh, PMEHrF2.PMrF2eh_FuelToXlitres,      PMER.PMrh_FuelAddXlitres) },
-            {PME.FuelFillToEnd,           _PMet(_PMeh, PMEHrF2.PMrF2eh_FuelToEnd,          PMER.PMrh_fuelToEnd) },
+            {PME.FuelFillToEnd,           _PMet(_PMeh, PMEHrF2.PMrF2eh_FuelToEnd,          PMER.PMrh_NoResponse) }, // Multiple responses in event handler
             {PME.FuelNone,                _PMet(_PMeh, PMEHrF2.PMrF2eh_FuelNone,           PMER.PMrh_noFuel) },
 
             {PME.RepairAll,               _PMet(_PMeh, PMEHrF2.PMrF2eh_RepairAll,          PMER.PMrh_RepairAll) },
@@ -383,6 +401,15 @@ namespace CrewChiefV4.PitManager
 
             //{PME.Tearoff,               _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) }, // iRacing
             //{PME.TearOffNone,           _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
+
+            {PME.DisplaySectors,          _PMet(_PMeh, PMEHrF2.PMrF2eh_DisplaySectors,     PMER.PMrh_NoResponse) },
+            {PME.DisplayPitMenu,          _PMet(_PMeh, PMEHrF2.PMrF2eh_DisplayPitMenu,     PMER.PMrh_NoResponse) },
+            {PME.DisplayTyres,            _PMet(_PMeh, PMEHrF2.PMrF2eh_DisplayTyres,       PMER.PMrh_NoResponse) },
+            {PME.DisplayTemps,            _PMet(_PMeh, PMEHrF2.PMrF2eh_DisplayTemps,       PMER.PMrh_NoResponse) },
+            {PME.DisplayRaceInfo,         _PMet(_PMeh, PMEHrF2.PMrF2eh_DisplayRaceInfo,    PMER.PMrh_NoResponse) },
+            {PME.DisplayStandings,        _PMet(_PMeh, PMEHrF2.PMrF2eh_DisplayStandings,   PMER.PMrh_NoResponse) },
+            {PME.DisplayPenalties,        _PMet(_PMeh, PMEHrF2.PMrF2eh_DisplayPenalties,   PMER.PMrh_NoResponse) },
+            {PME.DisplayNext,             _PMet(_PMeh, PMEHrF2.PMrF2eh_DisplayNext,       PMER.PMrh_NoResponse) },
         };
 
         ///////////////////////////////////////////////////////////////////////////

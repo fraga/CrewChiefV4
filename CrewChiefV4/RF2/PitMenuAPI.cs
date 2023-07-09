@@ -25,23 +25,19 @@ namespace PitMenuAPI
 
         private static
             SendrF2HWControl sendHWControl = new SendrF2HWControl();
-        private static
-                MappedBuffer<rF2PitInfo> pitInfoBuffer = new MappedBuffer<rF2PitInfo>(
-                    rFactor2Constants.MM_PITINFO_FILE_NAME,
-                    false /*partial*/,
-                    true /*skipUnchanged*/);
+        private MappedBuffer<rF2PitInfo> pitInfoBuffer = null;
 
         private static rF2PitInfo pitInfo;
-        private static bool Connected = false;
+        private bool Connected = false;
 
         // Shared memory scans slowly until the first control is received. It
         // returns to scanning slowly when it hasn't received a control for a while.
-        private static int initialDelay = 230;
+        private int initialDelay = 230;
 
         // Delay in mS after sending a HW control to rFactor before sending another,
         // set by experiment
         // 20 works for category selection and tyres but fuel needs it slower
-        private static int delay = 30;
+        private int delay = 30;
 
         #endregion Private Fields
 
@@ -56,13 +52,17 @@ namespace PitMenuAPI
         /// <returns>
         /// true if connected
         /// </returns>
-        public static bool Connect()
+        public bool Connect()
         {
-            if (!Connected)
+            if (!this.Connected)
             {
                 Connected = sendHWControl.Connect();
                 if (Connected)
                 {
+                    pitInfoBuffer = new MappedBuffer<rF2PitInfo>(
+                    rFactor2Constants.MM_PITINFO_FILE_NAME,
+                    partial: false,
+                    skipUnchanged: true);
                     pitInfoBuffer.Connect();
                 }
             }
@@ -81,10 +81,22 @@ namespace PitMenuAPI
         }
 
         /// <summary>
+        /// Switch the MFD to
+        /// MFDA Standard (Sectors etc.)
+        /// MFDB Pit Menu
+        /// MFDC Vehicle Status (Tyres etc.)
+        /// MFDD Driving Aids
+        /// MFDE Extra Info (RPM, temps)
+        /// MFDF Race Info (Clock, leader etc.)
+        /// MFDG Standings (Race position)
+        /// MFDH Penalties
+        ///
         /// Shared memory is normally scanning slowly until a control is received
-        /// so send the first control (to select the Pit Menu) with a longer delay
+        /// so send the first control with a longer delay
         /// </summary>
-        public static bool startUsingPitMenu()
+        /// <param name="display"></param>
+        /// <returns></returns>
+        public bool switchMFD(string display = "MFDB")
         {
             if (!Connected)
             {
@@ -92,27 +104,34 @@ namespace PitMenuAPI
             }
             if (Connected)
             {
-                // Need to select the Pit Menu
-                // If it is off ToggleMFDA will turn it on then ToggleMFDB will switch
+                // To select MFDB screen for example:
+                // If the MFD is off ToggleMFDA will turn it on then ToggleMFDB will switch
                 // to the Pit Menu
                 // If it is showing MFDA ToggleMFDA will turn it off then ToggleMFDB
                 // will show the Pit Menu
                 // If it is showing MFD"x" ToggleMFDA will show MFDA then ToggleMFDB
                 // will show the Pit Menu
+                string notDisplay = display == "MFDA" ? "ToggleMFDB" : "ToggleMFDA";
+                int countDown = 20; // Otherwise it can lock up here
                 do
                 {
-                    sendHWControl.SendHWControl("ToggleMFDA", true);
+                    sendHWControl.SendHWControl(notDisplay, true);
                     System.Threading.Thread.Sleep(initialDelay);
-                    sendHWControl.SendHWControl("ToggleMFDA", false);
+                    sendHWControl.SendHWControl(notDisplay, false);
                     System.Threading.Thread.Sleep(delay);
-                    sendHWControl.SendHWControl("ToggleMFDB", true); // Select rFactor Pit Menu
+                    sendHWControl.SendHWControl("Toggle" + display, true); // Select required MFD
                     System.Threading.Thread.Sleep(delay);
-                    sendHWControl.SendHWControl("ToggleMFDB", false); // Select rFactor Pit Menu
+                    sendHWControl.SendHWControl("Toggle" + display, false);
                     System.Threading.Thread.Sleep(delay);
                 }
-                while (!(iSoftMatchCategory("TIRE", "FUEL")));
+                while (!(iSoftMatchCategory("TIRE", "FUEL")) && countDown-- > 0);
             }
             return Connected;
+        }
+
+        public  bool startUsingPitMenu()
+        {
+            return switchMFD("MFDB");
         }
 
         /// <summary>
@@ -129,6 +148,24 @@ namespace PitMenuAPI
             initialDelay = _initialDelay;
         }
 
+        /// <summary>
+        /// Send a Pit Request (which toggles)
+        /// </summary>
+        /// <returns>Successful</returns>
+        public bool PitRequest()
+        {
+            if (!Connected)
+            {
+                Connected = Connect();
+            }
+            if (Connected)
+            {
+                sendHWControl.SendHWControl("PitRequest", true);
+                Log.Commentary("PitRequest sent");
+            }
+            return Connected;
+        }
+
         //////////////////////////////////////////////////////////////////////////
         /// Direct menu control
         //////////////////////////////////////////////////////////////////////////
@@ -139,28 +176,30 @@ namespace PitMenuAPI
         /// <returns>
         /// Name of the category
         /// </returns>
-        public static string GetCategory()
+        public string GetCategory()
         {
             pitInfoBuffer.GetMappedData(ref pitInfo);
             var catName = GetStringFromBytes(pitInfo.mPitMneu.mCategoryName);
-            Log.Debug($"Pit menu category '{catName}'");
+            Log.Verbose($"Pit menu category '{catName}'");
             return catName;
         }
 
         /// <summary>
         /// Move up to the next category
         /// </summary>
-        public static void CategoryUp()
+        public void CategoryUp()
         {
             sendControl("PitMenuUp");
+            Log.Verbose("Pit menu category up");
         }
 
         /// <summary>
         /// Move down to the next category
         /// </summary>
-        public static void CategoryDown()
+        public void CategoryDown()
         {
             sendControl("PitMenuDown");
+            Log.Verbose("Pit menu category down");
         }
 
         //////////////////////////////////////////////////////////////////////////
@@ -168,24 +207,26 @@ namespace PitMenuAPI
         /// <summary>
         /// Increment the current choice
         /// </summary>
-        public static void ChoiceInc()
+        public void ChoiceInc()
         {
             sendControl("PitMenuIncrementValue");
+            Log.Verbose("Pit menu value inc");
         }
 
         /// <summary>
         /// Decrement the current choice
         /// </summary>
-        public static void ChoiceDec()
+        public void ChoiceDec()
         {
             sendControl("PitMenuDecrementValue");
+            Log.Verbose("Pit menu value dec");
         }
 
         /// <summary>
         /// Get the text of the current choice
         /// </summary>
         /// <returns>string</returns>
-        public static string GetChoice()
+        public string GetChoice()
         {
             pitInfoBuffer.GetMappedData(ref pitInfo);
             var choiceStr = GetStringFromBytes(pitInfo.mPitMneu.mChoiceString);
@@ -245,7 +286,7 @@ namespace PitMenuAPI
         /// <param name="cat1">category to match</param>
         /// <param name="cat2">optional other category to match</param>
         /// <returns></returns>
-        private static bool iSoftMatchCategory(string cat1, string cat2 = "bleagh")  // tbd Can this be done more cleanly?
+        private bool iSoftMatchCategory(string cat1, string cat2 = "bleagh")  // tbd Can this be done more cleanly?
         {
             string InitialCategory = GetCategory();
             int tryNo = 3;
@@ -254,6 +295,7 @@ namespace PitMenuAPI
                 CategoryDown();
                 if (GetCategory() == InitialCategory)
                 {  // Wrapped around, category not found
+#pragma warning disable S1066
                     if (tryNo-- < 0)
                     {
                         return false;
@@ -261,6 +303,23 @@ namespace PitMenuAPI
                 }
             }
             return true;
+        }
+
+        /// <summary>
+        /// SetChoice first tries an exact match, if that fails it accepts an
+        /// entry that starts with the choice.  This extracts that complexity
+        /// (Not certain it's necessary, an exact match looks OK but it was
+        /// written with StartsWith...)
+        /// </summary>
+        /// <param name="choice"></param>
+        /// <param name="startsWith"></param>
+        /// <returns>
+        /// false: Choice not found using the current comparison
+        /// </returns>
+        bool choiceCompare(string choice, bool startsWith)
+        {
+            return ((startsWith && GetChoice().StartsWith(choice)) ||
+                (!startsWith && GetChoice() == choice));
         }
         /// <summary>
         /// Set the current choice
@@ -273,7 +332,8 @@ namespace PitMenuAPI
         {
             string LastChoice = GetChoice();
             bool inc = true;
-            while (!GetChoice().StartsWith(choice))
+            bool startsWith = false;
+            while (!choiceCompare(choice, startsWith))
             {
                 if (inc)
                     ChoiceInc();
@@ -287,7 +347,14 @@ namespace PitMenuAPI
                     }
                     else
                     {
-                        return false;
+#pragma warning disable S2583 // Conditionally executed code should be reachable
+                        if (startsWith)
+#pragma warning restore S2583 // Conditionally executed code should be reachable
+                        {
+                            return false;
+                        }
+                        startsWith = true;
+                        inc = false;
                     }
                 }
                 LastChoice = GetChoice();
@@ -313,7 +380,7 @@ namespace PitMenuAPI
               : Encoding.Default.GetString(bytes);
         }
 
-        private static void sendControl(string control)
+        private void sendControl(string control)
         {
             sendHWControl.SendHWControl(control, true);
             System.Threading.Thread.Sleep(delay);

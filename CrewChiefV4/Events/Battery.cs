@@ -206,7 +206,10 @@ namespace CrewChiefV4.Events
                 return;
 
             this.batteryUseActive = currentGameState.BatteryData.BatteryUseActive;
-            var currBattLeftPct = currentGameState.BatteryData.BatteryPercentageLeft;
+
+            var currBattLeftPct = currentGameState.BatteryData.BatteryCapacity <= 0f || currentGameState.BatteryData.BatteryPercentageLeft  == 0 ? 
+                currentGameState.BatteryData.BatteryPercentageLeft : 
+                (currentGameState.BatteryData.BatteryPercentageLeft * 100 ) / currentGameState.BatteryData.BatteryCapacity;
 
             this.sessionRunningTime = currentGameState.SessionData.SessionRunningTime;
             this.completedLaps = currentGameState.SessionData.CompletedLaps;
@@ -740,19 +743,21 @@ namespace CrewChiefV4.Events
 
         private void playResponseFragments(bool allowNoDataMessage, string messageName, bool allowDelayedResponse)
         {
-            if (allowDelayedResponse
-                && allowNoDataMessage  // True if this is Battery specific command response, not a full status response.
-                && this.respondMessageFragments.Count > 0
-                && this.DelayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
+            if (this.respondMessageFragments.Count > 0)
             {
-                this.audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(new QueuedMessage(messageName, 0, messageFragments: this.respondMessageFragments), lowerDelayBoundInclusive: 3, upperDelayBound: 6);
-            }
-            else
-            {
-                if (allowNoDataMessage)
-                    this.audioPlayer.playMessageImmediately(new QueuedMessage(messageName, 0, messageFragments: this.respondMessageFragments));
+                if (allowDelayedResponse
+                    && allowNoDataMessage  // True if this is Battery specific command response, not a full status response.    
+                    && this.DelayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
+                {
+                    this.audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(new QueuedMessage(messageName, 0, messageFragments: this.respondMessageFragments), lowerDelayBoundInclusive: 3, upperDelayBound: 6);
+                }
                 else
-                    this.audioPlayer.playMessage(new QueuedMessage(messageName, 0, messageFragments: this.respondMessageFragments, abstractEvent: this, priority: 1));
+                {
+                    if (allowNoDataMessage)
+                        this.audioPlayer.playMessageImmediately(new QueuedMessage(messageName, 0, messageFragments: this.respondMessageFragments));
+                    else
+                        this.audioPlayer.playMessage(new QueuedMessage(messageName, 0, messageFragments: this.respondMessageFragments, abstractEvent: this, priority: 1));
+                }
             }
 
             this.respondMessageFragments.Clear();

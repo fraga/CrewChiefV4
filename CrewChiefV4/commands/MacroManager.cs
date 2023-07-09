@@ -16,15 +16,21 @@ namespace CrewChiefV4.commands
 
         public static readonly String MULTIPLE_PRESS_IDENTIFIER = "MULTIPLE";
         public static readonly String FREE_TEXT_IDENTIFIER = "FREE_TEXT";
+        public static readonly String HOLD_TIME_IDENTIFIER = "HOLD_TIME";   // used to override the key hold time on a per-key basis
         public static readonly String MULTIPLE_PRESS_FROM_VOICE_TRIGGER_IDENTIFIER = "VOICE_TRIGGER";
         public static readonly String WAIT_IDENTIFIER = "WAIT";
+        public static readonly String APPLICABLE_SESSION_TYPES_IDENTIFIER = "SESSION_TYPES";
 
         public static Boolean enablePitExitPositionEstimates = UserSettings.GetUserSettings().getBoolean("enable_pit_exit_position_estimates");
 
         public static Boolean stopped = false;
 
+        public static string GENERIC_MACRO_GAME_NAME = "ANY";
+
         // make all the macros available so the events can press buttons as they see fit:
         public static Dictionary<string, ExecutableCommandMacro> macros = new Dictionary<string, ExecutableCommandMacro>();
+
+        public static Dictionary<string, ExecutableCommandMacro> voiceTriggeredMacros = new Dictionary<string, ExecutableCommandMacro>();
 
         public static int MAX_FUEL_RESET_COUNT = 150;
 
@@ -67,32 +73,38 @@ namespace CrewChiefV4.commands
             return macroContainer;
         }
 
-        // checks if the game definition selected matches the game definition from the command set. Note that we're allowing
-        // pCars2 macros to be used with AMS2 here
+        // checks if the game definition selected matches the game definition from the command set.
         public static bool isCommandSetForCurrentGame(string gameDefinitionFromCommandSet)
         {
             return gameDefinitionFromCommandSet != null &&
-                ((gameDefinitionFromCommandSet.Equals(CrewChief.gameDefinition.gameEnum.ToString(), StringComparison.InvariantCultureIgnoreCase)) ||
-                  gameDefinitionFromCommandSet.Equals(GameEnum.PCARS2.ToString(), StringComparison.InvariantCultureIgnoreCase) && CrewChief.gameDefinition.gameEnum == GameEnum.AMS2);
+                ((gameDefinitionFromCommandSet.Equals(GENERIC_MACRO_GAME_NAME, StringComparison.InvariantCultureIgnoreCase) && CrewChief.gameDefinition.gameEnum != GameEnum.NONE) ||
+                  gameDefinitionFromCommandSet.Equals(CrewChief.gameDefinition.gameEnum.ToString(), StringComparison.InvariantCultureIgnoreCase));
         }
 
         // This is called immediately after initialising the speech recogniser in MainWindow
-        public static void initialise(AudioPlayer audioPlayer, SpeechRecogniser speechRecogniser)
+        public static void initialise(AudioPlayer audioPlayer, SpeechRecogniser speechRecogniser, ControllerConfiguration controllerConfiguration)
         {
-            stopped = false;
-            macros.Clear();
+            MacroManager.stopped = false;
+            MacroManager.macros.Clear();
+            MacroManager.voiceTriggeredMacros.Clear();
             if (UserSettings.GetUserSettings().getBoolean("enable_command_macros"))
             {
                 // load the json:
                 MacroContainer macroContainer = loadCommands(getMacrosFileLocation());
                 MacroContainer defaultMacroContainer = loadCommands(getMacrosFileLocation(true));
-                if (mergeNewCommandSetsFromDefault(macroContainer, defaultMacroContainer))
+                if (macroContainer.macros == null)
                 {
-                    saveCommands(macroContainer);
+                    macroContainer.macros = defaultMacroContainer.macros;
                 }
-
+                else
+                {
+                    if (mergeNewCommandSetsFromDefault(macroContainer, defaultMacroContainer))
+                    {
+                        saveCommands(macroContainer);
+                    }
+                }
+                controllerConfiguration.clearMacroButtonAssignmments();
                 // if it's valid, load the command sets:
-                Dictionary<string, ExecutableCommandMacro> voiceTriggeredMacros = new Dictionary<string, ExecutableCommandMacro>();
                 foreach (Macro macro in macroContainer.macros)
                 {
                     Boolean hasCommandForCurrentGame = false;
@@ -147,15 +159,21 @@ namespace CrewChiefV4.commands
                                 voiceTriggeredMacros.Add(macro.integerVariableVoiceTrigger, commandMacro);
                             }
                         }
+                        if (macro.buttonTriggers != null && macro.buttonTriggers.Length > 0)
+                        {
+                            // load each button assignment
+                            foreach (ButtonTrigger buttonTrigger in macro.buttonTriggers)
+                            {
+                                ControllerConfiguration.ButtonAssignment buttonAssignment = new ControllerConfiguration.ButtonAssignment();
+                                buttonAssignment.executableCommandMacro = commandMacro;
+                                buttonAssignment.buttonIndex = buttonTrigger.buttonIndex;
+                                buttonAssignment.deviceGuid = buttonTrigger.deviceId;
+                                controllerConfiguration.addControllerObjectToButtonAssignment(buttonAssignment);
+                                controllerConfiguration.addMacroButtonAssignment(buttonAssignment);
+                                controllerConfiguration.addControllerIfNecessary(buttonTrigger.description, buttonTrigger.deviceId);
+                            }
+                        }
                     }
-                }
-                try
-                {
-                    speechRecogniser.loadMacroVoiceTriggers(voiceTriggeredMacros);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Failed to load command macros into speech recogniser: " + e.Message);
                 }
             }
             else
@@ -205,13 +223,13 @@ namespace CrewChiefV4.commands
                 }
                 foreach (var defaultMacro in defaultMacroContainer.macros)
                 {
-                    if (userMacro.name == defaultMacro.name) 
+                    if (userMacro.name == defaultMacro.name)
                     {
                         if (defaultMacro.commandSets != null)
                         {
                             foreach (var defaultMacroCommandSet in defaultMacro.commandSets)
                             {
-                                if (!userMacroGameDefinitions.Contains(defaultMacroCommandSet.gameDefinition)) 
+                                if (!userMacroGameDefinitions.Contains(defaultMacroCommandSet.gameDefinition))
                                 {
                                     // this macro exists in the user set and the default set, but the default set
                                     // has a CommandSet for a game that's not in the user's set - add it
@@ -222,13 +240,13 @@ namespace CrewChiefV4.commands
                             }
                         }
                         break;
-                    }                
+                    }
                 }
                 if (added)
                 {
                     // we've added a command set from the default to this user macro (or temporary list)
                     userMacro.commandSets = userMacroCommandSetsList.ToArray();
-                }                
+                }
             }
             return addedAny;
         }

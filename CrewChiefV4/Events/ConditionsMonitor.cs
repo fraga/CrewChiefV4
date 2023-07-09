@@ -5,15 +5,16 @@ using System.Text;
 using CrewChiefV4.GameState;
 using CrewChiefV4.Audio;
 using CrewChiefV4.NumberProcessing;
+using CrewChiefV4.ACC;
 
 namespace CrewChiefV4.Events
 {
-    class ConditionsMonitor : AbstractEvent
+    public class ConditionsMonitor : AbstractEvent
     {
         // allow condition messages during caution periods
         public override List<SessionPhase> applicableSessionPhases
         {
-            get { return new List<SessionPhase> { SessionPhase.Green, SessionPhase.Checkered, SessionPhase.FullCourseYellow }; }
+            get { return new List<SessionPhase> { SessionPhase.Green, SessionPhase.Checkered, SessionPhase.FullCourseYellow, SessionPhase.Formation, SessionPhase.Countdown }; }
         }
 
         private static float drizzleMin = 0.01f;
@@ -25,6 +26,11 @@ namespace CrewChiefV4.Events
         public enum RainLevel
         {
             NONE, DRIZZLE, LIGHT, MID, HEAVY, STORM
+        }
+
+        public enum TrackStatus
+        {
+            GREEN, FAST, OPTIMUM, GREASY, DAMP, WET, FLOODED, UNKNOWN
         }
 
         private Boolean enableTrackAndAirTempReports = UserSettings.GetUserSettings().getBoolean("enable_track_and_air_temp_reports");
@@ -84,6 +90,14 @@ namespace CrewChiefV4.Events
 
         private Boolean useFahrenheit = UserSettings.GetUserSettings().getBoolean("use_fahrenheit");
 
+        // ACC forecast messages
+        private string folderExpectNoRain = "conditions/we_expect_rain_to_stop_in_the_next";
+        private string folderExpectDrizzle = "conditions/we_expect_drizzle_in_the_next";
+        private string folderExpectLightRain = "conditions/we_expect_light_rain_in_the_next";
+        private string folderExpectMediumRain = "conditions/we_expect_medium_rain_in_the_next";
+        private string folderExpectHeavyRain = "conditions/we_expect_heavy_rain_in_the_next";
+        private string folderExpectVeryHeavyRain = "conditions/we_expect_very_heavy_rain_in_the_next";
+
         private Conditions.ConditionsSample currentConditions;
         private Conditions.ConditionsSample conditionsAtStartOfThisLap;
 
@@ -97,7 +111,15 @@ namespace CrewChiefV4.Events
         // units here are 'rain quantity per second', where rain quantity is 0 -> 1, direct from the pcars2 or rf2 game data.
         // The number is always positive (it's the absolute change)
         private static float maxRainChangeRate = -1;
-        
+
+        // ACC only
+        private RainLevel rainLevelFor10MinuteForecast = RainLevel.NONE;
+        private RainLevel rainLevelFor30MinuteForecast = RainLevel.NONE;
+        private DateTime next10MinuteForecastReportDue = DateTime.MinValue;
+        private DateTime next30MinuteForecastReportDue = DateTime.MinValue;
+        private TimeSpan forecastCheck10MinInterval = TimeSpan.FromSeconds(30); // check for changes in the 10 minute forecast this often
+        private TimeSpan forecastCheck30MinInterval = TimeSpan.FromSeconds(180); // check for changes in the 30 minute forecast this often
+
         public ConditionsMonitor(AudioPlayer audioPlayer)
         {
             this.audioPlayer = audioPlayer;
@@ -118,16 +140,107 @@ namespace CrewChiefV4.Events
             waitingForRainEstimate = false;
             rainDensityAtLastCheck = -1;
             maxRainChangeRate = -1;
+            rainLevelFor10MinuteForecast = RainLevel.NONE;
+            rainLevelFor30MinuteForecast = RainLevel.NONE;
+            next10MinuteForecastReportDue = DateTime.MinValue;
+            next30MinuteForecastReportDue = DateTime.MinValue;
         }
-                
+
+        private string getForecastFolder(RainLevel currentRainLevel, RainLevel forecastRainLevel, RainLevel rainLevelAtLastForecastCall)
+        {
+            if (forecastRainLevel != currentRainLevel && forecastRainLevel != rainLevelAtLastForecastCall)
+            {
+                switch (forecastRainLevel)
+                {
+                    case RainLevel.NONE:
+                        return folderExpectNoRain;
+                    case RainLevel.DRIZZLE:
+                        return folderExpectDrizzle;
+                    case RainLevel.LIGHT:
+                        return folderExpectLightRain;
+                    case RainLevel.MID:
+                        return folderExpectMediumRain;
+                    case RainLevel.HEAVY:
+                        return folderExpectHeavyRain;
+                    case RainLevel.STORM:
+                        return folderExpectVeryHeavyRain;
+                }
+            }
+            return null;
+        }
+
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
         {
             currentConditions = currentGameState.Conditions.getMostRecentConditions();
+            // ACC specific - if we didn't have conditions to announce at the session start, announce them now
+            if (CrewChief.gameDefinition.gameEnum == GameEnum.ACC
+                && currentConditions != null
+                && (currentGameState.SessionData.SessionPhase == SessionPhase.Formation || currentGameState.SessionData.SessionPhase == SessionPhase.Countdown)
+                && !LapCounter.preStartTempsAnnounced)
+            {
+                audioPlayer.playMessage(new QueuedMessage("trackAndAirTemp", 15, messageFragments: MessageContents(
+                    ConditionsMonitor.folderTrackTempIs,
+                    convertTemp(currentConditions.TrackTemperature),
+                    ConditionsMonitor.folderAirTempIs,
+                    convertTemp(currentConditions.AmbientTemperature),
+                    getTempUnit()), abstractEvent: this, priority: 10, secondsDelay: 10));
+                LapCounter.preStartTempsAnnounced = true;
+            }
+            // the above is the only pre-start trigger that's valid for this event so don't allow any of the other gubbins to trigger in formation or countdown:
+            if (currentGameState.SessionData.SessionPhase == SessionPhase.Formation || currentGameState.SessionData.SessionPhase == SessionPhase.Countdown)
+            {
+                return;
+            }
             if (currentGameState.SessionData.IsNewLap)
             {
                 conditionsAtStartOfThisLap = currentConditions;
             }
-            
+            if (CrewChief.gameDefinition.gameEnum == GameEnum.ACC)
+            {
+                if (currentGameState.SessionData.JustGoneGreen)
+                {
+                    next10MinuteForecastReportDue = currentGameState.Now.AddMinutes(1);
+                    next30MinuteForecastReportDue = currentGameState.Now.AddMinutes(2);
+                }
+                if (currentGameState.Now > next10MinuteForecastReportDue)
+                {
+                    string forecastFolder = getForecastFolder(currentGameState.Conditions.rainLevelNow, currentGameState.Conditions.rainLevelIn10Mins, this.rainLevelFor10MinuteForecast);
+                    if (forecastFolder != null)
+                    {
+                        float minutes = 10f;
+                        if (CrewChief.gameDefinition.gameEnum == GameEnum.ACC && ACCGameStateMapper.clockMultiplierGuess > 1)
+                        {
+                            minutes = minutes / ACCGameStateMapper.clockMultiplierGuess;
+                        }
+                        if ((int)Math.Ceiling(minutes) > 0)
+                        {
+                            audioPlayer.playMessage(new QueuedMessage("acc_10_min_forecast", 10, messageFragments: MessageContents(forecastFolder,
+                                            new TimeSpanWrapper(TimeSpan.FromMinutes((int)Math.Ceiling(minutes)), Precision.MINUTES)), abstractEvent: this));
+                        }
+                    }
+                    this.rainLevelFor10MinuteForecast = currentGameState.Conditions.rainLevelIn10Mins;
+                    next10MinuteForecastReportDue = currentGameState.Now.Add(forecastCheck10MinInterval);
+                }
+                if (currentGameState.Now > next30MinuteForecastReportDue)
+                {
+                    string forecastFolder = getForecastFolder(currentGameState.Conditions.rainLevelNow, currentGameState.Conditions.rainLevelIn30Mins, this.rainLevelFor30MinuteForecast);
+                    if (forecastFolder != null)
+                    {
+                        float minutes = 30f;
+                        if (CrewChief.gameDefinition.gameEnum == GameEnum.ACC && ACCGameStateMapper.clockMultiplierGuess > 1)
+                        {
+                            minutes = minutes / ACCGameStateMapper.clockMultiplierGuess;
+                        }
+                        if ((int)Math.Ceiling(minutes) > 0)
+                        {
+                            audioPlayer.playMessage(new QueuedMessage("acc_30_min_forecast", 10, messageFragments: MessageContents(forecastFolder,
+                                            new TimeSpanWrapper(TimeSpan.FromMinutes((int)Math.Ceiling(minutes)), Precision.MINUTES)), abstractEvent: this));
+                        }
+                    }
+                    this.rainLevelFor30MinuteForecast = currentGameState.Conditions.rainLevelIn30Mins;
+                    next30MinuteForecastReportDue = currentGameState.Now.Add(forecastCheck30MinInterval);                    
+                }
+            }
             if (currentConditions != null) 
             {
                 // for pcars track temp, we're only interested in changes at the start line (a single point on the track) because the track
@@ -149,7 +262,7 @@ namespace CrewChiefV4.Events
                     Boolean canReportTrackChange = enableTrackAndAirTempReports &&
                         currentGameState.Now > lastTrackTempReport.Add(TrackTemperatureReportMaxFrequency);
                     Boolean reportedCombinedTemps = false;
-                    TimeSpan rainReportFrequency = CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT ? RainReportMaxFrequencyRF2 : RainReportMaxFrequencyPCars;
+                    TimeSpan rainReportFrequency = (CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT || CrewChief.gameDefinition.gameEnum == GameEnum.GTR2) ? RainReportMaxFrequencyRF2 : RainReportMaxFrequencyPCars;
                     if (canReportAirChange || canReportTrackChange)
                     {
                         if (trackTempToUse > trackTempAtLastReport + minTrackTempDeltaToReport && currentConditions.AmbientTemperature > airTempAtLastReport + minAirTempDeltaToReport)
@@ -281,6 +394,7 @@ namespace CrewChiefV4.Events
                             }
                         }
                         else if (CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT
+                            || CrewChief.gameDefinition.gameEnum == GameEnum.GTR2
                             || CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2
                             || CrewChief.gameDefinition.gameEnum == GameEnum.ACC
                             || CrewChief.gameDefinition.gameEnum == GameEnum.AMS2

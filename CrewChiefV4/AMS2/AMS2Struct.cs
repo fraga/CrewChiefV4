@@ -11,10 +11,9 @@ namespace CrewChiefV4.AMS2
 {
     public class StructHelper
     {
-        // AMS2 is using platform default encoding for now (sigh...)
-        public static Encoding ENCODING = Encoding.Default;
+        public static Encoding ENCODING = Encoding.UTF8;
                    
-        /*static StructHelper() {
+        static StructHelper() {
             try {
                 ENCODING = Encoding.GetEncoding(UserSettings.GetUserSettings().getString("ams2_character_encoding"));
             }
@@ -23,7 +22,7 @@ namespace CrewChiefV4.AMS2
                 Console.WriteLine("Using default encoding");
                 ENCODING = Encoding.Default;
             }
-        }*/
+        }
         public static ams2APIStruct Clone<ams2APIStruct>(ams2APIStruct ams2Struct)
         {
             using (var ms = new MemoryStream())
@@ -58,6 +57,7 @@ namespace CrewChiefV4.AMS2
             existingState.mSpeed = udpTelemetryData.sSpeed; 
             existingState.mMaxRPM = udpTelemetryData.sMaxRpm;
             existingState.mBrake = (float)udpTelemetryData.sBrake / 255f;
+            existingState.mHandBrake = (float)udpTelemetryData.sHandBrake / 255f;
             existingState.mThrottle = (float)udpTelemetryData.sThrottle / 255f;
             existingState.mClutch = (float)udpTelemetryData.sClutch / 255f;
             existingState.mSteering = (float)udpTelemetryData.sSteering / 127f;
@@ -89,11 +89,10 @@ namespace CrewChiefV4.AMS2
             existingState.mTyreCarcassTemp = toFloatArray(udpTelemetryData.sTyreCarcassTemp, 1); 
             existingState.mTyreRimTemp = toFloatArray(udpTelemetryData.sTyreRimTemp, 1);    
             existingState.mTyreInternalAirTemp = toFloatArray(udpTelemetryData.sTyreInternalAirTemp, 1);
-            // IMO tyre temps aren't mapped here - they're in UDP but not MMF
+
             existingState.mWheelLocalPositionY = udpTelemetryData.sWheelLocalPositionY;
             existingState.mRideHeight = udpTelemetryData.sRideHeight;
             existingState.mSuspensionTravel = udpTelemetryData.sSuspensionTravel;
-            existingState.mSuspensionRideHeight = toFloatArray(udpTelemetryData.sSuspensionRideHeight, 1);
             existingState.mSuspensionVelocity = udpTelemetryData.sSuspensionVelocity;
             existingState.mAirPressure = toFloatArray(udpTelemetryData.sAirPressure, 1);
 
@@ -109,8 +108,7 @@ namespace CrewChiefV4.AMS2
 
             existingState.mWings = toFloatArray(udpTelemetryData.sWings, 1);
 
-            existingState.mJoyPad1 = udpTelemetryData.sJoyPad1;
-            existingState.mJoyPad2 = udpTelemetryData.sJoyPad2;
+            existingState.mJoyPad0 = udpTelemetryData.sJoyPad1;
             existingState.mDPad = udpTelemetryData.sDPad;
 
             // tyres
@@ -129,11 +127,11 @@ namespace CrewChiefV4.AMS2
             if (isTimedSession)
             {
                 existingState.mLapsInEvent = (uint) sessionLength;
-                existingState.mSessionLengthTimeFromGame = 0;
+                existingState.mSessionDuration = 0;
             }
             else
             {
-                existingState.mSessionLengthTimeFromGame = 300 * (uint) sessionLength; // *300 because this is in 5 minutes blocks
+                existingState.mSessionDuration = 300 * (uint) sessionLength; // *300 because this is in 5 minutes blocks
                 existingState.mLapsInEvent = 0;
             }
             existingState.mTrackLength = raceData.sTrackLength;
@@ -330,7 +328,6 @@ namespace CrewChiefV4.AMS2
                     existingState.mLastLapTime = participantInfo.sLastLapTime;
                 }
             }
-            existingState.lastSectorTimes = lastSectorTimes;
             return existingState;
         }
 
@@ -473,7 +470,7 @@ namespace CrewChiefV4.AMS2
 
         public override string ToString()
         {
-            return "position " + mRacePosition + " name " + StructHelper.getNameFromBytes(mName).ToLower() + " lapsCompleted " + mLapsCompleted + " lapDist " + mCurrentLapDistance;
+            return "position " + mRacePosition + " name " + StructHelper.getNameFromBytes(mName) + " lapsCompleted " + mLapsCompleted + " lapDist " + mCurrentLapDistance;
         }
     }
 
@@ -730,60 +727,51 @@ namespace CrewChiefV4.AMS2
         public uint[] mHighestFlagReasons;                 // [ enum (Type#6) Flag Reason ]
 	    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 64)]
         public uint[] mNationalities;					   // [ nationality table , SP AND UNSET = 0 ] See nationalities.txt file for details
-	    public float mSnowDensity;					       // [ UNITS = How much snow will fall ]   [ RANGE = 0.0f->1.0f ], this will be non zero only in Snow season, in other seasons whatever is falling from the sky is reported as rain
-	
+	    public float mSnowDensity;                         // [ UNITS = How much snow will fall ]   [ RANGE = 0.0f->1.0f ], this will be non zero only in Snow season, in other seasons whatever is falling from the sky is reported as rain
 
-        // extra from the UDP data
-        public uint mSessionLengthTimeFromGame;  // seconds, 0 => not a timed session
-        public byte mJoyPad1;
-        public byte mJoyPad2;        public byte mDPad;
-        
 
-        // and other stuff that's missing from the MMF:
+        // AMS2 Additions (v10...)
+
+        // Session info
+        public float mSessionDuration;           // [ UNITS = seconds ]   [ UNSET = 0.0f ]  The scheduled session Length (unset means laps race. See mLapsInEvent)
+        // note the API doc says this is minutes, but it's actually seconds
+        public int mSessionAdditionalLaps;     // The number of additional complete laps lead lap drivers must complete to finish a timed race after the session duration has elapsed.
+
+        // Tyres
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
-        public float[] mSuspensionRideHeight;
+        public float[] mTyreTempLeft;    // [ UNITS = Celsius ]   [ UNSET = 0.0f ]
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
-        public float[] mRideHeight;
+        public float[] mTyreTempCenter;  // [ UNITS = Celsius ]   [ UNSET = 0.0f ]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+        public float[] mTyreTempRight;   // [ UNITS = Celsius ]   [ UNSET = 0.0f ]
 
-        // more per-participant data items not in the shared memory. Or documented.
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
-        public byte[] participantHighestFlags;
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
-        public float[] lastSectorTimes;
+        // DRS
+        public uint mDrsState;           // [ enum (Type#14) DrsState ]
 
-        // this is a big byte array of all the car class names being sent via UDP
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 60)]
-        public CarClassNameString[] carClassNames;
+        // Suspension
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+        public float[] mRideHeight;      // [ UNITS = cm ]
 
-        /*
-        // extras from the UDP data - pcars1
+        // Input
+        public byte mJoyPad0;            // button mask
+        public byte mDPad;               // button mask
 
+        // added for version 13:
 
-        
-        public float[] mWheelLocalPosition;
+        public int mAntiLockSetting;             // [ UNSET = -1 ] Current ABS garage setting. Valid under player control only.
+        public int mTractionControlSetting;      // [ UNSET = -1 ] Current ABS garage setting. Valid under player control only.
 
-        public float[] mRideHeight;
+        // ERS
+        public int mErsDeploymentMode;           // [ enum (Type#15)  ErsDeploymentMode ]
+        public bool mErsAutoModeEnabled;         // true if the deployment mode was selected by auto system. Valid only when mErsDeploymentMode > ERS_DEPLOYMENT_MODE_NONE
 
-        public float[] mSuspensionTravel;
+        // Clutch State & Damage
+        // note temp and wear appear to be the wrong way around in the API
+        public float mClutchWear;                // [ RANGE = 0.0f->1.0f... ] - this is always 0
+        public float mClutchTemp;                // [ UNITS = Kelvin ] [ UNSET = -273.16 ] - this appears to have no bearing on the overheated value below
+        public bool mClutchOverheated;          // true if clutch performance is degraded due to overheating
+        public bool mClutchSlipping;            // true if clutch is slipping (can be induced by overheating or wear)
 
-        public float[] mSuspensionVelocity;
-
-        public float[] mAirPressure;
-
-        public float mEngineSpeed;
-
-        public float mEngineTorque;
-
-        public int mEnforcedPitStopLap;
-
-        public Boolean hasNewPositionData;
-
-        public Boolean[] isSameClassAsPlayer;
-
-        public Boolean hasOpponentClassData;
-
-        public float[] mLastSectorData;
-
-        public Boolean[] mLapInvalidatedData;*/
+        public int mYellowFlagState;             // [ enum (Type#16) YellowFlagState ]
     }
 }

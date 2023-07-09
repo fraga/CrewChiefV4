@@ -93,6 +93,13 @@ namespace CrewChiefV4.Events
 
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
         {
+            // allow incident points and SoF for other games so we can ask about them in R3E:
+            maxIncidentCount = currentGameState.SessionData.MaxIncidentCount;
+            incidentsCount = currentGameState.SessionData.CurrentIncidentCount;
+            strenghtOfField = currentGameState.SessionData.StrengthOfField;
+            hasLimitedIncidents = currentGameState.SessionData.HasLimitedIncidents;
+
+            // the rest of this event is iRacing only
             if (CrewChief.gameDefinition.gameEnum != GameEnum.IRACING)
             {
                 return;
@@ -102,22 +109,29 @@ namespace CrewChiefV4.Events
             lastColdRLPressure = (int)currentGameState.TyreData.RearLeftPressure;
             lastColdRRPressure = (int)currentGameState.TyreData.RearRightPressure;
 
-            maxIncidentCount = currentGameState.SessionData.MaxIncidentCount;
-            incidentsCount = currentGameState.SessionData.CurrentIncidentCount;
-            hasLimitedIncidents = currentGameState.SessionData.HasLimitedIncidents;
             licenseLevel = currentGameState.SessionData.LicenseLevel;
             iRating = currentGameState.SessionData.iRating;
-            strenghtOfField = currentGameState.SessionData.StrengthOfField;
             fuelCapacity = currentGameState.FuelData.FuelCapacity;
             currentFuel = currentGameState.FuelData.FuelLeft;
             if(autoFuelToEnd)
             {
-                if(previousGameState != null && !previousGameState.PitData.InPitlane && currentGameState.PitData.InPitlane
+                if (previousGameState != null 
+                    // special case: don't allow auto fuelling to trigger if we've just been given control of the car. Prevents this
+                    // triggering immediately after a driver change. We also don't want this to trigger when we're not in the car because
+                    // the fuel data aren't sent.
+                    //
+                    // The above isn't quite enough - there's some noise in the data which results in autofuelling triggering sometimes
+                    // when a driver enters the car after a driver swap. Because the trigger is supposed to happen as we enter the pitlane,
+                    // also check for a sane car speed (a driver swap should be with the car stationary this should block an unwanted autofuel trigger)
+                    && currentGameState.PositionAndMotionData.CarSpeed > 1
+                    && currentGameState.ControlData.ControlType == ControlType.Player
+                    && !(previousGameState.ControlData.ControlType == ControlType.Replay && currentGameState.ControlData.ControlType == ControlType.Player)
+                    && !previousGameState.PitData.InPitlane && currentGameState.PitData.InPitlane
                     && currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.SessionData.SessionRunningTime > 15 
                     && !previousGameState.PitData.IsInGarage && !currentGameState.PitData.JumpedToPits)
                 {
                     Fuel fuelEvent = (Fuel)CrewChief.getEvent("Fuel");
-                    float litresNeeded = fuelEvent.getLitresToEndOfRace(true);
+                    float litresNeeded = fuelEvent.getAdditionalFuelToEndOfRace(true);
 
                     if (litresNeeded == float.MaxValue)
                     {
@@ -125,7 +139,9 @@ namespace CrewChiefV4.Events
                     }
                     else if (litresNeeded <= 0)
                     {
+                        ClearFuel();
                         audioPlayer.playMessage(new QueuedMessage(Fuel.folderPlentyOfFuel, 0));
+                        
                     }
                     else if (litresNeeded > 0)
                     {
@@ -219,7 +235,7 @@ namespace CrewChiefV4.Events
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.PIT_STOP_FUEL_TO_THE_END))
             {
                 Fuel fuelEvent = (Fuel)CrewChief.getEvent("Fuel");
-                float litresNeeded = fuelEvent.getLitresToEndOfRace(true);
+                float litresNeeded = fuelEvent.getAdditionalFuelToEndOfRace(true);
 
                 if (litresNeeded == float.MaxValue)
                 {
@@ -404,7 +420,14 @@ namespace CrewChiefV4.Events
 
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOW_MANY_INCIDENT_POINTS))
             {
-                audioPlayer.playMessageImmediately(new QueuedMessage("Incidents/incidents", 0, messageFragments: MessageContents(folderYouHave, incidentsCount, folderincidents)));
+                if (incidentsCount == -1)
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+                }
+                else
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage("Incidents/incidents", 0, messageFragments: MessageContents(folderYouHave, incidentsCount, folderincidents)));
+                }
                 return;
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHATS_THE_INCIDENT_LIMIT))
@@ -481,9 +504,20 @@ namespace CrewChiefV4.Events
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHATS_THE_SOF))
             {
-                if (strenghtOfField != -1)
+                // for R3E we need to recalculate this on each request unless we're in a race session. For race sessions we want to use the fixed SoF the mapper generated
+                // at the green light
+                int sofToReport;
+                if (CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM && CrewChief.currentGameState != null && CrewChief.currentGameState.SessionData.SessionType != SessionType.Race)
                 {
-                    audioPlayer.playMessageImmediately(new QueuedMessage("license/irating", 0, messageFragments: MessageContents(strenghtOfField)));
+                    sofToReport = R3E.R3ERatings.getAverageRatingForParticipants(CrewChief.currentGameState.OpponentData);
+                }
+                else
+                {
+                    sofToReport = this.strenghtOfField;
+                }
+                if (sofToReport != -1)
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage("license/irating", 0, messageFragments: MessageContents(sofToReport)));
                     return;
                 }
                 else

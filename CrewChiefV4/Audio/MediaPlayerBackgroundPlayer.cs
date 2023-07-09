@@ -113,17 +113,20 @@ namespace CrewChiefV4.Audio
 
                             int backgroundDuration = 0;
                             int backgroundOffset = 0;
-                            if (backgroundPlayer.NaturalDuration.HasTimeSpan)
+                            if (backgroundPlayer != null)
                             {
-                                backgroundDuration = (backgroundPlayer.NaturalDuration.TimeSpan.Minutes * 60) +
-                                    backgroundPlayer.NaturalDuration.TimeSpan.Seconds;
-                                backgroundOffset = Utilities.random.Next(0, backgroundDuration - backgroundLeadout);
-                            }
-                            backgroundPlayer.Position = TimeSpan.FromSeconds(backgroundOffset);
+                                if (backgroundPlayer.NaturalDuration.HasTimeSpan)
+                                {
+                                    backgroundDuration = (backgroundPlayer.NaturalDuration.TimeSpan.Minutes * 60) +
+                                        backgroundPlayer.NaturalDuration.TimeSpan.Seconds;
+                                    backgroundOffset = Utilities.random.Next(0, backgroundDuration - backgroundLeadout);
+                                }
+                                backgroundPlayer.Position = TimeSpan.FromSeconds(backgroundOffset);
 
-                            // Restore the desired volume.
-                            backgroundPlayer.Volume = getBackgroundVolume();
-                            backgroundPlayer.Play();
+                                // Restore the desired volume.
+                                backgroundPlayer.Volume = getBackgroundVolume();
+                                backgroundPlayer.Play();
+                            }
                         }, null);
                     }
                 }
@@ -151,7 +154,7 @@ namespace CrewChiefV4.Audio
                             backgroundPlayer.Stop();
                             backgroundPlayer.Volume = 0.0;
                         }
-                        catch (Exception) { }
+                        catch (Exception e) {Log.Exception(e);}
                     }, null);
                 }
             }

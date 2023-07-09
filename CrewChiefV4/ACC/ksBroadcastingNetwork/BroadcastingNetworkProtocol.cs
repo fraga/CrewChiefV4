@@ -1,5 +1,6 @@
 ﻿using ksBroadcastingNetwork.Structs;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -36,6 +37,9 @@ namespace ksBroadcastingNetwork
 
     public class BroadcastingNetworkProtocol
     {
+        public static ConcurrentDictionary<InboundMessageTypes, int> inboundMessageTypeCounts = new ConcurrentDictionary<InboundMessageTypes, int>();
+        public static ConcurrentDictionary<OutboundMessageTypes, int> outboundMessageTypeCounts = new ConcurrentDictionary<OutboundMessageTypes, int>();
+
         public const int BROADCASTING_PROTOCOL_VERSION = 4;
         private string ConnectionIdentifier { get; }
         private SendMessageDelegate Send { get; }
@@ -78,7 +82,7 @@ namespace ksBroadcastingNetwork
 
         #region optional failsafety - detect when we have a desync and need a new entry list
 
-        DateTime lastEntrylistRequest = DateTime.Now;
+        DateTime lastEntrylistRequest = DateTime.UtcNow;
 
         #endregion
 
@@ -98,6 +102,12 @@ namespace ksBroadcastingNetwork
         {
             // Any message starts with an 1-byte command type
             var messageType = (InboundMessageTypes)br.ReadByte();
+            int messageCount = 1;
+            if (inboundMessageTypeCounts.TryGetValue(messageType, out messageCount))
+            {
+                messageCount++;
+            }
+            inboundMessageTypeCounts[messageType] = messageCount;
             switch (messageType)
             {
                 case InboundMessageTypes.REGISTRATION_RESULT:
@@ -107,7 +117,7 @@ namespace ksBroadcastingNetwork
                         var isReadonly = br.ReadByte() == 0;
                         var errMsg = ReadString(br);
 
-                        System.Diagnostics.Debug.WriteLine("REGISTRATION_RESULT: " + connectionSuccess  + " : " + errMsg + " : " + DateTime.Now.ToString("HH:mm:ss.fff"));
+                        System.Diagnostics.Debug.WriteLine("REGISTRATION_RESULT: " + connectionSuccess  + " : " + errMsg + " : " + DateTime.UtcNow.ToString("HH:mm:ss.fff"));
 
                         OnConnectionStateChanged?.Invoke(ConnectionId, connectionSuccess, isReadonly, errMsg);
                         // In case this was successful, we will request the initial data
@@ -117,7 +127,7 @@ namespace ksBroadcastingNetwork
                     break;
                 case InboundMessageTypes.ENTRY_LIST:
                     {
-                        System.Diagnostics.Debug.WriteLine("ENTRY_LIST: " + DateTime.Now.ToString("HH:mm:ss.fff"));
+                        System.Diagnostics.Debug.WriteLine("ENTRY_LIST: " + DateTime.UtcNow.ToString("HH:mm:ss.fff"));
                         _entryListCars.Clear();
 
                         var connectionId = br.ReadInt32();
@@ -130,7 +140,7 @@ namespace ksBroadcastingNetwork
                     break;
                 case InboundMessageTypes.ENTRY_LIST_CAR:
                     {
-                        System.Diagnostics.Debug.WriteLine("ENTRY_LIST_CAR: " + DateTime.Now.ToString("HH:mm:ss.fff"));
+                        System.Diagnostics.Debug.WriteLine("ENTRY_LIST_CAR: " + DateTime.UtcNow.ToString("HH:mm:ss.fff"));
                         var carId = br.ReadUInt16();
 
                         var carInfo = _entryListCars.SingleOrDefault(x => x.CarIndex == carId);
@@ -229,9 +239,9 @@ namespace ksBroadcastingNetwork
                         var carEntry = _entryListCars.FirstOrDefault(x => x.CarIndex == carUpdate.CarIndex);
                         if (carEntry == null || carEntry.Drivers.Count != carUpdate.DriverCount)
                         {
-                            if ((DateTime.Now - lastEntrylistRequest).TotalSeconds > 5)
+                            if ((DateTime.UtcNow - lastEntrylistRequest).TotalSeconds > 5)
                             {
-                                lastEntrylistRequest = DateTime.Now;
+                                lastEntrylistRequest = DateTime.UtcNow;
                                 RequestEntryList();
                                 System.Diagnostics.Debug.WriteLine($"CarUpdate {carUpdate.CarIndex}|{carUpdate.DriverIndex} not known, will ask for new EntryList");
                             }
@@ -381,6 +391,7 @@ namespace ksBroadcastingNetwork
 
                 Send(ms.ToArray());
             }
+            addOutboundMessageCount(OutboundMessageTypes.REGISTER_COMMAND_APPLICATION);
         }
 
         /// <summary>
@@ -400,6 +411,7 @@ namespace ksBroadcastingNetwork
 
                 Send(ms.ToArray());
             }
+            addOutboundMessageCount(OutboundMessageTypes.REQUEST_ENTRY_LIST);
         }
 
         private void RequestTrackData()
@@ -412,6 +424,7 @@ namespace ksBroadcastingNetwork
 
                 Send(ms.ToArray());
             }
+            addOutboundMessageCount(OutboundMessageTypes.REQUEST_TRACK_DATA);
         }
 
         public void SetFocus(UInt16 carIndex)
@@ -468,6 +481,7 @@ namespace ksBroadcastingNetwork
 
                 Send(ms.ToArray());
             }
+            addOutboundMessageCount(OutboundMessageTypes.CHANGE_FOCUS);
         }
 
         public void RequestInstantReplay(float startSessionTime, float durationMS, int initialFocusedCarIndex = -1, string initialCameraSet = "", string initialCamera = "")
@@ -487,6 +501,7 @@ namespace ksBroadcastingNetwork
 
                 Send(ms.ToArray());
             }
+            addOutboundMessageCount(OutboundMessageTypes.INSTANT_REPLAY_REQUEST);
         }
 
         public void RequestHUDPage(string hudPage)
@@ -501,6 +516,17 @@ namespace ksBroadcastingNetwork
 
                 Send(ms.ToArray());
             }
+            addOutboundMessageCount(OutboundMessageTypes.CHANGE_HUD_PAGE);
+        }
+
+        private void addOutboundMessageCount(OutboundMessageTypes type)
+        {
+            int messageCount = 1;
+            if (outboundMessageTypeCounts.TryGetValue(type, out messageCount))
+            {
+                messageCount++;
+            }
+            outboundMessageTypeCounts[type] = messageCount;
         }
     }
 }

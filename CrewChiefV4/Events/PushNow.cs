@@ -9,7 +9,8 @@ namespace CrewChiefV4.Events
 {
     class PushNow : AbstractEvent
     {
-        private float maxSeparationForPitExitWarning = 300;   // metres
+        private float maxSeparationForPitExitWarningOvals = 300;   // metres
+        private float maxSeparationForPitExitWarningRoad = 200;   // metres
         private float minSeparationForPitExitWarning = 10;   // metres
 
         private Boolean brakeTempWarningOnPitExit = UserSettings.GetUserSettings().getBoolean("enable_pit_exit_brake_temp_warning");
@@ -81,17 +82,14 @@ namespace CrewChiefV4.Events
             }
             Boolean checkPushToGain = currentGameState.SessionData.SessionRunningTime - currentGameState.SessionData.GameTimeAtLastPositionFrontChange < minTimeToBeInThisPosition;
             Boolean checkPushToHold = currentGameState.SessionData.SessionRunningTime - currentGameState.SessionData.GameTimeAtLastPositionBehindChange < minTimeToBeInThisPosition;
-            if (currentGameState.SessionData.SessionType == SessionType.Race && !currentGameState.PitData.InPitlane)
+            if (currentGameState.SessionData.SessionType == SessionType.Race && !currentGameState.PitData.InPitlane && !GlobalBehaviourSettings.justTheFacts)
             {
                 if ((checkPushToGain || checkPushToHold) && !playedNearEndTimePush && currentGameState.SessionData.SessionHasFixedTime &&
                         currentGameState.SessionData.SessionTimeRemaining < 4 * 60 && currentGameState.SessionData.SessionTimeRemaining > 2 * 60)
                 {
                     // estimate the number of remaining laps - be optimistic...
-                    int numLapsLeft = (int)Math.Ceiling((double)currentGameState.SessionData.SessionTimeRemaining / (double)currentGameState.SessionData.PlayerLapTimeSessionBest);
-                    if (currentGameState.SessionData.HasExtraLap)
-                    {
-                        numLapsLeft = numLapsLeft + 1;
-                    }
+                    int numLapsLeft = (int)Math.Ceiling((double)currentGameState.SessionData.SessionTimeRemaining / (double)currentGameState.SessionData.PlayerLapTimeSessionBest)
+                        + currentGameState.SessionData.ExtraLapsAfterTimedSessionComplete;
                     playedNearEndTimePush = checkGaps(currentGameState, numLapsLeft, checkPushToGain, checkPushToHold);
                 }
                 else if ((checkPushToGain || checkPushToHold) && !playedNearEndLapsPush && !currentGameState.SessionData.SessionHasFixedTime &&
@@ -182,6 +180,7 @@ namespace CrewChiefV4.Events
 
         private Boolean isOpponentApproachingPitExit(GameStateData currentGameState)
         {
+            float maxSeparation = currentGameState.SessionData.TrackDefinition.isOval ? maxSeparationForPitExitWarningOvals : maxSeparationForPitExitWarningRoad;
             // Hooray for PCars and its broken data
             float distanceStartCheckPoint;
             float distanceEndCheckPoint;
@@ -190,11 +189,11 @@ namespace CrewChiefV4.Events
             if (currentGameState.PositionAndMotionData.DistanceRoundTrack == 0)
             {
                 distanceStartCheckPoint = 0;
-                distanceEndCheckPoint = maxSeparationForPitExitWarning - minSeparationForPitExitWarning;
+                distanceEndCheckPoint = maxSeparation - minSeparationForPitExitWarning;
             }
             else
             {
-                distanceStartCheckPoint = currentGameState.PositionAndMotionData.DistanceRoundTrack - maxSeparationForPitExitWarning;
+                distanceStartCheckPoint = currentGameState.PositionAndMotionData.DistanceRoundTrack - maxSeparation;
                 distanceEndCheckPoint = currentGameState.PositionAndMotionData.DistanceRoundTrack - minSeparationForPitExitWarning;
             }
             Boolean startCheckPointIsInSector1 = true;
@@ -204,17 +203,26 @@ namespace CrewChiefV4.Events
                 startCheckPointIsInSector1 = false;
                 distanceStartCheckPoint = currentGameState.SessionData.TrackDefinition.trackLength + distanceStartCheckPoint;
             }
+            float lapMidPoint = currentGameState.SessionData.TrackDefinition.trackLength / 2f;
             foreach (KeyValuePair<string, OpponentData> opponent in currentGameState.OpponentData)
             {
-                if ((opponent.Value.OpponentLapData.Count > 0 || !startCheckPointIsInSector1) && opponent.Value.Speed > 0 &&
-                    !opponent.Value.isEnteringPits() && !opponent.Value.isExitingPits() && !opponent.Value.InPits &&
-                    ((startCheckPointIsInSector1 && opponent.Value.DistanceRoundTrack > distanceStartCheckPoint && opponent.Value.DistanceRoundTrack < distanceEndCheckPoint) ||
+                bool opponentJustLeftPit = opponent.Value.isOnOutLap() && opponent.Value.DistanceRoundTrack < lapMidPoint;
+                if ((opponent.Value.OpponentLapData.Count > 0 || !startCheckPointIsInSector1)
+                    && opponent.Value.Speed > 0
+                    && !opponent.Value.isEnteringPits()
+                    && !opponentJustLeftPit
+                    && !opponent.Value.InPits
+                    && ((startCheckPointIsInSector1 && opponent.Value.DistanceRoundTrack > distanceStartCheckPoint && opponent.Value.DistanceRoundTrack < distanceEndCheckPoint) ||
                         (!startCheckPointIsInSector1 && (opponent.Value.DistanceRoundTrack > distanceStartCheckPoint || opponent.Value.DistanceRoundTrack < distanceEndCheckPoint))))
                 {
                     return true;
                 }
+                /*
+                JB: I don't think this check will work. The SignedDelta will approach the laptime (positive) as the opponent approaches the line, then it'll go small and negative
+                    until he passes our current position
+
                 if (opponent.Value.Speed > 0 &&
-                    !opponent.Value.isEnteringPits() && !opponent.Value.isExitingPits() && !opponent.Value.InPits)
+                    !opponent.Value.isEnteringPits() && !opponent.Value.isOnOutLap() && !opponent.Value.InPits)
                 {
                     float signedDelta = opponent.Value.DeltaTime.GetSignedDeltaTimeOnly(currentGameState.SessionData.DeltaTime);
                     //add a little to gap as 0 is right next to us when leaving the pits
@@ -224,6 +232,7 @@ namespace CrewChiefV4.Events
                         return true;
                     }
                 }
+                */
             }
             return false;
         }           
@@ -241,11 +250,10 @@ namespace CrewChiefV4.Events
             }
             foreach (KeyValuePair<string, OpponentData> opponent in currentGameState.OpponentData)
             {
-                // if the opponent car is moving at approximately the pit speed limit, is exiting the pits, 
-                // has passed the start line, warn about him. Note that this method is expected to be called
-                // when the player is approaching the start line
+                // if the opponent car is moving at approximately the pit speed limit, is in the pits and on his out lap, 
+                // warn about him. Note that this method is expected to be called when the player is approaching the start line
                 if (opponent.Value.Speed > 10 && opponent.Value.Speed < 40 && opponent.Value.InPits &&
-                    opponent.Value.isExitingPits() && opponent.Value.DistanceRoundTrack > triggerStartPoint && opponent.Value.DistanceRoundTrack < triggerEndPoint)
+                    opponent.Value.isOnOutLap() && opponent.Value.DistanceRoundTrack > triggerStartPoint && opponent.Value.DistanceRoundTrack < triggerEndPoint)
                 {
                     return true;
                 }

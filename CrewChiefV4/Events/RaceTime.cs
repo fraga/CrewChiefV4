@@ -45,9 +45,9 @@ namespace CrewChiefV4.Events
         private int lapsLeft;
         private float timeLeft;
 
-        private Boolean addExtraLap;
+        private int extraLapsAfterTimedSessionComplete;
 
-        private Boolean startedExtraLap;
+        private int extraLapsRemaining = 0;
 
         private Boolean leaderHasFinishedRace;
 
@@ -56,7 +56,7 @@ namespace CrewChiefV4.Events
         // allow condition messages during caution periods
         public override List<SessionPhase> applicableSessionPhases
         {
-            get { return new List<SessionPhase> { SessionPhase.Green, SessionPhase.Checkered, SessionPhase.FullCourseYellow }; }
+            get { return new List<SessionPhase> { SessionPhase.Green, SessionPhase.Checkered, SessionPhase.FullCourseYellow, SessionPhase.Formation }; }
         }
 
         public RaceTime(AudioPlayer audioPlayer)
@@ -74,12 +74,17 @@ namespace CrewChiefV4.Events
             timeLeft = 0;
             sessionLengthIsTime = false;
             leaderHasFinishedRace = false;
-            addExtraLap = false;
-            startedExtraLap = false;
+            extraLapsAfterTimedSessionComplete = 0;
+            extraLapsRemaining = 0;
         }
         
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
         {
+            // For now, scope Formation phase to GTR2 only.
+            if (CrewChief.gameDefinition.gameEnum != GameEnum.GTR2
+                && currentGameState.SessionData.SessionPhase == SessionPhase.Formation)
+                return;
+
             if (CrewChief.gameDefinition.gameEnum == GameEnum.IRACING
                 && currentGameState.SessionData.SessionType == SessionType.Race
                 && previousGameState != null
@@ -90,8 +95,8 @@ namespace CrewChiefV4.Events
                 played0mins = false; played2mins = false; played5mins = false; played10mins = false; played15mins = false;
                 played20mins = false; playedHalfWayHome = false; playedLastLap = false; gotHalfTime = false;
             }
-            // store this in a local var so it's available for vocie command responses
-            addExtraLap = currentGameState.SessionData.HasExtraLap;
+            // store this in a local var so it's available for voice command responses
+            extraLapsAfterTimedSessionComplete = currentGameState.SessionData.ExtraLapsAfterTimedSessionComplete;
             leaderHasFinishedRace = currentGameState.SessionData.LeaderHasFinishedRace;
             timeLeft = currentGameState.SessionData.SessionTimeRemaining;
             if (!currentGameState.SessionData.SessionHasFixedTime)
@@ -105,13 +110,18 @@ namespace CrewChiefV4.Events
             }
             if (sessionLengthIsTime)
             {
-                if (addExtraLap && gotHalfTime && timeLeft <= 0 && currentGameState.SessionData.IsNewLap)
+                if (timeLeft > 0)
                 {
-                    startedExtraLap = true;
+                    extraLapsRemaining = extraLapsAfterTimedSessionComplete;
                 }
-                if (!gotHalfTime)
+                if (extraLapsAfterTimedSessionComplete > 0 && gotHalfTime && timeLeft <= 0 && currentGameState.SessionData.IsNewLap)
                 {
-                    Console.WriteLine("Session time remaining = " + timeLeft);
+                    extraLapsRemaining--;
+                }
+                if (!gotHalfTime
+                    && (CrewChief.gameDefinition.gameEnum != GameEnum.GTR2 || currentGameState.inCar))  // No timed session length in GTR2 until we are in the realtime.
+                {
+                    Console.WriteLine("Session time remaining = " + timeLeft + "  (" + TimeSpan.FromSeconds(timeLeft).ToString(@"hh\:mm\:ss\:fff") + ")");
                     halfTime = timeLeft / 2;
                     gotHalfTime = true;
                     if (currentGameState.FuelData.FuelUseActive)
@@ -155,8 +165,8 @@ namespace CrewChiefV4.Events
                         OpponentData leader = currentGameState.getOpponentAtClassPosition(1, currentGameState.carClass);
                         timeWillBeZeroAtEndOfLeadersLap = leader != null && leader.isProbablyLastLap;
                     }
-                    if ((addExtraLap && timeLeft <= 0) ||
-                        (!addExtraLap && timeWillBeZeroAtEndOfLeadersLap)) {
+                    if ((extraLapsAfterTimedSessionComplete > 0 && extraLapsRemaining == 0 && timeLeft <= 0) ||
+                        (extraLapsAfterTimedSessionComplete == 0 && timeWillBeZeroAtEndOfLeadersLap)) {
                         playedLastLap = true;
                         played2mins = true;
                         played5mins = true;
@@ -190,7 +200,7 @@ namespace CrewChiefV4.Events
                     audioPlayer.disablePearlsOfWisdom = true;
                 }
                 // Console.WriteLine("Session time left = " + timeLeft + " SessionRunningTime = " + currentGameState.SessionData.SessionRunningTime);
-                if (!currentGameState.SessionData.HasExtraLap && 
+                if (currentGameState.SessionData.ExtraLapsAfterTimedSessionComplete == 0 && 
                     currentGameState.SessionData.SessionRunningTime > 0 && !played0mins && timeLeft <= 0.2)
                 {
                     played0mins = true;
@@ -206,9 +216,10 @@ namespace CrewChiefV4.Events
                     {
                         Console.WriteLine("Skipping session end messages for unlimited session");
                     }
-                    else if (currentGameState.SessionData.SessionType != SessionType.Race) 
+                    else if (currentGameState.SessionData.SessionType != SessionType.Race
+                        && !(CrewChief.gameDefinition.gameEnum != GameEnum.RACE_ROOM && currentGameState.SessionData.SessionType == SessionType.Qualify)) 
                     {
-                        // don't play the chequered flag message in race sessions
+                        // don't play the chequered flag message in race sessions or in R3E qual sessions (where the session end trigger takes care if things)
                         audioPlayer.playMessage(new QueuedMessage("session_complete", 5,
                             messageFragments: MessageContents(folder0mins, Position.folderStub + currentGameState.SessionData.ClassPosition), abstractEvent: this, priority: 10));
                     }
@@ -295,35 +306,41 @@ namespace CrewChiefV4.Events
                 if (leaderHasFinishedRace)
                 {
                     Console.WriteLine("Playing last lap message, timeleft = " + timeLeft);
-                    audioPlayer.playMessageImmediately(new QueuedMessage(folderThisIsTheLastLap, 0));                    
+                    audioPlayer.playMessageImmediately(new QueuedMessage(folderThisIsTheLastLap, 0));
                 }
                 if (timeLeft >= 120)
                 {
                     int minutesLeft = (int)Math.Round(timeLeft / 60f);
                     audioPlayer.playMessageImmediately(new QueuedMessage("RaceTime/time_remaining", 0,
-                        messageFragments: MessageContents(TimeSpanWrapper.FromMinutes(minutesLeft, Precision.MINUTES), folderRemaining)));                    
+                        messageFragments: MessageContents(TimeSpanWrapper.FromMinutes(minutesLeft, Precision.MINUTES), folderRemaining)));
                 }
                 else if (timeLeft >= 60)
                 {
-                    audioPlayer.playMessageImmediately(new QueuedMessage(folderOneMinuteRemaining, 0));                    
+                    audioPlayer.playMessageImmediately(new QueuedMessage(folderOneMinuteRemaining, 0));
                 }
                 else if (timeLeft <= 0)
                 {
-                    if (addExtraLap && !startedExtraLap)
+                    if (extraLapsAfterTimedSessionComplete > 0 && extraLapsRemaining == 1)
                     {
                         Console.WriteLine("Playing extra lap one more lap message, timeleft = " + timeLeft);
-                        audioPlayer.playMessageImmediately(new QueuedMessage(folderOneLapAfterThisOne, 0));                        
+                        audioPlayer.playMessageImmediately(new QueuedMessage(folderOneLapAfterThisOne, 0));
+                    }
+                    else if (extraLapsAfterTimedSessionComplete > 0 && extraLapsRemaining > 1)
+                    {
+                        Console.WriteLine("Playing extra lap message, timeleft = " + timeLeft);
+                        audioPlayer.playMessageImmediately(new QueuedMessage("RaceTime/laps_remaining", 0,
+                            messageFragments: MessageContents(extraLapsRemaining, folderLapsLeft)));
                     }
                     else 
                     {
                         Console.WriteLine("Playing last lap message, timeleft = " + timeLeft);
-                        audioPlayer.playMessageImmediately(new QueuedMessage(folderThisIsTheLastLap, 0));                        
-                    }                   
+                        audioPlayer.playMessageImmediately(new QueuedMessage(folderThisIsTheLastLap, 0));
+                    }
                 }
                 else if (timeLeft < 60)
                 {
                     Console.WriteLine("Playing less than a minute message, timeleft = " + timeLeft);
-                    audioPlayer.playMessageImmediately(new QueuedMessage(folderLessThanOneMinute, 0));                    
+                    audioPlayer.playMessageImmediately(new QueuedMessage(folderLessThanOneMinute, 0));
                 }
             }
             else
@@ -339,7 +356,7 @@ namespace CrewChiefV4.Events
                 }
                 else if (lapsLeft == 1)
                 {
-                    audioPlayer.playMessageImmediately(new QueuedMessage(folderThisIsTheLastLap, 0));                    
+                    audioPlayer.playMessageImmediately(new QueuedMessage(folderThisIsTheLastLap, 0));
                 }
             }     
         }

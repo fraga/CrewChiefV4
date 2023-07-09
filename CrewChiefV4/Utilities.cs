@@ -10,6 +10,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
+using System.Windows.Forms;
 using WebSocketSharp;
 using WebSocketSharp.Server;
 
@@ -37,7 +38,7 @@ namespace CrewChiefV4
         {
             this.messageNames = messageNames;
             this.minCount = minCount;
-            this.maxCount = maxCount;            
+            this.maxCount = maxCount;
         }
         // expect a specific message to be played the exact number of times - note that the DELAYED_ and COMPOUND_ prefixes are also considered here
         public ExpectedMessage(string messageName, int exactCount)
@@ -88,15 +89,15 @@ namespace CrewChiefV4
         // TODO: move the hard-coded Strings to a messageNames class and reference these in all the events instead of using random
         // magic Strings everywhere
         private static ExpectedMessage[] defaultExpectedMessagesForRaceSessions = new ExpectedMessage[]
-        {        
+        {
             new ExpectedMessage("lap_counter/get_ready", 1),
             new ExpectedMessage("lap_counter/green_green_green", 1),
             new ExpectedMessage("position", 1, 1000), // expect at least *some* position messages
             new ExpectedMessage(new string[] {"Timings/gap_behind", "Timings/gap_in_front"}, 1, 1000), // expect at least *some* gap messages
             new ExpectedMessage(new string[] {"fuel/half_distance_good_fuel", "fuel/half_distance_low_fuel"}, 0, 1),    // won't always get this, but should never have > 1
-            new ExpectedMessage(new string[] {"lap_counter/two_to_go", "lap_counter/two_to_go_top_three", "lap_counter/two_to_go_leading", 
+            new ExpectedMessage(new string[] {"lap_counter/two_to_go", "lap_counter/two_to_go_top_three", "lap_counter/two_to_go_leading",
                 "race_time/five_minutes_left_podium", "race_time/five_minutes_left_leading", "race_time/five_minutes_left"}, 1),    // should always get 1 2-to-go or 5-mins-to-go
-            new ExpectedMessage(new string[] {"lap_counter/last_lap", "lap_counter/white_flag_last_lap", "lap_counter/last_lap_leading", 
+            new ExpectedMessage(new string[] {"lap_counter/last_lap", "lap_counter/white_flag_last_lap", "lap_counter/last_lap_leading",
                 "lap_counter/last_lap_top_three", "race_time/last_lap", "race_time/last_lap_leading", "race_time/last_lap_top_three"}, 1),  // should always get 1 last-lap
             new ExpectedMessage("SESSION_END", 1)   // should always get 1 session end
         };
@@ -118,7 +119,7 @@ namespace CrewChiefV4
         public static GameDataReader gameDataReader;
 
         public static GameDataSerializer gameDataSerializer;
-        
+
         public static void checkPlaybackCounts()
         {
             if (includesRaceSession)
@@ -221,7 +222,7 @@ namespace CrewChiefV4
             }
         }
 
-        private static void stopGameDataWebsocketServer() 
+        private static void stopGameDataWebsocketServer()
         {
             GameDataWebsocketData.reset();
             try
@@ -249,12 +250,15 @@ namespace CrewChiefV4
             var proc = Process.GetProcessesByName(processName);
             if (proc.Length > 0)
             {
-                try
+                if (CrewChief.gameDefinition.gameEnum != GameEnum.IRACING)
                 {
-                    parentDir = Path.GetDirectoryName(proc[0].MainModule.FileName);
+                    try
+                    {
+                        parentDir = Path.GetDirectoryName(proc[0].MainModule.FileName);
+                    }
+                    catch (Win32Exception) { /*Ignore - anti cheat protection?*/ }
+                    catch (Exception e) { Log.Exception(e); }
                 }
-                catch (Exception) { }
-
                 return true;
             }
             else if (alternateProcessNames != null && alternateProcessNames.Length > 0)
@@ -270,45 +274,63 @@ namespace CrewChiefV4
             return false;
         }
 
-        public static void runGame(String launchExe, String launchParams)
+        /// <summary>
+        /// Launch the game
+        /// </summary>
+        /// <param name="launchExe"></param>
+        /// <param name="launchParams"></param>
+        /// <returns>true: the game started
+        /// false: there was a problem running the game</returns>
+        public static bool runGame(String launchExe, String launchParams)
         {
+            string exception;
+            string exMsg;
+            // Inconsistent handling of spaces in paths
+            // ProcessStartInfo() is happy with the escaped " version: "\"c:\pa th\game.exe\""
+            // GetDirectoryName() wants "c:\pa th\game.exe"
+            // Neither is happy if the user enters "c:\pa th\game.exe" with quotes
+            launchExe = launchExe.Trim().Trim('"').Trim('\'').Trim();
+            if (launchExe.IsNullOrEmpty())
+            {
+                // user wants to launch the game but hasn't specified a path. Bloody users.
+                Console.WriteLine("Skipping game launch because no path was provided");
+                return true;
+            }
             try
             {
                 Console.WriteLine("Attempting to run game using " + launchExe + " " + launchParams);
-                if (launchExe.Contains(" "))
-                {
-                    if (!launchExe.StartsWith("\""))
-                    {
-                        launchExe = "\"" + launchExe;
-                    }
-                    if (!launchExe.EndsWith("\""))
-                    {
-                        launchExe = launchExe + "\"";
-                    }
-                }
                 using (Process process = new Process())
                 {
                     ProcessStartInfo startInfo = new ProcessStartInfo(launchExe);
                     startInfo.Arguments = launchParams;
+                    startInfo.WorkingDirectory = Path.GetDirectoryName(launchExe);
                     process.StartInfo = startInfo;
                     process.Start();
+                    return true;
                 }
             }
             catch (InvalidOperationException e)
             {
-                Console.WriteLine("InvalidOperationException starting game: " + e.Message);
+                exception = "InvalidOperationException";
+                exMsg = e.Message;
             }
             catch (Exception e)
             {
-                Console.WriteLine("Exception starting game: " + e.Message);
+                exception = "Exception";
+                exMsg = e.Message;
             }
+            string error = String.IsNullOrEmpty(launchParams) ? 
+                $"{exception} starting game with path '{launchExe}' : {exMsg}" : 
+                $"{exception} starting game with path '{launchExe}' and params '{launchParams}' : {exMsg}";
+            Log.Error(error);
+            return false;
         }
 
         /*
          * For tyre life estimates we want to know how long the tyres will last, so we're asking for a time prediction
          * given a wear amount (100% wear). So y_data is the y-axis which may be time points (session running time) or
          * number of sectors since session start incrementing +1 for each sector. When we change tyres we clear these
-         * data sets but the y-axis time / sector counts will start at however long into the session (time or total 
+         * data sets but the y-axis time / sector counts will start at however long into the session (time or total
          * sectors) we are.
          * x_data is the tyre wear at that y point (a percentage).
          * the x_point is the point you want to predict the life - wear amount. So we pass 100% in here to give us
@@ -432,72 +454,326 @@ namespace CrewChiefV4
         }
 
         /// <summary>
-        /// Restart CC with new args
+        /// Restart CC with edited args
         /// </summary>
-        /// <param name="newArgs"></param>
-        /// <param name="removeSkipUpdates"></param>
         /// <returns>true if app restarted</returns>
-        public static bool RestartApp(List<String> newArgs=null, bool removeSkipUpdates = false)
+        public static bool RestartApp(
+            bool app_restart = false,
+            bool removeSkipUpdates = false,
+            bool removeProfile = false,
+            bool removeGame = false)
         {
             if (!CrewChief.Debugging)
             {
-                List<String> startArgs = new List<string>();
-                foreach (String startArg in Environment.GetCommandLineArgs())
-                {
-                    // if we're restarting because the 'force update check'
-                    // was clicked, remove the '-skip_updates' arg
-                    if (removeSkipUpdates && 
-                        ("-skip_updates".Equals(startArg, StringComparison.InvariantCultureIgnoreCase)
-                        || "SKIP_UPDATES".Equals(startArg)))
-                    {
-                        continue;
-                    }
-                    startArgs.Add(startArg);
-                }
-
-                // Always have to add "-multi" to the start args so the app can restart
-                if (newArgs == null)
-                    newArgs = new List<string>();
-                newArgs.Add("-multi");
-                foreach (string arg in newArgs)
-                {
-                    if (!startArgs.Contains(arg))
-                    {
-                        startArgs.Add(arg);
-                    }
-                }
+                var newArgs = RestartAppCommandLine(app_restart,
+                                                    removeSkipUpdates,
+                                                    removeProfile,
+                                                    removeGame);
                 System.Diagnostics.Process.Start(    // to start new instance of application
                     System.Windows.Forms.Application.ExecutablePath,
-                    String.Join(" ", startArgs.ToArray()));
+                    String.Join(" ", newArgs.ToArray()));
                 return true;
             }
             // If debugging then carry on regardless
             return false;
         }
+        /// <summary>
+        /// Edit the current command line
+        /// </summary>
+        /// <param name="app_restart"></param>
+        /// <param name="removeSkipUpdates">We're restarting because the 'force update check'</param>
+        /// <param name="removeProfile">-profile [profile name]</param>
+        /// <param name="removeGame">=game [game name]</param>
+        /// <returns></returns>
+        // (Extracted so it can be tested)
+        internal static List<string> RestartAppCommandLine(
+            bool app_restart = false,
+            bool removeSkipUpdates = false,
+            bool removeProfile = false,
+            bool removeGame = false)
+        {
+            if (app_restart)
+            {
+                CrewChief.CommandLine.Add("app_restart", "");
+            }
+            if (removeSkipUpdates)
+            {
+                CrewChief.CommandLine.Remove("skip_updates");
+                CrewChief.CommandLine.Remove("SKIP_UPDATES");
+            }
+            if (removeProfile)
+            {
+                CrewChief.CommandLine.Remove("profile");
+            }
+            if (removeGame)
+            {
+                CrewChief.CommandLine.Remove("game");
+            }
+            // Always have to add "-multi" to the start args so the app can restart
+            CrewChief.CommandLine.Add("multi", "");
+
+            // Translate the dict back into a command line
+            var newArgs = new List<string>();
+            foreach (var arg in CrewChief.CommandLine._dict)
+            {
+                newArgs.Add("-" + arg.Key);
+                newArgs.Add(arg.Value);
+            }
+            return newArgs;
+        }
+
+        public static void AddLinesToFile(string filePath, List<string> lines)
+            {
+                // Create the file if it doesn't exist
+                if (!File.Exists(filePath))
+                {
+                    File.Create(filePath).Close();
+                }
+
+                // Add the lines to the file
+                using (StreamWriter writer = File.AppendText(filePath))
+                {
+                    foreach (string line in lines)
+                    {
+                        writer.WriteLine(line);
+                    }
+                }
+            }
+
+        public class Strings
+        {
+
+            /// <summary>
+            /// If 'text' is longer than 'maxLength' insert a newline near
+            /// the middle after a word break
+            /// </summary>
+            /// <param name="text"></param>
+            /// <param name="maxLength"></param>
+            /// <returns></returns>
+            public static string SplitString(string text, int maxLength)
+            {
+                if (text.Length <= maxLength)
+                {
+                    return text;
+                }
+                //Degenerate case with only 1 word
+                if (!text.Any(Char.IsWhiteSpace))
+                {
+                    return text;
+                }
+
+                int mid = text.Length / 2;
+                if (!Char.IsWhiteSpace(text[mid]))
+                {
+                    for (int i = 1; i < mid; i += i)
+                    {
+                        if (Char.IsWhiteSpace(text[mid + i]))
+                        {
+                            mid = mid + i;
+                            break;
+                        }
+                        if (Char.IsWhiteSpace(text[mid - i]))
+                        {
+                            mid = mid - i;
+                            break;
+                        }
+                    }
+                }
+
+                return text.Substring(0, mid)
+                       + Environment.NewLine + text.Substring(mid + 1);
+            }
+            internal static string FirstLetterToUpper(string str)
+            {
+                if (str == null)
+                    return null;
+
+                if (str.Length > 1)
+                    return char.ToUpper(str[0]) + str.Substring(1);
+
+                return str.ToUpper();
+            }
+            /// <summary>
+            /// Put newlines into a long string e.g. for tooltips
+            /// A \ in the string is treated as a hard newline
+            /// e.g. Recorded name pairs\Select then...
+            /// </summary>
+            public static string NewlinesInLongString(string longString, int maxLength = 44)
+            {
+                string result = string.Empty;
+                var markedLines = longString.Split('\\');
+
+                foreach (var line in markedLines)
+                {
+                    string _line = line;
+                    while (_line.Length > maxLength)
+                    {
+                        int splitIndex = _line.Substring(0, maxLength).LastIndexOf(" ");
+                        if (splitIndex == -1) // no space found
+                            splitIndex = maxLength; // split at max length anyway
+
+                        result += (_line.Substring(0, splitIndex)) + Environment.NewLine;
+                        _line = _line.Substring(splitIndex + 1);
+                    }
+                    result += _line + Environment.NewLine; // add the last remaining part of the line
+                }
+
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Read the command line arguments into a dictionary
+        /// </summary>
+        public class CommandLineParametersReader
+        {
+            private string[] _args
+            {
+                get;
+            }
+            public Dictionary<string, string> _dict
+            {
+                get;
+            }
+
+            private bool CaseSensitive
+            {
+                get;
+            }
+
+            public CommandLineParametersReader(string[] args = null, bool isCaseSensitive = false)
+            {
+                if (args == null)
+                {
+                    args = Environment.GetCommandLineArgs();
+                }
+                _args = args;
+                CaseSensitive = isCaseSensitive;
+                _dict = new Dictionary<string, string>();
+                Process();
+            }
+
+            // Process Arguments into KeyPairs
+            private void Process()
+            {
+                string currentKey = null;
+                foreach (var arg in _args)
+                {
+                    var s = arg.Trim();
+                    if (s.StartsWith("-"))
+                    {
+                        currentKey = s.Substring(1);
+                        if (!CaseSensitive)
+                        {
+                            currentKey = currentKey.ToLower();
+                        }
+                        _dict[currentKey] = "";
+                    }
+                    else
+                    {
+                        if (currentKey != null)
+                        {
+                            _dict[currentKey] = s;
+                            currentKey = null;
+                        }
+                    }
+                }
+            }
+
+            // Return the Key with a default value
+            public string Get(string key, string defaultvalue = null)
+            {
+                if (!CaseSensitive)
+                {
+                    key = key.ToLower();
+                }
+                return _dict.ContainsKey(key) ? _dict[key] : defaultvalue;
+            }
+
+            public void Add(string key, string value)
+            {
+                _dict[key] = value;
+            }
+            public void Remove(string key)
+            {
+                if (_dict.ContainsKey(key))
+                {
+                    _dict.Remove(key);
+                }
+            }
+            /// <summary>
+            /// Return a -c_[command] argument
+            /// </summary>
+            /// <returns>
+            /// The command or "" if none
+            /// </returns>
+            public string GetCommandArg()
+            {
+                string cmd = "";
+                foreach (var arg in _dict)
+                {
+                    if (arg.Key.StartsWith("c_"))
+                    {
+                        cmd = "-" + arg.Key;
+                    }
+                }
+                return cmd;
+            }
+        }
 
         internal static void ReportException(Exception e, string msg, bool needReport)
         {
-            Console.WriteLine(
-                Environment.NewLine + "==================================================================" + Environment.NewLine
-                + (needReport ? ("PLEASE REPORT THIS ERROR TO CC DEV TEAM." + Environment.NewLine) : "")
-                + "Error message: " + msg + Environment.NewLine
-                + e.ToString() + Environment.NewLine
-                + e.Message + Environment.NewLine
-                + e.StackTrace + Environment.NewLine
-            );
-
-            if (e.InnerException != null)
+            String message = needReport ? "Error message copied to clipboard:\n" : "";
+            message += e.Message + "Stack trace: " + String.Join(",", e.StackTrace);
+            int innerExceptionCount = 0;
+            int maxReportableInnerExceptions = 5;   // in case we have a circular set of inner exception references
+            Exception innerException = e.InnerException;
+            while (innerException != null && innerExceptionCount < maxReportableInnerExceptions)
             {
-                Console.WriteLine(
-                    "Inner exception: " + e.InnerException.ToString() + Environment.NewLine
-                    + e.InnerException.Message + Environment.NewLine
-                    + e.InnerException.StackTrace + Environment.NewLine
-                );
+                message += "\n\nInner exception " + innerExceptionCount + " message: " + e.InnerException.Message +
+                    "\nInner exception " + innerExceptionCount + " stack trace: " + String.Join(",", e.InnerException.StackTrace);
+                innerException = innerException.InnerException;
+                innerExceptionCount++;
             }
-
+            // Write it to the console window if it's live
+            Console.WriteLine(
+                "==================================================================" + Environment.NewLine
+                );
+            Console.WriteLine(message);
             Console.WriteLine(
                 "==================================================================" + Environment.NewLine
             );
+
+            if (needReport)
+            {
+                string consoleLogFilename = null;
+                try
+                {
+                    consoleLogFilename = MainWindow.instance.saveConsoleOutputText();
+                }
+                catch (Exception ex)
+                {
+                }
+                if (consoleLogFilename == null)
+                {
+                    // Console window not live yet
+                    MessageBox.Show("The following text will be COPIED TO THE CLIPBOARD\n"
+                        + (needReport ? "Please PASTE the report to the Crew Chief team via the forum or Discord." : "")
+                        + "\n\n" + message,
+                        "Fatal error",
+                        MessageBoxButtons.OK);
+                }
+                else
+                {
+                    MessageBox.Show($"The following text should be found in {consoleLogFilename}\n"
+                        + "but will be COPIED TO THE CLIPBOARD too\n"
+                        + "Please send the log file to the Crew Chief team via the forum or Discord."
+                        + "\n\n" + message,
+                        "Fatal error",
+                        MessageBoxButtons.OK);
+                }
+                Clipboard.SetText(message);
+            }
         }
 
         internal static bool InterruptedSleep(int totalWaitMillis, int waitWindowMillis, Func<bool> keepWaitingPredicate)
@@ -544,16 +820,6 @@ namespace CrewChiefV4
             return true;
         }
 
-        internal static string FirstLetterToUpper(string str)
-        {
-            if (str == null)
-                return null;
-
-            if (str.Length > 1)
-                return char.ToUpper(str[0]) + str.Substring(1);
-
-            return str.ToUpper();
-        }
         public static int SizeOf<T>()
         {
             return Marshal.SizeOf(typeof(T));
@@ -655,65 +921,6 @@ namespace CrewChiefV4
         protected override void OnMessage(MessageEventArgs e)
         {
             Send(GameDataWebsocketData.gameDataSerializer.Serialize(GameDataWebsocketData.gameDataReader.getLatestGameData(), e.Data));
-        }
-    }
-
-    // stackoverflow...
-    public static class Extensions
-    {
-
-        /*public static int IndexOfMin<T>(this IList<T> list) where T : IComparable
-        {
-            if (list == null)
-                throw new ArgumentNullException("list");
-
-            IEnumerator<T> enumerator = list.GetEnumerator();
-            bool isEmptyList = !enumerator.MoveNext();
-
-            if (isEmptyList)
-                throw new ArgumentOutOfRangeException("list", "list is empty");
-
-            int minOffset = 0;
-            T minValue = enumerator.Current;
-            for (int i = 1; enumerator.MoveNext(); ++i)
-            {
-                if (enumerator.Current.CompareTo(minValue) >= 0)
-                    continue;
-
-                minValue = enumerator.Current;
-                minOffset = i;
-            }
-
-            return minOffset;
-        }*/
-        public static int IndexOfMin<T>(this IEnumerable<T> source, IComparer<T> comparer = null)
-        {
-            if (source == null)
-                throw new ArgumentNullException("source");
-
-            if (comparer == null)
-                comparer = Comparer<T>.Default;
-
-            using (var enumerator = source.GetEnumerator())
-            {
-                if (!enumerator.MoveNext())
-                    return -1;    // or maybe throw InvalidOperationException
-
-                int minIndex = 0;
-                T minValue = enumerator.Current;
-
-                int index = 0;
-                while (enumerator.MoveNext())
-                {
-                    index++;
-                    if (comparer.Compare(enumerator.Current, minValue) < 0)
-                    {
-                        minIndex = index;
-                        minValue = enumerator.Current;
-                    }
-                }
-                return minIndex;
-            }
         }
     }
 }

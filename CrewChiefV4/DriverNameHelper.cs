@@ -1,56 +1,151 @@
-﻿using CrewChiefV4.Audio;
+﻿using FuzzySharp;
+using Phonix;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
+using System.Runtime.CompilerServices;
 
+using CrewChiefV4.Audio;
+using System.Text.RegularExpressions;
+
+[assembly: InternalsVisibleTo("UnitTest")]
 /**
  * Utility class to ease some of the pain of managing driver names.
  */
 namespace CrewChiefV4
 {
+    /// <summary>
+    /// Mapping the game's driver names to sound files.
+    /// </summary>
     class DriverNameHelper
     {
         public static HashSet<String> unvocalizedNames = new HashSet<string>();
 
-        // if there's more than 2 names, and the second to last name isn't one of the common middle bits, 
-        // use the last part
-        private static Boolean optimisticSurnameExtraction = true;
+        private static readonly String[] middleBits = {
+            "de la", "de le", "van der", "van de", "van", "de", "da", "le", "la", "von", "di",
+            "eg", "du", "el", "del", "saint", "st",
+            "mac", "mc" // mac and mc may have been split off during CamelCase processing
+        };
 
-        private static String[] middleBits = new String[] { "de la", "de le", "van der", "van de", "van", "de", "da", "le", "la", "von", "di", "eg", "du", "el", "del", "saint", "st" };
+        // need a special case here for "junior" and "senior"
+        // - if it's "Something Junior" then allow it, it it's "Something Somthingelse Junior" then remove it
+        //
+        // 2 part suffix list - remove these even if the name only has one other part
+        private static readonly String[] ignored2PartSuffixes = {
+            "jr", "sr", "vr", "uk", "us", "fr", "de", "sw", "es", "dk", "rp", "div", "proam", "am", "pro", "arg",
+            "ii", "iii", "iv", "v"
+        };
 
-        private static Dictionary<String, String> lowerCaseRawNameToUsableName = new Dictionary<String, String>();
+        // 3 part suffix list - remove these if the name has 2 or more other parts
+        private static readonly String[] ignored3PartSuffixes = {
+            "junior", "senior", "division", "group"
+        };
+
+        // provide a hint to the phonics matcher - only allow names whose first letters match these pairs
+        private static readonly (string, string)[] closeFirstLetters = {
+            ( "C", "K" ), ( "J", "G" ), ( "W", "V" ), ( "Z", "S" ),
+            ( "Sh", "Ch" ), ( "Ch", "Sch" ), ( "Th", "T" ), ( "Ts", "S" ),
+            ( "X", "Z" ), ( "Dj", "J" ) };
+
+        private static readonly (char, char)[] numberLetterSubstitutions = {
+            ( '0', 'o' ), ( '1', 'l' ), ( '3', 'b' ), ( '5', 's' ) };
+        // brackets could have the same treatment
+        // all the above could be in a JSON file...
+
+        internal static Dictionary<String, String> lowerCaseRawNameToUsableName = new Dictionary<String, String>();
+        internal static Dictionary<String, String> lowerCaseLastNameToFuzzyMatchedName = new Dictionary<String, String>();
 
         private static Dictionary<String, String> usableNamesForSession = new Dictionary<String, String>();
 
-        private static Boolean useLastNameWherePossible = true;
+        private static HashSet<string> failingNames = new HashSet<string>(); 
 
-        public static void readRawNamesToUsableNamesFiles(String soundsFolderName)
+        private static HashSet<string> suppressFuzzyMatchesOnTheseNames = new HashSet<string>();
+
+        private static string guessedDriverNamesPath;
+        private static string driverNamesPath;
+        private static string soundsFolderName = null;
+
+        private static readonly bool useFuzzyDrivernameMatching = UserSettings.GetUserSettings().getBoolean("use_fuzzy_driver_name_matching");
+
+        /// <summary>
+        /// Specific opponent names used by the game can be mapped to specific 
+        /// sound files as well as the straight name match.
+        /// There is more than one file containing mappings
+        /// </summary>
+        /// <param name="soundsFolderName">Where the lists are stored</param>
+        /// Loads the list of driver name : sound file mappings into lowerCaseRawNameToUsableName{}
+        public static void ReadDriverNameMappings(String _soundsFolderName = null)
         {
-            readRawNamesToUsableNamesFile(soundsFolderName, @"\driver_names\additional_names.txt");
-            readRawNamesToUsableNamesFile(soundsFolderName, @"\driver_names\names.txt");
+            if (soundsFolderName == null)
+            {
+                if (_soundsFolderName == null)
+                {
+                    Log.Fatal("soundsFolderName not set");
+                }
+                soundsFolderName = _soundsFolderName;
+            }
+            lowerCaseRawNameToUsableName.Clear();
+            suppressFuzzyMatchesOnTheseNames.Clear();
+            readRawNamesToUsableNamesFile(soundsFolderName, @"driver_names\additional_names.txt", lowerCaseRawNameToUsableName);
+            readRawNamesToUsableNamesFile(soundsFolderName, @"driver_names\names.txt", lowerCaseRawNameToUsableName);
+            driverNamesPath = Path.Combine(soundsFolderName, @"driver_names\names.txt");
+            if (useFuzzyDrivernameMatching)
+            {
+                // Generating fuzzy match driver names is costly so they're stored once
+                // they're guessed
+                readRawNamesToUsableNamesFile(soundsFolderName, @"driver_names\guessed_names.txt", lowerCaseLastNameToFuzzyMatchedName);
+                guessedDriverNamesPath = Path.Combine(soundsFolderName, @"driver_names\guessed_names.txt");
+            }
+        }
+        public static Dictionary<string, string> getGuessedDriverNames()
+        {
+            Dictionary<String, String> lowerCaseGuessedNameToUsableName = new Dictionary<string, string>();
+            if (useFuzzyDrivernameMatching)
+            {
+                readRawNamesToUsableNamesFile(soundsFolderName, @"driver_names\guessed_names.txt", lowerCaseGuessedNameToUsableName);
+                // Append any ignored names
+                foreach (var name in suppressFuzzyMatchesOnTheseNames)
+                {
+                    if (!lowerCaseGuessedNameToUsableName.ContainsKey(name))
+                    {
+                        lowerCaseGuessedNameToUsableName.Add(name, "");
+                    }
+                }
+            }
+            return lowerCaseGuessedNameToUsableName;
         }
 
-        private static void readRawNamesToUsableNamesFile(String soundsFolderName, String filename)
+        internal static void readRawNamesToUsableNamesFile(String soundsFolderName, String filename, Dictionary<String, String> lowerCaseRawNameToUsableNameToUse)
         {
             Console.WriteLine("Reading driver name mappings");
             int counter = 0;
             string line;
             try
             {
-                StreamReader file = new StreamReader(soundsFolderName + filename);
+                StreamReader file = new StreamReader(Path.Combine(soundsFolderName, filename));
                 while ((line = file.ReadLine()) != null)
                 {
-                    int separatorIndex = line.LastIndexOf(":");
-                    if (separatorIndex > 0 && line.Length > separatorIndex + 1)
+                    if (line.Length > 1 && line.Trim().EndsWith(":"))
                     {
-                        String lowerCaseRawName = line.Substring(0, separatorIndex).ToLower();
-                        String usableName = line.Substring(separatorIndex + 1).Trim().ToLower();
-                        if (usableName != null && usableName.Length > 0) 
+                        string suppressedName = line.Trim(':');
+                        if (suppressedName.Length > 0)
                         {
-                            // add new or replace the existing mapping - last one wins
-                            lowerCaseRawNameToUsableName[lowerCaseRawName] = usableName;
+                            suppressFuzzyMatchesOnTheseNames.Add(suppressedName.ToLower());
+                        }
+                    }
+                    else
+                    {
+                        int separatorIndex = line.LastIndexOf(":");
+                        if (separatorIndex > 0 && line.Length > separatorIndex + 1)
+                        {
+                            String lowerCaseRawName = line.Substring(0, separatorIndex).ToLower();
+                            String usableName = line.Substring(separatorIndex + 1).Trim().ToLower();
+                            if (usableName != null && usableName.Length > 0)
+                            {
+                                // add new or replace the existing mapping - last one wins
+                                lowerCaseRawNameToUsableNameToUse[lowerCaseRawName] = usableName;
+                            }
                         }
                     }
                     counter++;
@@ -62,7 +157,7 @@ namespace CrewChiefV4
             {}
         }
         
-        private static String validateAndCleanUpName(String name)
+        public static String validateAndCleanUpName(String name)
         {
             try
             {
@@ -97,14 +192,18 @@ namespace CrewChiefV4
                         allCharsValid = false;
                     }
                 }
+                string validCharsOnly = null;
+                // at this point we may have a name like BobSmith or garyMcShit.
+                // Before we lower case it, see if there's a split hiding in the case (PascalCase or camelCase)
                 if (allCharsValid && name.Trim().Count() > 1)
                 {
-                    return name.Trim().ToLower();
+                    validCharsOnly = SpacesFromCamel(name.Trim()).ToLower();
                 }
                 else if (charsFromName.Trim().Count() > 1)
                 {
-                    return charsFromName.ToLower().Trim();
-                }                
+                    validCharsOnly = SpacesFromCamel(charsFromName.Trim()).ToLower();
+                }
+                return validCharsOnly;
             }
             catch (Exception)
             {
@@ -123,56 +222,19 @@ namespace CrewChiefV4
             }
             name = name.Replace('-', ' ');
             name = name.Replace('.', ' ');
+            name = name.Replace('|', ' ');
             name = name.Replace("$", "s");
             // trim the string and replace any multiple whitespace chars with a single space
-            return System.Text.RegularExpressions.Regex.Replace(name.Trim(), @"\s+", " ");
+            return Regex.Replace(name.Trim(), @"\s+", " ");
         }
-
-        private static String cleanBrackets(String name)
+        private static string cleanBrackets(string name)
         {
-            if (name.EndsWith("]") && name.Contains("["))
-            {
-                name = name.Substring(0, name.IndexOf('['));
-                name = name.Trim();
-            }
-            if (name.StartsWith("[") && name.Contains("]"))
-            {
-                name = name.Substring(name.LastIndexOf(']') + 1);
-                name = name.Trim();
-            }
-            if (name.EndsWith(")") && name.Contains("("))
-            {
-                name = name.Substring(0, name.LastIndexOf('('));
-                name = name.Trim();
-            }
-            if (name.StartsWith("(") && name.Contains(")"))
-            {
-                name = name.Substring(name.LastIndexOf(')') + 1);
-                name = name.Trim();
-            }
-            if (name.EndsWith(">") && name.Contains("<"))
-            {
-                name = name.Substring(0, name.LastIndexOf('<'));
-                name = name.Trim();
-            }
-            if (name.StartsWith("<") && name.Contains(">"))
-            {
-                name = name.Substring(name.LastIndexOf('>') + 1);
-                name = name.Trim();
-            }
-            if (name.EndsWith("}") && name.Contains("{"))
-            {
-                name = name.Substring(0, name.LastIndexOf('{'));
-                name = name.Trim();
-            }
-            if (name.StartsWith("{") && name.Contains("}"))
-            {
-                name = name.Substring(name.LastIndexOf('}') + 1);
-                name = name.Trim();
-            }
-            return name;
+            name = Regex.Replace(name, @"\[.*\]", string.Empty);
+            name = Regex.Replace(name, @"\<.*\>", string.Empty);
+            name = Regex.Replace(name, @"\(.*\)", string.Empty);
+            name = Regex.Replace(name, @"\{.*\}", string.Empty);
+            return name.Trim();
         }
-
         private static String undoNumberSubstitutions(String name)
         {
             // handle letter -> number substitutions
@@ -186,20 +248,14 @@ namespace CrewChiefV4
                 {
                     if (Char.IsNumber(ch) && Char.IsLetter(name[i - 1]) && Char.IsLetter(name[i + 1]))
                     {
-                        if (ch == '1')
+                        foreach (var nls in numberLetterSubstitutions)
                         {
-                            changedNumberForLetter = true;
-                            nameWithLetterSubstitutions = nameWithLetterSubstitutions + 'l';
-                        }
-                        else if (ch == '3')
-                        {
-                            changedNumberForLetter = true;
-                            nameWithLetterSubstitutions = nameWithLetterSubstitutions + 'e';
-                        }
-                        else if (ch == '0')
-                        {
-                            changedNumberForLetter = true;
-                            nameWithLetterSubstitutions = nameWithLetterSubstitutions + 'o';
+                            if (ch == nls.Item1)
+                            {
+                                changedNumberForLetter = true;
+                                nameWithLetterSubstitutions = nameWithLetterSubstitutions + nls.Item2;
+                                break;
+                            }
                         }
                     }
                 }
@@ -231,120 +287,437 @@ namespace CrewChiefV4
             return name;
         }
 
-
-
-        public static String getUsableDriverName(String rawDriverName)
+        private static Dictionary<string, string> rawDriverNameSurname = new Dictionary<string, string>();
+        public static String getUsableDriverNameForSRE(String rawDriverName)
         {
-            if (!usableNamesForSession.ContainsKey(rawDriverName))
+            if (!rawDriverNameSurname.ContainsKey(rawDriverName))
             {
-                String usableDriverName = null;
-                if (lowerCaseRawNameToUsableName.TryGetValue(rawDriverName.ToLower(), out usableDriverName))
+                // this will populate the rawDriverNameSurname dict with the last name (regardless of the fuzzy match).
+                // It may return a fuzzy-matched name, which we don't want - allow it to populate then use the last name from the dict
+                tryToMatchDriverName(rawDriverName);
+            }
+            if (rawDriverNameSurname.ContainsKey(rawDriverName))
+            {
+                return rawDriverNameSurname[rawDriverName];
+            }
+            return null;
+        }
+        public static String getUsableDriverName(String rawDriverName, bool returnSurnameIfNoSoundExists = false)
+        {
+            // in most cases this method is called when we want to get a driver's sound file so if there's no sound file
+            // we return null. For TTS we actually want the last name even if there's no sound
+            if (!returnSurnameIfNoSoundExists && failingNames.Contains(rawDriverName))
+            {
+                return null;
+            }
+            string matchedDriverName = null;
+            if (usableNamesForSession.ContainsKey(rawDriverName))
+            {   // We found a match previously
+                matchedDriverName = usableNamesForSession[rawDriverName];
+            }
+            else if (!failingNames.Contains(rawDriverName))
+            {
+                // we might be asking for a driver name for TTS, in which case we want to check if we already established that this
+                // driver has no match
+                matchedDriverName = tryToMatchDriverName(rawDriverName);
+                if (matchedDriverName == null)
                 {
-                    Console.WriteLine("Using mapped drivername " + usableDriverName + " for raw driver name " + rawDriverName);
-                    usableNamesForSession.Add(rawDriverName, usableDriverName);
+                    failingNames.Add(rawDriverName);
                 }
                 else
                 {
-                    usableDriverName = validateAndCleanUpName(rawDriverName);
-                    if (usableDriverName != null)
+                    usableNamesForSession.Add(rawDriverName, matchedDriverName);
+                }
+            }
+            if (returnSurnameIfNoSoundExists && matchedDriverName == null && rawDriverNameSurname.ContainsKey(rawDriverName))
+            {
+                return rawDriverNameSurname[rawDriverName];
+            }
+            return matchedDriverName;
+        }
+        private static string tryToMatchDriverName(string rawDriverName)
+        {
+            // Multiple returns from a method are usually a no-no but
+            // returns are used here to reduce confusing indenting
+            String matchedDriverName = null;
+            if (lowerCaseRawNameToUsableName.TryGetValue(rawDriverName.ToLower(), out matchedDriverName))
+            {   // Clause 1: A straight match
+                Console.WriteLine("Using mapped drivername " + matchedDriverName + " for raw driver name " + rawDriverName);
+                rawDriverNameSurname[rawDriverName] = matchedDriverName;
+                return matchedDriverName;
+            }
+
+            string usableDriverName = validateAndCleanUpName(rawDriverName);
+            if (usableDriverName == null)
+            {   // Clause 2: an error
+                Log.Error("Unable to create a usable driver name for " + rawDriverName);
+                return null;
+            }
+
+            if (lowerCaseRawNameToUsableName.TryGetValue(usableDriverName.ToLower(), out matchedDriverName))
+            {   // Clause 3: Using mapped driver name for cleaned up driver name
+                Console.WriteLine("Using mapped driver name " + matchedDriverName + " for cleaned up raw driver name " + rawDriverName);
+                rawDriverNameSurname[rawDriverName] = matchedDriverName;
+                return matchedDriverName;
+            }
+
+            // Nothing mapped, see if there is a last name
+            // (if not use the whole name)
+            String anyFirstNamesRemoved = getUnambiguousLastName(usableDriverName);
+            if (anyFirstNamesRemoved != null && anyFirstNamesRemoved.Count() > 1)
+            {
+                if (SoundCache.availableDriverNames.Contains(anyFirstNamesRemoved))
+                {
+                    // Clause 5: We have a sound file for the driver last name
+                    Console.WriteLine("Using driver last name " + anyFirstNamesRemoved + " for driver raw name " + rawDriverName);
+                    rawDriverNameSurname[rawDriverName] = anyFirstNamesRemoved;
+                    return anyFirstNamesRemoved;
+                }
+                if (lowerCaseRawNameToUsableName.TryGetValue(anyFirstNamesRemoved.ToLower(), out matchedDriverName))
+                {
+                    // Clause 6: Using mapped driver name for cleaned up driver (last) name
+                    Console.WriteLine("Using mapped driver name " + matchedDriverName + " for cleaned up driver (last) name " + anyFirstNamesRemoved);
+                    rawDriverNameSurname[rawDriverName] = matchedDriverName;
+                    return matchedDriverName;
+                }
+                if (lowerCaseLastNameToFuzzyMatchedName.TryGetValue(anyFirstNamesRemoved.ToLower(), out matchedDriverName))
+                {
+                    // Clause 4: we have a saved fuzzy match
+                    Console.WriteLine("Using fuzzy mapped driver name " + matchedDriverName + " for cleaned up driver (last) name " + anyFirstNamesRemoved);
+                    rawDriverNameSurname[rawDriverName] = anyFirstNamesRemoved;
+                    return matchedDriverName;
+                }
+                var fuzzyDriverLastName = MatchForOpponentName(anyFirstNamesRemoved);
+                if (fuzzyDriverLastName.matched)
+                {
+                    matchedDriverName = fuzzyDriverLastName.driverNameMatches[0].ToLower();
+                    // Clause 7: Using fuzzy matched driver name for cleaned up driver (last) name
+                    if (guessedDriverNamesPath != null) Utilities.AddLinesToFile(guessedDriverNamesPath, new List<string> { $"{anyFirstNamesRemoved}:{matchedDriverName}" });
+                    Console.WriteLine($"Adding fuzzy mapping for name {anyFirstNamesRemoved}:{matchedDriverName}");
+                    // add the newly-mapped name to the list
+                    lowerCaseLastNameToFuzzyMatchedName[anyFirstNamesRemoved] = matchedDriverName;
+                    rawDriverNameSurname[rawDriverName] = anyFirstNamesRemoved;
+                    return matchedDriverName;
+                }
+                // Clause 8: Using unmapped driver last name for raw driver name
+                Console.WriteLine("Using unvocalised driver (last) name " + anyFirstNamesRemoved + " for raw driver name " + rawDriverName);
+                rawDriverNameSurname[rawDriverName] = anyFirstNamesRemoved;
+                unvocalizedNames.Add(anyFirstNamesRemoved);
+                return null;
+            }
+            Console.WriteLine("Using unvocalised drivername " + usableDriverName + " for raw driver name " + rawDriverName);
+            rawDriverNameSurname[rawDriverName] = usableDriverName;
+            unvocalizedNames.Add(usableDriverName);
+            return null;
+        }
+        // For unit testing
+        internal static int GetSize_usableNamesForSession()
+        {
+            return usableNamesForSession.Count;
+        }
+
+        public struct FuzzyDriverNameResult
+        {
+            public List<string> driverNameMatches;
+            public int matchLevel;
+            public bool matched;
+            public int fuzzyConfidence;
+        }
+        private static string[] getAvailableNamesWithCloseFirstLetters(string driverName, string[] availableDriverNames)
+        {
+            driverName = char.ToUpper(driverName[0]) + driverName.Substring(1);
+            List<string> names = new List<string>();
+            int minNameLength = driverName.Length / 2;
+            int maxNameLength = driverName.Length * 2;
+            foreach (string name in availableDriverNames)
+            {
+                if (name.Length > minNameLength && name.Length < maxNameLength &&
+                        (name[0] == driverName[0] || firstLettersCloseEnough(driverName, name)))
+                {
+                    names.Add(name);
+                }
+            }
+            return names.ToArray<string>();
+        }
+        public static FuzzyDriverNameResult MatchForOpponentName(string driverName, string[] availableDriverNames = null)
+        {
+            if (!useFuzzyDrivernameMatching || suppressFuzzyMatchesOnTheseNames.Contains(driverName.ToLower()))
+            {
+                var emptyResult = new FuzzyDriverNameResult();
+                emptyResult.driverNameMatches = new List<string>();
+                emptyResult.matched = false;
+                return emptyResult;
+            }
+            if (availableDriverNames == null)
+            {
+                availableDriverNames = SoundCache.availableDriverNamesForUIAsArray; // files in AppData\Local\CrewChiefV4\sounds\driver_names
+            }
+            return PhonixFuzzyMatches(driverName, getAvailableNamesWithCloseFirstLetters(driverName, availableDriverNames), 1);
+        }
+        private static void writeGuessedDriverName(string driverName, string wavFileName)
+        {
+            Utilities.AddLinesToFile(guessedDriverNamesPath,
+                                        new List<string> { $"{driverName}:{wavFileName}" });
+        }
+        public static FuzzyDriverNameResult PhonixFuzzyMatches(string driverName, string[] availableDriverNames, int numberOfNamesRqd = 1)
+        {
+            bool multipleMatchesRequested = numberOfNamesRqd > 1;
+            FuzzyDriverNameResult result = new FuzzyDriverNameResult();
+            result.driverNameMatches = new List<string>();
+            result.matched = false;
+            if (driverName.Length < 2)
+            {
+                return result;
+            }
+            var soundex = new Soundex();
+            var doubleMetaphone = new DoubleMetaphone();
+            var matchRatingApproach = new MatchRatingApproach();
+            var caverPhone = new CaverPhone();
+            var metaphone = new Metaphone();
+
+            // keep track of what we've matched so we don't add the same result twice
+            HashSet<string> allMatches = new HashSet<string>();
+
+            // Try to find a name where at least 2 algorithms find a match
+            for (int threshold = 4; threshold > 1; threshold--)
+            {
+                List<string> matchesForThisThreshold = new List<string>();
+                foreach (var availableName in availableDriverNames)
+                {
+                    string[] array = new string[] { driverName, availableName };
+                    int matches = 0;
+                    try
                     {
-                        Boolean usedLastName = false;
-                        if (useLastNameWherePossible)
+                        if (soundex.IsSimilar(array))
                         {
-                            String lastName = getUnambiguousLastName(usableDriverName);
-                            if (lastName != null && lastName.Count() > 1)
+                            matches++;
+                        }
+                        if (doubleMetaphone.IsSimilar(array))
+                        {
+                            matches++;
+                        }
+                        //if (matchRatingApproach.IsSimilar(array))  Throws IndexOutOfRange a lot
+                        //{
+                        //    matches++;
+                        //}
+                        if (caverPhone.IsSimilar(array))
+                        {
+                            matches++;
+                        }
+                        if (metaphone.IsSimilar(array))
+                        {
+                            matches++;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Exception(ex, "Phonix dll");
+                    }
+                    if (matches >= threshold && allMatches.Add(availableName))
+                    {
+                        // multiple match mode - add this match to the set and stop looking if we have enough
+                        if (multipleMatchesRequested)
+                        {
+                            result.driverNameMatches.Add(availableName);
+                            result.matched = true;
+                            result.matchLevel = matches;
+                            if (result.driverNameMatches.Count > numberOfNamesRqd)
                             {
-                                if (lowerCaseRawNameToUsableName.TryGetValue(lastName.ToLower(), out usableDriverName))
-                                {
-                                    Console.WriteLine("Using mapped driver last name " + usableDriverName + " for raw driver last name " + lastName);
-                                    usableNamesForSession.Add(rawDriverName, usableDriverName);
-                                    usedLastName = true;
-                                }
-                                else
-                                {
-                                    Console.WriteLine("Using unmapped driver last name " + lastName + " for raw driver name " + rawDriverName);
-                                    usableDriverName = lastName;
-                                    usableNamesForSession.Add(rawDriverName, usableDriverName);
-                                    usedLastName = true;
-                                }
+                                // we have enough, stop looking and return - no need to do another run at a lower threshold
+                                return result;
                             }
                         }
-                        if (!usedLastName)
+                        else
                         {
-                            Console.WriteLine("Using unmapped drivername " + usableDriverName + " for raw driver name " + rawDriverName);
-                            usableNamesForSession.Add(rawDriverName, usableDriverName);
+                            matchesForThisThreshold.Add(availableName);
                         }
                     }
-                    else
+                }
+                // single match mode - get the best we have and stop looking
+                if (!multipleMatchesRequested && matchesForThisThreshold.Count() > 0)
+                {
+                    // fuzzy match threshold can be more lenient when we have a great phonic match
+                    int matchScoreThreshold = threshold == 4 ? 60 : threshold == 3 ? 72 : 75;
+                    // get the best match from what we have, if it's good enough stop.
+                    // "good enough" means it has to have a decent fuzzy match, and it can't be massively longer or shorter than the original
+                    var fuzzyMatchesForThisThreshold = Process.ExtractTop(driverName, matchesForThisThreshold.ToArray(), limit: 1);
+                    if (fuzzyMatchesForThisThreshold.Count() > 0 && fuzzyMatchesForThisThreshold.First().Score > matchScoreThreshold
+                        && Math.Abs(fuzzyMatchesForThisThreshold.First().Value.Length - driverName.Length) < 5)
                     {
-                        Console.WriteLine("Unable to create a usable driver name for " + rawDriverName);
+                        result.driverNameMatches.Add(fuzzyMatchesForThisThreshold.First().Value);
+                        result.matched = true;
+                        result.matchLevel = threshold;
+                        result.fuzzyConfidence = fuzzyMatchesForThisThreshold.First().Score;
+                        break;
                     }
                 }
-                return usableDriverName;
             }
-            else
+            return result;
+        }
+
+        public static void writeGuessedDriverNames(Dictionary<string, string> guessedOpponentNames)
+        {
+            File.Delete(guessedDriverNamesPath);
+            foreach (var driver in guessedOpponentNames.Keys)
             {
-                return usableNamesForSession[rawDriverName];
+                Utilities.AddLinesToFile(guessedDriverNamesPath,
+                                            new List<string> { $"{driver}:{guessedOpponentNames[driver]}" });
             }
         }
-        
-        public static List<String> getUsableDriverNames(List<String> rawDriverNames)
+        public static void EditGuessedNames()
+        {
+            var process = new System.Diagnostics.Process
+            {
+                StartInfo = new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = "notepad.exe",
+                    Arguments = guessedDriverNamesPath
+                }
+            };
+            process.Start();
+            process.WaitForExit();
+        }
+
+        public static void EditNames()
+        {
+            System.Diagnostics.Process.Start("notepad.exe", driverNamesPath);
+        }
+
+        public static HashSet<String> getUsableDriverNameSounds(List<String> rawDriverNames)
         {
             usableNamesForSession.Clear();
             foreach (String rawDriverName in rawDriverNames)
             {
                 getUsableDriverName(rawDriverName);                
             }
-            return usableNamesForSession.Values.ToList();
+            return usableNamesForSession.Values.ToHashSet();
         }
-
-        private static String getUnambiguousLastName(String fullName)
+        public static List<String> getUsableDriverNamesForSRE(List<String> rawDriverNames)
         {
-            if (fullName.Count(Char.IsWhiteSpace) == 0) 
+            List<string> namesForSre = new List<string>();
+            foreach (String rawDriverName in rawDriverNames)
+            {
+                namesForSre.Add(getUsableDriverNameForSRE(rawDriverName));
+            }
+            return namesForSre;
+        }
+        private static bool firstLettersCloseEnough(string s1, string s2)
+        {
+            foreach (var pairs in closeFirstLetters)
+            {
+                if ((s1.StartsWith(pairs.Item1) && s2.StartsWith(pairs.Item2)) ||
+                    (s1.StartsWith(pairs.Item2) && s2.StartsWith(pairs.Item1)))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        internal static String getUnambiguousLastName(String fullName)
+        {
+            if (fullName.Count(Char.IsWhiteSpace) == 0)
             {
                 return fullName;
-            } 
+            }
             else
             {
-                foreach (String middleBit in middleBits) {
-                    if (fullName.Contains(" " + middleBit + " ")) {
-                        String[] split = fullName.Split(' ');
-                        return middleBit + " " + split[split.Count() - 1];
+                String[] fullNameSplit = null;
+                bool gotFromMiddleBit = false;
+                foreach (String middleBit in middleBits)
+                {
+                    // if we have a something van der somethingelse, we want this to be { "something", "van der", "somethingelse" }
+                    string middleBitWithSpaces = " " + middleBit + " ";
+                    if (fullName.Contains(middleBitWithSpaces))
+                    {
+                        string start = fullName.Substring(0, fullName.IndexOf(middleBitWithSpaces));
+                        string end = fullName.Substring(fullName.IndexOf(middleBitWithSpaces) + middleBitWithSpaces.Length);
+                        List<string> splitList = new List<string>();
+                        splitList.AddRange(start.Split(' '));
+                        splitList.Add(middleBit);
+                        splitList.AddRange(end.Split(' '));
+                        fullNameSplit = splitList.ToArray();
+                        gotFromMiddleBit = true;
+                        break;
                     }
                 }
-                String[] fullNameSplit = trimEmptyStrings(fullName.Split(' '));
+                if (!gotFromMiddleBit)
+                {
+                    fullNameSplit = trimEmptyStrings(fullName.Split(' '));
+                }
+                // if the last part is 'uk' or something and there are 2 or more parts, lose the 'uk'.
+                if (fullNameSplit.Length > 1 && ignored2PartSuffixes.Contains(fullNameSplit[fullNameSplit.Count() - 1]))
+                {
+                    fullNameSplit = fullNameSplit.Take(fullNameSplit.Count() - 1).ToArray();
+                }
+                // Lose the 'junior' only if there are 3 or more parts (note this is done separately so we fix cases
+                // like "jim britton junior uk"
+                if (fullNameSplit.Length > 2 && ignored3PartSuffixes.Contains(fullNameSplit[fullNameSplit.Count() - 1]))
+                {
+                    fullNameSplit = fullNameSplit.Take(fullNameSplit.Count() - 1).ToArray();
+                }
+                if (fullNameSplit.Count() == 1)
+                {
+                    return fullNameSplit[0];
+                }
                 if (fullNameSplit.Count() == 2)
                 {
-                    String[] split = fullName.Split(' ');
-                    if (split[1].Count() > 1)
+                    if (fullNameSplit[1].Count() > 1)
                     {
-                        return split[1];
+                        // "something somthingelse", just return "somethingelse"
+                        return fullNameSplit[1];
                     }
                     else
                     {
-                        return split[0];
+                        // second part is 0 or 1 char, return the first part
+                        return fullNameSplit[0];
                     }
                 }
-                else if (fullNameSplit[fullNameSplit.Count() - 2].Length == 1) 
-                {
-                    return fullNameSplit[fullNameSplit.Count() - 1];
-                }
-                else if (middleBits.Contains(fullNameSplit[fullNameSplit.Count() - 2].ToLower()))
+                else if (middleBits.Contains(fullNameSplit[fullNameSplit.Count() - 2]))
                 {
                     return fullNameSplit[fullNameSplit.Count() - 2] + " " + fullNameSplit[fullNameSplit.Count() - 1];
                 }
-                else if (fullNameSplit.Length > 3 && middleBits.Contains((fullNameSplit[fullNameSplit.Count() - 3] + " " + fullNameSplit[fullNameSplit.Count() - 2]).ToLower()))
-                {
-                    return fullNameSplit[fullNameSplit.Count() - 3] + " " + fullNameSplit[fullNameSplit.Count() - 2] + " " + fullNameSplit[fullNameSplit.Count() - 1];
-                }
-                else if (optimisticSurnameExtraction)
+                else if (fullNameSplit[fullNameSplit.Count() - 2].Length == 1)
                 {
                     return fullNameSplit[fullNameSplit.Count() - 1];
                 }
+                else if (fullNameSplit.Length > 3 && middleBits.Contains((fullNameSplit[fullNameSplit.Count() - 3] + " " + fullNameSplit[fullNameSplit.Count() - 2])))
+                {
+                    return fullNameSplit[fullNameSplit.Count() - 3] + " " + fullNameSplit[fullNameSplit.Count() - 2] + " " + fullNameSplit[fullNameSplit.Count() - 1];
+                }
+                // if there are more than 2 names, and the second to last name isn't one of the common middle bits, 
+                // use the last part
+                return fullNameSplit[fullNameSplit.Count() - 1];
             }
-            return null;
         }
-
+        private static string SpacesFromCamel(string value)
+        {
+            if (value.Length > 2)
+            {
+                var result = new List<char>();
+                char[] array = value.ToCharArray();
+                result.Add(array[0]);
+                for (int i = 1; i < array.Length - 1; i++)
+                {
+                    var prevItem = array[i - 1];
+                    var item = array[i];
+                    var nextItem = array[i + 1];
+                    if (char.IsUpper(item)
+                        && nextItem != ' ' && prevItem != ' '
+                        && char.IsLower(prevItem)
+                        && result.Count > 0)
+                    {
+                        result.Add(' ');
+                    }
+                    result.Add(item);
+                    if (i == array.Length - 2)
+                    {
+                        result.Add(nextItem);
+                    }
+                }
+                return new string(result.ToArray());
+            }
+            return value;
+        }
         private static String[] trimEmptyStrings(String[] strings)
         {
             List<String> trimmedList = new List<string>();

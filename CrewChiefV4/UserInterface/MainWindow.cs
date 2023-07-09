@@ -20,12 +20,21 @@ using CrewChiefV4.Overlay;
 using Valve.VR;
 using CrewChiefV4.ScreenCapture;
 using CrewChiefV4.VirtualReality;
-using System.Security.Permissions;
+using System.Globalization;
+using CrewChiefV4.UserInterface;
+using CrewChiefV4.UserInterface.Models;
 
 namespace CrewChiefV4
 {
     public partial class MainWindow : Form
     {
+        private const int PREFERRED_X_SIZE = 1170;
+        private const int PREFERRED_Y_SIZE = 730;
+        private static int X_SIZE = Math.Min(PREFERRED_X_SIZE, Screen.PrimaryScreen.WorkingArea.Width);
+        private static int Y_SIZE = Math.Min(PREFERRED_Y_SIZE, Screen.PrimaryScreen.WorkingArea.Height);
+        private static bool NEED_H_SCROLL = X_SIZE < PREFERRED_X_SIZE;
+        private static bool NEED_V_SCROLL = Y_SIZE < PREFERRED_Y_SIZE;
+
         // used when retrying downloads:
         private Boolean usingRetryAddressForSoundPack = false;
         private Boolean usingRetryAddressForDriverNames = false;
@@ -98,20 +107,27 @@ namespace CrewChiefV4
 
         // the new update stuff all hosted on the CrewChief website
         // this is the physical file:
-        // private static String autoUpdateXMLURL1 = "http://thecrewchief.org/downloads/auto_update_data_primary.xml";
+        // private static String autoUpdateXMLURL1 = "https://thecrewchief.org/downloads/auto_update_data_primary.xml";
         // this is the file accessed via the PHP download script:
-        private static String autoUpdateXMLURL1 = "http://thecrewchief.org/downloads.php?do=downloadxml";
+        private static String autoUpdateXMLURLTheCrewChiefOrg = "https://thecrewchief.org/downloads.php?do=downloadxml";
 
-        private static String additionalDataURL = "http://thecrewchief.org/downloads.php?do=getadditionaldata";
+        private static String additionalDataURL = "https://thecrewchief.org/downloads.php?do=getadditionaldata";
 
-        // the legacy update stuff hosted on GoogleDrive with downloads on the isnais ftp server
-        private static String autoUpdateXMLURL2 = "https://drive.google.com/uc?export=download&id=0B4KQS820QNFbWWFjaDAzRldMNUE";
+        // secondary on our VPS:
+        private static String autoUpdateXMLURLVPS = "http://167.235.144.28/auto_update_data.xml";
+
+        // a copy on Cloudfront, not used at the moment due to AWS' insane egress prices:
+        //private static String autoUpdateXMLURL2 = "https://d1o4ya81faadx8.cloudfront.net/auto_update_data.xml";
 
         private Boolean preferAlternativeDownloadSite = UserSettings.GetUserSettings().getBoolean("prefer_alternative_download_site");
+        private Boolean allowCompositePersonalisations = UserSettings.GetUserSettings().getBoolean("allow_composite_personalisations");
         private Boolean minimizeToTray = UserSettings.GetUserSettings().getBoolean("minimize_to_tray");
         private Boolean rejectMessagesWhenTalking = UserSettings.GetUserSettings().getBoolean("reject_message_when_talking");
         public static Boolean forceMinWindowSize = UserSettings.GetUserSettings().getBoolean("force_min_window_size");
         private readonly int holdButtonPollFrequency = UserSettings.GetUserSettings().getInt("hold_button_poll_frequency");
+
+        // 2 SRE delays here, sreWaitTime is the time we allow the SRE to get its shit together after invoking
+        // recognizeAsync, and another delay between releasing the button and calling recognizeAsync
         private readonly int sreWaitTime = UserSettings.GetUserSettings().getInt("sre_wait_time");
 
         public ControlWriter consoleWriter = null;
@@ -135,6 +151,7 @@ namespace CrewChiefV4
         public static bool autoScrollConsole = true;
         private Thread youWotThread = null;
         private Thread assignButtonThread = null;
+        private Thread loadSREGrammarThread = null;
         public bool formClosed = false;
 
         public static bool soundTestMode = false;
@@ -151,7 +168,7 @@ namespace CrewChiefV4
 
         public static bool disableControllerReacquire = false;
 
-        private Boolean isMuted = false;
+        private static Boolean isMuted = false;
         private float messageVolumeToRestore = -1;
 
         private const int WM_DEVICECHANGE = 0x219;
@@ -170,10 +187,14 @@ namespace CrewChiefV4
         internal static bool playingBackTrace = false;
 
         public VROverlaySettings vrOverlayForm = null;
+        VROverlayConfiguration _VRConfig = VROverlayConfiguration.FromFile();
 
         private DeviceManager deviceManager = null;
         private Direct3D11CaptureSource captureSource = null;
         private Thread vrUpdateThread = null;
+
+        // Used to set the font size in the menu which otherwise varies with DPI
+        public readonly Font exemplarFont;
 
         public void killChief()
         {
@@ -211,6 +232,8 @@ namespace CrewChiefV4
         }
         private void FormMain_Load(object sender, EventArgs e)
         {
+            ServicePointManager.Expect100Continue = true;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             // Restore window position.
             try
             {
@@ -284,12 +307,17 @@ namespace CrewChiefV4
 
             if (forceMinWindowSize)
             {
-                this.MinimumSize = new System.Drawing.Size(1160, 730);
+                this.MinimumSize = new System.Drawing.Size(X_SIZE, Y_SIZE);
+            }
+            if (NEED_H_SCROLL || NEED_V_SCROLL)
+            {
+                this.Size = new System.Drawing.Size(X_SIZE, Y_SIZE);
             }
 
             // do the auto updating stuff in a separate Thread's
             if (!CrewChief.Debugging)
             {
+                string commentSeparator = "//";
                 var updateAdditionalData = new Thread(() =>
                 {
                     try
@@ -297,12 +325,20 @@ namespace CrewChiefV4
                         string base64EncodedData = new WebClient().DownloadString(additionalDataURL);
                         string decodedData = Base64Decode(base64EncodedData);
                         string[] splitData = decodedData.Split(',');
-                        foreach (var s in splitData)
+                        foreach (var nameWithComment in splitData)
                         {
-                            if (!AdditionalDataProvider.additionalData.Contains(s))
+                            string[] nameWithCommentSplitData = nameWithComment.Split(new String[] { commentSeparator }, StringSplitOptions.None);
+                            if (nameWithCommentSplitData.Length > 0)
                             {
-                                string cleanedData = s.Trim('\r', '\n'); ;
-                                AdditionalDataProvider.additionalData.Add(cleanedData);
+                                string s = nameWithCommentSplitData[0].Trim();
+                                if (!AdditionalDataProvider.additionalData.Contains(s))
+                                {
+                                    string cleanedData = s.Trim('\r', '\n');
+                                    if (cleanedData.Length > 0)
+                                    {
+                                        AdditionalDataProvider.additionalData.Add(cleanedData);
+                                    }
+                                }
                             }
                         }
                     }
@@ -330,8 +366,8 @@ namespace CrewChiefV4
                     {
                         Console.WriteLine("Checking for updates");
 
-                        String firstUpdate = preferAlternativeDownloadSite ? autoUpdateXMLURL2 : autoUpdateXMLURL1;
-                        String secondUpdate = preferAlternativeDownloadSite ? autoUpdateXMLURL1 : autoUpdateXMLURL2;
+                        String firstUpdate = preferAlternativeDownloadSite ? autoUpdateXMLURLVPS : autoUpdateXMLURLTheCrewChiefOrg;
+                        String secondUpdate = preferAlternativeDownloadSite ? autoUpdateXMLURLTheCrewChiefOrg : autoUpdateXMLURLVPS;
 
                         Thread.CurrentThread.IsBackground = true;
                         // now the sound packs
@@ -339,29 +375,11 @@ namespace CrewChiefV4
                         downloadDriverNamesButton.Text = Configuration.getUIString("checking_driver_names_version");
                         downloadPersonalisationsButton.Text = Configuration.getUIString("checking_personalisations_version");
 
-                        String[] commandLineArgs = Environment.GetCommandLineArgs();
-                        Boolean appRestarted = false;
-                        Boolean skipUpdates = false;
-                        if (commandLineArgs != null)
+                        Boolean appRestarted = CrewChief.CommandLine.Get("app_restart") != null;
+                        Boolean skipUpdates = CrewChief.CommandLine.Get("skip_updates") != null;
+                        if (skipUpdates)
                         {
-                            foreach (String arg in commandLineArgs)
-                            {
-                                if ("-skip_updates".Equals(arg, StringComparison.InvariantCultureIgnoreCase))
-                                {
-                                    Console.WriteLine("Skipping application update check. To enable this check, run the app *without* the '-skip_updates' command line argument");
-                                    skipUpdates = true;
-                                    continue;
-                                }
-                                if ("-app_restart".Equals(arg))
-                                {
-                                    appRestarted = true;
-                                    continue;
-                                }
-                                if(appRestarted && skipUpdates)
-                                {
-                                    break;
-                                }
-                            }
+                            Console.WriteLine("Skipping application update check. To enable this check, run the app *without* the '-skip_updates' command line argument");
                         }
                         Boolean gotUpdateData = false;
                         try
@@ -370,17 +388,17 @@ namespace CrewChiefV4
                             {
                                 AutoUpdater.Start(firstUpdate);
                             }
-                            if (firstUpdate == autoUpdateXMLURL1 && CrewChief.gameDefinition != null)
+                            if (firstUpdate == autoUpdateXMLURLTheCrewChiefOrg && CrewChief.gameDefinition != null)
                             {
                                 firstUpdate += "&lastplayed=" + (appRestarted ? "-app_restart" : CrewChief.gameDefinition.gameEnum.ToString());
                             }
                             string xml = new WebClient().DownloadString(firstUpdate);
                             gotUpdateData = SoundPackVersionsHelper.parseUpdateData(xml);
                         }
-                        catch (Exception) { }
+                        catch (Exception ee) {Log.Exception(ee);}
                         if (gotUpdateData)
                         {
-                            Console.WriteLine("Got update data from primary URL: " + firstUpdate.Substring(0, 24));
+                            Console.WriteLine("Got update data from primary URL: " + firstUpdate.Substring(0, firstUpdate.LastIndexOf('/')));
                         }
                         else
                         {
@@ -395,14 +413,18 @@ namespace CrewChiefV4
                                 {
                                     AutoUpdater.Start(secondUpdate);
                                 }
-                                if (secondUpdate == autoUpdateXMLURL1 && CrewChief.gameDefinition != null)
+                                if (secondUpdate == autoUpdateXMLURLTheCrewChiefOrg && CrewChief.gameDefinition != null)
                                 {
                                     secondUpdate += "&lastplayed=" + (appRestarted ? "-app_restart" : CrewChief.gameDefinition.gameEnum.ToString());
                                 }
                                 string xml = new WebClient().DownloadString(secondUpdate);
                                 gotUpdateData = SoundPackVersionsHelper.parseUpdateData(xml);
+                                if (gotUpdateData)
+                                {
+                                    Console.WriteLine("Got update data from fallback URL: " + secondUpdate.Substring(0, secondUpdate.LastIndexOf('/')));
+                                }
                             }
-                            catch (Exception) { }
+                            catch (Exception ee) {Log.Exception(ee);}
                         }
                         if (formClosed)
                         {
@@ -439,11 +461,11 @@ namespace CrewChiefV4
                                     Console.WriteLine("Current sound pack version " + SoundPackVersionsHelper.currentSoundPackVersion + " is out of date, next update is " + soundPackUpdateData.url);
                                     willNeedAnotherSoundPackDownload = soundPackUpdateData.willRequireAnotherUpdate;
                                     string buttonText;
-                                    if (SoundPackVersionsHelper.latestSoundPackVersion == -1)
+                                    if (SoundPackVersionsHelper.currentSoundPackVersion == -1)
                                     {
                                         buttonText = Configuration.getUIString("no_sound_pack_detected_press_to_download");
                                     }
-                                    else if (soundPackVersionsBehind > 1)
+                                    else if (soundPackVersionsBehind > 1 && SoundPackVersionsHelper.latestSoundPackVersion > 0)
                                     {
                                         buttonText = Configuration.getUIString("updated_sound_pack_available_press_to_download") + " (" + soundPackVersionsBehind + " " +
                                             Configuration.getUIString("incremental_updates_count") + ")";
@@ -491,11 +513,11 @@ namespace CrewChiefV4
                                     Console.WriteLine("Current personalisations pack version " + SoundPackVersionsHelper.currentPersonalisationsVersion + " is out of date, next update is " + personalisationPackUpdateData.url);
                                     willNeedAnotherPersonalisationsDownload = personalisationPackUpdateData.willRequireAnotherUpdate;
                                     string buttonText;
-                                    if (SoundPackVersionsHelper.latestPersonalisationsVersion == -1)
+                                    if (SoundPackVersionsHelper.currentPersonalisationsVersion == -1)
                                     {
                                         buttonText = Configuration.getUIString("no_personalisations_detected_press_to_download");
                                     }
-                                    else if (personalisationsVersionsBehind > 1)
+                                    else if (personalisationsVersionsBehind > 1 && SoundPackVersionsHelper.currentPersonalisationsVersion > 0)
                                     {
                                         buttonText = Configuration.getUIString("updated_personalisations_available_press_to_download") + " (" + personalisationsVersionsBehind + " " +
                                             Configuration.getUIString("incremental_updates_count") + ")";
@@ -543,11 +565,11 @@ namespace CrewChiefV4
                                     Console.WriteLine("Current driver names pack version " + SoundPackVersionsHelper.currentDriverNamesVersion + " is out of date, next update is " + drivernamesPackUpdateData.url);
                                     willNeedAnotherDrivernamesDownload = drivernamesPackUpdateData.willRequireAnotherUpdate;
                                     string buttonText;
-                                    if (SoundPackVersionsHelper.latestDriverNamesVersion == -1)
+                                    if (SoundPackVersionsHelper.currentDriverNamesVersion == -1)
                                     {
                                         buttonText = Configuration.getUIString("no_driver_names_detected_press_to_download");
                                     }
-                                    else if (driverNamesVersionsBehind > 1)
+                                    else if (driverNamesVersionsBehind > 1 && SoundPackVersionsHelper.currentDriverNamesVersion > 0)
                                     {
                                         buttonText = Configuration.getUIString("updated_driver_names_available_press_to_download") + " (" + driverNamesVersionsBehind + " " +
                                             Configuration.getUIString("incremental_updates_count") + ")";
@@ -786,175 +808,50 @@ namespace CrewChiefV4
             }
         }
 
-        private void setSelectedGameType()
+        /// <summary>
+        /// Set gameDefinitionList.Text
+        /// from command line or the one used last time CC ran
+        /// (failing that, the first one in the list)
+        /// </summary>
+        private void setSelectedGameDefinition()
         {
-            String[] commandLineArgs = Environment.GetCommandLineArgs();
             Boolean setFromCommandLine = false;
-            Boolean seenGameSwitch = false;
-            if (commandLineArgs != null)
+
+            string game = CrewChief.CommandLine.Get("game");
+            if (game != null)
             {
-                for (int argIdx = 1; argIdx < commandLineArgs.Length; ++argIdx)
+                game = game.ToUpper();
+                foreach (var gameDef in GameDefinition.getAllGameDefinitions())
                 {
-                    if (seenGameSwitch)
-                        break;
-
-                    var arg = (string)commandLineArgs.GetValue(argIdx);
-                    if (!arg.Equals("-game", StringComparison.InvariantCultureIgnoreCase))
-                        continue;
-
-                    // Ok, found the "-game" switch, next value should be the game requested.
-                    seenGameSwitch = true;
-                    if (argIdx + 1 >= commandLineArgs.Length)
-                        break;  // No game specified.
-
-                    arg = (string)commandLineArgs.GetValue(argIdx + 1);
-
-                    if (arg.Equals(GameDefinition.raceRoom.gameEnum.ToString(), StringComparison.InvariantCultureIgnoreCase))
+                    if (gameDef.commandLineName == game)
                     {
-                        Console.WriteLine("Set Raceroom mode from command line");
-                        this.gameDefinitionList.Text = GameDefinition.raceRoom.friendlyName;
-                        setFromCommandLine = true;
+                        if (GameDefinition.getAllAvailableGameDefinitions(false).Contains(gameDef))
+                        {
+                            Console.WriteLine($"Set {gameDef.friendlyName} mode from command line");
+                            this.gameDefinitionList.Text = gameDef.friendlyName;
+                        }
+                        else
+                        {
+                            Log.Error($"Command line -game selection '{game}' is not present in current profile");
+                        }
+                        setFromCommandLine = true; // Even if not present in current profile
                         break;
                     }
-                    else if (arg.Equals(GameDefinition.pCars2.gameEnum.ToString(), StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        Console.WriteLine("Set PCars 2 mode from command line");
-                        this.gameDefinitionList.Text = GameDefinition.pCars2.friendlyName;
-                        setFromCommandLine = true;
-                        break;
-                    }
-                    else if (arg.Equals(GameDefinition.pCars3.gameEnum.ToString(), StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        Console.WriteLine("Set PCars 3 mode from command line");
-                        this.gameDefinitionList.Text = GameDefinition.pCars3.friendlyName;
-                        setFromCommandLine = true;
-                        break;
-                    }
-                    else if (arg.Equals(GameDefinition.pCars32Bit.gameEnum.ToString(), StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        Console.WriteLine("Set PCars 32bit mode from command line");
-                        this.gameDefinitionList.Text = GameDefinition.pCars32Bit.friendlyName;
-                        setFromCommandLine = true;
-                        break;
-                    }
-                    else if (arg.Equals(GameDefinition.pCars64Bit.gameEnum.ToString(), StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        Console.WriteLine("Set PCars 64bit mode from command line");
-                        this.gameDefinitionList.Text = GameDefinition.pCars64Bit.friendlyName;
-                        setFromCommandLine = true;
-                        break;
-                    }
-
-                    else if (arg.Equals(GameDefinition.pCarsNetwork.gameEnum.ToString(), StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        Console.WriteLine("Set PCars network mode from command line");
-                        this.gameDefinitionList.Text = GameDefinition.pCarsNetwork.friendlyName;
-                        setFromCommandLine = true;
-                        break;
-                    }
-                    else if (arg.Equals(GameDefinition.pCars2Network.gameEnum.ToString(), StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        Console.WriteLine("Set PCars2 network mode from command line");
-                        this.gameDefinitionList.Text = GameDefinition.pCars2Network.friendlyName;
-                        setFromCommandLine = true;
-                        break;
-                    }
-                    else if (arg.Equals(GameDefinition.assetto64Bit.gameEnum.ToString(), StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        Console.WriteLine("Set Assetto Corsa mode from command line");
-                        this.gameDefinitionList.Text = GameDefinition.assetto64Bit.friendlyName;
-                        setFromCommandLine = true;
-                        break;
-                    }
-                    else if (arg.Equals(GameDefinition.assetto32Bit.gameEnum.ToString(), StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        Console.WriteLine("Set Assetto Corsa mode from command line");
-                        this.gameDefinitionList.Text = GameDefinition.assetto32Bit.friendlyName;
-                        setFromCommandLine = true;
-                        break;
-                    }
-                    else if (arg.Equals(GameDefinition.iracing.gameEnum.ToString(), StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        Console.WriteLine("Set iRacing mode from command line");
-                        this.gameDefinitionList.Text = GameDefinition.iracing.friendlyName;
-                        setFromCommandLine = true;
-                        break;
-                    }
-                    else if (arg.Equals(GameDefinition.AMS2.gameEnum.ToString(), StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        Console.WriteLine("Set Automobilista 2 mode from command line");
-                        this.gameDefinitionList.Text = GameDefinition.AMS2.friendlyName;
-                        setFromCommandLine = true;
-                        break;
-                    }
-                    else if (arg.Equals(GameDefinition.acc.gameEnum.ToString(), StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        Console.WriteLine("Set Assetto Corsa Competizionie mode from command line");
-                        this.gameDefinitionList.Text = GameDefinition.acc.friendlyName;
-                        setFromCommandLine = true;
-                        break;
-                    }
-                    // special cases for RF1 versions
-                    else if (arg.Equals("AMS", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        Console.WriteLine("Set Autombilista mode from command line");
-                        this.gameDefinitionList.Text = GameDefinition.automobilista.friendlyName;
-                        setFromCommandLine = true;
-                        break;
-                    }
-                    else if (arg.Equals("FTRUCK", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        Console.WriteLine("Set FTruck mode from command line");
-                        this.gameDefinitionList.Text = GameDefinition.ftruck.friendlyName;
-                        setFromCommandLine = true;
-                        break;
-                    }
-                    else if (arg.Equals("RF1", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        Console.WriteLine("Set RF1 mode from command line");
-                        this.gameDefinitionList.Text = GameDefinition.rFactor1.friendlyName;
-                        setFromCommandLine = true;
-                        break;
-                    }
-                    else if (arg.Equals("MARCAS", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        Console.WriteLine("Set Copa de Marcas mode from command line");
-                        this.gameDefinitionList.Text = GameDefinition.marcas.friendlyName;
-                        setFromCommandLine = true;
-                        break;
-                    }
-                    else if (arg.Equals("GSC", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        Console.WriteLine("Set GSC mode from command line");
-                        this.gameDefinitionList.Text = GameDefinition.gameStockCar.friendlyName;
-                        setFromCommandLine = true;
-                        break;
-                    }
-                    else if (arg.Equals("RF2", StringComparison.InvariantCultureIgnoreCase) || arg.Equals("RF2_64BIT", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        Console.WriteLine("Set RF2 mode from command line");
-                        this.gameDefinitionList.Text = GameDefinition.rfactor2_64bit.friendlyName;
-                        setFromCommandLine = true;
-                        break;
-                    }
-                    else if (arg.Equals("RBR", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        Console.WriteLine("Set RBR mode from command line");
-                        this.gameDefinitionList.Text = GameDefinition.rbr.friendlyName;
-                        setFromCommandLine = true;
-                        break;
-                    }
-
+                    Log.Verbose($"Enum {gameDef.gameEnum.ToString()}: command line name {gameDef.commandLineName}");
                 }
             }
             if (!setFromCommandLine)
             {
+                if (game != null)
+                {
+                    Log.Error($"Command line -game selection '{game}' is not valid");
+                }
                 String lastDef = UserSettings.GetUserSettings().getString("last_game_definition");
                 if (lastDef != null && lastDef.Length > 0)
                 {
                     try
                     {
-                        GameDefinition gameDefinition = GameDefinition.getGameDefinitionForEnumName(lastDef);
+                        GameDefinition gameDefinition = GameDefinition.getGameDefinitionForCommandLineName(lastDef);
                         if (gameDefinition != null)
                         {
                             Console.WriteLine("Set " + gameDefinition.friendlyName + " mode from previous launch");
@@ -967,13 +864,18 @@ namespace CrewChiefV4
                     }
                 }
             }
+            if (this.gameDefinitionList.Text.Length == 0 && this.gameDefinitionList.Items.Count > 0)
+            {   // Nothing selected, pick the first
+                this.gameDefinitionList.SetSelected(0, true);
+            }
+
             if (this.gameDefinitionList.Text.Length > 0)
             {
                 try
                 {
                     CrewChief.gameDefinition = GameDefinition.getGameDefinitionForFriendlyName(this.gameDefinitionList.Text);
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
             }
         }
 
@@ -1018,8 +920,7 @@ namespace CrewChiefV4
                 Properties.Settings.Default["main_window_position"] = new Point(DesktopBounds.X, DesktopBounds.Y);
                 Properties.Settings.Default.Save();
             }
-            catch (Exception)
-            { }
+            catch (Exception ee) { Log.Exception(ee); }
 
         }
 
@@ -1118,22 +1019,26 @@ namespace CrewChiefV4
             this.label1.Text = Configuration.getUIString("available_controllers");
             this.label2.Text = Configuration.getUIString("available_actions");
             this.propertiesButton.Text = Configuration.getUIString("properties");
-            this.fileToolStripMenuItem.Text = Configuration.getUIString("file_menu");
-            this.exitToolStripMenuItem.Text = Configuration.getUIString("exit_menu_item");
-            this.helpToolStripMenuItem.Text = Configuration.getUIString("help_menu");
             this.groupBox1.Text = Configuration.getUIString("voice_recognition_mode");
-            voiceRecognitionToolTip.SetToolTip(this.groupBox1, Configuration.getUIString("voice_recognition_mode_help"));
+            SetButtonMyNameText();
+            voiceRecognitionToolTip.SetToolTip(this.groupBox1,
+                Configuration.getUIString("voice_recognition_mode_help"));
             this.alwaysOnButton.Text = Configuration.getUIString("always_on");
             voiceRecognitionAlwaysOnToolTip.SetToolTip(this.alwaysOnButton, Configuration.getUIString("voice_recognition_always_on_help"));
             this.toggleButton.Text = Configuration.getUIString("toggle_button");
-            voiceRecognitionToggleButtonToolTip.SetToolTip(this.toggleButton, Configuration.getUIString("voice_recognition_toggle_button_help"));
+            voiceRecognitionToggleButtonToolTip.SetToolTip(this.toggleButton,
+                Configuration.getUIString("voice_recognition_toggle_button_help"));
             this.holdButton.Text = Configuration.getUIString("hold_button");
             voiceRecognitionHoldButtonToolTip.SetToolTip(this.holdButton, Configuration.getUIString("voice_recognition_hold_button_help"));
+            this.listenIfNotPressedButton.Text = Configuration.getUIString("voice_recognition_listen_if_not_pressed");
+            listenIfNotPressedButtonToolTip.SetToolTip(this.listenIfNotPressedButton, 
+                Configuration.getUIString("voice_recognition_release_button_help"));
+
             this.voiceDisableButton.Text = Configuration.getUIString("disabled");
             voiceRecognitionDisabledToolTip.SetToolTip(this.voiceDisableButton, Configuration.getUIString("voice_recognition_disabled_help"));
             this.triggerWordButton.Text = Configuration.getUIString("trigger_word") + " (\"" + UserSettings.GetUserSettings().getString("trigger_word_for_always_on_sre") + "\")";
-            voiceRecognitionTriggerWordToolTip.SetToolTip(this.triggerWordButton, Configuration.getUIString("voice_recognition_trigger_word_help"));
-            this.button2.Text = Configuration.getUIString("clear_console");
+            voiceRecognitionTriggerWordToolTip.SetToolTip(this.triggerWordButton, 
+                Configuration.getUIString("voice_recognition_trigger_word_help"));
             this.messagesVolumeSliderLabel.Text = Configuration.getUIString("messages_volume");
             this.backgroundVolumeSliderLabel.Text = Configuration.getUIString("background_volume");
             this.label5.Text = Configuration.getUIString("game");
@@ -1213,15 +1118,24 @@ namespace CrewChiefV4
             this.constructingWindow = true;
 
             InitializeComponent();
+
+            // Run time font size twiddling to deal with DPI issues
+            exemplarFont = this.buttonEditCommandMacros.Font;
+            var bigFontSize = this.exemplarFont.SizeInPoints * 1.2f;
+            foreach (var label in new List<Label>{
+                this.label1,
+                this.label2,
+                this.messagesAudioDeviceLabel,
+                this.backgroundAudioDeviceLabel })
+            {
+                label.Font = new System.Drawing.Font("Microsoft Sans Serif", bigFontSize, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            }
+
             InitializeUiText();
 
             this.SuspendLayout();
             Application.DoEvents();
-            var currProfileName = UserSettings.currentUserProfileFileName;
-            if (currProfileName.EndsWith(".json", StringComparison.InvariantCultureIgnoreCase))
-                currProfileName = currProfileName.Substring(0, currProfileName.Length - ".json".Length);
-
-            this.Text = $"{Configuration.getUIString("main_window_title_prefix")} {currProfileName}";
+            SetFrameHeading();
 
             SetupNotificationTrayIcon();
 
@@ -1245,28 +1159,40 @@ namespace CrewChiefV4
             if (UserSettings.GetUserSettings().initFailed)
             {
                 String path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4");
-                if (!Directory.Exists(path))
+                try
                 {
-                    Directory.CreateDirectory(path);
+                    if (!Directory.Exists(path))
+                    {
+                        Directory.CreateDirectory(path);
+                    }
+                    File.WriteAllText(path + @"\startupError.txt", "Message: " +
+                        UserSettings.GetUserSettings().initFailedMessage + "\nStack" + UserSettings.GetUserSettings().initFailedStack);
                 }
-                File.WriteAllText(path + @"\startupError.txt", "Message: " +
-                    UserSettings.GetUserSettings().initFailedMessage + "\nStack" + UserSettings.GetUserSettings().initFailedStack);
+                catch (Exception e)
+                {
+                    // oh dear, now we are in a pickle.
+                    // throw a new exception to be shown in the "oh shit" popup message
+                    throw new Exception("Unable to write startup error logs: " + e.Message + "\n please ensure CrewChief can access " + path +
+                        "\nStartup error is " + UserSettings.GetUserSettings().initFailedMessage + "\nStack" + UserSettings.GetUserSettings().initFailedStack);
+                }
                 Console.WriteLine("Unable to upgrade properties from previous version, settings will be reset to default");
                 try
                 {
                     UserSettings.ForceablyDeleteConfigDirectory();
                     // note we can't load these from the UI settings because loading stuff will be broken at this point
                     doRestart("Failed to load user settings. The app will automatically restart in order to recreate this file. " +
-                        "Once the app has restarted, please restart it again manually.", "Failed to load user settings");
+                              "Once the app has restarted, please restart it again manually.", "Failed to load user settings");
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
                     // oh dear, now we are in a pickle.
-                    Console.WriteLine("Unable to remove broken app settings file\n Please exit the app and manually delete folder " + UserSettings.userConfigFolder);
+                    // throw a new exception to be shown in the "oh shit" popup message
+                    throw new Exception("Unable to remove broken app settings file: " + e.Message +
+                        "\n Please exit the app and manually delete folder " + UserSettings.userConfigFolder);
                 }
             }
 
-            setSelectedGameType();
+            setSelectedGameDefinition();
 
             this.app_version.Text = Configuration.getUIString("version") + ": " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
             Console.WriteLine("Starting app.  " + this.app_version.Text);
@@ -1274,7 +1200,6 @@ namespace CrewChiefV4
             this.filenameTextbox.Visible = CrewChief.Debugging || MainWindow.profileMode;
             this.playbackInterval.Visible = CrewChief.Debugging || MainWindow.profileMode;
 
-            String[] commandLineArgs = Environment.GetCommandLineArgs();
             if (MainWindow.soundTestMode)
             {
                 Console.WriteLine("Sound-test enabled");
@@ -1288,29 +1213,26 @@ namespace CrewChiefV4
             else
             {
                 this.recordSession.Visible = false;
-                if (commandLineArgs != null)
+                if (CrewChief.CommandLine.Get("debug") != null)
                 {
-                    foreach (String arg in commandLineArgs)
-                    {
-                        if (arg.Equals("-debug", StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            Console.WriteLine("Dump-to-file enabled");
-                            this.recordSession.Visible = true;
-                            this.recordSession.Checked = true;
-                            break;
-                        }
-                        if (arg.Equals("-debug_with_playback", StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            Console.WriteLine("Dump-to-file and playback controls enabled");
-                            this.recordSession.Visible = true;
-                            this.recordSession.Checked = false;
-                            this.playbackInterval.Visible = true;
-                            this.filenameLabel.Visible = true;
-                            this.filenameTextbox.Visible = true;
-                            break;
-                        }
-                    }
+                    Console.WriteLine("Dump-to-file enabled");
+                    this.recordSession.Visible = true;
+                    this.recordSession.Checked = true;
+                    Log.setLogLevel(Log.LogType.Debug);
                 }
+                if (CrewChief.CommandLine.Get("debug_with_playback") != null)
+                {
+                    Console.WriteLine("Dump-to-file and playback controls enabled");
+                    this.recordSession.Visible = true;
+                    this.recordSession.Checked = false;
+                    this.playbackInterval.Visible = true;
+                    this.filenameLabel.Visible = true;
+                    this.filenameTextbox.Visible = true;
+                }
+            }
+            if (UserSettings.GetUserSettings().getBoolean("log_type_fuel"))
+            {
+                Log.LogMask |= Log.LogType.Fuel;
             }
 
             if (!UserSettings.GetUserSettings().getBoolean("enable_console_logging"))
@@ -1442,7 +1364,10 @@ namespace CrewChiefV4
             GlobalResources.controllerConfiguration = controllerConfiguration;
 
             HashSet<string> availablePersonalisations = new HashSet<string>(this.crewChief.audioPlayer.personalisationsArray);
-            availablePersonalisations.UnionWith(new HashSet<string>(SoundCache.availableDriverNamesForUI));
+            if (allowCompositePersonalisations)
+            {
+                availablePersonalisations.UnionWith(new HashSet<string>(SoundCache.availableDriverNamesForUI));
+            }
 
             this.personalisationBox.Items.AddRange(availablePersonalisations.ToArray<string>());
             this.chiefNameBox.Items.AddRange(AudioPlayer.availableChiefVoices.ToArray());
@@ -1541,28 +1466,29 @@ namespace CrewChiefV4
             }
             Console.WriteLine("Load controller settings complete");
             voiceOption = getVoiceOptionEnum(UserSettings.GetUserSettings().getString("VOICE_OPTION"));
-            if (voiceOption == VoiceOptionEnum.DISABLED)
+            switch (voiceOption)
             {
-                this.voiceDisableButton.Checked = true;
-            }
-            else if (voiceOption == VoiceOptionEnum.ALWAYS_ON)
-            {
-                this.alwaysOnButton.Checked = true;
-            }
-            else if (voiceOption == VoiceOptionEnum.HOLD)
-            {
-                this.holdButton.Checked = true;
-            }
-            else if (voiceOption == VoiceOptionEnum.TOGGLE)
-            {
-                this.toggleButton.Checked = true;
-            }
-            else if (voiceOption == VoiceOptionEnum.TRIGGER_WORD)
-            {
-                this.triggerWordButton.Checked = true;
+                case VoiceOptionEnum.DISABLED:
+                    voiceDisableButton.Checked = true;
+                    break;
+                case VoiceOptionEnum.ALWAYS_ON:
+                    alwaysOnButton.Checked = true;
+                    break;
+                case VoiceOptionEnum.HOLD:
+                    holdButton.Checked = true;
+                    break;
+                case VoiceOptionEnum.TOGGLE:
+                    toggleButton.Checked = true;
+                    break;
+                case VoiceOptionEnum.TRIGGER_WORD:
+                    triggerWordButton.Checked = true;
+                    break;
+                case VoiceOptionEnum.NOT_PRESSED:
+                    listenIfNotPressedButton.Checked = true;
+                    break;
             }
 
-            // don't allow trigger word or always on if using nAudio
+            // don't allow trigger word or toggle if using nAudio
             if (UserSettings.GetUserSettings().getBoolean("use_naudio_for_speech_recognition"))
             {
                 if (voiceOption == VoiceOptionEnum.TOGGLE || voiceOption == VoiceOptionEnum.TRIGGER_WORD)
@@ -1577,6 +1503,13 @@ namespace CrewChiefV4
             this.deleteAssigmentButton.Enabled = false;
 
             this.ResumeLayout();
+
+            bool forceHScrollbar = UserSettings.GetUserSettings().getBoolean("scroll_bars_on_main_window") || NEED_H_SCROLL;
+            bool forceVScrollbar = UserSettings.GetUserSettings().getBoolean("scroll_bars_on_main_window") || NEED_V_SCROLL;
+
+            this.AutoScroll = forceHScrollbar || forceVScrollbar;
+            this.HScroll = forceHScrollbar;
+            this.VScroll = forceVScrollbar;
 
             this.Resize += MainWindow_Resize;
             this.KeyPreview = true;
@@ -1595,24 +1528,39 @@ namespace CrewChiefV4
             }
         }
 
+        private void SetFrameHeading(string game=null)
+        {
+            var currProfileName = UserSettings.currentUserProfileFileName;
+            if (currProfileName.EndsWith(".json", StringComparison.InvariantCultureIgnoreCase))
+                currProfileName = currProfileName.Substring(0, currProfileName.Length - ".json".Length);
+
+            if (game != null)
+            {
+                currProfileName += $" - Running: {game}";
+            }
+            this.Text = $"{Configuration.getUIString("main_window_title_prefix")} {currProfileName}";
+        }
+
         private bool isSteamVrRunning()
         {
             return Win32Stuff.FindWindowsWithText("SteamVR").FirstOrDefault() != IntPtr.Zero;
         }
+
         private bool initSteamVR()
         {
-            if (SteamVR.instance != null)
+            // if the VR config file creation has failed _VRConfig will be null here
+            if (SteamVR.instance != null && _VRConfig != null)
             {
                 try
                 {
-                    deviceManager = new DeviceManager();
-                    captureSource = new Direct3D11CaptureSource(deviceManager);
+                    deviceManager = new DeviceManager(OpenVR.System);
+                    captureSource = new Direct3D11CaptureSource(deviceManager, _VRConfig, OpenVR.System);
 
-                    this.Invoke((MethodInvoker)delegate
+                    this.Invoke(() =>
                     {
                         if (MainWindow.instance != null)
                         {
-                            vrOverlayForm = new VROverlaySettings();
+                            vrOverlayForm = new VROverlaySettings(_VRConfig);
                             buttonVRWindowSettings.Enabled = true;
                         }
                     });
@@ -1654,7 +1602,7 @@ namespace CrewChiefV4
             }
         }
 
-       private void vrOverlaysUpdateThreadWorker()
+        private void vrOverlaysUpdateThreadWorker()
         {
             bool vrOverlayForceDisabledDrawing = false;
             uint vrEventSize = (uint)SharpDX.Utilities.SizeOf<VREvent_t>();
@@ -1685,8 +1633,7 @@ namespace CrewChiefV4
                                     VROverlayWindow[] currentItemsToHide = null;
                                     lock (VROverlaySettings.instanceLock)
                                     {
-                                        currentItemsToHide = new VROverlayWindow[vrOverlayForm.listBoxWindows.Items.Count];
-                                        vrOverlayForm.listBoxWindows.Items.CopyTo(currentItemsToHide, 0);
+                                        currentItemsToHide = vrOverlayForm.listBoxWindows.Items.OfType<VROverlayWindow>().ToArray();
                                     }
                                     currentItemsToHide.Where(wnd => wnd.enabled).ToList().ForEach(w => w.SetOverlayEnabled(false));
                                     vrOverlayForceDisabledDrawing = true;
@@ -1732,8 +1679,7 @@ namespace CrewChiefV4
                             VROverlayWindow[] currentItems = null;
                             lock (VROverlaySettings.instanceLock)
                             {
-                                currentItems = new VROverlayWindow[vrOverlayForm.listBoxWindows.Items.Count];
-                                vrOverlayForm.listBoxWindows.Items.CopyTo(currentItems, 0);
+                                currentItems = vrOverlayForm.listBoxWindows.Items.OfType<VROverlayWindow>().ToArray();
                             }
 
                             foreach (var wnd in currentItems)
@@ -1743,7 +1689,7 @@ namespace CrewChiefV4
 
                             var windowBatch = currentItems.Where(wnd => wnd.enabled).ToList();
 
-                            captureSource.Capture(ref windowBatch);
+                            captureSource.Capture(windowBatch);
                             foreach (var wnd in windowBatch)
                             {
                                 wnd.hmdMatrix = hmdMatrix;
@@ -1781,7 +1727,7 @@ namespace CrewChiefV4
                     if (VROverlayController.vrUpdateThreadRunning  // Shutting down.
                         && MainWindow.instance != null)
                     {
-                        this.Invoke((MethodInvoker)delegate
+                        this.Invoke(() =>
                         {
                             if (MainWindow.instance != null)
                             {
@@ -1795,8 +1741,9 @@ namespace CrewChiefV4
                     // Shutdown.
                 }
 
-                if (Application.OpenForms.OfType<VROverlaySettings>().Count() == 1)
-                    Application.OpenForms.OfType<VROverlaySettings>().First().Close();
+                Application.OpenForms.OfType<VROverlaySettings>()
+                                    .ToList()
+                                    .ForEach(v => v.Close());
 
                 OpenVR.System?.AcknowledgeQuit_Exiting();
 
@@ -1817,6 +1764,31 @@ namespace CrewChiefV4
             }
         }
 
+        public void resetSteamVRTrackingPose()
+        {
+            if (!VROverlayController.vrUpdateThreadRunning)
+                return;
+
+            try
+            {
+                if (UserSettings.GetUserSettings().getBoolean("force_seated_on_vr_view_reset"))
+                    OpenVR.Chaperone.ResetZeroPose(ETrackingUniverseOrigin.TrackingUniverseSeated);
+                else
+                    OpenVR.Chaperone.ResetZeroPose(OpenVR.Compositor.GetTrackingSpace());
+
+                Log.Commentary("Reset VR view");
+            }
+            catch (Exception ex)
+            {
+                // What happens is for some reason CC loses connection to SVR objects, in particularly while alt-tabbing.
+                // It then recovers nicely (although slowly), but in between, OVR references are invalid.
+                // One of the reasons I know for sure is security: for example, one window running elevated while SVR is not. Etc.
+                //
+                // So just ignore, but log until better times when we understand the problem and the correct solution.
+                Utilities.ReportException(ex, "resetSteamVRTrackingPose exception.", needReport: false);
+            }
+        }
+
         private void consoleUpdateThreadWorker()
         {
             while (consoleUpdateThreadRunning)
@@ -1834,8 +1806,7 @@ namespace CrewChiefV4
                     {
                         Debug.WriteLine("Exiting console update thread, console output disabled.");
                     }
-                    catch (Exception)
-                    { }
+                    catch (Exception e) { Log.Exception(e); }
                     return;
                 }
 
@@ -1947,19 +1918,31 @@ namespace CrewChiefV4
             {
                 consoleTextBox.DeselectAll();
             }
+            else if (e.Alt && e.KeyCode == Keys.E)
+            {
+                consoleContextMenuStrip.Show(consoleTextBox.PointToScreen(new Point(250, 100)));
+            }
         }
 
-        private void listenForChannelOpen()
+        private void thread_listenForChannelOpen()
         {
             Boolean channelOpen = false;
-            if (crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised && voiceOption == VoiceOptionEnum.HOLD)
+            if (crewChief.speechRecogniser != null &&
+                crewChief.speechRecogniser.initialised &&
+                (voiceOption == VoiceOptionEnum.HOLD ||
+                voiceOption == VoiceOptionEnum.NOT_PRESSED))
             {
-                Console.WriteLine("Running speech recognition in 'hold button' mode");
+                string mode = (voiceOption == VoiceOptionEnum.HOLD) ? "held" : "released";
+                Console.WriteLine($"Running speech recognition in 'while button {mode}' mode");
                 crewChief.speechRecogniser.voiceOptionEnum = VoiceOptionEnum.HOLD;
                 while (runListenForChannelOpenThread)
                 {
+                    // open means button is pressed in HOLD mode
+                    // or released in NOT_PRESSED mode
+                    var open = controllerConfiguration.isChannelOpen() ^ 
+                                    voiceOption == VoiceOptionEnum.NOT_PRESSED;
                     Thread.Sleep(this.holdButtonPollFrequency);
-                    if (!channelOpen && controllerConfiguration.isChannelOpen())
+                    if (!channelOpen && open)
                     {
                         channelOpen = true;
                         PlaybackModerator.holdModeTalkingToChief = true;
@@ -1989,7 +1972,7 @@ namespace CrewChiefV4
                             muteVolumes();
                         }
                     }
-                    else if (channelOpen && !controllerConfiguration.isChannelOpen())
+                    else if (channelOpen && !open)
                     {
                         if (this.rejectMessagesWhenTalking)
                         {
@@ -2008,6 +1991,15 @@ namespace CrewChiefV4
                         }
                         else
                         {
+                            // button released, if we're waiting for speech here (i.e. the SRE hasn't unilaterally
+                            // decided we've finished talking and has gone off on some ill-advised recognition adventure)
+                            // then we might want to sleep a bit before triggering the SRE just in case some cack-handed
+                            // user has let go of the button too soon
+                            int delayBeforeRecognising = UserSettings.GetUserSettings().getInt("sre_button_release_delay");
+                            if (SpeechRecogniser.waitingForSpeech && delayBeforeRecognising > 0)
+                            {
+                                Utilities.InterruptedSleep(totalWaitMillis: delayBeforeRecognising, waitWindowMillis: 50, keepWaitingPredicate: () => crewChief.running);
+                            }
                             Console.WriteLine("Invoking speech recognition...");
                             crewChief.speechRecogniser.recognizeAsyncCancel();
                             if (youWotThread == null
@@ -2039,7 +2031,7 @@ namespace CrewChiefV4
             }
         }
 
-        private void listenForButtons()
+        private void thread_listenForButtons()
         {
             DateTime lastButtoncheck = DateTime.UtcNow;
             if (crewChief.speechRecogniser.initialised && voiceOption == VoiceOptionEnum.TOGGLE)
@@ -2050,96 +2042,100 @@ namespace CrewChiefV4
             {
                 Thread.Sleep(50);
                 DateTime now = DateTime.UtcNow;
-                controllerConfiguration.pollForButtonClicks();
-                if (now > lastButtoncheck.Add(buttonCheckInterval))
+                controllerConfiguration.PollForButtonClicks();
+                if (now > lastButtoncheck.Add(buttonCheckInterval)) // (50mS also)
                 {
                     lastButtoncheck = now;
-                    if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.VOLUME_UP))
-                    {
-                        if (currentMessageVolume == -1)
-                        {
-                            Console.WriteLine("Initial volume not set, ignoring");
-                        }
-                        else if (currentMessageVolume >= 1)
-                        {
-                            Console.WriteLine("Volume at max");
-                        }
-                        else
-                        {
-                            Console.WriteLine("Increasing volume");
-                            updateMessagesVolume(currentMessageVolume + 0.05f, true, true);
-                        }
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.VOLUME_DOWN))
-                    {
-                        if (currentMessageVolume == -1)
-                        {
-                            Console.WriteLine("Initial volume not set, ignoring");
-                        }
-                        else if (currentMessageVolume <= 0)
-                        {
-                            Console.WriteLine("Volume at min");
-                        }
-                        else
-                        {
-                            Console.WriteLine("Decreasing volume");
-                            updateMessagesVolume(currentMessageVolume - 0.05f, true, true);
-                        }
-                    }
-                    else if (crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised && voiceOption == VoiceOptionEnum.TOGGLE &&
-                             controllerConfiguration.hasOutstandingClick(ControllerConfiguration.CHANNEL_OPEN_FUNCTION))
-                    {
-                        // JB: no idea why we're setting this enum option here. Will leave it in just in case
-                        crewChief.speechRecogniser.voiceOptionEnum = VoiceOptionEnum.TOGGLE;
-                        if (SpeechRecogniser.waitingForSpeech)
-                        {
-                            Console.WriteLine("Cancelling...");
-                            SpeechRecogniser.waitingForSpeech = false;
-                            crewChief.speechRecogniser.recognizeAsyncCancel();
-                        }
-                        else
-                        {
-                            // if we reject messages while we're talking to the chief, attempt to interrupt any sound currently playing
-                            if (PlaybackModerator.rejectMessagesWhenTalking)
-                            {
-                                SoundCache.InterruptCurrentlyPlayingSound(true);
-                            }
-                            Console.WriteLine("Listening...");
-                            crewChief.speechRecogniser.recognizeAsync();
-                            crewChief.audioPlayer.playStartListeningBeep();
-                        }
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.TOGGLE_SPOTTER_FUNCTION))
-                    {
-                        Console.WriteLine("Toggling spotter mode");
-                        crewChief.toggleSpotterMode();
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.TOGGLE_MUTE))
-                    {
-                        if (!isMuted)
-                        {
-                            //crewChief.audioPlayer.playMuteBeep();
-                            muteVolumes();
-                        }
-                        else
-                        {
-
-                            unmuteVolumes();
-                            //crewChief.audioPlayer.playUnMuteBeep();
-                        }
-                        isMuted = !isMuted;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick())
-                    {
-                        //Console.WriteLine("Toggling keep quiet mode");
-                        //crewChief.toggleKeepQuietMode();
-                    }
+                    // Only process one button at a time
+                    // because it's always been like that
+                    var _ = controllerConfiguration.ExecuteSpecialClickedButton() ||
+                            controllerConfiguration.ExecuteClickedButton();
                 }
-
-                //if (nextPollWait > 0)
-                    //Thread.Sleep(nextPollWait);
             }
         }
+
+        #region ConcreteControllerActions
+        public void volumeUp()
+        {
+            if (currentMessageVolume == -1)
+            {
+                Console.WriteLine("Initial volume not set, ignoring");
+            }
+            else if (currentMessageVolume >= 1)
+            {
+                Console.WriteLine("Volume at max");
+            }
+            else
+            {
+                Console.WriteLine("Increasing volume");
+                updateMessagesVolume(currentMessageVolume + 0.05f, true, true);
+            }
+        }
+
+        public void volumeDown()
+        {
+            if (currentMessageVolume == -1)
+            {
+                Console.WriteLine("Initial volume not set, ignoring");
+            }
+            else if (currentMessageVolume <= 0)
+            {
+                Console.WriteLine("Volume at min");
+            }
+            else
+            {
+                Console.WriteLine("Decreasing volume");
+                updateMessagesVolume(currentMessageVolume - 0.05f, true, true);
+            }
+        }
+
+        public void channelOpen()
+        {
+            if (crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised && voiceOption == VoiceOptionEnum.TOGGLE)
+            {
+                // JB: no idea why we're setting this enum option here. Will leave it in just in case
+                crewChief.speechRecogniser.voiceOptionEnum = VoiceOptionEnum.TOGGLE;
+                if (SpeechRecogniser.waitingForSpeech)
+                {
+                    Console.WriteLine("Cancelling...");
+                    SpeechRecogniser.waitingForSpeech = false;
+                    crewChief.speechRecogniser.recognizeAsyncCancel();
+                }
+                else
+                {
+                    // if we reject messages while we're talking to the chief, attempt to interrupt any sound currently playing
+                    if (PlaybackModerator.rejectMessagesWhenTalking)
+                    {
+                        SoundCache.InterruptCurrentlyPlayingSound(true);
+                    }
+                    Console.WriteLine("Listening...");
+                    crewChief.speechRecogniser.recognizeAsync();
+                    crewChief.audioPlayer.playStartListeningBeep();
+                }
+            }
+        }
+
+        public void toggleSpotter()
+        {
+            Console.WriteLine("Toggling spotter mode");
+            crewChief.toggleSpotterMode();
+        }
+
+        public void toggleMute()
+        {
+            if (!isMuted)
+            {
+                //crewChief.audioPlayer.playMuteBeep();
+                muteVolumes();
+            }
+            else
+            {
+                unmuteVolumes();
+                //crewChief.audioPlayer.playUnMuteBeep();
+            }
+            isMuted = !isMuted;
+        }
+        #endregion ConcreteControllerActions
 
         private void unmuteVolumes()
         {
@@ -2219,58 +2215,45 @@ namespace CrewChiefV4
             this.scanControllers.Enabled = true;
         }
 
-        private void doStartAppStuff()
+        private void loadSREGrammarAndStartListening()
         {
-            IsAppRunning = !IsAppRunning;
-            if (_IsAppRunning)
+            bool loadedCommands = false;
+            try
             {
-                if (CrewChief.gameDefinition != null && CrewChief.gameDefinition.gameEnum == GameEnum.ACC)
+                crewChief.speechRecogniser.loadSRECommands();
+                loadedCommands = true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Failed to load voice commands into speech recogniser: " + e.Message);
+            }
+            try
+            {
+                crewChief.speechRecogniser.loadMacroVoiceTriggers(MacroManager.voiceTriggeredMacros);
+                loadedCommands = true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Failed to load command macros into speech recogniser: " + e.Message);
+            }
+
+            // once the grammars are loaded successfully, we can start listening for commands
+            // post this back to the main thread so we're kicking off the button listener from our root thread
+            // and running always-on SRE on the root thread
+            if (loadedCommands)
+            {
+                this.Invoke((MethodInvoker)delegate
                 {
-                    Console.WriteLine("The data exposed by ACC has numerous data synchronization issues and inaccuracies (bugs). These, along with the requirement to combine shared memory " +
-                        "and UDP data, present significant technical challenges. \n\n" +
-                        "Despite our best efforts the Crew Chief team have been unable to implement effective work-arounds for these issues, " +
-                        "resulting in misleading and inaccurate information from the app. " +
-                        "We aren't planning any further work to improve ACC integration and it's likely that ACC support will be removed entirely in a future version. \n\n" +
-                        "We advise using ACC's built in crew chief / spotter", "ACC Support deprecated");
-                }
-
-                startApplicationButton.Enabled = false;
-                uiSyncAppStart();
-
-
-#if !DEBUG
-                // Don't disable auto scroll in Debug builds and in Profile mode.
-                if (!UserSettings.GetUserSettings().getBoolean("enable_console_autoscroll"))
-                {
-                    Console.WriteLine("Pausing console scrolling");
-                    MainWindow.autoScrollConsole = MainWindow.profileMode;
-                }
-#endif
-                GameDefinition gameDefinition = GameDefinition.getGameDefinitionForFriendlyName(gameDefinitionList.Text);
-                if (gameDefinition != null)
-                {
-                    crewChief.setGameDefinition(gameDefinition);
-                    MacroManager.initialise(crewChief.audioPlayer, crewChief.speechRecogniser);
-                    CarData.loadCarClassData();
-                    TrackData.loadTrackLandmarksData();
-                    ThreadStart crewChiefWork = runApp;
-                    Thread crewChiefThread = new Thread(crewChiefWork);
-                    crewChiefThread.Name = "MainWindow.runApp";
-                    ThreadManager.RegisterRootThread(crewChiefThread);
-
-                    // this call is not part of the standard AutoUpdater API - I added a 'stopped' flag to prevent the auto updater timer
-                    // or other Threads firing when the game is running. It's not needed 99% of the time, it just stops that edge case where
-                    // the AutoUpdater triggers and steals focus while the player is racing
-                    AutoUpdater.Stop();
-
-                    crewChief.onRestart();
-                    crewChiefThread.Start();
-                    runListenForChannelOpenThread = controllerConfiguration.listenForChannelOpen()
-                        && voiceOption == VoiceOptionEnum.HOLD && crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised;
-                    if (runListenForChannelOpenThread && voiceOption == VoiceOptionEnum.HOLD && crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised)
+                    bool holdOrReleaseButtonToListen = (voiceOption == VoiceOptionEnum.HOLD ||
+                                voiceOption == VoiceOptionEnum.NOT_PRESSED) &&
+                                crewChief.speechRecogniser != null &&
+                                crewChief.speechRecogniser.initialised;
+                    
+                    runListenForChannelOpenThread = controllerConfiguration.listenForChannelOpen() && holdOrReleaseButtonToListen;
+                    if (runListenForChannelOpenThread && holdOrReleaseButtonToListen)
                     {
                         Console.WriteLine("Listening on default audio input device");
-                        ThreadStart channelOpenButtonListenerWork = listenForChannelOpen;
+                        ThreadStart channelOpenButtonListenerWork = thread_listenForChannelOpen;
                         Thread channelOpenButtonListenerThread = new Thread(channelOpenButtonListenerWork);
 
                         channelOpenButtonListenerThread.Name = "MainWindow.listenForChannelOpen";
@@ -2288,7 +2271,7 @@ namespace CrewChiefV4
                     if (runListenForButtonPressesThread)
                     {
                         Console.WriteLine("Listening for buttons");
-                        ThreadStart buttonPressesListenerWork = listenForButtons;
+                        ThreadStart buttonPressesListenerWork = thread_listenForButtons;
                         Thread buttonPressesListenerThread = new Thread(buttonPressesListenerWork);
 
                         buttonPressesListenerThread.Name = "MainWindow.listenForButtons";
@@ -2296,7 +2279,56 @@ namespace CrewChiefV4
 
                         buttonPressesListenerThread.Start();
                     }
+                });
+            }
+        }
 
+        private void doStartAppStuff()
+        {
+            IsAppRunning = !IsAppRunning;
+            if (_IsAppRunning)
+            {
+                startApplicationButton.Enabled = false;
+
+#if !DEBUG
+                // Don't disable auto scroll in Debug builds and in Profile mode.
+                if (!UserSettings.GetUserSettings().getBoolean("enable_console_autoscroll"))
+                {
+                    Console.WriteLine("Pausing console scrolling");
+                    MainWindow.autoScrollConsole = MainWindow.profileMode;
+                }
+#endif
+                GameDefinition gameDefinition = GameDefinition.getGameDefinitionForFriendlyName(gameDefinitionList.Text);
+                if (gameDefinition != null)
+                {
+                    crewChief.setGameDefinition(gameDefinition);
+                    MacroManager.initialise(crewChief.audioPlayer, crewChief.speechRecogniser, this.controllerConfiguration);
+                    uiSyncAppStart();
+                    CarData.loadCarClassData();
+                    TrackData.loadTrackLandmarksData();
+                    SetFrameHeading(gameDefinition.friendlyName);
+                    ThreadStart crewChiefWork = runApp;
+                    Thread crewChiefThread = new Thread(crewChiefWork);
+                    crewChiefThread.Name = "MainWindow.runApp";
+                    ThreadManager.RegisterRootThread(crewChiefThread);
+
+                    // this call is not part of the standard AutoUpdater API - I added a 'stopped' flag to prevent the auto updater timer
+                    // or other Threads firing when the game is running. It's not needed 99% of the time, it just stops that edge case where
+                    // the AutoUpdater triggers and steals focus while the player is racing
+                    AutoUpdater.Stop();
+
+                    crewChief.onRestart();
+                    crewChiefThread.Start();
+
+                    if (crewChief.speechRecogniser != null)
+                    {
+                        ThreadStart loadSREGrammarWork = loadSREGrammarAndStartListening;
+                        ThreadManager.UnregisterTemporaryThread(loadSREGrammarThread);
+                        loadSREGrammarThread = new Thread(loadSREGrammarWork);
+                        loadSREGrammarThread.Name = "MainWindow.loadSREGrammarThread";
+                        ThreadManager.RegisterTemporaryThread(loadSREGrammarThread);
+                        loadSREGrammarThread.Start();
+                    }
                 }
                 else
                 {
@@ -2309,6 +2341,7 @@ namespace CrewChiefV4
             else
             {
                 startApplicationButton.Enabled = false;
+                SetFrameHeading();
                 Console.WriteLine("Resuming console scrolling");
                 MainWindow.autoScrollConsole = true;
                 MacroManager.stop();
@@ -2321,7 +2354,7 @@ namespace CrewChiefV4
                         crewChief.speechRecogniser.recognizeAsyncCancel();
                         crewChief.speechRecogniser.stopTriggerRecogniser();
                     }
-                    catch (Exception) { }
+                    catch (Exception e) {Log.Exception(e);}
                 }
                 stopApp();
                 Console.WriteLine("Application stopped");
@@ -2458,7 +2491,7 @@ namespace CrewChiefV4
             this.buttonActionSelect.Items.Clear();
             foreach (ControllerConfiguration.ButtonAssignment assignment in controllerConfiguration.buttonAssignments)
             {
-                this.buttonActionSelect.Items.Add(Utilities.FirstLetterToUpper(assignment.getInfo()));
+                this.buttonActionSelect.Items.Add(Utilities.Strings.FirstLetterToUpper(assignment.getInfo()));
             }
         }
 
@@ -2606,31 +2639,85 @@ namespace CrewChiefV4
             doRestart(Configuration.getUIString("the_application_must_be_restarted_to_check_for_updates"), Configuration.getUIString("check_for_updates_title"), true);
         }
 
-        private void saveConsoleOutputText()
+        /// <summary>
+        /// Save the console window text in a timestamped log file.
+        /// Keep the last 25 log files, don't delete any that have been renamed.
+        /// </summary>
+        internal string saveConsoleOutputText()
         {
+            String prefix = "console_";
+            String timestamp =            "yyyy_MM_dd-HH-mm-ss";
+            String matchString = prefix + "????_??_??-??-??-??.txt";
+            int numberFilesToKeep = 25;
             try
             {
                 if (consoleTextBox.Text.Length > 0)
                 {
-                    String filename = "console_" + DateTime.Now.ToString("yyyy_MM_dd-HH-mm-ss") + ".txt";
-                    String path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4", "debugLogs");
+                    String filename = prefix + DateTime.Now.ToString(timestamp) + ".txt";
+                    String path = logFilePath();
                     if (!Directory.Exists(path))
                     {
                         Directory.CreateDirectory(path);
                     }
-                    foreach (var fi in new DirectoryInfo(path).GetFiles().Where(f => f.Extension == ".txt").OrderByDescending(x => x.LastWriteTime).Skip(25))
+                    // Get the list of console_*.txt log files in the log folder
+                    // then DateTime.TryParse the timestamp bit to filter the
+                    // ones with just the timestamp CC gave them (i.e. not
+                    // renamed by user because they want to keep them). Sort
+                    // into LastWriteTime order and keep the most recent 'numberFilesToKeep'
+                    DateTime __; // (To discard result of DateTime.TryParse)
+                    CultureInfo enGB = new CultureInfo("en-GB");
+                    foreach (var fi in new DirectoryInfo(path).GetFiles(matchString)
+                        .Where(file => DateTime.TryParseExact(
+                            file.Name.Substring(prefix.Length, 
+                                file.Name.Length - file.Extension.Length - prefix.Length),
+                            timestamp,
+                            enGB,
+                            DateTimeStyles.None,
+                            out __) )
+                        .OrderByDescending(x => x.LastWriteTime)
+                        .Skip(numberFilesToKeep))
                     {
                         fi.Delete();
                     }
                     path = System.IO.Path.Combine(path, filename);
-                    File.WriteAllText(path, consoleTextBox.Text);
+                    File.WriteAllText(path, prefixLogfile(path) +
+                        consoleTextBox.Text);
                     Console.WriteLine("Console output saved to " + path);
+                    return path;
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Unable to save console output, message = " + ex.Message);
             }
+            return null;
+        }
+        /// <summary>
+        /// Returns "c:\Users\NAME\Documents\CrewChiefV4\debugLogs"
+        /// </summary>
+        private string logFilePath()
+        {
+            return System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4", "debugLogs");
+        }
+        /// <summary>
+        /// Returns the log file prefix - path, VOICE_OPTION, non-default Properties
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns>String with \n</returns>
+        private string prefixLogfile(string path = null)
+        {
+            if (path == null)
+            {
+                path = logFilePath();
+            }
+            return $"{path}\nProfile: " +
+                    UserSettings.currentUserProfileFileName +
+                    "\nGame: " +
+                    CrewChief.gameDefinition.friendlyName +
+                    "\nVOICE_OPTION: " +
+                    UserSettings.GetUserSettings().getString("VOICE_OPTION") +
+                    "\n\nNon-default Properties:\n" +
+                    UserSettings.getNonDefaultUserSettings() + "\n";
         }
 
         private void reacquireControllerList()
@@ -2816,11 +2903,38 @@ namespace CrewChiefV4
             }
         }
 
+        private void listenIfNotPressed_CheckedChanged(object sender, EventArgs e)
+        {
+            if (((RadioButton)sender).Checked)
+            {
+                try
+                {
+                    if (initialiseSpeechEngine())
+                    {
+                        runListenForChannelOpenThread = false;
+                        runListenForButtonPressesThread = controllerConfiguration.listenForButtons(false);
+                        crewChief.speechRecogniser.voiceOptionEnum = VoiceOptionEnum.NOT_PRESSED;
+                        voiceOption = VoiceOptionEnum.NOT_PRESSED;
+                        UserSettings.GetUserSettings().setProperty("VOICE_OPTION", getVoiceOptionString());
+                        UserSettings.GetUserSettings().saveUserSettings();
+                    }
+                    else
+                    {
+                        ((RadioButton)sender).Checked = false;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Unable to initialise speech engine, message = " + ex.Message);
+                }
+            }
+        }
         private void personalisationSelected(object sender, EventArgs e)
         {
-            if (!UserSettings.GetUserSettings().getString("PERSONALISATION_NAME").Equals(this.personalisationBox.Text))
+            if (!MyName.myName.Equals(this.personalisationBox.Text))
             {
-                UserSettings.GetUserSettings().setProperty("PERSONALISATION_NAME", this.personalisationBox.Text);
+                MyName.myName = this.personalisationBox.Text;
                 UserSettings.GetUserSettings().saveUserSettings();
                 doRestart(Configuration.getUIString("the_application_must_be_restarted_to_load_the_new_sounds"), Configuration.getUIString("load_new_sounds"));
             }
@@ -2981,7 +3095,7 @@ namespace CrewChiefV4
 
         public enum VoiceOptionEnum
         {
-            DISABLED, HOLD, TOGGLE, ALWAYS_ON, TRIGGER_WORD
+            DISABLED, HOLD, TOGGLE, ALWAYS_ON, TRIGGER_WORD, NOT_PRESSED
         }
 
         private void clearConsole(object sender, EventArgs e)
@@ -3018,22 +3132,30 @@ namespace CrewChiefV4
                 updateControllersUi();
             }
         }
+        /// <summary>
+        /// Side effect: sets GlobalBehaviourSettings.racingType
+        /// Side effect: restarts CC if switching between race and rally game
+        /// </summary>
         private void updateSelectedGameDefinition(object sender, EventArgs e)
         {
             if (this.gameDefinitionList.Text.Length > 0)
             {
                 try
                 {
-                    var prevRacingType = UserSettings.GetUserSettings().getInt("racing_type");
+                    var prevRacingType = CrewChief.gameDefinition.racingType;
+                    var prevGameDefinition = CrewChief.gameDefinition;
                     CrewChief.gameDefinition = GameDefinition.getGameDefinitionForFriendlyName(this.gameDefinitionList.Text);
 
-                    if (prevRacingType != (int)CrewChief.gameDefinition.racingType)
+                    if (prevRacingType != CrewChief.RacingType.Undefined &&
+                        prevRacingType != CrewChief.gameDefinition.racingType)
                     {
-                        UserSettings.GetUserSettings().setProperty("racing_type", (int)CrewChief.gameDefinition.racingType);
-                        UserSettings.GetUserSettings().setProperty("last_game_definition", CrewChief.gameDefinition.gameEnum.ToString());
-                        UserSettings.GetUserSettings().saveUserSettings();
-
-                        doRestart(Configuration.getUIString("the_application_must_be_restarted_to_switch_between_circuit_and_rally_racing"), Configuration.getUIString("switch_racing_type"), removeSkipUpdates: false, mandatory: true);
+                        if (doRestart(Configuration.getUIString("the_application_must_be_restarted_to_switch_between_circuit_and_rally_racing"),
+                            Configuration.getUIString("switch_racing_type"), removeSkipUpdates: false, mandatory: false, saveUserSettings: true))
+                        {    // The user cancelled, bounce back to previous game
+                            CrewChief.gameDefinition = prevGameDefinition;
+                            this.gameDefinitionList.Text = CrewChief.gameDefinition.friendlyName;
+                            return;
+                        }
                     }
 
                     GlobalBehaviourSettings.racingType = CrewChief.gameDefinition.racingType;
@@ -3065,7 +3187,7 @@ namespace CrewChiefV4
                         this.backgroundVolumeSliderLabel.Visible = false;
                     }
                 }
-                catch (Exception) { }
+                catch (Exception ee) {Log.Exception(ee);}
             }
             populateControlListUI();
         }
@@ -3093,7 +3215,7 @@ namespace CrewChiefV4
                     {
                         File.Delete(AudioPlayer.soundFilesPathNoChiefOverride + @"\" + soundPackTempFileName);
                     }
-                    catch (Exception) { }
+                    catch (Exception e) {Log.Exception(e);}
                     wc.DownloadFileAsync(new Uri(soundPackDownloadURL), AudioPlayer.soundFilesPathNoChiefOverride + @"\" + soundPackTempFileName);
                 }
                 else if (downloadType == DownloadType.DRIVER_NAMES)
@@ -3105,7 +3227,7 @@ namespace CrewChiefV4
                     {
                         File.Delete(AudioPlayer.soundFilesPathNoChiefOverride + @"\" + driverNamesTempFileName);
                     }
-                    catch (Exception) { }
+                    catch (Exception e) {Log.Exception(e);}
                     wc.DownloadFileAsync(new Uri(drivernamesDownloadURL), AudioPlayer.soundFilesPathNoChiefOverride + @"\" + driverNamesTempFileName);
                 }
                 else if (downloadType == DownloadType.PERSONALISATIONS)
@@ -3117,7 +3239,7 @@ namespace CrewChiefV4
                     {
                         File.Delete(AudioPlayer.soundFilesPathNoChiefOverride + @"\" + personalisationsTempFileName);
                     }
-                    catch (Exception) { }
+                    catch (Exception e) {Log.Exception(e);}
                     wc.DownloadFileAsync(new Uri(personalisationsDownloadURL), AudioPlayer.soundFilesPathNoChiefOverride + @"\" + personalisationsTempFileName);
                 }
             }
@@ -3230,7 +3352,7 @@ namespace CrewChiefV4
                             {
                                 File.Delete(AudioPlayer.soundFilesPathNoChiefOverride + @"\" + soundPackTempFileName);
                             }
-                            catch (Exception) { }
+                            catch (Exception ee) {Log.Exception(ee);}
                         }
                         soundPackProgressBar.Value = 0;
                         isDownloadingSoundPack = false;
@@ -3294,7 +3416,7 @@ namespace CrewChiefV4
                             }
                         }
                     }
-                    catch (Exception) { }
+                    catch (Exception ee) {Log.Exception(ee);}
                     finally
                     {
                         if (progressThread != null)
@@ -3309,7 +3431,7 @@ namespace CrewChiefV4
                             {
                                 File.Delete(AudioPlayer.soundFilesPathNoChiefOverride + @"\" + driverNamesTempFileName);
                             }
-                            catch (Exception) { }
+                            catch (Exception ee) {Log.Exception(ee);}
                         }
                         driverNamesProgressBar.Value = 0;
                         isDownloadingDriverNames = false;
@@ -3395,7 +3517,7 @@ namespace CrewChiefV4
                             {
                                 File.Delete(AudioPlayer.soundFilesPathNoChiefOverride + @"\" + personalisationsTempFileName);
                             }
-                            catch (Exception) { }
+                            catch (Exception ee) {Log.Exception(ee);}
                         }
                         personalisationsProgressBar.Value = 0;
                         isDownloadingPersonalisations = false;
@@ -3572,8 +3694,18 @@ namespace CrewChiefV4
             }
         }
 
-        private void doRestart(String warningMessage, String warningTitle, Boolean removeSkipUpdates = false, Boolean mandatory = false)
+        /// <summary>
+        /// Warn the user then restart CC
+        /// </summary>
+        /// <param name="warningMessage"></param>
+        /// <param name="warningTitle"></param>
+        /// <param name="removeSkipUpdates"></param>
+        /// <param name="mandatory">Switching between race and rally modes</param>
+        /// <returns>User cancelled</returns>
+        internal Boolean doRestart(String warningMessage, String warningTitle, Boolean removeSkipUpdates = false, Boolean mandatory = false, Boolean saveUserSettings = false)
         {
+            Boolean userCancelled = false;
+
             if (CrewChief.Debugging)
             {
                 warningMessage = "The app must be restarted manually";
@@ -3583,20 +3715,34 @@ namespace CrewChiefV4
             this.RestoreFromTray();
 
             if (MessageBox.Show(warningMessage, warningTitle,
-                CrewChief.Debugging || mandatory ? MessageBoxButtons.OK : MessageBoxButtons.OKCancel) == DialogResult.OK)
+                mandatory ? MessageBoxButtons.OK : MessageBoxButtons.OKCancel) == DialogResult.OK)
             {
-                if (Utilities.RestartApp(new List<string> { "-app_restart" }, removeSkipUpdates))
+                if (saveUserSettings)
+                {
+                    UserSettings.GetUserSettings().setProperty("last_game_definition", CrewChief.gameDefinition.commandLineName);
+                    UserSettings.GetUserSettings().saveUserSettings();
+                }
+                if (Utilities.RestartApp(app_restart: true, 
+                                         removeSkipUpdates: removeSkipUpdates,
+                                         removeProfile: mandatory,
+                                         removeGame: mandatory))
                 {
                     this.Close(); //to turn off current app
                 }
             }
+            else
+            {
+                userCancelled = true;
+            }
+            return userCancelled;
         }
 
         private void downloadSoundPackButtonPress(object sender, EventArgs e)
         {
             if (AudioPlayer.soundPackLanguage == null)
             {
-                DialogResult dialogResult = MessageBox.Show(Configuration.getUIString("unknown_sound_pack_language_text"),
+                DialogResult dialogResult = MessageBox.Show(
+                    Utilities.Strings.NewlinesInLongString(Configuration.getUIString("unknown_sound_pack_language_text")),
                     Configuration.getUIString("unknown_sound_pack_language_title"), MessageBoxButtons.YesNo);
                 if (dialogResult == DialogResult.Yes)
                 {
@@ -3622,7 +3768,8 @@ namespace CrewChiefV4
         {
             if (AudioPlayer.soundPackLanguage == null)
             {
-                DialogResult dialogResult = MessageBox.Show(Configuration.getUIString("unknown_driver_names_language_text"),
+                DialogResult dialogResult = MessageBox.Show(
+                    Utilities.Strings.NewlinesInLongString(Configuration.getUIString("unknown_driver_names_language_text")),
                     Configuration.getUIString("unknown_driver_names_language_title"), MessageBoxButtons.YesNo);
                 if (dialogResult == DialogResult.Yes)
                 {
@@ -3648,7 +3795,8 @@ namespace CrewChiefV4
         {
             if (AudioPlayer.soundPackLanguage == null)
             {
-                DialogResult dialogResult = MessageBox.Show(Configuration.getUIString("unknown_personalisations_language_text"),
+                DialogResult dialogResult = MessageBox.Show(
+                    Utilities.Strings.NewlinesInLongString(Configuration.getUIString("unknown_personalisations_language_text")),
                     Configuration.getUIString("unknown_personalisations_language_title"), MessageBoxButtons.YesNo);
                 if (dialogResult == DialogResult.Yes)
                 {
@@ -3672,7 +3820,7 @@ namespace CrewChiefV4
 
         private void internetPanHandler(object sender, EventArgs e)
         {
-            Process.Start("http://thecrewchief.org/misc.php?do=donate");
+            Process.Start("https://thecrewchief.org/misc.php?do=donate");
         }
 
         private void playSmokeTestSounds(object sender, EventArgs e)
@@ -3699,7 +3847,7 @@ namespace CrewChiefV4
         }
         private void editCommandMacroButtonClicked(object sender, EventArgs e)
         {
-            var form = new MacroEditor(this);
+            var form = new MacroEditor(this, this.controllerConfiguration);
             form.ShowDialog(this);
         }
 
@@ -3709,25 +3857,25 @@ namespace CrewChiefV4
             form.ShowDialog(this);
         }
 
-        private void helpToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            var form = new HelpWindow(this);
-            form.ShowDialog(this);
-        }
-
-        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
-
         public void buttonVRWindowSettings_Click(object sender, EventArgs e)
         {
-            vrOverlayForm.ShowDialog();
+            vrOverlayForm.ShowDialog(this);
         }
+
         public static string Base64Decode(string base64EncodedData)
         {
             var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
             return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
+        }
+
+        private void buttonMyName_Click(object sender, EventArgs e)
+        {
+            var win = new MyName_V(this, MyName.myName);
+            win.ShowDialog(this);
+        }
+        public void SetButtonMyNameText()
+        {
+            this.buttonMyName.Text = $"{Configuration.getUIString("personalisation_label")} {MyName.myName}";
         }
     }
 
@@ -3750,48 +3898,55 @@ namespace CrewChiefV4
 
         public override void WriteLine(string value)
         {
-            if (MainWindow.instance != null && (enable || MainWindow.instance.recordSession.Checked))
+            try
             {
-                if (value == previousMessage)
+                if (MainWindow.instance != null && (enable || MainWindow.instance.recordSession.Checked))
                 {
-                    repetitionCount++;
-                }
-                else
-                {
-                    if (repetitionCount > 0 && repetitionCount < 20)
+                    if (value == previousMessage)
                     {
-                        writeMessage("Skipped " + repetitionCount + " copies of previous message\n");
+                        repetitionCount++;
                     }
-                    else if (repetitionCount >= 20 && MainWindow.instance.crewChief.mapped)
+                    else
                     {
-                        writeMessage("++++++++++++ Skipped " + repetitionCount + " copies of previous message. Please report this error to the CC dev team ++++++++++++\n");
-                    }
-                    repetitionCount = 0;
+                        if (repetitionCount > 0 && repetitionCount < 20)
+                        {
+                            writeMessage("Skipped " + repetitionCount + " copies of previous message\n");
+                        }
+                        else if (repetitionCount >= 20 && MainWindow.instance.crewChief.mapped && !value.Contains("ValidationException"))
+                        {
+                            writeMessage("++++++++++++ Skipped " + repetitionCount + " copies of previous message. Please report this error to the CC dev team ++++++++++++\n");
+                        }
+                        repetitionCount = 0;
 #if !DEBUG  // Do not swallow duplicates in the debug build.
                     previousMessage = value;
 #endif
-                    Boolean gotDateStamp = false;
-                    StringBuilder sb = new StringBuilder();
-                    DateTime now = DateTime.Now;
-                    if (CrewChief.loadDataFromFile)
-                    {
-                        if (CrewChief.currentGameState != null)
+                        Boolean gotDateStamp = false;
+                        StringBuilder sb = new StringBuilder();
+                        DateTime now = DateTime.Now;
+                        if (CrewChief.loadDataFromFile)
                         {
-                            if (CrewChief.currentGameState.CurrentTimeStr == null || CrewChief.currentGameState.CurrentTimeStr == "")
+                            if (CrewChief.currentGameState != null)
                             {
-                                CrewChief.currentGameState.CurrentTimeStr = GameStateData.CurrentTime.ToString("HH:mm:ss.fff");
+                                if (CrewChief.currentGameState.CurrentTimeStr == null || CrewChief.currentGameState.CurrentTimeStr == "")
+                                {
+                                    CrewChief.currentGameState.CurrentTimeStr = GameStateData.CurrentTime.ToString("HH:mm:ss.fff");
+                                }
+                                sb.Append(now.ToString("HH:mm:ss.fff")).Append(" (").Append(CrewChief.currentGameState.CurrentTimeStr).Append(")");
+                                gotDateStamp = true;
                             }
-                            sb.Append(now.ToString("HH:mm:ss.fff")).Append(" (").Append(CrewChief.currentGameState.CurrentTimeStr).Append(")");
-                            gotDateStamp = true;
                         }
+                        if (!gotDateStamp)
+                        {
+                            sb.Append(now.ToString("HH:mm:ss.fff"));
+                        }
+                        sb.Append(" : ").Append(value).AppendLine();
+                        writeMessage(sb.ToString());
                     }
-                    if (!gotDateStamp)
-                    {
-                        sb.Append(now.ToString("HH:mm:ss.fff"));
-                    }
-                    sb.Append(" : ").Append(value).AppendLine();
-                    writeMessage(sb.ToString());
                 }
+            }
+            catch (Exception e)
+            {
+                // not much we can do here
             }
         }
 
@@ -3802,6 +3957,7 @@ namespace CrewChiefV4
                 lock (ControlWriter.controlWriterLock)
                 {
                     newMessagesBuilder.Append(message);
+                    Debug.Write(message);
                 }
                 consoleUpdateThreadWakeUpEvent.Set();
             }

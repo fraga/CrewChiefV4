@@ -16,6 +16,7 @@ using NAudio.CoreAudioApi;
 using NAudio.CoreAudioApi.Interfaces;
 using NAudio.Wave;
 using System.Runtime.InteropServices;
+using CrewChiefV4.UserInterface.Models;
 
 namespace CrewChiefV4.Audio
 {
@@ -164,6 +165,11 @@ namespace CrewChiefV4.Audio
         private DateTime breathDueAt = DateTime.MaxValue;
         private int maxSecondsBeforeTakingABreath = 3;
 
+        // any messages with this magic string in their ID will not be purged on session end
+        public static string RETAIN_ON_SESSION_END = "retain_on_session_end";
+
+        private static Thread disposeAndRecreateThread = null;
+
         public struct WaveDevice
         {
             public int WaveDeviceId;
@@ -196,28 +202,46 @@ namespace CrewChiefV4.Audio
         public static List<WaveDevice> GetWaveOutDevices()
         {
             List<WaveDevice> retVal = new List<WaveDevice>();
-            var devEnum = new MMDeviceEnumerator().EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active);
-            foreach (var dev in devEnum)
+            try
             {
-                WaveDevice di = new WaveDevice()
+                var devEnum = new MMDeviceEnumerator().EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active);
+                foreach (var dev in devEnum)
                 {
-                    EndpointGuid = dev.ID,
-                    FullName = dev.FriendlyName,
-                    WaveDeviceId = -1,
-                };
-
-                for (int waveOutIdx = 0; waveOutIdx < devEnum.Count; waveOutIdx++)
-                {
-                    string guid = GetWaveOutEndpointId(waveOutIdx);
-                    if (guid == di.EndpointGuid)
+                    try
                     {
-                        di.WaveDeviceId = waveOutIdx;
-                        break;
+                        WaveDevice di = new WaveDevice()
+                        {
+                            EndpointGuid = dev.ID,
+                            FullName = dev.FriendlyName,
+                            WaveDeviceId = -1,
+                        };
+
+                        for (int waveOutIdx = 0; waveOutIdx < devEnum.Count; waveOutIdx++)
+                        {
+                            string guid = GetWaveOutEndpointId(waveOutIdx);
+                            if (guid == di.EndpointGuid)
+                            {
+                                di.WaveDeviceId = waveOutIdx;
+                                break;
+                            }
+                        }
+                        retVal.Add(di);
+                    }
+                    catch (Exception)
+                    {
+                        // ignore - we'll log an error later if we can't get any devices
                     }
                 }
-                retVal.Add(di);
             }
-
+            catch (Exception e)
+            {
+                Log.Error("Error enumerating nAudio wave out devices: " + e.ToString());
+            }
+            if (retVal.Count == 0)
+            {
+                Log.Error("Unable to initialise any nAudio playback devices, try setting \" nAudio Playback\" to false in the properties screen -" +
+                    "the app will use the Windows Sounds default playback device instead");
+            }
             return retVal;
         }
         public static string GetDefaultOutputDeviceName()
@@ -264,6 +288,9 @@ namespace CrewChiefV4.Audio
             private AudioPlayer audioPlayer;
             private bool playbackEnabled = false;
             private bool speechEnabled = false;
+
+            private bool processingDeviceChanges = false;
+
             // Windows is stupid, if default device is changed the index in WaveOut devices changes, so we need to update the indecies(I think it's called) in playbackDevices
             // Find our currently selected devices for both backgoundplayer and messageplayer.
             private void ReloadBackgroundPlayer()
@@ -290,18 +317,9 @@ namespace CrewChiefV4.Audio
                 }
             }
 
-            void ReIndexAudioOutputDevices(bool stopMonitorAndWaitOnThreads = false)
+            void ReIndexAudioOutputDevices()
             {
                 Debug.Assert(MainWindow.instance.InvokeRequired);
-
-                if (stopMonitorAndWaitOnThreads)
-                {
-                    // Those will be allowed again when we re-create the SoundCache.
-                    SoundCache.cancelLazyLoading = true;
-                    SoundCache.cancelDriverNameLoading = true;
-
-                    Console.WriteLine("Requesting caching thread cancellation...");
-                }
 
                 Console.WriteLine("Re-indexing audio output devices...");
                 lock (MainWindow.instanceLock)
@@ -312,26 +330,6 @@ namespace CrewChiefV4.Audio
                         {
                             string messageDeviceGuid = UserSettings.GetUserSettings().getString("NAUDIO_DEVICE_GUID_MESSAGES");
                             string backgroundDeviceGuid = UserSettings.GetUserSettings().getString("NAUDIO_DEVICE_GUID_BACKGROUND");
-
-                            // stopMonitorAndWaitOnThreads is true when this is a response to device state change.  Give nAudio time to correctly clean up.
-                            if (stopMonitorAndWaitOnThreads)
-                            {
-                                if (MainWindow.instance.crewChief.running)
-                                    audioPlayer.stopMonitor();
-
-                                // Safe to check here because we are on the main thread.
-                                if (stopMonitorAndWaitOnThreads && SoundCache.cacheSoundsThread != null)
-                                {
-                                    Console.WriteLine("Waiting for sound caching thread to stop...");
-                                    if (!SoundCache.cacheSoundsThread.Join(30000))
-                                        Console.WriteLine($"Failed to wait for cacheSoundsThread while re-indexing audio devices.  Hide and hope for the best.");
-                                    else
-                                        Console.WriteLine($"Sound caching thread stopped.");
-                                }
-
-                                // Wait for various short lived caching threads to exit.
-                                ThreadManager.WaitForTemporaryThreadsExit(waitMillis: 5000);
-                            }
 
                             playbackDevices.Clear();
                             foreach (var dev in GetWaveOutDevices())
@@ -434,6 +432,24 @@ namespace CrewChiefV4.Audio
 
             public void OnDeviceStateChanged(string deviceId, DeviceState newState)
             {
+                // this will be invoked once for each device in the audio device list. For me, this means 4 or 5 invocations when I start SteamVR.
+                // It's OK to update the UI for each callback but we only want to recreate the sounds cache once. We can't know when the state change
+                // callbacks will be completed, so just wait a short time after we get one before triggering the sound cache work
+                if (!processingDeviceChanges)
+                {
+                    ThreadManager.UnregisterTemporaryThread(disposeAndRecreateThread);
+                    processingDeviceChanges = true;
+                    disposeAndRecreateThread = new Thread(() =>
+                    {
+                        Console.WriteLine("Sound cache will be reinitialised");
+                        Thread.Sleep(300);
+                        disposeAndRecreateSoundCache();
+                        processingDeviceChanges = false;
+                    });
+                    ThreadManager.RegisterTemporaryThread(disposeAndRecreateThread);
+                    disposeAndRecreateThread.Start();
+                }
+
                 // TODO_REMOVE: on first time we hit this and CC does not hang.
                 Debug.Assert(MainWindow.instance.InvokeRequired);
                 Console.WriteLine($"Processing audio device state changes...");
@@ -461,7 +477,7 @@ namespace CrewChiefV4.Audio
 
                 if (this.playbackEnabled)
                 {
-                    this.ReIndexAudioOutputDevices(stopMonitorAndWaitOnThreads: true);
+                    this.ReIndexAudioOutputDevices();
                     lock (MainWindow.instanceLock)
                     {
                         if (MainWindow.instance != null)
@@ -482,77 +498,101 @@ namespace CrewChiefV4.Audio
                 }
             }
 
+            private void disposeAndRecreateSoundCache()
+            {
+                lock (MainWindow.instanceLock)
+                {
+                    if (MainWindow.instance != null)
+                    {
+                        audioPlayer.mainThreadContext.Post(delegate
+                        {
+                            // clean up and dispose the current cache:
+
+                            // Those will be allowed again when we re-create the SoundCache.
+                            SoundCache.cancelLazyLoading = true;
+                            SoundCache.cancelDriverNameLoading = true;
+                            if (MainWindow.instance.crewChief.running)
+                                audioPlayer.stopMonitor();
+
+                            // Safe to check here because we are on the main thread.
+                            if (SoundCache.cacheSoundsThread != null)
+                            {
+                                Console.WriteLine("Waiting for sound caching thread to stop...");
+                                if (!SoundCache.cacheSoundsThread.Join(30000))
+                                    Console.WriteLine($"Failed to wait for cacheSoundsThread while re-indexing audio devices.  Hide and hope for the best.");
+                                else
+                                    Console.WriteLine($"Sound caching thread stopped.");
+                            }
+
+                            // Wait for various short lived caching threads to exit.
+                            ThreadManager.WaitForTemporaryThreadsExit(waitMillis: 5000);
+
+                            Console.WriteLine("Clearing sound cache");
+                            if (audioPlayer.backgroundPlayer != null)
+                                audioPlayer.backgroundPlayer.dispose();
+
+                            audioPlayer.disposeSoundCache();
+
+                            // create a new cache:
+                            SoundCache.cancelLazyLoading = false;
+                            SoundCache.cancelDriverNameLoading = false;
+                            Console.WriteLine("Recreating sound cache");
+                            audioPlayer.soundCache = new SoundCache(new DirectoryInfo(soundFilesPath), new DirectoryInfo(soundFilesPathNoChiefOverride),
+                                new String[] { "spotter", "acknowledge" }, audioPlayer.sweary, audioPlayer.useMaleSounds, audioPlayer.allowCaching, audioPlayer.selectedPersonalisation, false);
+                            ReloadBackgroundPlayer();
+
+                            if (MainWindow.instance.crewChief.running)
+                                audioPlayer.startMonitor(smokeTest: false);
+                        }, null);
+                    }
+                }
+            }
+
             private void ProcessOutputDeviceStateChange(string deviceId, DeviceState newState)
             {
-                try
+                string messageDeviceGuid = UserSettings.GetUserSettings().getString("NAUDIO_DEVICE_GUID_MESSAGES");
+                string backgroundDeviceGuid = UserSettings.GetUserSettings().getString("NAUDIO_DEVICE_GUID_BACKGROUND");
+
+                if (backgroundDeviceGuid == deviceId || deviceId == messageDeviceGuid)
                 {
-                    string messageDeviceGuid = UserSettings.GetUserSettings().getString("NAUDIO_DEVICE_GUID_MESSAGES");
-                    string backgroundDeviceGuid = UserSettings.GetUserSettings().getString("NAUDIO_DEVICE_GUID_BACKGROUND");
-
-                    if (backgroundDeviceGuid == deviceId || deviceId == messageDeviceGuid)
+                    if (newState == DeviceState.Disabled || newState == DeviceState.Unplugged || newState == DeviceState.NotPresent)
                     {
-                        if (audioPlayer.backgroundPlayer != null)
-                            audioPlayer.backgroundPlayer.dispose();
-
-                        audioPlayer.disposeSoundCache();
-
-                        if (newState == DeviceState.Disabled || newState == DeviceState.Unplugged || newState == DeviceState.NotPresent)
+                        if (backgroundDeviceGuid == deviceId)
                         {
-                            if (backgroundDeviceGuid == deviceId)
+                            naudioBackgroundPlaybackDeviceId = 0;
+                            naudioBackgroundPlaybackDeviceGuid = GetDefaultOutputDeviceID();
+                            Console.WriteLine($"Selected background audio device removed, setting background playback to default device--> {GetDefaultOutputDeviceName()}");
+                        }
+                        if (messageDeviceGuid == deviceId)
+                        {
+                            naudioMessagesPlaybackDeviceId = 0;
+                            naudioMessagesPlaybackDeviceGuid = GetDefaultOutputDeviceID();
+                            Console.WriteLine($"Selected message audio device removed, setting voice playback to default device--> {GetDefaultOutputDeviceName()}");
+                        }
+                    }
+                    else if (newState == DeviceState.Active)
+                    {
+                        foreach (var device in playbackDevices)
+                        {
+                            if (backgroundDeviceGuid == device.Value.Item1)
                             {
-                                naudioBackgroundPlaybackDeviceId = 0;
-                                naudioBackgroundPlaybackDeviceGuid = GetDefaultOutputDeviceID();
-                                Console.WriteLine($"Selected background audio device removed, setting background playback to default device--> {GetDefaultOutputDeviceName()}");
+                                Console.WriteLine($"Saved background audio device added, setting sound playback to saved device--> {device.Key}");
+                                naudioBackgroundPlaybackDeviceId = device.Value.Item2;
+                                naudioBackgroundPlaybackDeviceGuid = device.Value.Item1;
                             }
-                            if (messageDeviceGuid == deviceId)
+                            if (messageDeviceGuid == device.Value.Item1)
                             {
-                                naudioMessagesPlaybackDeviceId = 0;
-                                naudioMessagesPlaybackDeviceGuid = GetDefaultOutputDeviceID();
-                                Console.WriteLine($"Selected message audio device removed, setting voice playback to default device--> {GetDefaultOutputDeviceName()}");
+                                Console.WriteLine($"Saved message audio device added, setting sound playback to saved device--> {device.Key}");
+                                naudioMessagesPlaybackDeviceId = device.Value.Item2;
+                                naudioMessagesPlaybackDeviceGuid = device.Value.Item1;
                             }
                         }
-                        else if (newState == DeviceState.Active)
-                        {
-                            foreach (var device in playbackDevices)
-                            {
-                                if (backgroundDeviceGuid == device.Value.Item1)
-                                {
-                                    Console.WriteLine($"Saved background audio device added, setting sound playback to saved device--> {device.Key}");
-                                    naudioBackgroundPlaybackDeviceId = device.Value.Item2;
-                                    naudioBackgroundPlaybackDeviceGuid = device.Value.Item1;
-                                }
-                                if (messageDeviceGuid == device.Value.Item1)
-                                {
-                                    Console.WriteLine($"Saved message audio device added, setting sound playback to saved device--> {device.Key}");
-                                    naudioMessagesPlaybackDeviceId = device.Value.Item2;
-                                    naudioMessagesPlaybackDeviceGuid = device.Value.Item1;
-                                }
-                            }
-                        }
-
-                        SoundCache.cancelLazyLoading = false;
-                        SoundCache.cancelDriverNameLoading = false;
-                        Console.WriteLine("Recreating sound cache.");
-                        audioPlayer.soundCache = new SoundCache(new DirectoryInfo(soundFilesPath), new DirectoryInfo(soundFilesPathNoChiefOverride),
-                            new String[] { "spotter", "acknowledge" }, audioPlayer.sweary, audioPlayer.useMaleSounds, audioPlayer.allowCaching, audioPlayer.selectedPersonalisation, false);
-
-                        ReloadBackgroundPlayer();
-
-                        UpdateUI();
                     }
-                    else
-                    {
-                        Console.WriteLine("Output audio device state change is ignored.");
-                    }
-
-                    // We stopped monitor during device ReIndexAudioOutputDevices, so make sure to re-start it.
-                    if (MainWindow.instance.crewChief.running)
-                        audioPlayer.startMonitor(smokeTest: false);
+                    UpdateUI();
                 }
-                finally
+                else
                 {
-                    SoundCache.cancelLazyLoading = false;
-                    SoundCache.cancelDriverNameLoading = false;
+                    Console.WriteLine("Output audio device state change is ignored.");
                 }
             }
 
@@ -758,11 +798,11 @@ namespace CrewChiefV4.Audio
                 }
                 if (!foundMessagePlayBackDevice)
                 {
-                    Console.WriteLine($"Unable to find saved message audio output device, using default: {GetDefaultOutputDeviceName()}");
+                    Console.WriteLine($"Unable to find saved message audio output device, using default: {GetDefaultOutputDeviceName()}.  Note: this could be caused by a driver reinstall or an OS feature update.  If you keep seeing this message, re-select the desired device in the UI.");
                 }
                 if (!foundBackgroundAudioDevice)
                 {
-                    Console.WriteLine($"Unable to find saved background audio output device, using default: {GetDefaultOutputDeviceName()}");
+                    Console.WriteLine($"Unable to find saved background audio output device, using default: {GetDefaultOutputDeviceName()}.  Note: this could be caused by a driver reinstall or an OS feature update.  If you keep seeing this message, re-select the desired device in the UI.");
                 }
             }
         }
@@ -812,10 +852,9 @@ namespace CrewChiefV4.Audio
                 }
                 personalisationsArray = personalisationsList.ToArray();
             }
-            String savedPersonalisation = UserSettings.GetUserSettings().getString("PERSONALISATION_NAME");
-            if (savedPersonalisation != null && savedPersonalisation.Length > 0)
+            if (MyName.myName != null && MyName.myName.Length > 0)
             {
-                selectedPersonalisation = savedPersonalisation;
+                selectedPersonalisation = MyName.myName;
             }
         }
 
@@ -1161,8 +1200,7 @@ namespace CrewChiefV4.Audio
                 // This can throw on device disconnect.
                 this.backgroundPlayer.stop();
             }
-            catch (Exception)
-            {}
+            catch (Exception e) { Log.Exception(e); }
         }
 
         private void writeMessagePlayedStats()
@@ -1184,6 +1222,19 @@ namespace CrewChiefV4.Audio
         {
             playMessageImmediately(new QueuedMessage(folderAcknowlegeDisableKeepQuiet, 0));
             keepQuiet = false;
+        }
+
+        private bool messageFunctionIsEmptyOrTrue(QueuedMessage queuedMessage)
+        {
+            // if we have a function, execute it and return the resut, otherwise return true
+            if (CrewChief.currentGameState != null && queuedMessage.triggerFunction != null)
+            {
+                return queuedMessage.triggerFunction.Invoke(CrewChief.currentGameState);
+            }
+            else
+            {
+                return true;
+            }
         }
 
         private void playQueueContents(OrderedDictionary queueToPlay, Boolean isImmediateMessages)
@@ -1232,8 +1283,18 @@ namespace CrewChiefV4.Audio
                         Boolean queueTooLongForMessage = queuedMessage.maxPermittedQueueLengthForMessage != 0 && willBePlayedCount > queuedMessage.maxPermittedQueueLengthForMessage;
                         Boolean hasJustPlayedAsAnImmediateMessage = !isImmediateMessages && lastImmediateMessageName != null &&
                             key == lastImmediateMessageName && GameStateData.CurrentTime - lastImmediateMessageTime < TimeSpan.FromSeconds(5);
-                        if (!blockedByKeepQuietMode && queuedMessage.canBePlayed && !blockedByDelayedHigherPriorityMessage
-                            && messageIsStillValid && !keysToPlay.Contains(key) && !queueTooLongForMessage && !messageHasExpired && !hasJustPlayedAsAnImmediateMessage)
+                        Boolean messageFunctionIsEmptyOrTrue = this.messageFunctionIsEmptyOrTrue(queuedMessage);
+                        Boolean isAlreadyQueuedToPlay = keysToPlay.Contains(key);
+                        // can we actually play the message?
+                        if (!blockedByKeepQuietMode
+                            && queuedMessage.canBePlayed
+                            && !blockedByDelayedHigherPriorityMessage
+                            && messageIsStillValid
+                            && !isAlreadyQueuedToPlay
+                            && !queueTooLongForMessage
+                            && !messageHasExpired
+                            && !hasJustPlayedAsAnImmediateMessage
+                            && messageFunctionIsEmptyOrTrue)
                         {
                             // special case for 'get ready' event here - we don't want to move this to the top of the queue because
                             // it makes it sound shit. Bit of a hack, needs a better solution
@@ -1251,14 +1312,17 @@ namespace CrewChiefV4.Audio
                             if (blockedByKeepQuietMode)
                             {
                                 Console.WriteLine("Clip " + key + " will not be played because we're in 'keep quiet' mode");
+                                soundsProcessed.Add(key);   // add this to the set processed so it's removed from the queue
                             }
                             else if (!messageIsStillValid)
                             {
                                 Console.WriteLine("Clip " + key + " is not valid");
+                                soundsProcessed.Add(key);   // add this to the set processed so it's removed from the queue
                             }
                             else if (messageHasExpired)
                             {
                                 Console.WriteLine("Clip " + key + " has expired after being queued for " + queuedMessage.getAge() + " milliseconds");
+                                soundsProcessed.Add(key);   // add this to the set processed so it's removed from the queue
                             }
                             else if (queueTooLongForMessage)
                             {
@@ -1269,24 +1333,34 @@ namespace CrewChiefV4.Audio
                                 }
                                 Console.WriteLine("Queue is too long to play clip " + key + " max permitted items for this message = "
                                     + queuedMessage.maxPermittedQueueLengthForMessage + " queue: " + String.Join(", ", keysToDisplay));
+                                soundsProcessed.Add(key);   // add this to the set processed so it's removed from the queue
                             }
                             else if (!queuedMessage.canBePlayed)
                             {
                                 Console.WriteLine("Clip " + key + " has some missing sound files");
+                                soundsProcessed.Add(key);   // add this to the set processed so it's removed from the queue
                             }
                             else if (hasJustPlayedAsAnImmediateMessage)
                             {
                                 Console.WriteLine("Clip " + key + " has just been played in response to a voice command, skipping");
+                                soundsProcessed.Add(key);   // add this to the set processed so it's removed from the queue
                             }
                             else if (blockedByDelayedHigherPriorityMessage)
                             {
-                                Console.WriteLine("Clip " + key + " because higher priority message is waiting to be played: " + higherPriorityDelayedMessage.messageName);
+                                Console.WriteLine("Clip " + key + "will not be played because higher priority message is waiting to be played: " + higherPriorityDelayedMessage.messageName);
+                                soundsProcessed.Add(key);   // add this to the set processed so it's removed from the queue - TODO: can we leave this in the queue for the next iteration?
                             }
-                            else
+                            else if (isAlreadyQueuedToPlay)
                             {
-                                Console.WriteLine("Clip " + key + " will not be played");
+                                Console.WriteLine("Clip " + key + " will not be played because it's already about to be played");
+                                soundsProcessed.Add(key);   // add this to the set processed so it's removed from the queue
                             }
-                            soundsProcessed.Add(key);
+                            else if (!messageFunctionIsEmptyOrTrue)
+                            {
+                                // special case for messages which would otherwise be ready to play, but that have
+                                // an associated function which hasn't (yet) evaluated to true
+                                // Console.WriteLine("wait...");
+                            }
                             willBePlayedCount--;
                         }
                     }
@@ -1387,7 +1461,8 @@ namespace CrewChiefV4.Audio
                 {
                     foreach (String key in queueToCheck.Keys)
                     {
-                        if (((QueuedMessage)queueToCheck[key]).dueTime <= milliseconds)
+                        QueuedMessage message = (QueuedMessage)queueToCheck[key];
+                        if (message.dueTime <= milliseconds && messageFunctionIsEmptyOrTrue(message))
                         {
                             return true;
                         }
@@ -1749,7 +1824,8 @@ namespace CrewChiefV4.Audio
 
                         if (!keyStr.Contains(SessionEndMessages.sessionEndMessageIdentifier) &&
                             !keyStr.Contains(SmokeTest.SMOKE_TEST) &&
-                            !keyStr.Contains(SmokeTest.SMOKE_TEST_SPOTTER))
+                            !keyStr.Contains(SmokeTest.SMOKE_TEST_SPOTTER) &&
+                            !keyStr.Contains(AudioPlayer.RETAIN_ON_SESSION_END))
                         {
                             queue.Remove(keyStr);
                             purged++;
@@ -1920,7 +1996,7 @@ namespace CrewChiefV4.Audio
                         Console.WriteLine("Clip for event " + queuedMessage.messageName + " is already queued, ignoring");
                         return;
                     }
-                    else
+                    else if (PlaybackModerator.ImmediateMessageCanBeQueued(queuedMessage))
                     {
                         lastImmediateMessageName = queuedMessage.messageName;
                         lastImmediateMessageTime = GameStateData.CurrentTime;
@@ -2046,6 +2122,7 @@ namespace CrewChiefV4.Audio
                                 QueuedMessage pearlQueuedMessage = new QueuedMessage(queuedMessage.abstractEvent);
                                 pearlQueuedMessage.metadata = queuedMessage.metadata;
                                 pearlQueuedMessage.dueTime = queuedMessage.dueTime;
+                                pearlQueuedMessage.triggerFunction = queuedMessage.triggerFunction;
                                 queuedClips.Insert(insertionIndex, PearlsOfWisdom.getMessageFolder(pearlType), pearlQueuedMessage);
                                 insertionIndex++;
                             }
@@ -2055,6 +2132,7 @@ namespace CrewChiefV4.Audio
                                 QueuedMessage pearlQueuedMessage = new QueuedMessage(queuedMessage.abstractEvent);
                                 pearlQueuedMessage.dueTime = queuedMessage.dueTime;
                                 pearlQueuedMessage.metadata = queuedMessage.metadata;
+                                pearlQueuedMessage.triggerFunction = queuedMessage.triggerFunction;
                                 insertionIndex++;
                                 queuedClips.Insert(insertionIndex, PearlsOfWisdom.getMessageFolder(pearlType), pearlQueuedMessage);
                             }
@@ -2101,9 +2179,13 @@ namespace CrewChiefV4.Audio
         // a 'keep it up' message in a block that contains a 'your lap times are worsening' message
         private Boolean checkPearlOfWisdomValid(PearlsOfWisdom.PearlType newPearlType)
         {
+            if (GlobalBehaviourSettings.justTheFacts)
+            {
+                return false;
+            }
             if (newPearlType == PearlsOfWisdom.PearlType.BAD)
             {
-                if (GlobalBehaviourSettings.complaintsDisabled || GlobalBehaviourSettings.complaintsCountInThisSession > GlobalBehaviourSettings.maxComplaintsPerSession)
+                if (GlobalBehaviourSettings.complaintsCountInThisSession >= GlobalBehaviourSettings.maxComplaintsPerSession)
                 {
                     return false;
                 }
@@ -2178,7 +2260,7 @@ namespace CrewChiefV4.Audio
                     deviceEnum.UnregisterEndpointNotificationCallback(notificationClient);
                     deviceEnum.Dispose();
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
                 deviceEnum = null;
                 notificationClient = null;
             }
@@ -2195,7 +2277,7 @@ namespace CrewChiefV4.Audio
                 {
                     soundCache.StopAndUnloadAll();
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
                 soundCache = null;
             }
         }

@@ -10,6 +10,8 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("UnitTest")]
+
 namespace PitMenuAPI
 {
     /// <summary>
@@ -37,8 +39,8 @@ namespace PitMenuAPI
         /// Dictionary of all menu categories for the current vehicle
         /// The tyre categories have a list of all the tyre choices
         /// </summary>
-        private static Dictionary<string, List<string>> shadowPitMenu;
-        private static List<string> shadowPitMenuCats = new List<string> { };
+        private Dictionary<string, List<string>> shadowPitMenu;
+        private List<string> shadowPitMenuCats = new List<string> { };
         #endregion Private Fields
 
         #region Public Methods
@@ -51,19 +53,16 @@ namespace PitMenuAPI
         /// <returns>
         /// Dictionary of all choices for all tyre/tire menu categories
         /// </returns>
-        public static Dictionary<string, List<string>> GetMenuDict()
+        public Dictionary<string, List<string>> GetMenuDict()
         {
             shadowPitMenu = new Dictionary<string, List<string>> { };
             shadowPitMenuCats = new List<string> { };
-            string initialCategory;
             string category;
             string choice;
 
-            Log.Debug("GetMenuDict");
+            Log.Verbose("GetMenuDict");
             if (startUsingPitMenu())
-                {
-                initialCategory = GetCategory();
-
+            {
                 do
                 {
                     category = GetCategory();
@@ -83,7 +82,7 @@ namespace PitMenuAPI
                         } while (!shadowPitMenu[category].Contains(GetChoice()));
                     }
                     CategoryDown();
-                } while (GetCategory() != initialCategory);
+                } while (!shadowPitMenu.ContainsKey(GetCategory()));
             }
 
             if (shadowPitMenu.Count < 2)
@@ -96,8 +95,7 @@ namespace PitMenuAPI
         /// <summary>
         /// Keep banging away until the menu choice changes
         /// </summary>
-        /// <returns>the new choice</returns>
-        private static string nextChoice()
+        private void nextChoice()
         {
             string newChoice;
             string currentChoice = GetChoice();
@@ -111,21 +109,26 @@ namespace PitMenuAPI
                 }
             }
             while (newChoice == currentChoice);
-            return newChoice;
         }
 
         /// <summary>
         /// Take the shortest way to "category"
         /// </summary>
         /// <param name="category"> Pit Menu category</param>
-        public static bool SmartSetCategory(string category)
+        public bool SmartSetCategory(string category)
         {
             if (shadowPitMenuCats.Count == 0)
             {
+#pragma warning disable S1066
                 if (GetMenuDict().Count == 0)
                 {
                     return false;
                 }
+            }
+            if (!shadowPitMenu.ContainsKey(category))
+            {
+                Log.Commentary($"Pit menu doesn't have category '{category}'");
+                return false;
             }
             string currentCategory = GetCategory();
             if (category != currentCategory)
@@ -188,6 +191,7 @@ namespace PitMenuAPI
                     }
                 }
             }
+            Log.Debug($"Relative Fuel Strategy: {relativeFuelStrategy}");
             return relativeFuelStrategy;
         }
 
@@ -203,27 +207,47 @@ namespace PitMenuAPI
         /// </returns>
         public int GetFuelLevel()
         {
-            float current = -1;
-            Match match;
-            Regex reggie = new Regex(@"(.*)/(.*)");
             if (SmartSetCategory("FUEL:"))
             {
-                match = reggie.Match(GetChoice());
-                if (match.Groups.Count == 3)
+                return ParseFuelLevel(GetChoice());
+            }
+            return -1;
+        }
+        internal static int ParseFuelLevel(string fuelMenu)
+        {
+            float current = -1;
+            Match match;
+            Regex reggie = new Regex(@"\+? *(.*)/(.*)");
+            match = reggie.Match(fuelMenu);
+            Log.Verbose($"Fuel menu: {fuelMenu}");
+            if (match.Groups.Count >= 1)
+            {
+                bool parsed = float.TryParse(match.Groups[1].Value, out current);
+                if (parsed)
                 {
-                    bool parsed = float.TryParse(match.Groups[1].Value, out current);
-                    if (parsed)
-                    {
-                        if (match.Value.Contains("."))
-                        {   // Gallons are displayed in 10ths
-                            current = convertGallonsToLitres(current);
-                        }
+                    if (match.Value.Contains("."))
+                    {   // Gallons are displayed in 10ths
+                        current = convertGallonsToLitres(current);
+                        Log.Verbose("Using gallons");
                     }
+                    else
+                    {
+                        Log.Verbose("Using litres");
+                    }
+                    Log.Verbose($"Fuel level {current}");
                 }
+                else
+                {
+                    Log.Warning($"Couldn't parse fuel level '{fuelMenu}'");
+                }
+            }
+            else
+            {
+                Log.Error($"Couldn't parse fuel level '{fuelMenu}'");
             }
             return (int)current;
         }
-        private float convertGallonsToLitres(float gallons)
+        private static float convertGallonsToLitres(float gallons)
         {
             float litresPerGallon = 3.78541f;
             return (float)Math.Round(gallons * litresPerGallon);
@@ -234,59 +258,58 @@ namespace PitMenuAPI
         /// </summary>
         /// <param name="requiredFuel"> in litres (even if current units are (US?) gallons)</param>
         /// <returns>
-        /// true if level set (or it reached max/min possible
+        /// true if level set (or it reached max/min possible)
         /// false if the level can't be read
         /// </returns>
         public bool SetFuelLevel(int requiredFuel)
         {
-            int tryNo = 5;
+            const int retries = 5;
+            int tryNo = retries;
 
-            SmartSetCategory("FUEL:");
-            int current = GetFuelLevel();
-
+            if (!SmartSetCategory("FUEL:")) // (has its own logging)
+            {   // Menu doesn't contain FUEL
+                return false;
+            }
+            int current = GetFuelLevel();   // (has its own logging)
             if (current < 0)
             {
                 return false; // Can't read value
             }
 
-            // Adjust down if necessary
-            while (current > requiredFuel)
+            Log.Commentary($"Set fuel level: current {current}, required {requiredFuel} litres");
+
+            // Adjust if necessary
+            while (current != requiredFuel)
             {
-                ChoiceDec();
+
+                if (current > requiredFuel)
+                {
+                    ChoiceDec();
+                }
+                else
+                {
+                    ChoiceInc();
+                }
+                Log.Fuel($"{GetChoice()}");
                 int newLevel = GetFuelLevel();
                 if (newLevel == current)
                 { // Can't adjust further
                     if (tryNo-- < 0)
                     {
-                        return false;
+                        Log.Warning("Can't adjust fuel further");
+                        break;
                     }
+                    Log.Verbose("Retry Pit Menu fuel adjust");
                     startUsingPitMenu();
                     SmartSetCategory("FUEL:");
                 }
                 else
                 {
                     current = newLevel;
+                    tryNo = retries;
                 }
             }
-            // Adjust up to >= required level
-            while (current < requiredFuel)
-            {
-                ChoiceInc();
-                int newLevel = GetFuelLevel();
-                if (newLevel == current)
-                { // Can't adjust further
-                    if (tryNo-- < 0)
-                    {
-                        return false;
-                    }
-                    startUsingPitMenu();
-                    SmartSetCategory("FUEL:");
-                }
-                else
-                {
-                    current = newLevel;
-                }
-            }
+            Log.Commentary($"Fuel level set: {GetFuelLevel()} litres");
             return true;
         }
 
@@ -369,6 +392,6 @@ namespace PitMenuAPI
             return false;
         }
 
-#endregion Public Methods
+        #endregion Public Methods
     }
 }

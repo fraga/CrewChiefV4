@@ -105,6 +105,13 @@ namespace CrewChiefV4.RaceRoom
 
             // Mandatory pitstop served
             Served = 1,
+
+            // JB: the API spec has both these enum values as 0, don't know if they're wired up in the game yet. They're not wired in CC so I guess it doesn't matter
+            // Mandatory pitstop for two tyres not served yet
+            UnservedTwoTyres = 2,
+
+            // Mandatory pitstop for four tyres not served yet
+            UnservedFourTyres = 3,
         };
 
         public enum FinishStatus
@@ -446,13 +453,12 @@ namespace CrewChiefV4.RaceRoom
             public Int32 Fuel;
             public Int32 FrontTires;
             public Int32 RearTires;
+            // body has been removed, when we move the cursor to it, the state field changes to 'unavailable'
             public Int32 FrontWing;
             public Int32 RearWing;
             public Int32 Suspension;
-
-            // Pit menu buttons
-            public Int32 ButtonTop;
-            public Int32 ButtonBottom;
+            public Int32 RequestPit;
+            public Int32 CancelPitReqest;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -558,9 +564,9 @@ namespace CrewChiefV4.RaceRoom
             public Int32 ClassPerformanceIndex;
             // Note: See the EngineType enum
             public Int32 EngineType;
-            public Int32 IncidentPoints;    //  this isn't set - it's always 0
 
-            public Int32 Unused2;
+            public Int32 CarWidth;
+            public Int32 CarLength;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -661,11 +667,12 @@ namespace CrewChiefV4.RaceRoom
             // DisqualifyPenaltyMax = 14
             public Int32 PenaltyReason;
 
+            public Int32 EngineState;
+
             // Reserved data
-            public Int32 Unused1;
-            public Int32 Unused2;
+            public Single Unused1;
+            public Single Unused2;
             public Single Unused3;
-            public Single Unused4;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -805,7 +812,7 @@ namespace CrewChiefV4.RaceRoom
             public Single PitTotalDuration;
             public Single PitElapsedTime;
 
-            // Current vehicle pit action (-1 = N/A, 0 = None, 1 = Preparing, (combination of 2 = Penalty serve, 4 = Driver change, 8 = Refueling, 16 = Front tires, 32 = Rear tires, 64 = Front wing, 128 = Rear wing, 256 = Suspension))
+            // Current vehicle pit action (-1 = N/A, 0 = None, 1 = Preparing, (combination of 2 = Penalty serve, 4 = Driver change, 8 = Refueling, 16 = Front tires, 32 = Rear tires, 64 = Body, 128 = Front wing, 256 = Rear wing, 512 = Suspension))
             public Int32 PitAction;
 
             // Number of pitstops the current vehicle has performed (-1 = N/A)
@@ -885,10 +892,12 @@ namespace CrewChiefV4.RaceRoom
             // Incident points (-1 = N/A)
             public Int32 IncidentPoints;
 
+            // -1 = N/A, 0 = this and next lap valid, 1 = this lap invalid, 2 = this and next lap invalid
+            public Int32 LapValidState;
+
             // Reserved data
-            public Int32 ScoreUnused1;
+            public Single ScoreUnused1;
             public Single ScoreUnused2;
-            public Single ScoreUnused3;
 
             //////////////////////////////////////////////////////////////////////////
             // Vehicle information
@@ -1059,12 +1068,15 @@ namespace CrewChiefV4.RaceRoom
             public TireData<Single> BrakePressure;
 
             // Reserved data
-            public Int32 TireUnused1;
-            public Int32 TireUnused2;
-            public Single TireUnused3;
-            public Single TireUnused4;
-            public TireData<Single> TireUnused5;
-            
+            public Int32 TractionControlSetting;
+            public Int32 EngineMapSetting;
+            public Int32 EngineBrakeSetting;
+
+            // -1.0 = N/A, 0.0 -> 100.0 percent
+            public Single TractionControlPercent;
+
+            public TireData<Single> TireUnused1;
+
             // Tyre load (N).
             public TireData<Single> TireLoad;
 

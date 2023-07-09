@@ -1,20 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.IO.MemoryMappedFiles;
-using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading;
-using System.Windows.Forms;
+
 using CrewChiefV4.RaceRoom;
 using CrewChiefV4.Events;
-using System.Collections.Generic;
 using CrewChiefV4.GameState;
 using CrewChiefV4.PCars;
-using CrewChiefV4.RaceRoom.RaceRoomData;
 using CrewChiefV4.Audio;
-using CrewChiefV4.NumberProcessing;
-using WebSocketSharp.Server;
 using CrewChiefV4.Overlay;
 using CrewChiefV4.SharedMemory;
 using CrewChiefV4.PitManager;
@@ -25,6 +18,7 @@ namespace CrewChiefV4
     {
         public enum RacingType
         {
+            Undefined,
             Circuit,
             Rally
         }
@@ -45,44 +39,51 @@ namespace CrewChiefV4
         bool isGameProcessRunning = false;
 
         public static Boolean loadDataFromFile = false;
-        public static GameDefinition gameDefinition;
         public static string gameExeParentDirectory = null;
 
         public static Boolean readOpponentDeltasForEveryLap = false;
         // initial state from properties but can be overridden during a session:
-        public static Boolean yellowFlagMessagesEnabled = UserSettings.GetUserSettings().getBoolean("enable_yellow_flag_messages");
+        // No need to initialise here, it's done in reloadSettings()
+        public static Boolean yellowFlagMessagesEnabled;
 
-        public static Boolean enableDriverNames = UserSettings.GetUserSettings().getBoolean("enable_driver_names");
+        public static Boolean enableDriverNames;
 
-        private const int IRACING_INTERVAL = 16;    // always use 60Hz for iracing
-        private static int timeInterval = UserSettings.GetUserSettings().getInt("update_interval");
+        public static Utilities.CommandLineParametersReader CommandLine =
+            new Utilities.CommandLineParametersReader();
 
-        private static int spotterInterval = UserSettings.GetUserSettings().getInt("spotter_update_interval");
+        public static GameDefinition gameDefinition = new GameDefinition(); // Init to Undefined
 
-        private Boolean displaySessionLapTimes = UserSettings.GetUserSettings().getBoolean("display_session_lap_times");
+        private const int IRACING_INTERVAL = 16;               // always use 60Hz for iracing
+        private const int DEFAULT_START_LIGHTS_INTERVAL = 10;  // default 10ms during race countdown
+        private static int startLightsInterval;
+        public static int timeInterval;
 
-        public static Boolean forceSingleClass = UserSettings.GetUserSettings().getBoolean("force_single_class");
-        public static int maxUnknownClassesForAC = UserSettings.GetUserSettings().getInt("max_unknown_car_classes_for_assetto");
+        private static int spotterInterval;
 
-        private Boolean enableWebsocket = UserSettings.GetUserSettings().getBoolean("enable_websocket");
-        private Boolean enableGameDataWebsocket = UserSettings.GetUserSettings().getBoolean("enable_game_data_websocket");
+        private Boolean displaySessionLapTimes;
 
-        private Boolean turnSpotterOffImmediatelyOnFCY = UserSettings.GetUserSettings().getBoolean("fcy_stop_spotter_immediately");
+        public static Boolean forceSingleClass;
+        public static int maxUnknownClassesForAC;
 
-        public static bool recordChartTelemetryDuringRace = UserSettings.GetUserSettings().getBoolean("enable_chart_telemetry_in_race_session");
+        private Boolean enableWebsocket;
+        private Boolean enableGameDataWebsocket;
 
-        public static int intervalWhenCollectionTelemetry = UserSettings.GetUserSettings().getInt("update_interval_when_collecting_telemetry");
+        private Boolean turnSpotterOffImmediatelyOnFCY;
+
+        public static bool recordChartTelemetryDuringRace;
+
+        private static int intervalWhenCollectionTelemetry;
 
         public static bool enableSharedMemory = UserSettings.GetUserSettings().getBoolean("enable_shared_memory");
 
-        private Boolean autoEnablePacenotesInPractice = UserSettings.GetUserSettings().getBoolean("auto_enable_pacenotes_in_practice");
+        private Boolean autoEnablePacenotesInPractice;
 
         private static Dictionary<String, AbstractEvent> eventsList = new Dictionary<String, AbstractEvent>();
 
-        Object lastSpotterState;
-        Object currentSpotterState;
+        private Object lastSpotterState;
+        private Object currentSpotterState;
 
-        Boolean stateCleared = false;
+        private Boolean stateCleared = false;
 
         public Boolean running = false;
 
@@ -162,19 +163,22 @@ namespace CrewChiefV4
             audioPlayer.initialise();
             clearAndReloadEvents();
 
-            DriverNameHelper.readRawNamesToUsableNamesFiles(AudioPlayer.soundFilesPath);
+            DriverNameHelper.ReadDriverNameMappings(AudioPlayer.soundFilesPath);
         }
 
         private void reloadSettings()
         {
+            // Class vars
             this.enableWebsocket = UserSettings.GetUserSettings().getBoolean("enable_websocket");
             this.enableGameDataWebsocket = UserSettings.GetUserSettings().getBoolean("enable_game_data_websocket");
             this.displaySessionLapTimes = UserSettings.GetUserSettings().getBoolean("display_session_lap_times");
             this.turnSpotterOffImmediatelyOnFCY = UserSettings.GetUserSettings().getBoolean("fcy_stop_spotter_immediately");
             this.autoEnablePacenotesInPractice = UserSettings.GetUserSettings().getBoolean("auto_enable_pacenotes_in_practice");
+            // Static vars
             CrewChief.yellowFlagMessagesEnabled = UserSettings.GetUserSettings().getBoolean("enable_yellow_flag_messages");
             CrewChief.enableDriverNames = UserSettings.GetUserSettings().getBoolean("enable_driver_names");
             CrewChief.timeInterval = gameDefinition.gameEnum == GameEnum.IRACING ? IRACING_INTERVAL : UserSettings.GetUserSettings().getInt("update_interval");
+            CrewChief.startLightsInterval = Math.Min(CrewChief.timeInterval, CrewChief.DEFAULT_START_LIGHTS_INTERVAL);
             CrewChief.spotterInterval = gameDefinition.gameEnum == GameEnum.IRACING ? IRACING_INTERVAL : UserSettings.GetUserSettings().getInt("spotter_update_interval");
             CrewChief.forceSingleClass = UserSettings.GetUserSettings().getBoolean("force_single_class");
             CrewChief.maxUnknownClassesForAC = UserSettings.GetUserSettings().getInt("max_unknown_car_classes_for_assetto");
@@ -211,6 +215,7 @@ namespace CrewChiefV4
             eventsList.Add("CommonActions", new CommonActions(audioPlayer));
             eventsList.Add("OverlayController", new OverlayController(audioPlayer));
             eventsList.Add("VROverlayController", new VROverlayController(audioPlayer));
+            eventsList.Add("Mqtt", new Mqtt(audioPlayer));
             eventsList.Add("CoDriver", new CoDriver(audioPlayer));
             eventsList.Add("PitManagerVoiceCmds", new PitManagerVoiceCmds(audioPlayer));
 
@@ -218,7 +223,11 @@ namespace CrewChiefV4
             alarmClock = new AlarmClock(audioPlayer);
         }
 
-        public void setGameDefinition(GameDefinition gameDefinition)
+        /// <summary>
+        /// Set the active gameDefinition and load its plugin if necessary
+        /// Also sets UserSetting "last_game_definition"
+        /// </summary>
+        public void setGameDefinition(in GameDefinition gameDefinition)
         {
             spotter = null;
             mapped = false;
@@ -229,17 +238,22 @@ namespace CrewChiefV4
             else
             {
                 Console.WriteLine("Using game definition " + gameDefinition.friendlyName);
-                UserSettings.GetUserSettings().setProperty("last_game_definition", gameDefinition.gameEnum.ToString());
+                UserSettings.GetUserSettings().setProperty("last_game_definition", gameDefinition.commandLineName);
                 UserSettings.GetUserSettings().saveUserSettings();
                 CrewChief.gameDefinition = gameDefinition;
-                // I think we shuld add it here
                 if (UserSettings.GetUserSettings().getBoolean("enable_automatic_plugin_update"))
                 {
                     if (gameDefinition.gameEnum == GameEnum.ASSETTO_32BIT ||
                         gameDefinition.gameEnum == GameEnum.ASSETTO_64BIT ||
+                        gameDefinition.gameEnum == GameEnum.ASSETTO_64BIT_RALLY ||
                         gameDefinition.gameEnum == GameEnum.RF1 ||
                         gameDefinition.gameEnum == GameEnum.RF2_64BIT ||
-                        gameDefinition.gameEnum == GameEnum.ACC)
+                        gameDefinition.gameEnum == GameEnum.ACC ||
+                        gameDefinition.gameEnum == GameEnum.DIRT ||
+                        gameDefinition.gameEnum == GameEnum.DIRT_2 ||
+                        gameDefinition.gameEnum == GameEnum.RBR ||
+                        gameDefinition.gameEnum == GameEnum.GTR2
+                        )
                     {
                         PluginInstaller pluginInstaller = new PluginInstaller();
                         pluginInstaller.InstallOrUpdatePlugins(gameDefinition);
@@ -250,7 +264,7 @@ namespace CrewChiefV4
 
         protected virtual void Dispose(bool disposing)
         {
-            if(enableSharedMemory)
+            if (enableSharedMemory)
             {
                 CrewChief.sharedMemoryManager.Dispose();
             }
@@ -446,7 +460,7 @@ namespace CrewChiefV4
                 if (filenameToRun != null)
                 {
                     loadDataFromFile = true;
-                    GlobalBehaviourSettings.spotterEnabled = gameDefinition.gameEnum == GameEnum.F1_2018 || gameDefinition.gameEnum == GameEnum.F1_2019 || gameDefinition.gameEnum == GameEnum.F1_2020;
+                    GlobalBehaviourSettings.spotterEnabled = gameDefinition.gameEnum == GameEnum.F1_2018 || gameDefinition.gameEnum == GameEnum.F1_2019 || gameDefinition.gameEnum == GameEnum.F1_2020 || gameDefinition.gameEnum == GameEnum.F1_2021;
                     dumpToFile = false;
                 }
                 else
@@ -457,7 +471,7 @@ namespace CrewChiefV4
                 SpeechRecogniser.gotRecognitionResult = false;
                 SpeechRecogniser.keepRecognisingInHoldMode = false;
                 GameStateMapper gameStateMapper = GameStateReaderFactory.getInstance().getGameStateMapper(gameDefinition);
-                if (speechRecogniser != null) speechRecogniser.unloadAdditionalGrammars();
+
                 gameStateMapper.setSpeechRecogniser(speechRecogniser);
                 gameDataReader = GameStateReaderFactory.getInstance().getGameStateReader(gameDefinition);
                 gameDataReader.ResetGameDataFromFile();
@@ -471,7 +485,7 @@ namespace CrewChiefV4
                         // TODO: version handling is a bit hooky here. The version data are in shared memory but if we just pass this
                         // through to the JSON there's a risk the game version will advance (so the client expects new data) but CC isn't
                         // actually sending this data. So we'll hard-code it here for now
-                        Utilities.startGameDataWebsocketServer("/r3e", gameDataReader, new R3ESerializer(true, 3, 2, 8));
+                        Utilities.startGameDataWebsocketServer("/r3e", gameDataReader, new R3ESerializer(true, 3, 2, 10));
                     }
                 }
 
@@ -486,7 +500,10 @@ namespace CrewChiefV4
                     spotter = null;
                 }
                 // force pcars3 to be single class because it probably is, i don't own it and it's not very good
-                CrewChief.forceSingleClass = gameDefinition.gameEnum == GameEnum.PCARS3;
+                if (gameDefinition.gameEnum == GameEnum.PCARS3)
+                {
+                    CrewChief.forceSingleClass = true;
+                }
                 running = true;
                 if (!audioPlayer.initialised)
                 {
@@ -500,7 +517,7 @@ namespace CrewChiefV4
                     Utilities.queuedMessageIds.Clear();
                     Utilities.includesRaceSession = false;
                 }
-                audioPlayer.startMonitor();
+                audioPlayer.startMonitor(gameDefinition.gameEnum != GameEnum.NONE);
                 Boolean attemptedToRunGame = false;
 
                 OverlayDataSource.loadChartSubscriptions();
@@ -510,7 +527,15 @@ namespace CrewChiefV4
                 }
                 bool useTelemetryIntervalWhereApplicable = CrewChief.gameDefinition.gameEnum != GameEnum.IRACING
                     && UserSettings.GetUserSettings().getBoolean("enable_overlay_window");
-                Console.WriteLine("Polling for shared data every " + timeInterval + "ms");
+                if (CrewChief.gameDefinition.gameEnum != GameEnum.NONE &&
+                    CrewChief.gameDefinition.gameEnum != GameEnum.PCARS_NETWORK &&
+                    CrewChief.gameDefinition.gameEnum != GameEnum.F1_2018 &&
+                    CrewChief.gameDefinition.gameEnum != GameEnum.F1_2019 &&
+                    CrewChief.gameDefinition.gameEnum != GameEnum.F1_2020 &&
+                    CrewChief.gameDefinition.gameEnum != GameEnum.F1_2021)
+                {
+                    Console.WriteLine("Polling for shared data every " + timeInterval + "ms");
+                }
                 Boolean sessionFinished = false;
                 while (running)
                 {
@@ -522,7 +547,7 @@ namespace CrewChiefV4
                     if (!loadDataFromFile)
                     {
                         // Turns our checking for running process by name is an expensive system call.  So don't do that on every tick.
-                        if (now > nextProcessStateCheck)
+                        if (now > nextProcessStateCheck && gameDefinition.processName != null)
                         {
                             nextProcessStateCheck = now.Add(
                                 TimeSpan.FromMilliseconds(isGameProcessRunning ? timeBetweenProcDisconnectCheckMillis : timeBetweenProcConnectCheckMillis));
@@ -553,9 +578,15 @@ namespace CrewChiefV4
                         }
                         else if (UserSettings.GetUserSettings().getBoolean(gameDefinition.gameStartEnabledProperty) && !attemptedToRunGame)
                         {
-                            Utilities.runGame(UserSettings.GetUserSettings().getString(gameDefinition.gameStartCommandProperty),
-                                UserSettings.GetUserSettings().getString(gameDefinition.gameStartCommandOptionsProperty));
-                            attemptedToRunGame = true;
+                            if (Utilities.runGame(UserSettings.GetUserSettings().getString(gameDefinition.gameStartCommandProperty),
+                                UserSettings.GetUserSettings().getString(gameDefinition.gameStartCommandOptionsProperty)))
+                            {
+                                attemptedToRunGame = true;
+                            }
+                            else
+                            {
+                                return false;
+                            }
                         }
                     }
 
@@ -602,7 +633,7 @@ namespace CrewChiefV4
                             }
                             catch (GameDataReadException e)
                             {
-                                Console.WriteLine("Error reading game data " + e.cause.StackTrace);
+                                Console.WriteLine("Error reading game data " + e.cause.Message + ", " + e.cause.StackTrace);
                                 continue;
                             }
                         }
@@ -673,7 +704,7 @@ namespace CrewChiefV4
                                 {
                                     sessionEndMessages.trigger(previousGameState.SessionData.SessionRunningTime, previousGameState.SessionData.SessionType, currentGameState.SessionData.SessionPhase,
                                         previousGameState.SessionData.SessionStartClassPosition, previousGameState.SessionData.ClassPosition,
-                                        previousGameState.SessionData.NumCarsInPlayerClassAtStartOfSession, previousGameState.SessionData.CompletedLaps,
+                                        previousGameState.SessionData.NumCarsInPlayerClassAtStartOfSession, previousGameState.SessionData.CompletedLaps, currentGameState.SessionData.expectedFinishingPosition,
                                         currentGameState.SessionData.IsDisqualified, currentGameState.SessionData.IsDNF, currentGameState.Now);
                                 }
                                 else
@@ -682,7 +713,7 @@ namespace CrewChiefV4
                                     // before finishing line.
                                     sessionEndMessages.trigger(previousGameState.SessionData.SessionRunningTime, previousGameState.SessionData.SessionType, currentGameState.SessionData.SessionPhase,
                                         previousGameState.SessionData.SessionStartClassPosition, currentGameState.SessionData.ClassPosition,
-                                        previousGameState.SessionData.NumCarsInPlayerClassAtStartOfSession, previousGameState.SessionData.CompletedLaps,
+                                        previousGameState.SessionData.NumCarsInPlayerClassAtStartOfSession, previousGameState.SessionData.CompletedLaps, currentGameState.SessionData.expectedFinishingPosition,
                                         currentGameState.SessionData.IsDisqualified, currentGameState.SessionData.IsDNF, currentGameState.Now);
                                 }
                                 audioPlayer.holdChannelOpen = false;    // clear the 'hold open' state here before waking the monitor
@@ -735,27 +766,21 @@ namespace CrewChiefV4
                                     }
                                     if (rawDriverNames.Count > 0)
                                     {
-                                        List<String> usableDriverNames = DriverNameHelper.getUsableDriverNames(rawDriverNames);
+                                        // load all the sound files for this set of driver names. Note this will recreate all their cleaned up and
+                                        // mapped versions, and sounds which previously failed to match won't be in this set (we won't attempt to
+                                        // match them again)
+                                        SoundCache.loadDriverNameSounds(DriverNameHelper.getUsableDriverNameSounds(rawDriverNames));
+                                        // if the SRE is active, load the appropriate phrases
                                         if (speechRecogniser != null && speechRecogniser.initialised)
                                         {
-                                            speechRecogniser.addOpponentSpeechRecognition(usableDriverNames, currentGameState.getCarNumbers());
+                                            speechRecogniser.addOpponentsSpeechRecognition(
+                                                DriverNameHelper.getUsableDriverNamesForSRE(rawDriverNames), currentGameState.getCarNumbers());
                                         }
-                                        // now load all the sound files for this set of driver names
-                                        SoundCache.loadDriverNameSounds(usableDriverNames);
                                     }
                                 }
                                 audioPlayer.wakeMonitorThreadForRegularMessages(currentGameState.Now);
                             }
-                            else if (previousGameState != null &&
-                                        (gameDefinition.gameEnum == GameEnum.F1_2018 || gameDefinition.gameEnum == GameEnum.F1_2019 || gameDefinition.gameEnum == GameEnum.F1_2020 ||
-                                        ((((gameDefinition.gameEnum == GameEnum.PCARS2 || gameDefinition.gameEnum == GameEnum.AMS2 || gameDefinition.gameEnum == GameEnum.PCARS3) && currentGameState.SessionData.SessionPhase == SessionPhase.Countdown) ||
-                                            currentGameState.SessionData.SessionRunningTime > previousGameState.SessionData.SessionRunningTime) ||
-                                        (previousGameState.SessionData.SessionPhase != currentGameState.SessionData.SessionPhase) ||
-                                        (gameDefinition.gameEnum == GameEnum.RF2_64BIT && currentGameState.SessionData.SessionPhase == SessionPhase.Gridwalk)) ||  // Need to process warnings during rF2's gridwalk
-                                        ((gameDefinition.gameEnum == GameEnum.PCARS_32BIT || gameDefinition.gameEnum == GameEnum.PCARS_64BIT ||
-                                                gameDefinition.gameEnum == GameEnum.PCARS2 || gameDefinition.gameEnum == GameEnum.PCARS_NETWORK || gameDefinition.gameEnum == GameEnum.PCARS3 ||
-                                                gameDefinition.gameEnum == GameEnum.PCARS2_NETWORK || gameDefinition.gameEnum == GameEnum.AMS2) &&
-                                            currentGameState.SessionData.SessionHasFixedTime && currentGameState.SessionData.SessionTotalRunTime == -1)))
+                            else if (shouldTriggerEvents(previousGameState, currentGameState))
                             {
                                 if (!sessionFinished)
                                 {
@@ -820,11 +845,12 @@ namespace CrewChiefV4
 
                                 // Allow events to be processed after session finish.  Event should use applicableSessionPhases/applicableSessionTypes to opt in/out.
                                 // for now, don't trigger any events for F1 2018 / 2019 as there's no game mapping
-                                if (gameDefinition.gameEnum != GameEnum.F1_2018 && gameDefinition.gameEnum != GameEnum.F1_2019 && gameDefinition.gameEnum != GameEnum.F1_2020)
+                                if (gameDefinition.gameEnum != GameEnum.F1_2018 && gameDefinition.gameEnum != GameEnum.F1_2019 && gameDefinition.gameEnum != GameEnum.F1_2020 && gameDefinition.gameEnum != GameEnum.F1_2021)
                                 {
                                     Boolean isPractice = currentGameState.SessionData.SessionType == SessionType.Practice || currentGameState.SessionData.SessionType == SessionType.LonePractice;
                                     // before triggering events, see if we need to enable pace notes automatically.
-                                    if (this.autoEnablePacenotesInPractice && currentGameState != null && previousGameState != null
+                                    if (this.autoEnablePacenotesInPractice && CrewChief.gameDefinition.racingType == RacingType.Circuit
+                                        && currentGameState != null && previousGameState != null
                                         && !DriverTrainingService.isRecordingPaceNotes
                                         && isPractice)
                                     {
@@ -877,7 +903,7 @@ namespace CrewChiefV4
                                             audioPlayer);
                                     }
                                     if (spotter != null && GlobalBehaviourSettings.spotterEnabled && !spotterIsRunning &&
-                                        (gameDefinition.gameEnum == GameEnum.F1_2018 || gameDefinition.gameEnum == GameEnum.F1_2019 || gameDefinition.gameEnum == GameEnum.F1_2020 || !loadDataFromFile))
+                                        (gameDefinition.gameEnum == GameEnum.F1_2018 || gameDefinition.gameEnum == GameEnum.F1_2019 || gameDefinition.gameEnum == GameEnum.F1_2020 || gameDefinition.gameEnum == GameEnum.F1_2021 || !loadDataFromFile))
                                     {
                                         Console.WriteLine("********** starting spotter***********");
                                         spotter.clearState();
@@ -906,6 +932,7 @@ namespace CrewChiefV4
                             Thread.Sleep(CrewChief.playbackIntervalMilliseconds);
                             if (enableSharedMemory)
                             {
+                                sharedMemoryManager.UpdateVariable("phraseIsPlaying", new bool[1] { audioPlayer.isChannelOpen() });
                                 sharedMemoryManager.Tick(playbackIntervalMilliseconds);
                             }
                         }
@@ -915,18 +942,27 @@ namespace CrewChiefV4
                         // iracing runs at 60Hz anyway, but for other games if we're collecting telemetry for charting, use the
                         // appropriate time interval
                         int interval = timeInterval;
-                        if (useTelemetryIntervalWhereApplicable
-                            && CrewChief.currentGameState != null
-                            && (recordChartTelemetryDuringRace || CrewChief.currentGameState.SessionData.SessionType != SessionType.Race))
+                        if (CrewChief.currentGameState != null)
                         {
-                            interval = CrewChief.intervalWhenCollectionTelemetry;
+                            // TODO: this may be applicable to other games but limit it to R3E for now
+                            if (gameDefinition.gameEnum == GameEnum.RACE_ROOM
+                                && CrewChief.currentGameState.SessionData.SessionType == SessionType.Race
+                                && CrewChief.currentGameState.SessionData.SessionPhase == SessionPhase.Countdown)
+                            {
+                                interval = CrewChief.startLightsInterval;
+                            }
+                            else if (useTelemetryIntervalWhereApplicable
+                                && (recordChartTelemetryDuringRace || CrewChief.currentGameState.SessionData.SessionType != SessionType.Race))
+                            {
+                                interval = CrewChief.intervalWhenCollectionTelemetry;
+                            }
                         }
                         if (enableSharedMemory)
                         {
+                            sharedMemoryManager.UpdateVariable("phraseIsPlaying", new bool[1] { audioPlayer.isChannelOpen() });
                             sharedMemoryManager.Tick(interval);
                         }
-                        Thread.Sleep(timeInterval);
-
+                        Thread.Sleep(interval);
                     }
                 } // end while(running)
                 foreach (KeyValuePair<String, AbstractEvent> entry in eventsList)
@@ -1028,6 +1064,55 @@ namespace CrewChiefV4
             return true;
         }
 
+        private bool shouldTriggerEvents(GameStateData previousGameState, GameStateData currentGameState)
+        {
+            // basic checks:
+            if (previousGameState == null)
+            {
+                return false;
+            }
+            // time has advanced or session phase has changed so the session is running
+            if (currentGameState.SessionData.SessionRunningTime > previousGameState.SessionData.SessionRunningTime
+                || previousGameState.SessionData.SessionPhase != currentGameState.SessionData.SessionPhase)
+            {
+                return true;
+            }
+            // the AccGameClock has ticked forwards so the session is running (ACC only, obviously)
+            if (previousGameState.AccGameClock > 0 && previousGameState.AccGameClock < currentGameState.AccGameClock)
+            {
+                return true;
+            }
+
+            // game-specific workarounds where the session is advancing and we want to trigger our events, but the game time / clock isn't advancing
+            switch (gameDefinition.gameEnum)
+            {
+                case GameEnum.F1_2018:
+                case GameEnum.F1_2019:
+                case GameEnum.F1_2020:
+                case GameEnum.F1_2021:
+                    // F1 games have no session timer data so we have to allow the events to process:
+                    return true;
+                case GameEnum.PCARS2:
+                case GameEnum.AMS2:
+                case GameEnum.PCARS3:
+                case GameEnum.PCARS2_NETWORK:
+                case GameEnum.PCARS_64BIT:
+                case GameEnum.PCARS_32BIT:
+                    // undocumented hack from previous impl recreated here for consistency:
+                    return currentGameState.SessionData.SessionPhase == SessionPhase.Countdown
+                        || currentGameState.SessionData.SessionHasFixedTime && currentGameState.SessionData.SessionTotalRunTime == -1;
+                case GameEnum.ACC:
+                    // for ACC the game timer doesn't tick until we start and the clock doesn't tick until countdown, but we need data during formation laps. It never ticks in hotlap mode:
+                    return currentGameState.SessionData.SessionPhase == SessionPhase.Formation
+                        || currentGameState.SessionData.SessionType == SessionType.HotLap;
+                case GameEnum.RF2_64BIT:
+                    // Need to process warnings during rF2's gridwalk
+                    return currentGameState.SessionData.SessionPhase == SessionPhase.Gridwalk;
+                default:
+                    return false;
+            }
+        }
+
         private void triggerEvent(String eventName, AbstractEvent abstractEvent, GameStateData previousGameState, GameStateData currentGameState)
         {
             try
@@ -1075,7 +1160,7 @@ namespace CrewChiefV4
                 audioPlayer.monitorRunning = false;
             }
             // set status of shared mem to connected
-            if(enableSharedMemory)
+            if (enableSharedMemory)
             {
                 sharedMemoryManager.UpdateVariable("updateStatus", new int[1] { (int)UpdateStatus.connected });
                 sharedMemoryManager.Tick(0, UpdateStatus.connected);
@@ -1090,6 +1175,9 @@ namespace CrewChiefV4
             Console.WriteLine("SessionIteration: " + currentGameState.SessionData.SessionIteration);
             String trackName = currentGameState.SessionData.TrackDefinition == null ? "unknown" : currentGameState.SessionData.TrackDefinition.name;
             Console.WriteLine("TrackName: \"" + trackName + "\"");
+
+            if (currentGameState.SessionData.TrackDefinition != null)
+                Console.WriteLine($"TrackLength: {currentGameState.SessionData.TrackDefinition.trackLength.ToString("0.000")}m");
         }
 
         public static Boolean isPCars()
@@ -1108,6 +1196,11 @@ namespace CrewChiefV4
         {
             dataFileReadDone = false;
             dataFileDumpDone = false;
+        }
+
+        public Spotter getSpotter()
+        {
+            return spotter;
         }
     }
 }

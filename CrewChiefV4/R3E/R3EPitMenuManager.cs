@@ -10,31 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace CrewChiefV4.R3E
-{    
-    /*
-     * 
-     * Behaviour:
-     * SelectedItem is one of the SelectedItem enum. 
-     * 
-     * 
-    // pit menu state:
-    /*
-    public Int32 Preset;
-
-    // Pit menu actions
-    public Int32 Penalty;
-    public Int32 Driverchange;
-    public Int32 Fuel;
-    public Int32 FrontTires;
-    public Int32 RearTires;
-    public Int32 FrontWing;
-    public Int32 RearWing;
-    public Int32 Suspension;
-
-    // Pit menu buttons
-    public Int32 ButtonTop;
-    public Int32 ButtonBottom;
-    */
+{
 
     public enum PitSelectionState
     {
@@ -44,7 +20,7 @@ namespace CrewChiefV4.R3E
     // mapped directly to game data
     public enum SelectedItem
     {
-        Unavailable = -1,
+        UnavailableOrFixBody = -1,
 
         // Pit menu preset
         Preset = 0,
@@ -58,11 +34,8 @@ namespace CrewChiefV4.R3E
         Frontwing = 6,
         Rearwing = 7,
         Suspension = 8,
-
-        // Pit menu buttons
-        ButtonTop = 9,
-        ButtonBottom = 10,
-
+        RequestPit = 9,
+        CancelPitRequest = 10,
         // Pit menu nothing selected
         Max = 11
     }
@@ -88,6 +61,7 @@ namespace CrewChiefV4.R3E
         private const string folderConfirmFrontTyres = "mandatory_pit_stops/confirm_change_front_tyres";
         private const string folderConfirmRearTyres = "mandatory_pit_stops/confirm_change_rear_tyres";
         private const string folderConfirmNoTyres = "mandatory_pit_stops/confirm_change_no_tyres";
+        private const string folderConfirmFixBody = "mandatory_pit_stops/confirm_fix_body";
         private const string folderConfirmFixAllAero = "mandatory_pit_stops/confirm_fix_all_aero";
         private const string folderConfirmFixFrontAero = "mandatory_pit_stops/confirm_fix_front_aero";
         private const string folderConfirmFixRearAero = "mandatory_pit_stops/confirm_fix_rear_aero";
@@ -115,8 +89,11 @@ namespace CrewChiefV4.R3E
         private static ExecutableCommandMacro menuLeftMacro;
 
         private static SelectedItem selectedItem;
+        private static SelectedItem selectedItemOnLastChange;
+        private static bool atLeastOneButtonIsAvailable = false;
         private static PitMenuState state;
-        
+        private static int pitState;
+
         private static Object myLock = new Object();
 
         // set to false at the start of every session to avoid us using stale pit menu data. A bit flaky...
@@ -131,15 +108,22 @@ namespace CrewChiefV4.R3E
             { CarData.CarClassEnum.F1_90S, new TyreType[]{ TyreType.Soft, TyreType.Medium, TyreType.Hard} },
             { CarData.CarClassEnum.F1, new TyreType[]{ TyreType.Soft, TyreType.Medium, TyreType.Hard} },
             { CarData.CarClassEnum.DTM_92, new TyreType[]{ TyreType.Soft, TyreType.Hard} },
-            { CarData.CarClassEnum.DTM_2014, new TyreType[]{ TyreType.Prime, TyreType.Option} },
             { CarData.CarClassEnum.INDYCAR, new TyreType[]{ TyreType.Alternate, TyreType.Prime} },  // note we use Prime here, not Primary - the SRE recognises either
             { CarData.CarClassEnum.GROUPC, new TyreType[]{ TyreType.Soft, TyreType.Medium, TyreType.Hard} },
             { CarData.CarClassEnum.GT2, new TyreType[]{ TyreType.Soft, TyreType.Hard} },
             { CarData.CarClassEnum.GROUP5, new TyreType[]{ TyreType.Soft, TyreType.Hard} },
             { CarData.CarClassEnum.M1_PROCAR, new TyreType[]{ TyreType.Soft, TyreType.Hard} },
             { CarData.CarClassEnum.GTE, new TyreType[]{ TyreType.Soft, TyreType.Medium, TyreType.Hard} },
-            { CarData.CarClassEnum.HILL_CLIMB_ICONS, new TyreType[]{ TyreType.Soft, TyreType.Hard} },
-            { CarData.CarClassEnum.GROUPA, new TyreType[]{ TyreType.Soft, TyreType.Hard} }
+            { CarData.CarClassEnum.HILL_CLIMB_ICONS, new TyreType[]{ TyreType.Soft, TyreType.Medium, TyreType.Hard} },
+            { CarData.CarClassEnum.GROUPA, new TyreType[]{ TyreType.Soft, TyreType.Hard} },
+            { CarData.CarClassEnum.GTO, new TyreType[]{ TyreType.Soft, TyreType.Medium, TyreType.Hard} }
+        };
+
+        private static HashSet<CarData.CarClassEnum> classesAllowingMismatchedTyres = new HashSet<CarData.CarClassEnum>
+        {
+            CarData.CarClassEnum.F1_90S, CarData.CarClassEnum.DTM_92, CarData.CarClassEnum.GTO,
+            CarData.CarClassEnum.GROUPC, CarData.CarClassEnum.GT2, CarData.CarClassEnum.GROUP5, CarData.CarClassEnum.M1_PROCAR,
+            CarData.CarClassEnum.GTE, CarData.CarClassEnum.HILL_CLIMB_ICONS, CarData.CarClassEnum.GROUPA
         };
 
         static R3EPitMenuManager()
@@ -147,6 +131,8 @@ namespace CrewChiefV4.R3E
             latestState.Add(SelectedItem.Driverchange, PitSelectionState.UNKNOWN);
             latestState.Add(SelectedItem.Fronttires, PitSelectionState.UNKNOWN);
             latestState.Add(SelectedItem.Reartires, PitSelectionState.UNKNOWN);
+            latestState.Add(SelectedItem.RequestPit, PitSelectionState.UNKNOWN);
+            latestState.Add(SelectedItem.CancelPitRequest, PitSelectionState.UNKNOWN);
             latestState.Add(SelectedItem.Frontwing, PitSelectionState.UNKNOWN);
             latestState.Add(SelectedItem.Rearwing, PitSelectionState.UNKNOWN);
             latestState.Add(SelectedItem.Suspension, PitSelectionState.UNKNOWN);
@@ -155,23 +141,66 @@ namespace CrewChiefV4.R3E
         }
 
         // called by the mapper on every tick
-        public static void map(Int32 pitMenuSelection, PitMenuState state)
+        // pitState is -1 = N/A, 0 = None, 1 = Requested stop, 2 = Entered pitlane heading for pitspot, 3 = Stopped at pitspot, 4 = Exiting pitspot heading for pit exit
+        public static void map(Int32 pitMenuSelection, PitMenuState state, int pitState)
         {
+            bool log = false;
+            if (R3EPitMenuManager.selectedItem != (SelectedItem)pitMenuSelection
+                || R3EPitMenuManager.state.CancelPitReqest != state.CancelPitReqest
+                || R3EPitMenuManager.state.Driverchange != state.Driverchange
+                || R3EPitMenuManager.state.FrontTires != state.FrontTires
+                || R3EPitMenuManager.state.FrontWing != state.FrontWing
+                || R3EPitMenuManager.state.Fuel != state.Fuel
+                || R3EPitMenuManager.state.Penalty != state.Penalty
+                || R3EPitMenuManager.state.Preset != state.Preset
+                || R3EPitMenuManager.state.RearTires != state.RearTires
+                || R3EPitMenuManager.state.RearWing != state.RearWing
+                || R3EPitMenuManager.state.RequestPit != state.RequestPit
+                || R3EPitMenuManager.state.Suspension != state.Suspension
+                )
+            {
+                log = true;
+                R3EPitMenuManager.selectedItemOnLastChange = R3EPitMenuManager.selectedItem;                
+            }
             R3EPitMenuManager.selectedItem = (SelectedItem) pitMenuSelection;
             R3EPitMenuManager.state = state;
-            if (state.ButtonBottom != -1 || state.ButtonTop != -1)
+            R3EPitMenuManager.pitState = pitState;
+            if (state.Suspension != -1 || state.Driverchange != -1 || state.FrontTires != -1 || state.FrontWing != -1
+                || state.Fuel != -1 || state.Penalty != -1 || state.Preset != -1 || state.RearTires != -1 || state.RearWing != -1)
             {
                 // one of the buttons is available so the menu must be open - snapshot its state
                 hasStateForCurrentSession = true;
                 latestState[SelectedItem.Driverchange] = getDriverchangeState();
                 latestState[SelectedItem.Fronttires] = getChangeFrontTyresState();
                 latestState[SelectedItem.Reartires] = getChangeRearTyresState();
+                latestState[SelectedItem.CancelPitRequest] = getFixBodyState();
+                latestState[SelectedItem.RequestPit] = getFixBodyState();
                 latestState[SelectedItem.Frontwing] = getFixFrontAeroState();
                 latestState[SelectedItem.Rearwing] = getFixRearAeroState();
                 latestState[SelectedItem.Suspension] = getFixSuspensionState();
                 latestState[SelectedItem.Fuel] = getRefuelState();
                 latestState[SelectedItem.Penalty] = getServePenaltyState();
+                atLeastOneButtonIsAvailable = true;
             }
+            else
+            {
+                atLeastOneButtonIsAvailable = false;
+            }
+            /*if (log)
+            {
+                Console.WriteLine("PIT MENU STATE CHANGE (is open = " + menuIsOpen() + "): select = " + (SelectedItem)pitMenuSelection
+                    + ", RequestPit = " + state.RequestPit
+                    + ", CancelPit = " + state.CancelPitReqest
+                    + ", Driverchange = " + state.Driverchange
+                    + ", FrontTires = " + state.FrontTires
+                    + ", FrontWing = " + state.FrontWing
+                    + ", Fuel = " + state.Fuel
+                    + ", Penalty = " + state.Penalty
+                    + ", Preset = " + state.Preset
+                    + ", RearTires = " + state.RearTires
+                    + ", RearWing = " + state.RearWing
+                    + ", Suspension = " + state.Suspension);
+            }*/
         }
 
         public static void processVoiceCommand(String voiceMessage, AudioPlayer audioPlayer)
@@ -202,6 +231,13 @@ namespace CrewChiefV4.R3E
                         audioPlayer.playMessageImmediately(new QueuedMessage(folderConfirmNoTyres, 0));
                         changeNoTyres();
                     }
+                    if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.PIT_STOP_FIX_BODY))
+                    {
+                        Console.WriteLine("Fix body command doesn't work with current R3E pit menu impl");
+                        audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNo, 0));
+                        //audioPlayer.playMessageImmediately(new QueuedMessage(folderConfirmFixBody, 0));
+                        //fixBody();
+                    }
                     if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.PIT_STOP_FIX_FRONT_AERO))
                     {
                         audioPlayer.playMessageImmediately(new QueuedMessage(folderConfirmFixFrontAero, 0));
@@ -230,6 +266,19 @@ namespace CrewChiefV4.R3E
                     else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.PIT_STOP_DONT_FIX_SUSPENSION))
                     {
                         audioPlayer.playMessageImmediately(new QueuedMessage(folderConfirmDontFixSuspension, 0));
+                        unselectFixSuspension();
+                    }
+                    else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.PIT_STOP_FIX_ALL))
+                    {
+                        audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
+                        //fixBody();
+                        fixAllAero();
+                        selectFixSuspension();
+                    }
+                    else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.PIT_STOP_FIX_NONE))
+                    {
+                        audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
+                        fixNoAero();
                         unselectFixSuspension();
                     }
                     else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.PIT_STOP_SERVE_PENALTY))
@@ -364,6 +413,22 @@ namespace CrewChiefV4.R3E
             }
             return success;
         }
+        public static Boolean fixBody(Boolean closeAfterSetting = true)
+        {
+            Boolean success = false;
+            // this got removed in the latest r3e update so is no longer anywhere in the pit state
+            /*if (openPitMenuIfClosed())
+            {
+                setItemToOnOrOff(SelectedItem.Body, true);
+                success = getFixBodyState() == PitSelectionState.SELECTED;
+                success = true;
+            }
+            if (closeAfterSetting)
+            {
+                closePitMenuIfOpen();
+            }*/
+            return success;
+        }
         public static Boolean fixFrontAeroOnly(Boolean closeAfterSetting = true)
         {
             Boolean success = false;
@@ -401,7 +466,10 @@ namespace CrewChiefV4.R3E
             {
                 setItemToOnOrOff(SelectedItem.Frontwing, true);
                 setItemToOnOrOff(SelectedItem.Rearwing, true);
-                success = getFixFrontAeroState() == PitSelectionState.SELECTED && getFixRearAeroState() == PitSelectionState.SELECTED;
+                // can't set fix-body to true any more
+                // setItemToOnOrOff(SelectedItem.Body, true);
+                // success if any of the aero fixes are selected - maybe only 1 or 2 are available
+                success = getFixFrontAeroState() == PitSelectionState.SELECTED || getFixRearAeroState() == PitSelectionState.SELECTED || getFixBodyState() == PitSelectionState.SELECTED;
             }
             if (closeAfterSetting)
             {
@@ -416,7 +484,9 @@ namespace CrewChiefV4.R3E
             {
                 setItemToOnOrOff(SelectedItem.Frontwing, false);
                 setItemToOnOrOff(SelectedItem.Rearwing, false);
-                success = getFixFrontAeroState() != PitSelectionState.SELECTED && getFixRearAeroState() != PitSelectionState.SELECTED;
+                // can't set fix-body to false any more
+                // setItemToOnOrOff(SelectedItem.Body, false);
+                success = getFixFrontAeroState() != PitSelectionState.SELECTED && getFixRearAeroState() != PitSelectionState.SELECTED && getFixBodyState() != PitSelectionState.SELECTED;
             }
             if (closeAfterSetting)
             {
@@ -429,8 +499,8 @@ namespace CrewChiefV4.R3E
             Boolean success = false;
             if (openPitMenuIfClosed())
             {
-                setItemToOnOrOff(SelectedItem.Suspension, true);
-                success = getFixSuspensionState() == PitSelectionState.SELECTED;
+                 setItemToOnOrOff(SelectedItem.Suspension, true);
+                 success = getFixSuspensionState() == PitSelectionState.SELECTED;
             }
             if (closeAfterSetting)
             {
@@ -589,26 +659,21 @@ namespace CrewChiefV4.R3E
                 {
                     setItemToOnOrOff(SelectedItem.Fronttires, false);
                     setItemToOnOrOff(SelectedItem.Reartires, false);
-                    // here we're assuming that changing the rear compound wil also change the front. This is 
-                    // probably OK at the moment - they're tied together for the classes with multiple compounds 
-                    // and the menu enforces this.
+                    // some car classes allow mismatched tyres
                     goToMenuItem(SelectedItem.Reartires);
-                    int resetCount = tyreOptions[CrewChief.carClass].Length - 1;
-                    int selectCount = Array.IndexOf(tyreOptions[CrewChief.carClass], tyreType);
-                    ExecutableCommandMacro leftMacro = getMenuLeftMacro();
-                    ExecutableCommandMacro rightMacro = getMenuRightMacro();
-                    if (leftMacro != null && rightMacro != null)
+                    setSelectedTyres(tyreType);
+                    if (classesAllowingMismatchedTyres.Contains(CrewChief.carClass))
                     {
-                        for (int i = 0; i < resetCount; i++)
-                            executeMacro(leftMacro);
-                        for (int i = 0; i < selectCount; i++)
-                            executeMacro(rightMacro);
+                        goToMenuItem(SelectedItem.Fronttires);
+                        setSelectedTyres(tyreType);
                     }
-                    setItemToOnOrOff(SelectedItem.Reartires, true);
                     setItemToOnOrOff(SelectedItem.Fronttires, true);
+                    setItemToOnOrOff(SelectedItem.Reartires, true);
                 }
                 if (closeAfterSetting)
                 {
+                    // wait a couple of seconds before closing
+                    Thread.Sleep(2000);
                     closePitMenuIfOpen();
                 }
             }
@@ -640,14 +705,22 @@ namespace CrewChiefV4.R3E
 
         public static Boolean menuIsOpen()
         {
-            return R3EPitMenuManager.selectedItem != SelectedItem.Unavailable;
+            // menu cursor state goes rear-tyres -> unavailable -> front-wing. The unavailable state can only be set if the menu is closed or
+            // we move the cursor from rear-tyres or front-wing to fix-body. So we can have a state of Unavailable even though the menu is actually open.
+            // The latest R3E shared memory pit menu change boggles the mind
+            if (R3EPitMenuManager.selectedItem == SelectedItem.UnavailableOrFixBody && R3EPitMenuManager.atLeastOneButtonIsAvailable &&
+                (R3EPitMenuManager.selectedItemOnLastChange == SelectedItem.Reartires || R3EPitMenuManager.selectedItemOnLastChange == SelectedItem.Frontwing))
+            {
+                return true;
+            }
+            return R3EPitMenuManager.selectedItem != SelectedItem.UnavailableOrFixBody;
         }
 
         public static Boolean setItemToOnOrOff(SelectedItem item, Boolean requiredState)
         {
             int currentState = getStateForItem(item);
             int requiredStateInt = requiredState ? 1 : 0;
-            Console.WriteLine("attempting to set state of item " + item + " from " + currentState + " to " + requiredState);
+            Console.WriteLine("attempting to set state of item " + item + " from " + currentState + " to " + requiredStateInt);
             if (currentState == -1)
             {
                 return false;
@@ -719,11 +792,31 @@ namespace CrewChiefV4.R3E
 
         public static PitSelectionState getPitRequestState()
         {
+            // based on pitstate flag first:
+            if (R3EPitMenuManager.pitState == 1)
+            {
+                return PitSelectionState.SELECTED;
+            }
+
+            // pit menu states are broken. Hopefully this will be fixed in-game, for now interpret the button states
+            // based on the current incorrect behaviour:
             if (!R3EPitMenuManager.menuIsOpen())
             {
                 return PitSelectionState.UNKNOWN;
             }
+            if (R3EPitMenuManager.state.RequestPit == -1) // request pit is replaced with cancel pit request
+            {
+                return PitSelectionState.SELECTED;
+            }
+            if (R3EPitMenuManager.state.RequestPit == 1) // feels like this should be 0 if it's available but not selected
+            {
+                return PitSelectionState.AVAILABLE;
+            }
+
+            // 'Correct' button state behaviour prior to the addition of 'fix suspension' menu item, which has broken
+            // the button state logic
             // requested => bottom button available (which is 'cancel')
+            /*
             if (R3EPitMenuManager.state.ButtonBottom == 1)
             {
                 return PitSelectionState.SELECTED;
@@ -731,7 +824,24 @@ namespace CrewChiefV4.R3E
             if (R3EPitMenuManager.state.ButtonTop == 1)
             {
                 return PitSelectionState.AVAILABLE;
+            }*/
+            return PitSelectionState.UNAVAILABLE;
+        }
+
+        public static PitSelectionState getFixBodyState()
+        {
+            /*if (!R3EPitMenuManager.menuIsOpen())
+            {
+                return PitSelectionState.UNKNOWN;
             }
+            if (R3EPitMenuManager.state.Body == 1)
+            {
+                return PitSelectionState.SELECTED;
+            }
+            if (R3EPitMenuManager.state.Body == 0)
+            {
+                return PitSelectionState.AVAILABLE;
+            }*/
             return PitSelectionState.UNAVAILABLE;
         }
 
@@ -878,11 +988,11 @@ namespace CrewChiefV4.R3E
             int state = -1;
             switch (selectedItem)
             {
-                case SelectedItem.ButtonBottom:
-                    state = R3EPitMenuManager.state.ButtonTop;
+                case SelectedItem.RequestPit:
+                    state = R3EPitMenuManager.state.RequestPit;
                     break;
-                case SelectedItem.ButtonTop:
-                    state = R3EPitMenuManager.state.ButtonBottom;
+                case SelectedItem.Suspension:
+                    state = R3EPitMenuManager.state.Suspension;
                     break;
                 case SelectedItem.Driverchange:
                     state = R3EPitMenuManager.state.Driverchange;
@@ -908,8 +1018,8 @@ namespace CrewChiefV4.R3E
                 case SelectedItem.Rearwing:
                     state = R3EPitMenuManager.state.RearWing;
                     break;
-                case SelectedItem.Suspension:
-                    state = R3EPitMenuManager.state.Suspension;
+                case SelectedItem.CancelPitRequest:
+                    state = R3EPitMenuManager.state.CancelPitReqest;
                     break;
                 default:
                     break;
@@ -970,6 +1080,21 @@ namespace CrewChiefV4.R3E
                 MacroManager.macros.TryGetValue(PIT_MENU_LEFT_MACRO_NAME, out R3EPitMenuManager.menuLeftMacro);
             }
             return R3EPitMenuManager.menuLeftMacro;
+        }
+
+        private static void setSelectedTyres(TyreType tyreType)
+        {
+            int resetCount = tyreOptions[CrewChief.carClass].Length - 1;
+            int selectCount = Array.IndexOf(tyreOptions[CrewChief.carClass], tyreType);
+            ExecutableCommandMacro leftMacro = getMenuLeftMacro();
+            ExecutableCommandMacro rightMacro = getMenuRightMacro();
+            if (leftMacro != null && rightMacro != null)
+            {
+                for (int i = 0; i < resetCount; i++)
+                    executeMacro(leftMacro);
+                for (int i = 0; i < selectCount; i++)
+                    executeMacro(rightMacro);
+            }
         }
     }
 }

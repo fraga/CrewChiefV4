@@ -8,9 +8,10 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>HelpFiles</RootNamespace>
     <AssemblyName>HelpFiles</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -32,10 +33,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="HtmlAgilityPack, Version=1.11.24.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
-      <HintPath>..\packages\HtmlAgilityPack.1.11.24\lib\Net45\HtmlAgilityPack.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -51,10 +48,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="About_ChangeLog.html" />
     <Content Include="About_Contact.html" />
     <Content Include="About_Credits.html" />
     <Content Include="About_Customising_NameRequests.html" />
@@ -63,6 +58,7 @@
     <Content Include="About_Donations.html" />
     <Content Include="About_KnownIssues.html" />
     <Content Include="About_Licenses.html" />
+    <Content Include="About_Telemetry.html" />
     <Content Include="About_Updating.html" />
     <Content Include="blank.html" />
     <Content Include="CrewChief.png" />
@@ -70,6 +66,7 @@
     <Content Include="GameSpecific_ForEachGame_AssettoCorsa.html" />
     <Content Include="GameSpecific_ForEachGame_AssettoCorsaCompetizione.html" />
     <Content Include="GameSpecific_ForEachGame_F1_2018.html" />
+    <Content Include="GameSpecific_ForEachGame_GTR2.html" />
     <Content Include="GameSpecific_ForEachGame_iRacing.html" />
     <Content Include="GameSpecific_ForEachGame_ProjectCars.html" />
     <Content Include="GameSpecific_ForEachGame_ProjectCars2.html" />
@@ -79,6 +76,7 @@
     <Content Include="GettingStarted_GameSpecific_AssettoCorsa.html" />
     <Content Include="GettingStarted_GameSpecific_AssettoCorsaCompetizione.html" />
     <Content Include="GettingStarted_GameSpecific_F1_2018.html" />
+    <Content Include="GettingStarted_GameSpecific_GTR2.html" />
     <Content Include="GettingStarted_GameSpecific_iRacing.html" />
     <Content Include="GettingStarted_GameSpecific_ProjectCars.html" />
     <Content Include="GettingStarted_GameSpecific_ProjectCars2.html" />
@@ -91,10 +89,11 @@
     <Content Include="index.html" />
     <Content Include="menu.html" />
     <Content Include="Overlays_InGame.html" />
+    <Content Include="Overlays_Subtitles.html" />
     <Content Include="Overlays_VR.html" />
     <Content Include="Properties_Profiles.html" />
     <Content Include="Properties_Properties.html" />
-    <Content Include="ReadMe.txt" />
+    <None Include="ReadMe.md" />
     <Content Include="Speech_DriverNames.html" />
     <Content Include="Speech_PaceNotes.html" />
     <Content Include="Speech_PitExitPositionPrediction.html" />
@@ -104,10 +103,16 @@
     <Content Include="VoiceRecognition_CommandMacros.html" />
     <Content Include="VoiceRecognition_FreeDictationChatMessages.html" />
     <Content Include="VoiceRecognition_InstallationTraining.html" />
+    <Content Include="VoiceRecognition_RallyStageNotes.html" />
     <Content Include="VoiceRecognition_VoiceCommandsAll.html" />
     <Content Include="VoiceRecognition_VoiceCommandsCheatSheet.html" />
     <Content Include="VoiceRecognition_VoiceCommandsGrouped.html" />
     <Content Include="VoiceRecognition_VoiceCommandsPitstopManagement.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="HtmlAgilityPack">
+      <Version>1.11.24</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

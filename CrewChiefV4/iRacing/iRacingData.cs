@@ -51,11 +51,13 @@ namespace CrewChiefV4.iRacing
             CarIdxSteer = (System.Single[])sdk.GetData("CarIdxSteer");
             CarIdxRPM = (System.Single[])sdk.GetData("CarIdxRPM");
 			CarIdxGear = (System.Int32[])sdk.GetData("CarIdxGear");
+            DRS_Status = (DrsStatus)sdk.GetData("DRS_Status");
             SteeringWheelAngle = (System.Single)sdk.GetData("SteeringWheelAngle");
             Throttle = (System.Single)sdk.GetData("Throttle");
 			Brake = (System.Single)sdk.GetData("Brake");
-			Clutch = (System.Single)sdk.GetData("Clutch");
-			Gear = (System.Int32)sdk.GetData("Gear");
+            Clutch = (System.Single)sdk.GetData("Clutch");
+            HandBrake = (System.Single)sdk.GetData("HandbrakeRaw");
+            Gear = (System.Int32)sdk.GetData("Gear");
             RPM = (System.Single)sdk.GetData("RPM");
             Lap = (System.Int32)sdk.GetData("Lap");
             LapBestLap = (System.Int32)sdk.GetData("LapBestLap");
@@ -73,11 +75,17 @@ namespace CrewChiefV4.iRacing
             PitsOpen = (System.Boolean)sdk.GetData("PitsOpen");
 			IsInGarage = (System.Boolean)sdk.GetData("IsInGarage");
 			EngineWarnings = (CrewChiefV4.iRacing.EngineWarnings)sdk.GetData("EngineWarnings");
+
 			FuelLevel = (System.Single)sdk.GetData("FuelLevel");
-			WaterTemp = (System.Single)sdk.GetData("WaterTemp");
-			WaterLevel = (System.Single)sdk.GetData("WaterLevel");
-			FuelPress = (System.Single)sdk.GetData("FuelPress");
-			OilTemp = (System.Single)sdk.GetData("OilTemp");
+            if(sdk.VarHeaders.ContainsKey("WaterTemp"))
+			    WaterTemp = (System.Single)sdk.GetData("WaterTemp");
+            if (sdk.VarHeaders.ContainsKey("WaterLevel"))
+                WaterLevel = (System.Single)sdk.GetData("WaterLevel");
+            if (sdk.VarHeaders.ContainsKey("FuelPress"))
+                FuelPress = (System.Single)sdk.GetData("FuelPress");
+            if (sdk.VarHeaders.ContainsKey("OilTemp"))
+                OilTemp = (System.Single)sdk.GetData("OilTemp");
+
 			Voltage = (System.Single)sdk.GetData("Voltage");
 			RRcoldPressure = (System.Single)sdk.GetData("RRcoldPressure");
 			LRcoldPressure = (System.Single)sdk.GetData("LRcoldPressure");
@@ -88,6 +96,20 @@ namespace CrewChiefV4.iRacing
                 _VertAccel = (System.Single[])sdk.GetData("VertAccel");
                 _LatAccel = (System.Single[])sdk.GetData("LatAccel");
                 _LongAccel = (System.Single[])sdk.GetData("LongAccel");
+
+                /*
+                _RRshockDefl = (System.Single[])sdk.GetData("RRshockDefl");
+                _RRshockVel = (System.Single[])sdk.GetData("RRshockVel");
+
+                _LRshockDefl = (System.Single[])sdk.GetData("LRshockDefl");
+                _LRshockVel = (System.Single[])sdk.GetData("LRshockVel");
+
+                _RFshockDefl = (System.Single[])sdk.GetData("RFshockDefl");
+                _RFshockVel = (System.Single[])sdk.GetData("RFshockVel");  
+                
+                _LFshockDefl = (System.Single[])sdk.GetData("LFshockDefl");
+                _LFshockVel = (System.Single[])sdk.GetData("LFshockVel");
+                */
             }
             else
             {
@@ -97,6 +119,29 @@ namespace CrewChiefV4.iRacing
                 _LatAccel[0] = (System.Single)sdk.GetData("LatAccel");
                 _LongAccel = new System.Single[1];
                 _LongAccel[0] = (System.Single)sdk.GetData("LongAccel");
+
+                /*
+                _RRshockDefl = new System.Single[1];
+                _RRshockDefl[0] = (System.Single)sdk.GetData("RRshockDefl");
+                _RRshockVel = new System.Single[1];
+                _RRshockVel[0] = (System.Single)sdk.GetData("RRshockVel");
+
+                _LRshockDefl = new System.Single[1];
+                _LRshockDefl[0] = (System.Single)sdk.GetData("LRshockDefl");
+                _LRshockVel = new System.Single[1];
+                _LRshockVel[0] = (System.Single)sdk.GetData("LRshockVel");
+
+                _RFshockDefl = new System.Single[1];
+                _RFshockDefl[0] = (System.Single)sdk.GetData("RFshockDefl");
+                _RFshockVel = new System.Single[1];
+                _RFshockVel[0] = (System.Single)sdk.GetData("RFshockVel");
+
+                _LFshockDefl = new System.Single[1];
+                _LFshockDefl[0] = (System.Single)sdk.GetData("LFshockDefl");
+                _LFshockVel = new System.Single[1];
+                _LFshockVel[0] = (System.Single)sdk.GetData("LFshockVel");
+                */
+
             }
             PitSvFlags = (CrewChiefV4.iRacing.PitServiceFlags)sdk.GetData("PitSvFlags");
             PitSvLFP = (System.Single)sdk.GetData("PitSvLFP");
@@ -151,10 +196,10 @@ namespace CrewChiefV4.iRacing
 		/// <summary>
 		public System.Boolean IsOnTrack;
 
-		/// <summary>
-		/// 0=replay not playing  1=replay playing
-		/// <summary>
-		public System.Boolean IsReplayPlaying;
+        /// <summary>
+        /// 0=replay not playing  1=replay playing
+        /// <summary>
+        public System.Boolean IsReplayPlaying;
 
         /// <summary>
         /// 0=disk based telemetry turned off  1=turned on
@@ -255,6 +300,11 @@ namespace CrewChiefV4.iRacing
 		public System.Int32[] CarIdxGear;
 
         /// <summary>
+        /// 0=no drs available, 1=drs detected, 2=drs available, 3=drs enabled
+        /// <summary>
+        public DrsStatus DRS_Status;
+
+        /// <summary>
         /// Steering wheel angle
         /// <summary>
         public System.Single SteeringWheelAngle;
@@ -268,10 +318,15 @@ namespace CrewChiefV4.iRacing
 		/// <summary>
 		public System.Single Brake;
 
-		/// <summary>
-		/// 0=disengaged to 1=fully engaged
-		/// <summary>
-		public System.Single Clutch;
+        /// <summary>
+        /// 0=brake released to 1=max force
+        /// <summary>
+        public System.Single HandBrake;
+
+        /// <summary>
+        /// 0=disengaged to 1=fully engaged
+        /// <summary>
+        public System.Single Clutch;
 
 		/// <summary>
 		/// -1=reverse  0=neutral  1..n=current gear
@@ -502,5 +557,94 @@ namespace CrewChiefV4.iRacing
         /// Players car pit service status bits
         /// <summary>
         public CrewChiefV4.iRacing.PitSvStatus PlayerCarPitSvStatus;
+
+        /// <summary>
+        /// RR shock deflection
+        /// <summary>
+        private System.Single[] _RRshockDefl;
+        public System.Single RRshockDefl
+        {
+            get
+            {
+                return _RRshockDefl == null ? 0 : _RRshockDefl.Average();
+            }
+        }
+        /// <summary>
+        /// RR shock velocity
+        /// <summary>
+        private System.Single[] _RRshockVel;
+        public System.Single RRshockVel
+        {
+            get
+            {
+                return _RRshockVel == null ? 0 : _RRshockVel.Average();
+            }
+        }
+        /// <summary>
+        /// LR shock deflection
+        /// <summary>
+        private System.Single[] _LRshockDefl;
+        public System.Single LRshockDefl
+        {
+            get
+            {
+                return _LRshockDefl == null ? 0 : _LRshockDefl.Average();
+            }
+        }
+        /// <summary>
+        /// LR shock velocity
+        /// <summary>
+        private System.Single[] _LRshockVel;
+        public System.Single LRshockVel
+        {
+            get
+            {
+                return _LRshockVel == null ? 0 : _LRshockVel.Average();
+            }
+        }
+        /// <summary>
+        /// RF shock deflection
+        /// <summary>
+        private System.Single[] _RFshockDefl;
+        public System.Single RFshockDefl
+        {
+            get
+            {
+                return _RFshockDefl == null ? 0 : _RFshockDefl.Average();
+            }
+        }
+        /// <summary>
+        /// RF shock velocity
+        /// <summary>
+        private System.Single[] _RFshockVel;
+        public System.Single RFshockVel
+        {
+            get
+            {
+                return _RFshockVel == null ? 0 : _RFshockVel.Average();
+            }
+        }
+        /// <summary>
+        /// LF shock deflection
+        /// <summary>
+        private System.Single[] _LFshockDefl;
+        public System.Single LFshockDefl
+        {
+            get
+            {
+                return _LFshockDefl == null ? 0 : _LFshockDefl.Average();
+            }
+        }
+        /// <summary>
+        /// LF shock velocity
+        /// <summary>
+        private System.Single[] _LFshockVel;
+        public System.Single LFshockVel
+        {
+            get
+            {
+                return _LFshockVel == null ? 0 : _LFshockVel.Average();
+            }
+        }
     }
 }

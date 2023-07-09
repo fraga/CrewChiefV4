@@ -76,6 +76,9 @@ namespace CrewChiefV4
                     case GameEnum.RF2_64BIT:
                         currentRecording.rf2TrackNames = new string[] { trackName };
                         break;
+                    case GameEnum.GTR2:
+                        currentRecording.gtr2TrackNames = new string[] { trackName };
+                        break;
                     case GameEnum.IRACING:
                         currentRecording.irTrackName = trackName;
                         break;
@@ -210,7 +213,8 @@ namespace CrewChiefV4
     public class TrackLandmarksForTrack
     {
         public String[] rf1TrackNames { get; set; }
-        public String[] rf2TrackNames { get; set; }        
+        public String[] rf2TrackNames { get; set; }
+        public String[] gtr2TrackNames { get; set; }
         public String[] acTrackNames { get; set; }
         public String irTrackName { get; set; }
         public String pcarsTrackName { get; set; }
@@ -232,6 +236,7 @@ namespace CrewChiefV4
             this.acTrackNames = new string[] { };
             this.rf1TrackNames = new string[] { };
             this.rf2TrackNames = new string[] { };
+            this.gtr2TrackNames = new string[] { };
             this.pcarsTrackName = "";
             this.pcars2TrackName = "";
             this.ams2TrackName = "";
@@ -363,6 +368,20 @@ namespace CrewChiefV4
                             }
                         }
                         break;
+                    case GameEnum.GTR2:
+                        if (trackLandmarksForTrack.gtr2TrackNames != null)
+                        {
+                            foreach (String gtr2TrackName in trackLandmarksForTrack.gtr2TrackNames)
+                            {
+                                if (String.Equals(gtr2TrackName, trackName, StringComparison.OrdinalIgnoreCase)
+                                    && checkForAndMatchOnLength(lengthFromGame, trackLandmarksForTrack.approximateTrackLength))
+                                {
+                                    Console.WriteLine(trackLandmarksForTrack.trackLandmarks.Count + " landmarks defined for this track");
+                                    return new TrackDataContainer(trackLandmarksForTrack.trackLandmarks, trackLandmarksForTrack.isOval);
+                                }
+                            }
+                        }
+                        break;
                     case GameEnum.IRACING:
                         if(trackLandmarksForTrack.irTrackName != null)
                         {
@@ -457,6 +476,12 @@ namespace CrewChiefV4
             return null;
         }
 
+#if DEBUG
+        #region DuplicateTrackNamesCheck
+        /// <summary>
+        /// This is only called in debug builds and just reports any duplicate
+        /// track names, it doesn't do anything to trackLandmarksData
+        /// </summary>
         internal void checkForDuplicates()
         {
             var acTracks = new Dictionary<string, float>();
@@ -466,6 +491,7 @@ namespace CrewChiefV4
             var raceroomTracks = new Dictionary<int, float>();
             var rf1Tracks = new Dictionary<string, float>();
             var rf2Tracks = new Dictionary<string, float>();
+            var gtr2Tracks = new Dictionary<string, float>();
             var irTracks = new Dictionary<string, float>();
             var accTracks = new Dictionary<string, float>();
             foreach (var trackLandmarks in trackLandmarksData)
@@ -498,6 +524,9 @@ namespace CrewChiefV4
                         break;
                     case GameEnum.RF2_64BIT:
                         checkForDuplicatesHelper(trackLandmarks.rf2TrackNames, trackLandmarks.approximateTrackLength, "rF2", rf2Tracks);
+                        break;
+                    case GameEnum.GTR2:
+                        checkForDuplicatesHelper(trackLandmarks.gtr2TrackNames, trackLandmarks.approximateTrackLength, "GTR 2", gtr2Tracks);
                         break;
                     case GameEnum.IRACING:
                         checkForDuplicatesHelper(trackLandmarks.irTrackName, trackLandmarks.approximateTrackLength, "iRacing", irTracks);
@@ -562,6 +591,8 @@ namespace CrewChiefV4
                 }
             }
         }
+        #endregion DuplicateTrackNamesCheck
+#endif
 
     }
 
@@ -751,7 +782,7 @@ namespace CrewChiefV4
                 }
                 else
                 {
-                    TRACK_LANDMARKS_DATA.trackLandmarksData.AddRange(data.trackLandmarksData);
+                    TRACK_LANDMARKS_DATA.trackLandmarksData.InsertRange(0, data.trackLandmarksData);
                 }
             }
             string[] subdirectoryEntries = Directory.GetDirectories(targetDirectory);

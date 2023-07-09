@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>CrewChiefV4</RootNamespace>
     <AssemblyName>CrewChiefV4</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
@@ -41,6 +41,7 @@
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>7.2</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -53,6 +54,7 @@
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>7.2</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>engineer_edited.ico</ApplicationIcon>
@@ -62,40 +64,13 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\AutoUpdater.NET.dll</HintPath>
     </Reference>
-    <Reference Include="MathNet.Numerics, Version=4.8.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MathNet.Numerics.4.8.1\lib\net40\MathNet.Numerics.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.Speech, Version=11.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\Program Files\Microsoft SDKs\Speech\v11.0\Assembly\Microsoft.Speech.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.VisualBasic" />
-    <Reference Include="NAudio, Version=1.9.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\NAudio.1.9.0\lib\net35\NAudio.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="PresentationCore" />
-    <Reference Include="SharpDX, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <HintPath>..\packages\SharpDX.4.2.0\lib\net45\SharpDX.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.Direct2D1, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <HintPath>..\packages\SharpDX.Direct2D1.4.2.0\lib\net45\SharpDX.Direct2D1.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.Direct3D11, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <HintPath>..\packages\SharpDX.Direct3D11.4.2.0\lib\net45\SharpDX.Direct3D11.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.DirectInput, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <HintPath>..\packages\SharpDX.DirectInput.4.2.0\lib\net45\SharpDX.DirectInput.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.DXGI, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <HintPath>..\packages\SharpDX.DXGI.4.2.0\lib\net45\SharpDX.DXGI.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.Mathematics, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <HintPath>..\packages\SharpDX.Mathematics.4.2.0\lib\net45\SharpDX.Mathematics.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.IO.Compression" />
@@ -112,14 +87,12 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
-    <Reference Include="websocket-sharp">
-      <HintPath>..\packages\WebSocketSharp-netstandard.1.0.1\lib\net45\websocket-sharp.dll</HintPath>
-    </Reference>
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ACC\ACCData.cs" />
     <Compile Include="ACC\ACCGameStateMapper.cs" />
+    <Compile Include="ACC\ACCPitMenuManager.cs" />
     <Compile Include="ACC\ACCSharedMemoryReader.cs" />
     <Compile Include="ACC\ACCSpotter.cs" />
     <Compile Include="ACC\ksBroadcastingNetwork\ACCUdpRemoteClient.cs" />
@@ -170,6 +143,7 @@
     <Compile Include="commands\KeyPresser.cs" />
     <Compile Include="commands\CommandMacro.cs" />
     <Compile Include="commands\MacroManager.cs" />
+    <Compile Include="Dirt\DirtData.cs" />
     <Compile Include="DriverNameHelper.cs" />
     <Compile Include="DriverTrainingService.cs" />
     <Compile Include="Events\AbstractEvent.cs" />
@@ -181,6 +155,7 @@
     <Compile Include="Events\CommonDataContainers.cs" />
     <Compile Include="Events\DriverSwaps.cs" />
     <Compile Include="Events\CoDriver.cs" />
+    <Compile Include="Events\Mqtt.cs" />
     <Compile Include="Events\WatchedOpponents.cs" />
     <Compile Include="Events\Strategy.cs" />
     <Compile Include="Events\FrozenOrderMonitor.cs" />
@@ -193,6 +168,7 @@
     <Compile Include="Events\FlagsMonitor.cs" />
     <Compile Include="Events\Spotter.cs" />
     <Compile Include="Events\VROverlayController.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="F1_2019\F12019GameStateMapper.cs" />
     <Compile Include="F1_2019\F12019Spotter.cs" />
     <Compile Include="F1_2019\F12019StructWrapper.cs" />
@@ -241,6 +217,9 @@
     <Compile Include="F1_2019\longtomjr\Structs\RaceWinner.cs" />
     <Compile Include="F1_2019\longtomjr\Structs\TeamMateInPits.cs" />
     <Compile Include="F1_2019\longtomjr\Structs\Retirement.cs" />
+    <Compile Include="Dirt\DirtGameStateMapper.cs" />
+    <Compile Include="Dirt\DirtStructWrapper.cs" />
+    <Compile Include="Dirt\DirtUDPreader.cs" />
     <Compile Include="F1_2020\F12020GameStateMapper.cs" />
     <Compile Include="F1_2020\F12020Spotter.cs" />
     <Compile Include="F1_2020\F12020StructWrapper.cs" />
@@ -271,10 +250,43 @@
     <Compile Include="F1_2020\longtomjr\Structs\SpeedTrap.cs" />
     <Compile Include="F1_2020\longtomjr\Structs\TeamMateInPits.cs" />
     <Compile Include="F1_2020\longtomjr\Structs\WeatherForecastSample.cs" />
+    <Compile Include="F1_2021\F12021GameStateMapper.cs" />
+    <Compile Include="F1_2021\F12021Spotter.cs" />
+    <Compile Include="F1_2021\F12021StructWrapper.cs" />
+    <Compile Include="F1_2021\F12021UDPreader.cs" />
+    <Compile Include="F1_2021\longtomjr\enums.cs" />
+    <Compile Include="F1_2021\longtomjr\Structs\CarMotionData.cs" />
+    <Compile Include="F1_2021\longtomjr\Structs\CarSetupData.cs" />
+    <Compile Include="F1_2021\longtomjr\Structs\CarStatusData.cs" />
+    <Compile Include="F1_2021\longtomjr\Structs\CarTelemetryData.cs" />
+    <Compile Include="F1_2021\longtomjr\Structs\EventDataDetails.cs" />
+    <Compile Include="F1_2021\longtomjr\Structs\FastestLap.cs" />
+    <Compile Include="F1_2021\longtomjr\Structs\LapData.cs" />
+    <Compile Include="F1_2021\longtomjr\Structs\MarshalZone.cs" />
+    <Compile Include="F1_2021\longtomjr\Structs\PacketHeader.cs" />
+    <Compile Include="F1_2021\longtomjr\Structs\PacketStructs\PacketCarSetupData.cs" />
+    <Compile Include="F1_2021\longtomjr\Structs\PacketStructs\PacketCarStatusData.cs" />
+    <Compile Include="F1_2021\longtomjr\Structs\PacketStructs\PacketCarTelemetryData.cs" />
+    <Compile Include="F1_2021\longtomjr\Structs\PacketStructs\PacketEventData.cs" />
+    <Compile Include="F1_2021\longtomjr\Structs\PacketStructs\PacketEventDataWithDetails.cs" />
+    <Compile Include="F1_2021\longtomjr\Structs\PacketStructs\PacketLapData.cs" />
+    <Compile Include="F1_2021\longtomjr\Structs\PacketStructs\PacketMotionData.cs" />
+    <Compile Include="F1_2021\longtomjr\Structs\PacketStructs\PacketParticipantsData.cs" />
+    <Compile Include="F1_2021\longtomjr\Structs\PacketStructs\PacketSessionData.cs" />
+    <Compile Include="F1_2021\longtomjr\Structs\ParticipantData.cs" />
+    <Compile Include="F1_2021\longtomjr\Structs\Penalty.cs" />
+    <Compile Include="F1_2021\longtomjr\Structs\RaceWinner.cs" />
+    <Compile Include="F1_2021\longtomjr\Structs\Retirement.cs" />
+    <Compile Include="F1_2021\longtomjr\Structs\SpeedTrap.cs" />
+    <Compile Include="F1_2021\longtomjr\Structs\TeamMateInPits.cs" />
+    <Compile Include="F1_2021\longtomjr\Structs\WeatherForecastSample.cs" />
     <Compile Include="GameDataSerializer.cs" />
     <Compile Include="GameDefinition.cs" />
     <Compile Include="GameStateReaderFactory.cs" />
+    <Compile Include="GameState\DummyGameDataReader.cs" />
+    <Compile Include="GameState\DummyGameStateMapper.cs" />
     <Compile Include="GameState\GlobalBehaviourSettings.cs" />
+    <Compile Include="GameState\ReflectionGameStateAccessor.cs" />
     <Compile Include="GlobalResources.cs" />
     <Compile Include="iRacing\Bitfields\CameraState.cs" />
     <Compile Include="iRacing\Bitfields\EngineWarning.cs" />
@@ -303,6 +315,7 @@
     <Compile Include="iRacing\Sim.cs" />
     <Compile Include="iRacing\Track.cs" />
     <Compile Include="Logging.cs" />
+    <Compile Include="NumberProcessing\CarNumber.cs" />
     <Compile Include="NumberReaderPtBr.cs" />
     <Compile Include="NumberReaderIt2.cs" />
     <Compile Include="Overlay\Charts.cs" />
@@ -326,6 +339,16 @@
     <Compile Include="PitManager\PitManagerEventHandlers_RF2.cs" />
     <Compile Include="PitManager\PitManagerResponseHandlers.cs" />
     <Compile Include="PitManager\PitManagerVoiceCmds.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
     <Compile Include="R3E\R3EPitMenuManager.cs" />
     <Compile Include="R3E\R3ERatings.cs" />
     <Compile Include="R3E\R3ESerializer.cs" />
@@ -343,7 +366,35 @@
     <Compile Include="UserInterface\Loading.Designer.cs">
       <DependentUpon>Loading.cs</DependentUpon>
     </Compile>
+    <Compile Include="UserInterface\MainWindowMenu.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UserInterface\Models\OpponentNameSelection.cs" />
+    <Compile Include="UserInterface\Models\MyName.cs" />
+    <Compile Include="UserInterface\Models\OpponentNames.cs" />
+    <Compile Include="UserInterface\MyName-V.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UserInterface\MyName-V.Designer.cs">
+      <DependentUpon>MyName-V.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserInterface\OpponentNames-V.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UserInterface\OpponentNames-V.Designer.cs">
+      <DependentUpon>OpponentNames-V.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserInterface\OpponentNameSelection-V.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UserInterface\OpponentNameSelection-V.Designer.cs">
+      <DependentUpon>OpponentNameSelection-V.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserInterface\VMs\OpponentNameSelection-VM.cs" />
+    <Compile Include="UserInterface\VMs\MyName-VM.cs" />
+    <Compile Include="UserInterface\VMs\OpponentNames_VM.cs" />
     <Compile Include="VROverlayWindow\CaptureScreen.cs" />
+    <Compile Include="VROverlayWindow\ChromaKey.cs" />
     <Compile Include="VROverlayWindow\CursorInteraction.cs" />
     <Compile Include="VROverlayWindow\DeviceManager.cs" />
     <Compile Include="VROverlayWindow\DeviceState.cs" />
@@ -357,6 +408,7 @@
     <Compile Include="VROverlayWindow\TouchControllerButton.cs" />
     <Compile Include="VROverlayWindow\TouchControllerHand.cs" />
     <Compile Include="VROverlayWindow\TrackedDevices.cs" />
+    <Compile Include="VROverlayWindow\VROverlayConfiguration.cs" />
     <Compile Include="VROverlayWindow\Win32Stuff.cs" />
     <Compile Include="VROverlayWindow\VROverlayWindow.cs" />
     <Compile Include="SharedMemory.cs" />
@@ -420,11 +472,6 @@
     <Compile Include="PCars2\PCars2UDPTelemetryDataStruct.cs" />
     <Compile Include="PCars\PCarsUDPTelemetryDataStruct.cs" />
     <Compile Include="PluginInstaller.cs" />
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
     <Compile Include="R3E\R3ESharedMemoryReader.cs" />
     <Compile Include="GameDataReader.cs" />
     <Compile Include="PCars\PCarsStruct.cs" />
@@ -528,6 +575,14 @@
     </Compile>
     <Compile Include="Configuration.cs" />
     <Compile Include="Utilities.cs" />
+    <Compile Include="GTR2\GTR2GameStateMapper.cs" />
+    <Compile Include="GTR2\GTR2SharedMemoryReader.cs" />
+    <Compile Include="GTR2\GTR2Spotter.cs" />
+    <Compile Include="GTR2\GTR2Data.cs" />
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="UserInterface\ActionEditor.resx">
       <DependentUpon>ActionEditor.cs</DependentUpon>
     </EmbeddedResource>
@@ -543,6 +598,17 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UserInterface\MacroEditor.resx">
       <DependentUpon>MacroEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UserInterface\MyName-V.resx">
+      <DependentUpon>MyName-V.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UserInterface\OpponentNames-V.resx">
+      <DependentUpon>OpponentNames-V.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UserInterface\OpponentNameSelection-V.resx">
+      <DependentUpon>OpponentNameSelection-V.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UserInterface\PropertiesForm.resx">
       <DependentUpon>PropertiesForm.cs</DependentUpon>
@@ -574,11 +640,12 @@
     <None Include="chart_subscriptions.json" />
     <None Include="controllerConfigurationData.json" />
     <Compile Include="Overlay\OverlaySubscription.cs" />
-    <None Include="packages.config" />
+    <None Include="mqtt_telemetry.json" />
     <None Include="PitManager\Documentation\rF2_PitManager.graphml" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </None>
     <None Include="saved_command_macros.json" />
     <None Include="tools\GetUnvocalizedCorners.ps1" />
@@ -634,7 +701,62 @@
       <Name>GameOverlay</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <PackageReference Include="FuzzySharp">
+      <Version>2.0.2</Version>
+    </PackageReference>
+    <PackageReference Include="InputSimulatorPlus">
+      <Version>1.0.7</Version>
+    </PackageReference>
+    <PackageReference Include="MathNet.Numerics">
+      <Version>4.8.1</Version>
+    </PackageReference>
+    <PackageReference Include="MQTTnet">
+      <Version>3.1.2</Version>
+    </PackageReference>
+    <PackageReference Include="NAudio">
+      <Version>2.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="NAudio.Asio">
+      <Version>2.0.0</Version>
+    </PackageReference>
+    <PackageReference Include="NAudio.Core">
+      <Version>2.0.0</Version>
+    </PackageReference>
+    <PackageReference Include="NAudio.Midi">
+      <Version>2.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="NAudio.Wasapi">
+      <Version>2.0.0</Version>
+    </PackageReference>
+    <PackageReference Include="NAudio.WinForms">
+      <Version>2.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="NAudio.WinMM">
+      <Version>2.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>12.0.2</Version>
+    </PackageReference>
+    <PackageReference Include="Phonix">
+      <Version>1.0.2</Version>
+    </PackageReference>
+    <PackageReference Include="SharpDX.Direct2D1">
+      <Version>4.2.0</Version>
+    </PackageReference>
+    <PackageReference Include="SharpDX.Direct3D11">
+      <Version>4.2.0</Version>
+    </PackageReference>
+    <PackageReference Include="SharpDX.DirectInput">
+      <Version>4.2.0</Version>
+    </PackageReference>
+    <PackageReference Include="SharpDX.Mathematics">
+      <Version>4.2.0</Version>
+    </PackageReference>
+    <PackageReference Include="WebSocketSharp-netstandard">
+      <Version>1.0.1</Version>
+    </PackageReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -21,7 +21,7 @@ namespace CrewChiefV4SharedMemory
                     {
                         sdk.initialize();
                         // uncomment to dump a C# class with all available variable
-                         //sdk.GenerateCSharpDataClass();
+                        // sdk.GenerateCSharpDataClass();
                     }
                     if(sdk.IsUpdating()) // Read some data
                     {

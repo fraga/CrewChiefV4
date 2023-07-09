@@ -91,7 +91,7 @@ namespace CrewChiefV4.iRacing
                 string directory = System.IO.Path.GetDirectoryName(filenameToDump);
                 string extension = System.IO.Path.GetExtension(filenameToDump);
                 string filenameToDumpRenamed = System.IO.Path.Combine(directory, filename + "-" + track + "-" + sessionType) + extension;
-                                
+                int i = 0;
                 foreach (iRacingStructDumpWrapper wr in dataToDump)
                 {
                     if (firstSession || !wr.data.IsNewSession)
@@ -107,11 +107,15 @@ namespace CrewChiefV4.iRacing
                         currentSession.Add(wr);
                         track = YamlParser.Parse(wr.data.SessionInfo, "WeekendInfo:TrackName:");
                         sessionType = YamlParser.Parse(wr.data.SessionInfo, string.Format(SessionData.sessionInfoYamlPath, wr.data.SessionNum, "SessionType"));
-                        filenameToDumpRenamed = System.IO.Path.Combine(directory, filename + "-" + track + "-" + sessionType) + extension;
+                        do
+                        {                            
+                            filenameToDumpRenamed = System.IO.Path.Combine(directory, filename + "-" + track + "-" + sessionType + "-" + i.ToString()) + extension;
+                            i++;
+                        } while (System.IO.File.Exists(filenameToDumpRenamed));
                     }
                 }
                 SerializeObject(currentSession.ToArray<iRacingStructDumpWrapper>(), filenameToDumpRenamed);
-            }
+            }            
         }
 
         public void SplitTraceData(String newFilename)

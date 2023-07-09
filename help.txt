@@ -9,7 +9,7 @@ For Raceroom and Project Cars, Crew Chief is self contained and needs no other s
 
 For voice recognition (entirely optional but quite handy and very cool) see below.
 
-If you're stuck or just want to catch up on what's going on with the app, there's a Crew Chief forum here: http://thecrewchief.org
+If you're stuck or just want to catch up on what's going on with the app, there's a Crew Chief forum here: https://thecrewchief.org
 
 
 Raceroom:
@@ -394,7 +394,7 @@ Playing back pace notes:
 If there are pace notes for the game / car / track combination you're using in your Documents folder, you can start this running with the voice command "start pace notes" and stop it with the voice command "stop pace notes", or you can assign a button to the "Start / stop playing pace notes" action. When the pace notes are being played, each of the messages in the session will be played when you reach the point on the track where it was recorded. They will continue to be played until you press the button again or make the "stop pace notes" voice command.
 
 
-There's a sample pace notes set available for Raceroom's Macau circuit in the WTCC 2014 - 2017 cars. You can view it in action here https://youtu.be/hz7lu23ckUE. You can download it here http://crewchief.isnais.de/ExamplePaceNotes.zip. Unzip this to your Documents folder so it creates a directory structure like the ones described above, then when you start a WTCC session at Macau you can start the pace notes playing with the "start pace notes" voice command or "Start / stop playing pace notes" button.
+There's a sample pace notes set available for Raceroom's Macau circuit in the WTCC 2014 - 2017 cars. You can view it in action here https://youtu.be/hz7lu23ckUE. You can download it here https://d1o4ya81faadx8.cloudfront.net/ExamplePaceNotes.zip. Unzip this to your Documents folder so it creates a directory structure like the ones described above, then when you start a WTCC session at Macau you can start the pace notes playing with the "start pace notes" voice command or "Start / stop playing pace notes" button.
 
 
 Track Landmarks(corner mappings) recording.
@@ -452,7 +452,7 @@ Crew Chief supports some rF2 specific features not exposed via official rF2 Inte
 
 Note: first space in " Enabled" above is required.
 
-See this thread for more information: http://thecrewchief.org/showthread.php?1011-rFactor-2-Unofficial-Features
+See this thread for more information: https://thecrewchief.org/showthread.php?1011-rFactor-2-Unofficial-Features
 
 
 Advanced Controller Bindings

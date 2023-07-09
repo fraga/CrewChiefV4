@@ -8,6 +8,7 @@ This handles the translation both ways
 
 Author: Tony Whitley (sven.smiles@gmail.com)
 */
+using CrewChiefV4;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -23,7 +24,7 @@ namespace PitMenuAPI
         /// <summary>
         /// All the Pit Menu categories of tyres that rF2 selects from
         /// </summary>
-        private static readonly string[] tyreCategories = {
+        private readonly string[] tyreCategories = {
             "RR TIRE:",
             "RL TIRE:",
             "FR TIRE:",
@@ -39,7 +40,7 @@ namespace PitMenuAPI
         /// The Pit Menu categories of tyres that rF2 uses to select compounds,
         /// the remainder sometimes only choose this compound or NO CHANGE
         /// </summary>
-        private static readonly string[] frontTyreCategories = {
+        private readonly string[] frontTyreCategories = {
             "FR TIRE:",
             "FL TIRE:",
             "F TIRES:",
@@ -48,18 +49,20 @@ namespace PitMenuAPI
             "TIRES:"
         };
 
-        private static readonly string[] leftTyreCategories = {
+        private readonly string[] leftTyreCategories = {
             "FL TIRE:",
             "RL TIRE:",
             "LF TIRES:",
         };
 
-        private static readonly string[] rightTyreCategories = {
+        private readonly string[] rightTyreCategories = {
             "FR TIRE:",
             "RR TIRE:",
             "RT TIRES:",
         };
 
+        private MenuLayout menuLayout;
+        private readonly PitMenuController pmc = new PitMenuController();
         #endregion Private Fields
 
         #region Public Methods
@@ -69,23 +72,29 @@ namespace PitMenuAPI
         /// </summary>
         public bool PmalConnect()  // tbd Naming
         {
-            MenuLayout.NewCar();
+            menuLayout = new MenuLayout();
+            menuLayout.NewCar();
             return Connect();
         }
 
         public void RereadPitMenu()
         {
-            MenuLayout.NewCar();
-            MenuLayout.getKeys();
+            menuLayout.NewCar();
+            menuLayout.GetKeys();
+        }
+
+        public bool MfdPage(string Mfd)
+        {
+            return switchMFD(Mfd);
         }
 
         public List<string> GetCategories()
         {
-            return MenuLayout.getKeys();
+            return menuLayout.GetKeys();
         }
-        public bool SmartSetCategory(string category)
+        new public bool SmartSetCategory(string category)
         {
-            return PitMenuController.SmartSetCategory(category);
+            return pmc.SmartSetCategory(category);
         }
 
         /// <summary>
@@ -99,8 +108,9 @@ namespace PitMenuAPI
         public List<string> GetFrontTyreCategories()
         {
             List<string> result =
-                frontTyreCategories.Intersect(MenuLayout.getKeys()).ToList();
+                frontTyreCategories.Intersect(menuLayout.GetKeys()).ToList();
             result.Sort();
+            Log.Debug("Front tyre categories in menu: " + string.Join(", ", result.Select(s => $"'{s}'")));
             return result;
         }
 
@@ -113,7 +123,7 @@ namespace PitMenuAPI
         public List<string> GetAllTyreCategories()
         {
             List<string> result =
-                tyreCategories.Intersect(MenuLayout.getKeys()).ToList();
+                tyreCategories.Intersect(menuLayout.GetKeys()).ToList();
             result.Sort();
             return result;
         }
@@ -152,23 +162,25 @@ namespace PitMenuAPI
         {
             // There are simpler ways to do this but...
             return tyreCategories.Except(frontTyreCategories)
-              .Intersect(MenuLayout.getKeys()).ToList();
+              .Intersect(menuLayout.GetKeys()).ToList();
         }
 
         public List<string> GetLeftTyreCategories()
         {
-            return leftTyreCategories.Intersect(MenuLayout.getKeys()).ToList();
+            return leftTyreCategories.Intersect(menuLayout.GetKeys()).ToList();
         }
 
         public List<string> GetRightTyreCategories()
         {
-            return rightTyreCategories.Intersect(MenuLayout.getKeys()).ToList();
+            return rightTyreCategories.Intersect(menuLayout.GetKeys()).ToList();
         }
 
-        public List<string> GetTyreTypeNames()
+        new public List<string> GetTyreTypeNames()
         {
             string tyre = GetFrontTyreCategories()[0];
-            return MenuLayout.get(tyre);
+            var result = menuLayout.Get(tyre);
+            Log.Debug("Tyre type names " + string.Join(", ", result.Select(s => $"'{s}'")));
+            return result;
         }
 
         /// <summary>
@@ -230,9 +242,9 @@ namespace PitMenuAPI
         }
 
         // Unit Test
-        public void setMenuDict(Dictionary<string, List<string>> dict)
+        public void SetMenuDict(Dictionary<string, List<string>> dict)
         {
-            MenuLayout.set(dict);
+            menuLayout.Set(dict);
         }
 
         #endregion Public Methods
@@ -246,42 +258,43 @@ namespace PitMenuAPI
         {
             #region Private Fields
 
-            private static Dictionary<string, List<string>> menuDict =
+            private Dictionary<string, List<string>> menuDict =
                 new Dictionary<string, List<string>>();
+
+            private static readonly PitMenuController pmc = new PitMenuController();
 
             #endregion Private Fields
 
             #region Public Methods
 
-            public static void NewCar()
+            public void NewCar()
             {
                 menuDict = new Dictionary<string, List<string>> { };
             }
 
-            public static List<string> get(string key)
+            internal List<string> Get(string key)
             {
-                List<string> value;
                 if (menuDict.Count == 0)
                 {
-                    menuDict = GetMenuDict();
+                    menuDict = pmc.GetMenuDict();
                 }
-                if (menuDict.Count > 0 && menuDict.TryGetValue(key, out value))
+                if (menuDict.Count > 0 && menuDict.TryGetValue(key, out List<string> value))
                 {
                     return value;
                 }
                 return new List<string>();
             }
 
-            public static List<string> getKeys()
+            internal List<string> GetKeys()
             {
                 if (menuDict.Count == 0)
                 {
-                    menuDict = GetMenuDict();
+                    menuDict = pmc.GetMenuDict();
                 }
                 return new List<string>(menuDict.Keys);
             }
 
-            public static void set(Dictionary<string, List<string>> unitTestDict)
+            internal void Set(Dictionary<string, List<string>> unitTestDict)
             {
                 menuDict = unitTestDict;
             }

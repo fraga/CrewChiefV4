@@ -8,6 +8,9 @@ using System.IO.MemoryMappedFiles;
 using CrewChiefV4;
 using CrewChiefV4.iRacing;
 using System.ComponentModel;
+using System.Runtime.ConstrainedExecution;
+using System.Security;
+
 namespace iRSDKSharp
 {
     public enum BroadcastMessageTypes { CamSwitchPos = 0, CamSwitchNum, CamSetState, ReplaySetPlaySpeed, ReplaySetPlayPosition, ReplaySearch, ReplaySetState, ReloadTextures, ChatCommand, PitCommand, TelemCommand };
@@ -76,19 +79,22 @@ namespace iRSDKSharp
                 iRacingFile = MemoryMappedFile.OpenExisting(Defines.MemMapFileName);
                 FileMapView = iRacingFile.CreateViewAccessor();
                 VarHeaderSize = Marshal.SizeOf(typeof(VarHeader));
-
                 var hEvent = OpenEvent(Defines.DesiredAccess, false, Defines.DataValidEventName);
-                var are = new AutoResetEvent(false);
-                are.Handle = hEvent;
-
-                var wh = new WaitHandle[1];
-                wh[0] = are;
-                WaitHandle.WaitAny(wh, 5000);
-
-                Header = new CiRSDKHeader(FileMapView);
-                GetVarHeaders();
-
-                IsInitialized = true;
+                if (hEvent != IntPtr.Zero)
+                {
+                    var are = new AutoResetEvent(false)
+                    {
+                        SafeWaitHandle = new Microsoft.Win32.SafeHandles.SafeWaitHandle(hEvent, false)
+                    };
+                    if (!are.WaitOne(0))
+                    {
+                        Header = new CiRSDKHeader(FileMapView);
+                        GetVarHeaders();
+                        IsInitialized = true;
+                    }
+                    are.Close();
+                    CloseHandle(hEvent);
+                }
             }
             catch (Exception)
             {
@@ -148,7 +154,7 @@ namespace iRSDKSharp
 
                 foreach (CVarHeader header in VarHeaders.Values)
                 {
-                    if (header.Name.StartsWith("dp") || header.Name.StartsWith("dc") || header.Name.Contains("shockDefl") || header.Name.Contains("shockVel") || header.Name.Contains("_ST"))
+                    if (header.Name.StartsWith("dp") || header.Name.StartsWith("dc") || header.Name.Contains("_ST"))
                     {
                         continue;
                     }
@@ -164,7 +170,7 @@ namespace iRSDKSharp
                 file.WriteLine("\t\tpublic System.String SessionInfo;");
                 foreach (CVarHeader header in VarHeaders.Values)
                 {
-                    if (header.Name.StartsWith("dp") || header.Name.StartsWith("dc") || header.Name.Contains("shockDefl") || header.Name.Contains("shockVel") || header.Name.Contains("_ST"))
+                    if (header.Name.StartsWith("dp") || header.Name.StartsWith("dc") || header.Name.Contains("_ST"))
                     {
                         continue;
                     }
@@ -260,6 +266,10 @@ namespace iRSDKSharp
                     else if (header.Name == "Skies")
                     {
                         return (Skies)FileMapView.ReadInt32(Header.Buffer + varOffset);
+                    }
+                    else if (header.Name == "DRS_Status")
+                    {
+                        return (DrsStatus)FileMapView.ReadInt32(Header.Buffer + varOffset);
                     }
                     else if (header.Type == CVarHeader.VarType.irChar)
                     {
@@ -455,6 +465,12 @@ namespace iRSDKSharp
 
         [DllImport("Kernel32.dll", CharSet = CharSet.Auto)]
         private static extern IntPtr OpenEvent(UInt32 dwDesiredAccess, Boolean bInheritHandle, String lpName);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
+        [SuppressUnmanagedCodeSecurity]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        static extern bool CloseHandle(IntPtr hObject);
 
         public static int MakeLong(short lowPart, short highPart)
         {

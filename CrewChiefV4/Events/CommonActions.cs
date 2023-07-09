@@ -92,8 +92,8 @@ namespace CrewChiefV4.Events
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.STOP_COMPLAINING, false))
             {
-                GlobalBehaviourSettings.complaintsDisabled = true;
                 Console.WriteLine("Disabling complaining messages for this session");
+                GlobalBehaviourSettings.maxComplaintsPerSession = 0;
                 audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHATS_MY_RANK, false))
@@ -113,9 +113,9 @@ namespace CrewChiefV4.Events
                 if (playerRatings != null)
                 {
                     // if we don't explicitly split the sound up here it'll be read as an int
-                    int intPart = (int) playerRatings.reputation;
+                    int intPart = (int)playerRatings.reputation;
                     int decPart = (int)(10 * (playerRatings.reputation - (float)intPart));
-                    audioPlayer.playMessageImmediately(new QueuedMessage("playerReputation", 0, 
+                    audioPlayer.playMessageImmediately(new QueuedMessage("playerReputation", 0,
                         messageFragments: MessageContents(intPart, NumberReader.folderPoint, decPart)));
                 }
             }
@@ -139,13 +139,13 @@ namespace CrewChiefV4.Events
                 Console.WriteLine("Getting damage report");
                 getDamageReport();
             }
-            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.CAR_STATUS, false) || 
-                SpeechRecogniser.ResultContains(voiceMessage, new string[]{ ControllerConfiguration.GET_CAR_STATUS}))
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.CAR_STATUS, false) ||
+                SpeechRecogniser.ResultContains(voiceMessage, new string[] { ControllerConfiguration.GET_CAR_STATUS }))
             {
                 Console.WriteLine("Getting car status");
                 getCarStatus();
             }
-            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.STATUS, false) || 
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.STATUS, false) ||
                 SpeechRecogniser.ResultContains(voiceMessage, new string[] { ControllerConfiguration.GET_STATUS }))
             {
                 Console.WriteLine("Getting full status");
@@ -179,72 +179,72 @@ namespace CrewChiefV4.Events
             {
                 SubtitleOverlay.shown = false;
             }
-            else if (SpeechRecogniser.ResultContains(voiceMessage, new string[] {ControllerConfiguration.TOGGLE_RACE_UPDATES_FUNCTION}))
+            else if (SpeechRecogniser.ResultContains(voiceMessage, new string[] { ControllerConfiguration.TOGGLE_RACE_UPDATES_FUNCTION }))
             {
                 Console.WriteLine("Toggling keep quiet mode");
                 toggleKeepQuietMode();
             }
-            else if (SpeechRecogniser.ResultContains(voiceMessage, new string[]{ ControllerConfiguration.TOGGLE_READ_OPPONENT_DELTAS}))
+            else if (SpeechRecogniser.ResultContains(voiceMessage, new string[] { ControllerConfiguration.TOGGLE_READ_OPPONENT_DELTAS }))
             {
                 Console.WriteLine("Toggling read opponent deltas mode");
                 toggleReadOpponentDeltasMode();
             }
-            else if (SpeechRecogniser.ResultContains(voiceMessage, new string[]{ ControllerConfiguration.TOGGLE_MANUAL_FORMATION_LAP}))
+            else if (SpeechRecogniser.ResultContains(voiceMessage, new string[] { ControllerConfiguration.TOGGLE_MANUAL_FORMATION_LAP }))
             {
                 Console.WriteLine("Toggling manual formation lap mode");
                 toggleManualFormationLapMode();
             }
-            else if (SpeechRecogniser.ResultContains(voiceMessage, new string[]{ ControllerConfiguration.READ_CORNER_NAMES_FOR_LAP}))
+            else if (SpeechRecogniser.ResultContains(voiceMessage, new string[] { ControllerConfiguration.READ_CORNER_NAMES_FOR_LAP }))
             {
                 Console.WriteLine("Enabling corner name reading for current lap");
                 playCornerNamesForCurrentLap();
             }
-            else if (SpeechRecogniser.ResultContains(voiceMessage, new string[]{ ControllerConfiguration.REPEAT_LAST_MESSAGE_BUTTON}))
+            else if (SpeechRecogniser.ResultContains(voiceMessage, new string[] { ControllerConfiguration.REPEAT_LAST_MESSAGE_BUTTON }))
             {
                 Console.WriteLine("Repeating last message");
                 audioPlayer.repeatLastMessage();
             }
-            else if (SpeechRecogniser.ResultContains(voiceMessage, new string[]{ ControllerConfiguration.TOGGLE_YELLOW_FLAG_MESSAGES}))
+            else if (SpeechRecogniser.ResultContains(voiceMessage, new string[] { ControllerConfiguration.TOGGLE_YELLOW_FLAG_MESSAGES }))
             {
                 Console.WriteLine("Toggling yellow flag messages to: " + (CrewChief.yellowFlagMessagesEnabled ? "disabled" : "enabled"));
                 toggleEnableYellowFlagsMode();
             }
-            else if (SpeechRecogniser.ResultContains(voiceMessage, new string[]{ ControllerConfiguration.TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS}))
+            else if (SpeechRecogniser.ResultContains(voiceMessage, new string[] { ControllerConfiguration.TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS }))
             {
                 Console.WriteLine("Toggling delay-messages-in-hard-parts");
                 toggleDelayMessagesInHardParts();
             }
-            else if (SpeechRecogniser.ResultContains(voiceMessage, new string[]{ ControllerConfiguration.GET_FUEL_STATUS}))
+            else if (SpeechRecogniser.ResultContains(voiceMessage, new string[] { ControllerConfiguration.GET_FUEL_STATUS }))
             {
                 Console.WriteLine("Getting fuel/battery status");
-                reportFuelStatus();
+                reportFuelBatteryStatus();
             }
-            else if (SpeechRecogniser.ResultContains(voiceMessage, new string[]{ ControllerConfiguration.TOGGLE_PACE_NOTES_RECORDING}))
+            else if (SpeechRecogniser.ResultContains(voiceMessage, new string[] { ControllerConfiguration.TOGGLE_PACE_NOTES_RECORDING }))
             {
                 Console.WriteLine("Start / stop pace notes recording");
                 togglePaceNotesRecording();
             }
-            else if (SpeechRecogniser.ResultContains(voiceMessage, new string[]{ ControllerConfiguration.TOGGLE_PACE_NOTES_PLAYBACK}))
+            else if (SpeechRecogniser.ResultContains(voiceMessage, new string[] { ControllerConfiguration.TOGGLE_PACE_NOTES_PLAYBACK }))
             {
                 Console.WriteLine("Start / stop pace notes playback");
                 togglePaceNotesPlayback();
             }
-            else if (SpeechRecogniser.ResultContains(voiceMessage, new string[]{ ControllerConfiguration.TOGGLE_TRACK_LANDMARKS_RECORDING}))
+            else if (SpeechRecogniser.ResultContains(voiceMessage, new string[] { ControllerConfiguration.TOGGLE_TRACK_LANDMARKS_RECORDING }))
             {
                 Console.WriteLine("Start / stop track landmark recording");
                 toggleTrackLandmarkRecording();
             }
-            else if (SpeechRecogniser.ResultContains(voiceMessage, new string[]{ ControllerConfiguration.TOGGLE_ENABLE_CUT_TRACK_WARNINGS}))
+            else if (SpeechRecogniser.ResultContains(voiceMessage, new string[] { ControllerConfiguration.TOGGLE_ENABLE_CUT_TRACK_WARNINGS }))
             {
                 Console.WriteLine("Enable / disable cut track warnings");
                 toggleEnableCutTrackWarnings();
             }
-            else if (SpeechRecogniser.ResultContains(voiceMessage, new string[]{ ControllerConfiguration.ADD_TRACK_LANDMARK}))
+            else if (SpeechRecogniser.ResultContains(voiceMessage, new string[] { ControllerConfiguration.ADD_TRACK_LANDMARK }))
             {
                 //dont confirm press here we do that in addLandmark
                 toggleAddTrackLandmark();
             }
-            else if (SpeechRecogniser.ResultContains(voiceMessage, new string[]{ ControllerConfiguration.PIT_PREDICTION}))
+            else if (SpeechRecogniser.ResultContains(voiceMessage, new string[] { ControllerConfiguration.PIT_PREDICTION }))
             {
                 Console.WriteLine("pit prediction");
                 if (currentGameState != null)
@@ -298,6 +298,8 @@ namespace CrewChiefV4.Events
         public void disableKeepQuietMode()
         {
             keepQuietEnabled = false;
+            // also disable the global speak-only-when-spoken-to setting
+            GlobalBehaviourSettings.speakOnlyWhenSpokenTo = false;
             audioPlayer.disableKeepQuietMode();
         }
         public void toggleKeepQuietMode()
@@ -470,7 +472,7 @@ namespace CrewChiefV4.Events
             audioPlayer.playMessageImmediately(new QueuedMessage(LapCounter.folderManualFormationLapModeDisabled, 0));
         }
 
-        public void reportFuelStatus()
+        private void reportFuelBatteryStatus()
         {
             if (GlobalBehaviourSettings.enabledMessageTypes.Contains(MessageTypes.BATTERY))
             {

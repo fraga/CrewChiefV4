@@ -45,7 +45,7 @@ namespace CrewChiefV4.RBR
 
             public void Connect()
             {
-                this.memoryMappedFile = MemoryMappedFile.OpenExisting(this.BUFFER_NAME);
+                this.memoryMappedFile = MemoryMappedFile.OpenExisting(this.BUFFER_NAME, MemoryMappedFileRights.Read);
 
                 // NOTE: Make sure that BUFFER_SIZE matches the structure size in the plugin (debug mode prints that).
                 this.fullSizeBuffer = new byte[this.BUFFER_SIZE_BYTES];
@@ -102,7 +102,7 @@ namespace CrewChiefV4.RBR
 
             public void GetMappedDataUnsynchronized(ref MappedBufferT mappedData)
             {
-                using (var sharedMemoryStreamView = this.memoryMappedFile.CreateViewStream())
+                using (var sharedMemoryStreamView = this.memoryMappedFile.CreateViewStream(0, this.BUFFER_SIZE_BYTES, MemoryMappedFileAccess.Read))
                 {
                     var sharedMemoryStream = new BinaryReader(sharedMemoryStreamView);
                     var sharedMemoryReadBuffer = sharedMemoryStream.ReadBytes(this.BUFFER_SIZE_BYTES);
@@ -144,7 +144,7 @@ namespace CrewChiefV4.RBR
                 // * Thread.Sleep(0)/Yield - drawback is CPU being kept busy, but almost minimum latency.  Compared to first option, gives other threads a chance to execute.
                 // * Thread.Sleep(N) - relaxed approach, less CPU saturation but adds a bit of latency.
                 // there are other options too.  Bearing in mind that minimum sleep on windows is ~16ms, which is around 66FPS, I doubt delay added matters much for Crew Chief at least.
-                using (var sharedMemoryStreamView = this.memoryMappedFile.CreateViewStream())
+                using (var sharedMemoryStreamView = this.memoryMappedFile.CreateViewStream(0, this.BUFFER_SIZE_BYTES, MemoryMappedFileAccess.Read))
                 {
                     uint currVersionBegin = 0;
                     uint currVersionEnd = 0;
@@ -501,7 +501,7 @@ namespace CrewChiefV4.RBR
             {
                 this.DisconnectInternal();
             }
-            catch (Exception) { }
+            catch (Exception e) {Log.Exception(e);}
         }
     }
 }

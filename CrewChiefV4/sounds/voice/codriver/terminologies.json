@@ -28,22 +28,14 @@
   "termininologies": {
     "NUMBER_FIRST": {
       "terminology": {
-        "corner_1_left": "corner_hairpin_left",
-        "corner_1_right": "corner_hairpin_right",
-        "corner_2_left": "corner_1_left",
-        "corner_2_right": "corner_1_right",
-        "corner_square_left": "corner_2_left",
-        "corner_square_right": "corner_2_right"
+        "corner_left_acute": "corner_hairpin_left",
+        "corner_right_acute": "corner_hairpin_right"
       }
     },
     "DIRECTION_FIRST": {
       "terminology": {
-        "corner_1_left": "corner_hairpin_left",
-        "corner_1_right": "corner_hairpin_right",
-        "corner_2_left": "corner_1_left",
-        "corner_2_right": "corner_1_right",
-        "corner_square_left": "corner_2_left",
-        "corner_square_right": "corner_2_right"
+        "corner_left_acute": "corner_hairpin_left",
+        "corner_right_acute": "corner_hairpin_right"
       }
     },
     "DESCRIPTIVE": {
@@ -51,22 +43,14 @@
     },
     "NUMBER_FIRST_REVERSED": {
       "terminology": {
-        "corner_1_left": "corner_hairpin_left",
-        "corner_1_right": "corner_hairpin_right",
-        "corner_2_left": "corner_1_left",
-        "corner_2_right": "corner_1_right",
-        "corner_square_left": "corner_2_left",
-        "corner_square_right": "corner_2_right"
+        "corner_left_acute": "corner_hairpin_left",
+        "corner_right_acute": "corner_hairpin_right"
       }
     },
     "DIRECTION_FIRST_REVERSED": {
       "terminology": {
-        "corner_1_left": "corner_hairpin_left",
-        "corner_1_right": "corner_hairpin_right",
-        "corner_2_left": "corner_1_left",
-        "corner_2_right": "corner_1_right",
-        "corner_square_left": "corner_2_left",
-        "corner_square_right": "corner_2_right"
+        "corner_left_acute": "corner_hairpin_left",
+        "corner_right_acute": "corner_hairpin_right"
       }
     }
   },
@@ -118,7 +102,6 @@
     "detail_roundabout",
     "detail_wooden_fence",
     "detail_twisty",
-    "detail_go_straight",
     "detail_jump",
     "detail_crest",
     "detail_bridge",
