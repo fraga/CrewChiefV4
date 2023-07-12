@@ -74,6 +74,10 @@
 		{
 			"CrewChiefField": "SessionData.PreviousLapWasValid",
 			"TelemetryField": "PreviousLapWasValid"
+		},
+		{
+			"CrewChiefField": "carClass.carClassEnumString",
+			"TelemetryField": "CarClass"
 		}
 	]
 }
