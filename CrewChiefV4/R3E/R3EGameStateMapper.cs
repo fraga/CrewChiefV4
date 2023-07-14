@@ -347,6 +347,9 @@ namespace CrewChiefV4.RaceRoom
                             currentGameState.carClass = CarData.getCarClassForRaceRoomId(participantStruct.DriverInfo.ClassId);
                             currentGameState.SessionData.PlayerCarNr = participantStruct.DriverInfo.CarNumber.ToString();
                             CarData.RACEROOM_CLASS_ID = participantStruct.DriverInfo.ClassId;
+                            // car length / width to be added to shared memory - disable until it's released
+                            /*currentGameState.carClass.spotterVehicleLength = playerDriverData.DriverInfo.CarLength;
+                            currentGameState.carClass.spotterVehicleWidth = playerDriverData.DriverInfo.CarWidth;*/
                             GlobalBehaviourSettings.UpdateFromCarClass(currentGameState.carClass);
                             Console.WriteLine("Player is using car class " + currentGameState.carClass.getClassIdentifier() + " (class ID " + participantStruct.DriverInfo.ClassId + ")");
                         }
@@ -418,6 +421,9 @@ namespace CrewChiefV4.RaceRoom
                         {
                             currentGameState.carClass = CarData.getCarClassForRaceRoomId(shared.VehicleInfo.ClassId);
                             CarData.RACEROOM_CLASS_ID = shared.VehicleInfo.ClassId;
+                            // car length / width to be added to shared memory - disable until it's released
+                            /*currentGameState.carClass.spotterVehicleLength = playerDriverData.DriverInfo.CarLength;
+                            currentGameState.carClass.spotterVehicleWidth = playerDriverData.DriverInfo.CarWidth;*/
                             GlobalBehaviourSettings.UpdateFromCarClass(currentGameState.carClass);
                             Console.WriteLine("Player is using car class " + currentGameState.carClass.getClassIdentifier());
                         }
@@ -1440,6 +1446,9 @@ namespace CrewChiefV4.RaceRoom
                     Console.WriteLine("Player car class in game data has changed. Updating to " + correctedCarClass.getClassIdentifier());
                     currentGameState.carClass = correctedCarClass;
                     CarData.RACEROOM_CLASS_ID = playerDriverData.DriverInfo.ClassId;
+                    // car length / width to be added to shared memory - disable until it's released
+                    /*currentGameState.carClass.spotterVehicleLength = playerDriverData.DriverInfo.CarLength;
+                    currentGameState.carClass.spotterVehicleWidth = playerDriverData.DriverInfo.CarWidth;*/
                     GlobalBehaviourSettings.UpdateFromCarClass(correctedCarClass);
                 }
             }
@@ -1479,7 +1488,6 @@ namespace CrewChiefV4.RaceRoom
                 currentGameState.SessionData.expectedFinishingPosition = R3ERatings.calculateExpectedFinishPosition(previousGameState.OpponentData, previousGameState.carClass);
                 nextExpectedFinishingPositionUpdateDue = currentGameState.Now.AddSeconds(30);
             }
-
             return currentGameState;
         }
 

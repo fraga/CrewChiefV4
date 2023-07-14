@@ -131,7 +131,7 @@ namespace CrewChiefV4.Events
                     && !previousGameState.PitData.IsInGarage && !currentGameState.PitData.JumpedToPits)
                 {
                     Fuel fuelEvent = (Fuel)CrewChief.getEvent("Fuel");
-                    float litresNeeded = fuelEvent.getLitresToEndOfRace(true);
+                    float litresNeeded = fuelEvent.getAdditionalFuelToEndOfRace(true);
 
                     if (litresNeeded == float.MaxValue)
                     {
@@ -235,7 +235,7 @@ namespace CrewChiefV4.Events
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.PIT_STOP_FUEL_TO_THE_END))
             {
                 Fuel fuelEvent = (Fuel)CrewChief.getEvent("Fuel");
-                float litresNeeded = fuelEvent.getLitresToEndOfRace(true);
+                float litresNeeded = fuelEvent.getAdditionalFuelToEndOfRace(true);
 
                 if (litresNeeded == float.MaxValue)
                 {
