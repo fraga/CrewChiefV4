@@ -883,12 +883,12 @@ update_interval_metadata = RESTART_REQUIRED
 
 # Property: Use sweary messages
 use_sweary_messages = Use sweary messages
-use_sweary_messages_help = A few messages contain swearing - then enables / disables these
+use_sweary_messages_help = A few messages contain swearing - this enables / disables these
 use_sweary_messages_metadata = RESTART_REQUIRED
 
 # Property: Enable Spotter
 enable_spotter = Enable Spotter
-enable_spotter_help = The Spotter can be enabled and disabled with a button. This setting sets it initial state
+enable_spotter_help = The Spotter can be enabled and disabled with a button. This sets its initial state
 enable_spotter_category = SPOTTER
 
 # Property: Speech recognition country
@@ -1852,7 +1852,7 @@ tts_trim_end_milliseconds_metadata = RESTART_REQUIRED
 
 # Property: iRacing tyre pressure adjustments in PSI
 iracing_pit_tyre_pressure_in_psi = iRacing tyre pressure adjustments in PSI
-iracing_pit_tyre_pressure_in_psi_help = Assume tyre adjust tyre pressure commands are in PSI (disable this to use kPa)
+iracing_pit_tyre_pressure_in_psi_help = Assume tyre adjust tyre pressure commands are in PSI (uncheck this to use kPa)
 iracing_pit_tyre_pressure_in_psi_filter = IRACING
 iracing_pit_tyre_pressure_in_psi_category = INTERNATIONALISATION;PIT_STOPS_AND_MULTICLASS
 
@@ -1987,13 +1987,13 @@ max_unknown_car_classes_for_assetto_category = PIT_STOPS_AND_MULTICLASS
 
 # Property: iRacing faster parser
 iracing_fast_parsing = iRacing faster parser
-iracing_fast_parsing_help = Use fast parser for iRacing session info. Disable only if you experience crashes (and please tell us)
+iracing_fast_parsing_help = Use fast parser for iRacing session info. Uncheck only if you experience crashes (and please tell us)
 iracing_fast_parsing_filter = IRACING
 iracing_fast_parsing_metadata = RESTART_REQUIRED
 
 # Property: Enable iRacing pit stop voice commands
 enable_iracing_pit_stop_commands = Enable iRacing pit stop voice commands
-enable_iracing_pit_stop_commands_help = If you do not use iRacing pit stop commands, you may disable this.  If unchecked, Crew Chief will exclude iRacing pit stop commands from the command set - may improve recognition accuracy
+enable_iracing_pit_stop_commands_help = If you do not use iRacing pit stop commands, you may uncheck this.  If unchecked, Crew Chief will exclude iRacing pit stop commands from the command set - may improve recognition accuracy
 enable_iracing_pit_stop_commands_filter = IRACING
 enable_iracing_pit_stop_commands_category = AUDIO_VOICE_AND_CONTROLLERS;PIT_STOPS_AND_MULTICLASS
 
@@ -2004,7 +2004,7 @@ add_additional_fuel_category = FUEL_TEMPS_AND_DAMAGES;PIT_STOPS_AND_MULTICLASS
 
 # Property: iRacing Invalidate cut track Laps
 iracing_invalidate_cut_track_laps = iRacing Invalidate cut track Laps
-iracing_invalidate_cut_track_laps_help = Disable this if you don't want the app to invalidate laps where you cut the track.
+iracing_invalidate_cut_track_laps_help = Uncheck this if you don't want the app to invalidate laps where you cut the track.
 iracing_invalidate_cut_track_laps_filter = IRACING
 iracing_invalidate_cut_track_laps_category = FLAGS_AND_RULES
 
@@ -2119,7 +2119,7 @@ trigger_word_listen_timeout_metadata = RESTART_REQUIRED
 
 # Property: Enable alarm clock voice commands
 enable_alarm_clock_voice_recognition = Enable alarm clock voice commands
-enable_alarm_clock_voice_recognition_help = Enable this if you want to use the alarm clock feature, this is unchecked by default to limit the number of voice commands
+enable_alarm_clock_voice_recognition_help = Check this if you want to use the alarm clock feature, this is unchecked by default to limit the number of voice commands
 enable_alarm_clock_voice_recognition_category = AUDIO_VOICE_AND_CONTROLLERS;TIMINGS
 
 # Property: Alarm time(s)
@@ -2210,7 +2210,7 @@ game_data_websocket_port_metadata = RESTART_REQUIRED
 
 # Property: Disable rF2 race end msg. for abandoned events
 disable_rf2_race_end_messages_on_abandoned_sessions = Disable rF2 race end msg. for abandoned events
-disable_rf2_race_end_messages_on_abandoned_sessions_help = Enable this preference if you would like to turn off race end messages for times when you quit Single Player race without finishing it.
+disable_rf2_race_end_messages_on_abandoned_sessions_help = Check this if you would like to turn off race end messages for times when you quit Single Player race without finishing it.
 disable_rf2_race_end_messages_on_abandoned_sessions_filter = RF2_64BIT
 disable_rf2_race_end_messages_on_abandoned_sessions_category = MESSAGE_FREQUENCIES
 
@@ -2454,7 +2454,7 @@ watched_opponent_names_help = Comma separated list of opponent names to report o
 
 # Property: Always show VR Settings window as overlay
 show_vr_settings_as_overlay = Always show VR Settings window as overlay
-show_vr_settings_as_overlay_help = SteamVR Settings window is always shown as an overlay.  Disable if it gets in a way of other windows
+show_vr_settings_as_overlay_help = SteamVR Settings window is always shown as an overlay.  Uncheck if it gets in a way of other windows
 show_vr_settings_as_overlay_category = VR_SETTINGS
 
 # Property: Co-driver rushing speed threshold (km/h)
