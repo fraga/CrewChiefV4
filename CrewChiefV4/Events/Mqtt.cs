@@ -115,19 +115,61 @@ namespace CrewChiefV4.Events
             });
         }
 
-        private void playMessage(string text, float distance, int priority)
+        private void playMessage(string text, float distance, float max_distance, int priority)
         {
 
+            QueuedMessage message;
             var fragment = MessageFragment.Text(text);
             fragment.allowTTS = true;
             string messageName = $"mqtt_response_{text}_{distance}";
-            // Console.WriteLine($"MQTT: playMessage {messageName}");
-            var message = new QueuedMessage(messageName, 10,
-                              messageFragments: MessageContents(fragment),
-                              abstractEvent: this, type: SoundType.REGULAR_MESSAGE, priority: priority,
-                              triggerFunction: (GameStateData gsd) =>
-                                 distance < 0 || Math.Abs(gsd.PositionAndMotionData.DistanceRoundTrack - distance) < 1
-                              );
+            // Console.WriteLine($"MQTT: queue {messageName} - DRT: {CrewChief.currentGameState.PositionAndMotionData.DistanceRoundTrack}");
+            // play message immediately if distance is 0
+            if (distance <= 0)
+            {
+                message = new QueuedMessage(
+                    messageName,
+                    10,
+                    messageFragments: MessageContents(fragment),
+                    abstractEvent: this,
+                    type: SoundType.REGULAR_MESSAGE,
+                    priority: priority
+                );
+            }
+            else
+            {
+                // if max_distance is not given, use the distance + 10 meters
+                if (max_distance < 0)
+                    max_distance = distance + 10;
+ 
+                message = new QueuedMessage(
+                    messageName,
+                    10,
+                    messageFragments: MessageContents(fragment),
+                    abstractEvent: this,
+                    type: SoundType.REGULAR_MESSAGE,
+                    priority: priority,
+                    triggerFunction: (GameStateData gsd) => {
+                        var drt = gsd.PositionAndMotionData.DistanceRoundTrack;
+                        if (distance <= max_distance)
+                        {
+                            if (distance <= drt && drt <= max_distance)
+                            {
+                                // Console.WriteLine($"MQTT: play {messageName} -  max: {max_distance} drt: {drt}");
+                                return true;
+                            }
+                        }
+                        else
+                        {
+                            if (distance <= drt || drt <= max_distance)
+                            {
+                                // Console.WriteLine($"MQTT: play {messageName} -  max: {max_distance} drt: {drt}");
+                                return true;
+                            }
+                        }
+                        return false;
+                    }
+                 );
+            }
             audioPlayer.playMessage(message);
         }
 
@@ -144,6 +186,7 @@ namespace CrewChiefV4.Events
                     string response = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
                     string message = response;
                     float distance = -1;
+                    float max_distance = -1;
                     int priority = SoundMetadata.DEFAULT_PRIORITY;
                     if (response.StartsWith("{"))
                     {
@@ -156,6 +199,10 @@ namespace CrewChiefV4.Events
                         {
                             distance = json.GetValue("distance").ToObject<float>();
                         }
+                        if (json.ContainsKey("max_distance"))
+                        {
+                            max_distance = json.GetValue("max_distance").ToObject<float>();
+                        }
                         if (json.ContainsKey("priority"))
                         {
                             priority = json.GetValue("priority").ToObject<int>();
@@ -167,7 +214,7 @@ namespace CrewChiefV4.Events
                         if (response.Length > 256) { response = response.Substring(0, 256); }
                         message = response;
                     }
-                    playMessage(message, distance, priority);
+                    playMessage(message, distance, max_distance, priority);
                 }
                 catch (AggregateException ex)
                 {
