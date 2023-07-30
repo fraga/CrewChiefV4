@@ -334,7 +334,7 @@ namespace CrewChiefV4.Events
                 Environment.SpecialFolder.MyDocuments), "CrewChiefV4", "mqtt_telemetry.json");
             String defaultConfig = Configuration.getDefaultFileLocation("mqtt_telemetry.json");
             //string oldDefaultConfigMD5 = getMD5HashFromFile(userConfig);
-            String oldDefaultConfigMD5 = "32455A215BD00CE14F3F0712C4603550";
+            String oldDefaultConfigMD5 = "AC30D9E0A7CF6B92BD108670B54A90FF";
 
             if (File.Exists(userConfig))
             {
