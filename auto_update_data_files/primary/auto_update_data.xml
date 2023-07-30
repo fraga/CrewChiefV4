@@ -2,8 +2,8 @@
 <!-- this is the 'primary' auto update data - the app will check this one first. From this update file, the MSI
 will be pulled from the thecrewchief.org ftp server and the assets from our VPS, falling back to thecrewchief.org. -->
 <item>
-<title>Crew Chief 4.17.1.2 updated 05 May 2023</title>
-<version>4.17.1.2</version>
+<title>Crew Chief 4.17.1.4 updated 30 July 2023</title>
+<version>4.17.1.4</version>
 <!-- indirect link via a download script which tracks the number of downloads (just the number, not IP addresses or anything else) -->
 <url>https://thecrewchief.org/downloads.php</url>
 <changelog>https://thecrewchief.org/downloads/change_log_for_auto_updated.html</changelog>
@@ -54,7 +54,7 @@ will be pulled from the thecrewchief.org ftp server and the assets from our VPS,
 		<update-pack url="http://167.235.144.28/update_33_sound_pack.zip" updates-from-version="186"/>
 		<update-pack url="http://167.235.144.28/update_34_sound_pack.zip" updates-from-version="187"/>
 	</voice-messages>
-	<driver-names latest-version="140">
+	<driver-names latest-version="141">
 		<update-pack url="http://167.235.144.28/base_driver_names.zip" updates-from-version="-1"/>
 		<update-pack url="http://167.235.144.28/update_driver_names.zip" updates-from-version="0"/>
 		<update-pack url="http://167.235.144.28/update_2_driver_names.zip" updates-from-version="130"/>
@@ -66,6 +66,7 @@ will be pulled from the thecrewchief.org ftp server and the assets from our VPS,
 		<update-pack url="http://167.235.144.28/update_8_driver_names.zip" updates-from-version="137"/>
 		<update-pack url="http://167.235.144.28/update_9_driver_names.zip" updates-from-version="138"/>
 		<update-pack url="http://167.235.144.28/update_10_driver_names.zip" updates-from-version="139"/>
+		<update-pack url="http://167.235.144.28/update_11_driver_names.zip" updates-from-version="140"/>
 	</driver-names>
 	<personalisations latest-version="147">
 		<update-pack url="http://167.235.144.28/personalisations.zip" updates-from-version="-1"/>

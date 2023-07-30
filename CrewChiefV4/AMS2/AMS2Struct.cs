@@ -662,7 +662,7 @@ namespace CrewChiefV4.AMS2
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
         public float[] mSuspensionVelocity;            // [ UNITS = Rate of change of pushrod deflection ] [ RANGE 0.f =>... ]  [ UNSET =  0.0f ]
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
-        public float[] mAirPressure;                   // [ UNITS = PSI ]  [ RANGE 0.f =>... ]  [ UNSET =  0.0f ]
+        public float[] mAirPressure;                   // [ UNITS = kPa ]  [ RANGE 0.f =>... ]  [ UNSET =  0.0f ]
         public float mEngineSpeed;                             // [ UNITS = Rad/s ] [UNSET = 0.f ]
         public float mEngineTorque;                            // [ UNITS = Newton Meters] [UNSET = 0.f ] [ RANGE = 0.0f->... ]
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2)]

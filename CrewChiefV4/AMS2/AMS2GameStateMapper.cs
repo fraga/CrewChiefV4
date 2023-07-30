@@ -1071,7 +1071,7 @@ namespace CrewChiefV4.AMS2
             currentGameState.TyreData.FrontLeft_LeftTemp = shared.mTyreTempLeft[0];
             currentGameState.TyreData.FrontLeft_RightTemp = shared.mTyreTempRight[0];
             currentGameState.TyreData.FrontLeftTyreType = tyreType;
-            currentGameState.TyreData.FrontLeftPressure = -1; // not in the block
+            currentGameState.TyreData.FrontLeftPressure = shared.mAirPressure[0];
             currentGameState.TyreData.FrontLeftPercentWear = Math.Min(100, shared.mTyreWear[0] * 100 / wornOutTyreWearLevel);
             if (currentGameState.SessionData.IsNewLap || currentGameState.TyreData.PeakFrontLeftTemperatureForLap == 0)
             {
@@ -1086,7 +1086,7 @@ namespace CrewChiefV4.AMS2
             currentGameState.TyreData.FrontRight_LeftTemp = shared.mTyreTempLeft[1];
             currentGameState.TyreData.FrontRight_RightTemp = shared.mTyreTempRight[1];
             currentGameState.TyreData.FrontRightTyreType = tyreType;
-            currentGameState.TyreData.FrontRightPressure = -1; // not in the block
+            currentGameState.TyreData.FrontRightPressure = shared.mAirPressure[1];
             currentGameState.TyreData.FrontRightPercentWear = Math.Min(100, shared.mTyreWear[1] * 100 / wornOutTyreWearLevel);
             if (currentGameState.SessionData.IsNewLap || currentGameState.TyreData.PeakFrontRightTemperatureForLap == 0)
             {
@@ -1101,7 +1101,7 @@ namespace CrewChiefV4.AMS2
             currentGameState.TyreData.RearLeft_LeftTemp = shared.mTyreTempLeft[2];
             currentGameState.TyreData.RearLeft_RightTemp = shared.mTyreTempRight[2];
             currentGameState.TyreData.RearLeftTyreType = tyreType;
-            currentGameState.TyreData.RearLeftPressure = -1; // not in the block
+            currentGameState.TyreData.RearLeftPressure = shared.mAirPressure[2];
             currentGameState.TyreData.RearLeftPercentWear = Math.Min(100, shared.mTyreWear[2] * 100 / wornOutTyreWearLevel);
             if (currentGameState.SessionData.IsNewLap || currentGameState.TyreData.PeakRearLeftTemperatureForLap == 0)
             {
@@ -1116,7 +1116,7 @@ namespace CrewChiefV4.AMS2
             currentGameState.TyreData.RearRight_LeftTemp = shared.mTyreTempLeft[3];
             currentGameState.TyreData.RearRight_RightTemp = shared.mTyreTempRight[3];
             currentGameState.TyreData.RearRightTyreType = tyreType;
-            currentGameState.TyreData.RearRightPressure = -1; // not in the block
+            currentGameState.TyreData.RearRightPressure = shared.mAirPressure[3];
             currentGameState.TyreData.RearRightPercentWear = Math.Min(100, shared.mTyreWear[3] * 100 / wornOutTyreWearLevel);
             if (currentGameState.SessionData.IsNewLap || currentGameState.TyreData.PeakRearRightTemperatureForLap == 0)
             {
