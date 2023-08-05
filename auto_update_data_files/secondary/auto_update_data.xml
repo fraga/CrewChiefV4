@@ -5,8 +5,8 @@ Note that the filename has to remain 'auto_update_data.xml' so legacy installs (
 secondary update sources) can still be updated.
 From this update file, the MSI installer is pulled from the VPS and the assets from thecrewchief.org, falling back to the VPS. -->
 <item>
-<title>Crew Chief 4.17.1.2 updated 05 May 2023</title>
-<version>4.17.1.2</version>
+<title>Crew Chief 4.17.1.4 updated 30 July 2023</title>
+<version>4.17.1.4</version>
 <!-- direct download link to the installer, not HTTPS so may raise eyebrows. We could change this to be
 https://d1o4ya81faadx8.cloudfront.net/CrewChiefV4.msi without incurring too much risk but it's additional faff
  -->
@@ -59,7 +59,7 @@ https://d1o4ya81faadx8.cloudfront.net/CrewChiefV4.msi without incurring too much
 		<update-pack url="https://thecrewchief.org/downloads/update_33_sound_pack.zip" updates-from-version="186"/>
 		<update-pack url="https://thecrewchief.org/downloads/update_34_sound_pack.zip" updates-from-version="187"/>
 	</voice-messages>
-	<driver-names latest-version="140">
+	<driver-names latest-version="141">
 		<update-pack url="https://thecrewchief.org/downloads/base_driver_names.zip" updates-from-version="-1"/>
 		<update-pack url="https://thecrewchief.org/downloads/update_driver_names.zip" updates-from-version="0"/>
 		<update-pack url="https://thecrewchief.org/downloads/update_2_driver_names.zip" updates-from-version="130"/>
@@ -71,6 +71,7 @@ https://d1o4ya81faadx8.cloudfront.net/CrewChiefV4.msi without incurring too much
 		<update-pack url="https://thecrewchief.org/downloads/update_8_driver_names.zip" updates-from-version="137"/>
 		<update-pack url="https://thecrewchief.org/downloads/update_9_driver_names.zip" updates-from-version="138"/>
 		<update-pack url="https://thecrewchief.org/downloads/update_10_driver_names.zip" updates-from-version="139"/>
+		<update-pack url="https://thecrewchief.org/downloads/update_11_driver_names.zip" updates-from-version="140"/>
 	</driver-names>
 	<personalisations latest-version="147">
 		<update-pack url="https://thecrewchief.org/downloads/personalisations.zip" updates-from-version="-1"/>

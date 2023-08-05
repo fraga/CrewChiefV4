@@ -235,7 +235,7 @@ namespace UnitTest.Misc
         [TestCase("Jim Junior", "junior", "junior")]
         [TestCase("Jim LeClerc", "le clerc", "le clercq")]
         [TestCase("Jim le Clerc", "le clerc", "le clercq")]
-        [TestCase("Charles Leclerc", "leclerc", "le clercq")]
+        [TestCase("Charles Leclerc", "leclerc", "leclerc")]
         [TestCase("Jim Ng", "ng", "ng")]
         [TestCase("jim", "jim", "jm")]
         [TestCase("a", null, null)]

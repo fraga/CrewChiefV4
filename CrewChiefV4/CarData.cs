@@ -497,7 +497,7 @@ namespace CrewChiefV4
             public List<Regex> gtr2ClassNamesRegexs = new List<Regex>();
 
             // Turns out enum.ToString() is costly, so cache string representation of enum value.
-            private String carClassEnumString = null;
+            public String carClassEnumString = null;
             public CarClass()
             {
                 // initialise with default values

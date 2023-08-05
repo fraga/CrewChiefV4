@@ -92,7 +92,7 @@ namespace CrewChiefV4
             if (messageBoxPresented == false)
             {
                 messageBoxPresented = true;
-                if (DialogResult.OK == MessageBox.Show(Configuration.getUIString("install_plugin_popup_text"), Configuration.getUIString("install_plugin_popup_title"),
+                if (DialogResult.OK == MessageBox.Show(Configuration.getUIString("install_plugin_popup_text") + " " + gameName, Configuration.getUIString("install_plugin_popup_title"),
                     MessageBoxButtons.OKCancel, MessageBoxIcon.Information))
                 {
                     messageBoxResult = true;

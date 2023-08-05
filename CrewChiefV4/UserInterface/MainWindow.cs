@@ -1154,10 +1154,15 @@ namespace CrewChiefV4
             Console.SetOut(consoleWriter);
             Console.WriteLine("Loading screen opened"); // The first point at which we can do that, the screen is already loaded.
 
-            // if we can't init the UserSettings the app will basically be fucked. So try to nuke the Britton_IT_Ltd directory from
-            // orbit (it's the only way to be sure) then restart the app. This shit is comically flakey but what else can we do here?
-            if (UserSettings.GetUserSettings().initFailed)
+            if (!UserSettings.GetUserSettings().initFailed)
             {
+                Console.WriteLine(UserSettings.GetUserSettings().initMessage);
+            }
+            else
+            {
+                // if we can't init the UserSettings Crew Chief will basically be fucked. So try to nuke the Britton_IT_Ltd directory from
+                // orbit (it's the only way to be sure) then restart Crew Chief. This shit is comically flakey but what else can we do here?
+
                 String path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4");
                 try
                 {
@@ -1165,30 +1170,31 @@ namespace CrewChiefV4
                     {
                         Directory.CreateDirectory(path);
                     }
-                    File.WriteAllText(path + @"\startupError.txt", "Message: " +
-                        UserSettings.GetUserSettings().initFailedMessage + "\nStack" + UserSettings.GetUserSettings().initFailedStack);
+                    File.WriteAllText(path + @"\startupError.txt", "Message: " + UserSettings.GetUserSettings().initMessage + "\n" +
+                        UserSettings.GetUserSettings().initFailedExceptionMessage + "\nStack" + UserSettings.GetUserSettings().initFailedStack);
                 }
                 catch (Exception e)
                 {
-                    // oh dear, now we are in a pickle.
+                    // oh dear, we can't write the startup error log file.
                     // throw a new exception to be shown in the "oh shit" popup message
                     throw new Exception("Unable to write startup error logs: " + e.Message + "\n please ensure CrewChief can access " + path +
-                        "\nStartup error is " + UserSettings.GetUserSettings().initFailedMessage + "\nStack" + UserSettings.GetUserSettings().initFailedStack);
+                        "\nStartup error is " + UserSettings.GetUserSettings().initFailedExceptionMessage + "\nStack" + UserSettings.GetUserSettings().initFailedStack);
                 }
-                Console.WriteLine("Unable to upgrade properties from previous version, settings will be reset to default");
+                Console.WriteLine(UserSettings.GetUserSettings().initMessage);
+                Console.WriteLine("Unable to read settings or upgrade settings from previous version, settings will be reset to default");
                 try
                 {
-                    UserSettings.ForceablyDeleteConfigDirectory();
+                    UserSettings.ForciblyDeleteConfigDirectory();
                     // note we can't load these from the UI settings because loading stuff will be broken at this point
-                    doRestart("Failed to load user settings. The app will automatically restart in order to recreate this file. " +
-                              "Once the app has restarted, please restart it again manually.", "Failed to load user settings");
+                    doRestart("Failed to load user settings. Crew Chief will automatically restart in order to recreate this file. " +
+                            "Once Crew Chief has restarted, please restart it again manually.", "Failed to load user settings");
                 }
                 catch (Exception e)
                 {
                     // oh dear, now we are in a pickle.
                     // throw a new exception to be shown in the "oh shit" popup message
                     throw new Exception("Unable to remove broken app settings file: " + e.Message +
-                        "\n Please exit the app and manually delete folder " + UserSettings.userConfigFolder);
+                        "\n Please exit Crew Chief and manually delete folder " + UserSettings.userConfigFolder);
                 }
             }
 

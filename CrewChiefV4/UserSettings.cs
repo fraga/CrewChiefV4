@@ -15,7 +15,7 @@ namespace CrewChiefV4
         public static String userConfigFolder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\Britton_IT_Ltd";
 
         // blat the user config folder for cases where it gets fucked up.
-        public static void ForceablyDeleteConfigDirectory()
+        public static void ForciblyDeleteConfigDirectory()
         {
             ForceablyDeleteDirectory(userConfigFolder);
         }
@@ -45,7 +45,8 @@ namespace CrewChiefV4
 
         public Boolean initFailed = false;
         public string initFailedStack = "";
-        public string initFailedMessage = "";
+        public string initMessage = "";
+        public string initFailedExceptionMessage = "";
 
         private static  String[] reservedNameStarts = new String[] { "CHANNEL_", "TOGGLE_", "VOICE_OPTION", "background_volume",
             "messages_volume", "last_game_definition", "UpdateSettings",ControllerConfiguration.ControllerData.PROPERTY_CONTAINER,
@@ -295,6 +296,7 @@ namespace CrewChiefV4
             {
                 // start by checked we can actually read a property value - this will throw an exception if the
                 // user settings in AppData are broken
+                initMessage = "Can't read a property value";
                 int x = Properties.Settings.Default.main_window_position.X;
 
                 // Add build in action mappings to reserved name list.
@@ -308,11 +310,13 @@ namespace CrewChiefV4
                 }
 
                 // Copy user settings from previous application version if necessary
+                string currentAppVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
                 String savedAppVersion = getString("app_version");
-                if (savedAppVersion == null || !savedAppVersion.Equals(System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString()))
+                if (savedAppVersion == null || !savedAppVersion.Equals(currentAppVersion))
                 {
+                    initMessage = $"Upgraded user settings from {savedAppVersion} to {currentAppVersion}";
                     Properties.Settings.Default.Upgrade();
-                    setProperty("app_version", System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString());
+                    setProperty("app_version", currentAppVersion);
                     Properties.Settings.Default.Save();
                     upgradeUserProfileSettings();
 
@@ -330,10 +334,12 @@ namespace CrewChiefV4
                 if (!string.IsNullOrWhiteSpace(currentUserProfileFileName))
                 {
                     loadActiveUserSettingsProfile(fileName: Path.Combine(userProfilesPath, currentUserProfileFileName), loadingDefault: false);
+                    initMessage = $"Loaded profile '{currentUserProfileFileName.Split('.')[0]}'";
                 }
                 else
                 {
                     loadActiveUserSettingsProfile(fileName: Path.Combine(userProfilesPath, defaultUserSettingsfileName), loadingDefault: true);
+                    initMessage = "Loaded default profile";
                 }
             }
             catch (Exception exception)
@@ -341,7 +347,7 @@ namespace CrewChiefV4
                 // if any of this initialisation fails, the app is in an unusable state.
                 Console.WriteLine(exception.Message);
                 initFailed = true;
-                initFailedMessage = exception.Message;
+                initFailedExceptionMessage = exception.Message;
                 initFailedStack = exception.StackTrace;
             }
         }
