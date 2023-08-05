@@ -15,6 +15,7 @@ using NAudio.CoreAudioApi;
 using CrewChiefV4.Overlay;
 using System.IO;
 using CrewChiefV4.ACC;
+using CrewChiefV4.PitManager;
 
 namespace CrewChiefV4
 {
@@ -3431,7 +3432,8 @@ namespace CrewChiefV4
             {
                 return CrewChief.getEvent("Strategy");
             }
-            else if (ResultContains(recognisedSpeech, PIT_STOP_TEAROFF, false) ||   // tbd Does this actually do anything?
+            else if (CrewChief.gameDefinition.gameEnum == GameEnum.IRACING &&
+                (ResultContains(recognisedSpeech, PIT_STOP_TEAROFF, false) ||   // tbd Does this actually do anything?
                 ResultContains(recognisedSpeech, PIT_STOP_FAST_REPAIR, false) ||    // already captured by
                 ResultContains(recognisedSpeech, PIT_STOP_CLEAR_ALL, false) ||      // else if (GrammarWrapperListContains(iracingPitstopGrammarList, recognitionGrammar))
                 ResultContains(recognisedSpeech, PIT_STOP_CLEAR_TYRES, false) ||    // Morten: Yes its needed for button press to sre command as its not passed through sre_SpeechRecognized() but ControllerConfiguration.ButtonAssignment.findEvent()
@@ -3450,9 +3452,14 @@ namespace CrewChiefV4
                 ResultContains(recognisedSpeech, WHATS_THE_INCIDENT_LIMIT, false) ||
                 ResultContains(recognisedSpeech, WHATS_MY_IRATING, false) ||
                 ResultContains(recognisedSpeech, WHATS_MY_LICENSE_CLASS, false) ||
-                ResultContains(recognisedSpeech, WHATS_THE_SOF, false))
+                ResultContains(recognisedSpeech, WHATS_THE_SOF, false)))
             {
                 return CrewChief.getEvent("IRacingBroadcastMessageEvent");
+            }
+            else if (CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT &&
+                PitManagerVoiceCmds.IsPitManagerCommand(recognisedSpeech))
+            {
+                return CrewChief.getEvent("PitManagerVoiceCmds");
             }
             else if (alarmClockVoiceRecognitionEnabled &&
                 (ResultContains(recognisedSpeech, SET_ALARM_CLOCK, false) || ResultContains(recognisedSpeech, CLEAR_ALARM_CLOCK, false)))

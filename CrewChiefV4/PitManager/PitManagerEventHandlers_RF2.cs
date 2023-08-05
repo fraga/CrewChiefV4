@@ -550,7 +550,7 @@ namespace CrewChiefV4.PitManager
                     PMrF2eh_PenaltyServeNone(null);
                 }
             }
-            return false;
+            return true;
         }
 
 
