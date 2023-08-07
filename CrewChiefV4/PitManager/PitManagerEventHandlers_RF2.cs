@@ -543,11 +543,11 @@ namespace CrewChiefV4.PitManager
                 var categories = Pmal.GetCategories();
                 if (categories.Contains("STOP/GO"))
                 {
-                    PMrF2eh_RepairNone(null);
+                    PMrF2eh_PenaltyServeNone(null);
                 }
                 if (categories.Contains("DAMAGE:"))
                 {
-                    PMrF2eh_PenaltyServeNone(null);
+                    PMrF2eh_RepairNone(null);
                 }
             }
             return false;
