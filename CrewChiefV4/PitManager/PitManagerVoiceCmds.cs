@@ -189,7 +189,18 @@ namespace CrewChiefV4.PitManager
                 }
             }
         }
-
+        public static bool IsPitManagerCommand(String voiceMessage)
+        {
+            // Check the Pit commands
+            foreach (var cmd in voiceCmds)
+            {
+                if (SRE.ResultContains(voiceMessage, cmd.Value))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
         /// <summary>
         /// reinitialise any state held by the event subtype
         /// </summary>
