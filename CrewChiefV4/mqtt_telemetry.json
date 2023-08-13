@@ -5,9 +5,8 @@
 	"Password": "crewchief",
 	"Port": 31883,
 	"UpdateRateLimit": 0,
-	"SubscribeTopic": "",
-	"Channels" :
-	[
+	"SubscribeTopic": "/coach",
+	"Channels": [
 		{
 			"CrewChiefField": "ControlData.ClutchPedal",
 			"TelemetryField": "Clutch"
@@ -63,6 +62,22 @@
 		{
 			"CrewChiefField": "SessionData.LapTimeCurrent",
 			"TelemetryField": "CurrentLapTime"
+		},
+		{
+			"CrewChiefField": "SessionData.LapTimePrevious",
+			"TelemetryField": "LapTimePrevious"
+		},
+		{
+			"CrewChiefField": "SessionData.CurrentLapIsValid",
+			"TelemetryField": "CurrentLapIsValid"
+		},
+		{
+			"CrewChiefField": "SessionData.PreviousLapWasValid",
+			"TelemetryField": "PreviousLapWasValid"
+		},
+		{
+			"CrewChiefField": "carClass.carClassEnumString",
+			"TelemetryField": "CarClass"
 		}
 	]
 }

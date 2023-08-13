@@ -5,6 +5,7 @@ using System.Text;
 using CrewChiefV4.GameState;
 using CrewChiefV4.Events;
 using CrewChiefV4.rFactor1.rFactor1Data;
+using CrewChiefV4.Audio;
 
 /**
  * Maps memory mapped file to a local game-agnostic representation.
@@ -148,7 +149,7 @@ namespace CrewChiefV4.rFactor1
             }
             if (playerName == null)
             {
-                String driverName = getStringFromBytes(player.driverName).ToLower();
+                String driverName = getStringFromBytes(player.driverName);
                 AdditionalDataProvider.validate(driverName);
                 playerName = driverName;
             }
@@ -225,7 +226,7 @@ namespace CrewChiefV4.rFactor1
 
             currentGameState.carClass = getCarClass(getStringFromBytes(shared.vehicleName), true);
             brakeTempThresholdsForPlayersCar = CarData.getBrakeTempThresholds(currentGameState.carClass);
-            currentGameState.SessionData.DriverRawName = getStringFromBytes(player.driverName).ToLower();
+            currentGameState.SessionData.DriverRawName = getStringFromBytes(player.driverName);
             currentGameState.SessionData.TrackDefinition = new TrackDefinition(getStringFromBytes(shared.trackName), shared.lapDist);
             if (previousGameState != null)
             {
@@ -362,6 +363,7 @@ namespace CrewChiefV4.rFactor1
                 previousGameState.SessionData.RestorePlayerTimings(currentGameState.SessionData);
 
                 currentGameState.SessionData.DeltaTime = previousGameState.SessionData.DeltaTime;
+                currentGameState.Conditions.CurrentConditions = previousGameState.Conditions.CurrentConditions;
                 currentGameState.Conditions.samples = previousGameState.Conditions.samples;
                 currentGameState.TimingData = previousGameState.TimingData;
             }
@@ -650,7 +652,7 @@ namespace CrewChiefV4.rFactor1
             for (int i = 0; i < shared.numVehicles; ++i)
             {
                 var vehicle = shared.vehicle[i];
-                String driverName = getStringFromBytes(vehicle.driverName).ToLower();
+                String driverName = getStringFromBytes(vehicle.driverName);
                 if (isOfflineSession && (rFactor1Constant.rfControl)vehicle.control == rFactor1Constant.rfControl.remote)
                 {
                     isOfflineSession = false;
@@ -689,7 +691,7 @@ namespace CrewChiefV4.rFactor1
                     default:
                         break;
                 }
-                String driverName = getStringFromBytes(vehicle.driverName).ToLower();
+                String driverName = getStringFromBytes(vehicle.driverName);
                 OpponentData opponentPrevious;
                 int duplicatesCount = driverNameCounts[driverName];
                 string opponentKey;
@@ -769,6 +771,7 @@ namespace CrewChiefV4.rFactor1
                 if (opponent.DriverNameSet && opponentPrevious == null && CrewChief.enableDriverNames)
                 {
                     if (speechRecogniser != null) speechRecogniser.addNewOpponentName(opponent.DriverRawName, "-1");
+                    SoundCache.loadDriverNameSound(DriverNameHelper.getUsableDriverName(opponent.DriverRawName));
                     Console.WriteLine("New driver " + opponent.DriverRawName + 
                         " is using car class " + opponent.CarClass.getClassIdentifier() +
                         " at position " + opponent.OverallPosition.ToString());
@@ -1350,7 +1353,7 @@ namespace CrewChiefV4.rFactor1
                 OpponentData o = null;
                 if (previousGameState.OpponentData.TryGetValue(possibleKey, out o))
                 {
-                    if (o.DriverRawName != getStringFromBytes(vehicle.driverName).ToLower() ||
+                    if (o.DriverRawName != getStringFromBytes(vehicle.driverName) ||
                         !CarData.IsCarClassEqual(o.CarClass, getCarClass(getStringFromBytes(vehicle.vehicleName), false)) ||
                         opponentKeysProcessed.Contains(possibleKey))
                     {

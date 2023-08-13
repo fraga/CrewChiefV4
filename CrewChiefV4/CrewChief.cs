@@ -1,24 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.IO.MemoryMappedFiles;
-using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading;
-using System.Windows.Forms;
+
 using CrewChiefV4.RaceRoom;
 using CrewChiefV4.Events;
-using System.Collections.Generic;
 using CrewChiefV4.GameState;
 using CrewChiefV4.PCars;
-using CrewChiefV4.RaceRoom.RaceRoomData;
 using CrewChiefV4.Audio;
-using CrewChiefV4.NumberProcessing;
-using WebSocketSharp.Server;
 using CrewChiefV4.Overlay;
 using CrewChiefV4.SharedMemory;
 using CrewChiefV4.PitManager;
-using CrewChiefV4.commands;
 
 namespace CrewChiefV4
 {
@@ -171,7 +163,7 @@ namespace CrewChiefV4
             audioPlayer.initialise();
             clearAndReloadEvents();
 
-            DriverNameHelper.readRawNamesToUsableNamesFiles(AudioPlayer.soundFilesPath);
+            DriverNameHelper.ReadDriverNameMappings(AudioPlayer.soundFilesPath);
         }
 
         private void reloadSettings()
@@ -586,9 +578,15 @@ namespace CrewChiefV4
                         }
                         else if (UserSettings.GetUserSettings().getBoolean(gameDefinition.gameStartEnabledProperty) && !attemptedToRunGame)
                         {
-                            Utilities.runGame(UserSettings.GetUserSettings().getString(gameDefinition.gameStartCommandProperty),
-                                UserSettings.GetUserSettings().getString(gameDefinition.gameStartCommandOptionsProperty));
-                            attemptedToRunGame = true;
+                            if (Utilities.runGame(UserSettings.GetUserSettings().getString(gameDefinition.gameStartCommandProperty),
+                                UserSettings.GetUserSettings().getString(gameDefinition.gameStartCommandOptionsProperty)))
+                            {
+                                attemptedToRunGame = true;
+                            }
+                            else
+                            {
+                                return false;
+                            }
                         }
                     }
 
@@ -768,13 +766,16 @@ namespace CrewChiefV4
                                     }
                                     if (rawDriverNames.Count > 0)
                                     {
-                                        List<String> usableDriverNames = DriverNameHelper.getUsableDriverNames(rawDriverNames);
+                                        // load all the sound files for this set of driver names. Note this will recreate all their cleaned up and
+                                        // mapped versions, and sounds which previously failed to match won't be in this set (we won't attempt to
+                                        // match them again)
+                                        SoundCache.loadDriverNameSounds(DriverNameHelper.getUsableDriverNameSounds(rawDriverNames));
+                                        // if the SRE is active, load the appropriate phrases
                                         if (speechRecogniser != null && speechRecogniser.initialised)
                                         {
-                                            speechRecogniser.addOpponentSpeechRecognition(usableDriverNames, currentGameState.getCarNumbers());
+                                            speechRecogniser.addOpponentsSpeechRecognition(
+                                                DriverNameHelper.getUsableDriverNamesForSRE(rawDriverNames), currentGameState.getCarNumbers());
                                         }
-                                        // now load all the sound files for this set of driver names
-                                        SoundCache.loadDriverNameSounds(usableDriverNames);
                                     }
                                 }
                                 audioPlayer.wakeMonitorThreadForRegularMessages(currentGameState.Now);

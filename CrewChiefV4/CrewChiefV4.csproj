@@ -339,6 +339,11 @@
     <Compile Include="PitManager\PitManagerEventHandlers_RF2.cs" />
     <Compile Include="PitManager\PitManagerResponseHandlers.cs" />
     <Compile Include="PitManager\PitManagerVoiceCmds.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
@@ -364,6 +369,30 @@
     <Compile Include="UserInterface\MainWindowMenu.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="UserInterface\Models\OpponentNameSelection.cs" />
+    <Compile Include="UserInterface\Models\MyName.cs" />
+    <Compile Include="UserInterface\Models\OpponentNames.cs" />
+    <Compile Include="UserInterface\MyName-V.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UserInterface\MyName-V.Designer.cs">
+      <DependentUpon>MyName-V.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserInterface\OpponentNames-V.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UserInterface\OpponentNames-V.Designer.cs">
+      <DependentUpon>OpponentNames-V.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserInterface\OpponentNameSelection-V.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UserInterface\OpponentNameSelection-V.Designer.cs">
+      <DependentUpon>OpponentNameSelection-V.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserInterface\VMs\OpponentNameSelection-VM.cs" />
+    <Compile Include="UserInterface\VMs\MyName-VM.cs" />
+    <Compile Include="UserInterface\VMs\OpponentNames_VM.cs" />
     <Compile Include="VROverlayWindow\CaptureScreen.cs" />
     <Compile Include="VROverlayWindow\ChromaKey.cs" />
     <Compile Include="VROverlayWindow\CursorInteraction.cs" />
@@ -550,6 +579,10 @@
     <Compile Include="GTR2\GTR2SharedMemoryReader.cs" />
     <Compile Include="GTR2\GTR2Spotter.cs" />
     <Compile Include="GTR2\GTR2Data.cs" />
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="UserInterface\ActionEditor.resx">
       <DependentUpon>ActionEditor.cs</DependentUpon>
     </EmbeddedResource>
@@ -565,6 +598,17 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UserInterface\MacroEditor.resx">
       <DependentUpon>MacroEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UserInterface\MyName-V.resx">
+      <DependentUpon>MyName-V.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UserInterface\OpponentNames-V.resx">
+      <DependentUpon>OpponentNames-V.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UserInterface\OpponentNameSelection-V.resx">
+      <DependentUpon>OpponentNameSelection-V.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UserInterface\PropertiesForm.resx">
       <DependentUpon>PropertiesForm.cs</DependentUpon>
@@ -658,6 +702,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="FuzzySharp">
+      <Version>2.0.2</Version>
+    </PackageReference>
     <PackageReference Include="InputSimulatorPlus">
       <Version>1.0.7</Version>
     </PackageReference>
@@ -690,6 +737,9 @@
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
       <Version>12.0.2</Version>
+    </PackageReference>
+    <PackageReference Include="Phonix">
+      <Version>1.0.2</Version>
     </PackageReference>
     <PackageReference Include="SharpDX.Direct2D1">
       <Version>4.2.0</Version>

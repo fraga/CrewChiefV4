@@ -145,7 +145,7 @@ namespace CrewChiefV4.Events
                             break;
                         }
                         // fall back to matching on surnames only
-                        else if (DriverNameHelper.getUsableDriverName(entry.Value.DriverRawName).Equals(name, StringComparison.InvariantCultureIgnoreCase))
+                        else if (name.Equals(DriverNameHelper.getUsableDriverName(entry.Value.DriverRawName, true), StringComparison.InvariantCultureIgnoreCase))
                         {
                             surnameMatch = entry.Key;
                         }
@@ -402,8 +402,10 @@ namespace CrewChiefV4.Events
             {
                 foreach (KeyValuePair<string, OpponentData> entry in currentGameState.OpponentData)
                 {
-                    String usableDriverName = DriverNameHelper.getUsableDriverName(entry.Value.DriverRawName);
-                    if (voiceMessage.Contains(usableDriverName))
+                    String usableDriverNameForSRE = DriverNameHelper.getUsableDriverNameForSRE(entry.Value.DriverRawName);
+                    // check for full username match so we're not triggering on substrings within other words
+                    if (usableDriverNameForSRE != null
+                        && (voiceMessage.Contains(" " + usableDriverNameForSRE + " ") || voiceMessage.EndsWith(" " + usableDriverNameForSRE)))
                     {
                         opponentKey = entry.Key;
                         break;

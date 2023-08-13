@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -34,6 +35,15 @@ namespace CrewChiefV4.Events
         private int port;
         private List<DataItem> dataItems;
 
+        // a static method that removes invalid characters from a string
+        private static string SanitizeForTopic(string input)
+        {
+            // https://github.com/dotnet/MQTTnet/blob/73d681bc1f978c4e6cf03266fcd1fb4a30a5d205/Source/MQTTnet/Protocol/MqttTopicValidator.cs#L22-L41
+            // replace + and # with empty string in input
+
+            return Regex.Replace(input, @"[\+#/]", "");
+        }
+
         public Mqtt(AudioPlayer audioPlayer)
         {
             // TODO how to figure out if we're initialized by "Start" button or by starting the App?
@@ -49,6 +59,7 @@ namespace CrewChiefV4.Events
             driverName = Regex.Replace(driverName, @"[^\w\d]", " ");
             driverName = Regex.Replace(driverName, @"\s+", " ");
             driverName = driverName.Trim();
+            driverName = SanitizeForTopic(driverName);
             if (driverName == string.Empty)
                 driverName = "invalid drivername";
 
@@ -104,6 +115,64 @@ namespace CrewChiefV4.Events
             });
         }
 
+        private void playMessage(string text, float distance, float max_distance, int priority)
+        {
+
+            QueuedMessage message;
+            var fragment = MessageFragment.Text(text);
+            fragment.allowTTS = true;
+            string messageName = $"mqtt_response_{text}_{distance}";
+            // Console.WriteLine($"MQTT: queue {messageName} - DRT: {CrewChief.currentGameState.PositionAndMotionData.DistanceRoundTrack}");
+            // play message immediately if distance is 0
+            if (distance <= 0)
+            {
+                message = new QueuedMessage(
+                    messageName,
+                    10,
+                    messageFragments: MessageContents(fragment),
+                    abstractEvent: this,
+                    type: SoundType.REGULAR_MESSAGE,
+                    priority: priority
+                );
+            }
+            else
+            {
+                // if max_distance is not given, use the distance + 10 meters
+                if (max_distance < 0)
+                    max_distance = distance + 10;
+ 
+                message = new QueuedMessage(
+                    messageName,
+                    10,
+                    messageFragments: MessageContents(fragment),
+                    abstractEvent: this,
+                    type: SoundType.REGULAR_MESSAGE,
+                    priority: priority,
+                    triggerFunction: (GameStateData gsd) => {
+                        var drt = gsd.PositionAndMotionData.DistanceRoundTrack;
+                        if (distance <= max_distance)
+                        {
+                            if (distance <= drt && drt <= max_distance)
+                            {
+                                // Console.WriteLine($"MQTT: play {messageName} -  max: {max_distance} drt: {drt}");
+                                return true;
+                            }
+                        }
+                        else
+                        {
+                            if (distance <= drt || drt <= max_distance)
+                            {
+                                // Console.WriteLine($"MQTT: play {messageName} -  max: {max_distance} drt: {drt}");
+                                return true;
+                            }
+                        }
+                        return false;
+                    }
+                 );
+            }
+            audioPlayer.playMessage(message);
+        }
+
         private void SubscribeClient()
         {
             // this method is called async in a task
@@ -112,23 +181,40 @@ namespace CrewChiefV4.Events
 
             Mqtt.mqttClient.UseApplicationMessageReceivedHandler(e =>
             {
-                //Console.WriteLine("### RECEIVED APPLICATION MESSAGE ###");
-                //Console.WriteLine($"+ Topic = {e.ApplicationMessage.Topic}");
-                //Console.WriteLine($"+ Payload = {Encoding.UTF8.GetString(e.ApplicationMessage.Payload)}");
-                //Console.WriteLine($"+ QoS = {e.ApplicationMessage.QualityOfServiceLevel}");
-                //Console.WriteLine($"+ Retain = {e.ApplicationMessage.Retain}");
-                //Console.WriteLine();
                 try
                 {
-                    var response = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
-                    int meters = Int32.Parse(response);
-                    audioPlayer.playMessage(
-                        new QueuedMessage($"mqtt_response_{meters}", 1,
-                                messageFragments: MessageContents(
-                                    MessageFragment.Integer(meters, MessageFragment.Genders("pt-br", NumberReader.ARTICLE_GENDER.FEMALE))
-                                ),
-                                abstractEvent: this, type: SoundType.REGULAR_MESSAGE, priority: 0)
-                        );
+                    string response = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
+                    string message = response;
+                    float distance = -1;
+                    float max_distance = -1;
+                    int priority = SoundMetadata.DEFAULT_PRIORITY;
+                    if (response.StartsWith("{"))
+                    {
+                        JObject json = JObject.Parse(response);
+                        if (json.ContainsKey("message"))
+                        {
+                            message = json.GetValue("message").ToString();
+                        }
+                        if (json.ContainsKey("distance"))
+                        {
+                            distance = json.GetValue("distance").ToObject<float>();
+                        }
+                        if (json.ContainsKey("max_distance"))
+                        {
+                            max_distance = json.GetValue("max_distance").ToObject<float>();
+                        }
+                        if (json.ContainsKey("priority"))
+                        {
+                            priority = json.GetValue("priority").ToObject<int>();
+                        }
+                    }
+                    else
+                    {
+                        response = Regex.Replace(response, @"[^\w\d\.]", " ");
+                        if (response.Length > 256) { response = response.Substring(0, 256); }
+                        message = response;
+                    }
+                    playMessage(message, distance, max_distance, priority);
                 }
                 catch (AggregateException ex)
                 {
@@ -228,13 +314,13 @@ namespace CrewChiefV4.Events
 
                     string track = "Unknown";
                     if (currentGameState.SessionData.TrackDefinition.name != null)
-                        track = currentGameState.SessionData.TrackDefinition.name.Replace("/", string.Empty);
+                        track = SanitizeForTopic(currentGameState.SessionData.TrackDefinition.name);
 
                     string carModel = "Unknown";
                     if (currentGameState.carName != null)
-                        carModel = currentGameState.carName.Replace("/", string.Empty);
+                        carModel = SanitizeForTopic(currentGameState.carName);
 
-                    string sessionType = currentGameState.SessionData.SessionType.ToString().Replace("/", string.Empty);
+                    string sessionType = SanitizeForTopic(currentGameState.SessionData.SessionType.ToString());
 
                     string mytopic = topic +
                         "/" + driverName +
@@ -278,37 +364,57 @@ namespace CrewChiefV4.Events
             dataItems = config.GetValue("Channels").ToObject<List<DataItem>>();
         }
 
+        protected static String getMD5HashFromFile(String fileName)
+        {
+            using (var md5 = MD5.Create())
+            {
+                using (var stream = File.OpenRead(fileName))
+                {
+                    return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", String.Empty);
+                }
+            }
+        }
+        
         public static String getConfigFileLocation()
         {
-            String path = System.IO.Path.Combine(Environment.GetFolderPath(
+            String userConfig = System.IO.Path.Combine(Environment.GetFolderPath(
                 Environment.SpecialFolder.MyDocuments), "CrewChiefV4", "mqtt_telemetry.json");
+            String defaultConfig = Configuration.getDefaultFileLocation("mqtt_telemetry.json");
+            //string oldDefaultConfigMD5 = getMD5HashFromFile(userConfig);
+            String oldDefaultConfigMD5 = "AC30D9E0A7CF6B92BD108670B54A90FF";
 
-            if (File.Exists(path))
+            if (File.Exists(userConfig))
             {
-                // update the file if it exists.
+                // update the file if it hasnt been modified by the user and its not the new default
+                if (getMD5HashFromFile(userConfig) == oldDefaultConfigMD5)
+                {
+                    Log.Info("Updating unchanged user-configured mqtt_telemetry.json from Documents/CrewChiefV4/ folder");
+                    File.Copy(defaultConfig, userConfig, true);
+                }
                 Log.Info("Loading user-configured mqtt_telemetry.json from Documents/CrewChiefV4/ folder");
-                return path;
+
+                return userConfig;
             }
             // make sure we save a copy to the user config directory
-            else if (!File.Exists(path))
+            else if (!File.Exists(userConfig))
             {
                 try
                 {
-                    File.Copy(Configuration.getDefaultFileLocation("mqtt_telemetry.json"), path);
+                    File.Copy(defaultConfig, userConfig);
                     Log.Info("Loading user-configured mqtt_telemetry.json from Documents/CrewChiefV4/ folder");
-                    return path;
+                    return userConfig;
                 }
                 catch (Exception e)
                 {
                     Log.Error("Error copying default mqtt_telemetry.json file to user dir : " + e.Message);
                     Log.Error("Loading default mqtt_telemetry.json from installation folder");
-                    return Configuration.getDefaultFileLocation("mqtt_telemetry.json");
+                    return defaultConfig;
                 }
             }
             else
             {
                 Log.Info("Loading default mqtt_telemetry.json from installation folder");
-                return Configuration.getDefaultFileLocation("mqtt_telemetry.json");
+                return defaultConfig;
             }
         }
 

@@ -7,6 +7,7 @@ using CrewChiefV4.Events;
 using CrewChiefV4.RaceRoom.RaceRoomData;
 using System.Diagnostics;
 using CrewChiefV4.R3E;
+using CrewChiefV4.Audio;
 
 /**
  * Maps memory mapped file to a local game-agnostic representation.
@@ -200,7 +201,7 @@ namespace CrewChiefV4.RaceRoom
             currentGameState.ControlData.ControlType = mapToControlType(shared.ControlType);
 
             // in some cases, the session start trigger gets missed and we don't have a driver name
-            currentGameState.SessionData.DriverRawName = getNameFromBytes(shared.PlayerName).ToLower();
+            currentGameState.SessionData.DriverRawName = getNameFromBytes(shared.PlayerName);
 
             DriverData playerDriverData = new DriverData();
             int playerDriverDataIndex = 0;
@@ -209,7 +210,7 @@ namespace CrewChiefV4.RaceRoom
             for (int i = 0; i < shared.DriverData.Length; i++)
             {
                 DriverData participantStruct = shared.DriverData[i];
-                String driverName = getNameFromBytes(participantStruct.DriverInfo.Name).ToLower().Trim();
+                String driverName = getNameFromBytes(participantStruct.DriverInfo.Name).Trim();
                 driverNames[i] = driverName;
                 if (driverName.Equals(currentGameState.SessionData.DriverRawName))
                 {
@@ -346,6 +347,9 @@ namespace CrewChiefV4.RaceRoom
                             currentGameState.carClass = CarData.getCarClassForRaceRoomId(participantStruct.DriverInfo.ClassId);
                             currentGameState.SessionData.PlayerCarNr = participantStruct.DriverInfo.CarNumber.ToString();
                             CarData.RACEROOM_CLASS_ID = participantStruct.DriverInfo.ClassId;
+                            // car length / width to be added to shared memory - disable until it's released
+                            /*currentGameState.carClass.spotterVehicleLength = playerDriverData.DriverInfo.CarLength;
+                            currentGameState.carClass.spotterVehicleWidth = playerDriverData.DriverInfo.CarWidth;*/
                             GlobalBehaviourSettings.UpdateFromCarClass(currentGameState.carClass);
                             Console.WriteLine("Player is using car class " + currentGameState.carClass.getClassIdentifier() + " (class ID " + participantStruct.DriverInfo.ClassId + ")");
                         }
@@ -417,10 +421,13 @@ namespace CrewChiefV4.RaceRoom
                         {
                             currentGameState.carClass = CarData.getCarClassForRaceRoomId(shared.VehicleInfo.ClassId);
                             CarData.RACEROOM_CLASS_ID = shared.VehicleInfo.ClassId;
+                            // car length / width to be added to shared memory - disable until it's released
+                            /*currentGameState.carClass.spotterVehicleLength = playerDriverData.DriverInfo.CarLength;
+                            currentGameState.carClass.spotterVehicleWidth = playerDriverData.DriverInfo.CarWidth;*/
                             GlobalBehaviourSettings.UpdateFromCarClass(currentGameState.carClass);
                             Console.WriteLine("Player is using car class " + currentGameState.carClass.getClassIdentifier());
                         }
-                        brakeTempThresholdsForPlayersCar = CarData.getBrakeTempThresholds(currentGameState.carClass);
+                        brakeTempThresholdsForPlayersCar = getBrakeTempThresholds(shared.BrakeTemp);
                         if (previousGameState != null)
                         {
                             currentGameState.PitData.IsRefuellingAllowed = previousGameState.PitData.IsRefuellingAllowed;
@@ -582,6 +589,9 @@ namespace CrewChiefV4.RaceRoom
                     currentGameState.SessionData.StrengthOfField = previousGameState.SessionData.StrengthOfField;
 
                     currentGameState.SessionData.expectedFinishingPosition = previousGameState.SessionData.expectedFinishingPosition;
+
+                    currentGameState.Conditions.CurrentConditions = previousGameState.Conditions.CurrentConditions;
+                    currentGameState.Conditions.samples = previousGameState.Conditions.samples;
                 }
             }
 
@@ -719,7 +729,7 @@ namespace CrewChiefV4.RaceRoom
                         {
                             currentGameState.carClass = newClass;
                             Console.WriteLine("Player is using car class " + currentGameState.carClass.getClassIdentifier() + " (class ID " + participantStruct.DriverInfo.ClassId + ")");
-                            brakeTempThresholdsForPlayersCar = CarData.getBrakeTempThresholds(currentGameState.carClass);
+                            brakeTempThresholdsForPlayersCar = getBrakeTempThresholds(shared.BrakeTemp); ;
                         }
                     }
                     if (currentGameState.SessionData.CurrentLapIsValid && (participantStruct.CurrentLapValid != 1 || participantStruct.LapTimeCurrentSelf == -1) && !approachingFirstFlyingLap)
@@ -818,7 +828,7 @@ namespace CrewChiefV4.RaceRoom
                 if (currentGameState.carClass.carClassEnum == CarData.CarClassEnum.UNKNOWN_RACE && shared.VehicleInfo.ClassId > 0)
                 {
                     currentGameState.carClass = CarData.getCarClassForRaceRoomId(shared.VehicleInfo.ClassId);
-                    brakeTempThresholdsForPlayersCar = CarData.getBrakeTempThresholds(currentGameState.carClass);
+                    brakeTempThresholdsForPlayersCar = getBrakeTempThresholds(shared.BrakeTemp); ;
                 }
                 currentGameState.SessionData.trackLandmarksTiming.cancelWaitingForLandmarkEnd();
             }
@@ -1436,6 +1446,9 @@ namespace CrewChiefV4.RaceRoom
                     Console.WriteLine("Player car class in game data has changed. Updating to " + correctedCarClass.getClassIdentifier());
                     currentGameState.carClass = correctedCarClass;
                     CarData.RACEROOM_CLASS_ID = playerDriverData.DriverInfo.ClassId;
+                    // car length / width to be added to shared memory - disable until it's released
+                    /*currentGameState.carClass.spotterVehicleLength = playerDriverData.DriverInfo.CarLength;
+                    currentGameState.carClass.spotterVehicleWidth = playerDriverData.DriverInfo.CarWidth;*/
                     GlobalBehaviourSettings.UpdateFromCarClass(correctedCarClass);
                 }
             }
@@ -1475,7 +1488,6 @@ namespace CrewChiefV4.RaceRoom
                 currentGameState.SessionData.expectedFinishingPosition = R3ERatings.calculateExpectedFinishPosition(previousGameState.OpponentData, previousGameState.carClass);
                 nextExpectedFinishingPositionUpdateDue = currentGameState.Now.AddSeconds(30);
             }
-
             return currentGameState;
         }
 
@@ -1951,6 +1963,7 @@ namespace CrewChiefV4.RaceRoom
             if (loadDriverName && CrewChief.enableDriverNames)
             {
                 if (speechRecogniser != null) speechRecogniser.addNewOpponentName(driverName, participantStruct.DriverInfo.CarNumber.ToString());
+                SoundCache.loadDriverNameSound(DriverNameHelper.getUsableDriverName(driverName));
             }
             OpponentData opponentData = new OpponentData();
             opponentData.DriverRawName = driverName;
@@ -1998,6 +2011,20 @@ namespace CrewChiefV4.RaceRoom
             {
                 currentTickFlags[2] = FlagEnum.GREEN;
             }
+        }
+
+        private static List<CornerData.EnumWithThresholds> getBrakeTempThresholds(TireData<BrakeTempInformation> brakeTempDataFromGame)
+        {
+            // the game sends cold, optimal and hot
+            var btt = new List<CornerData.EnumWithThresholds>();
+            // make a range for optimal centred around optimal
+            var maxCold = brakeTempDataFromGame.FrontLeft.ColdTemp + ((brakeTempDataFromGame.FrontLeft.OptimalTemp - brakeTempDataFromGame.FrontLeft.ColdTemp) / 2);
+            var maxWarm = brakeTempDataFromGame.FrontLeft.HotTemp - ((brakeTempDataFromGame.FrontLeft.HotTemp - brakeTempDataFromGame.FrontLeft.OptimalTemp) / 2);
+            btt.Add(new CornerData.EnumWithThresholds(BrakeTemp.COLD, -10000, maxCold));
+            btt.Add(new CornerData.EnumWithThresholds(BrakeTemp.WARM, maxCold, maxWarm));
+            btt.Add(new CornerData.EnumWithThresholds(BrakeTemp.HOT, maxWarm, brakeTempDataFromGame.FrontLeft.HotTemp));
+            btt.Add(new CornerData.EnumWithThresholds(BrakeTemp.COOKING, brakeTempDataFromGame.FrontLeft.HotTemp, 10000));
+            return btt;
         }
     }
 }

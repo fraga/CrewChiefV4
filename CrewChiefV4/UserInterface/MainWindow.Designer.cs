@@ -100,6 +100,7 @@ namespace CrewChiefV4
             this.listenIfNotPressedButtonToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.AddRemoveActions = new System.Windows.Forms.Button();
             this.buttonVRWindowSettings = new System.Windows.Forms.Button();
+            this.buttonMyName = new System.Windows.Forms.Button();
             this.consoleTextBoxBackgroundPanel.SuspendLayout();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.messagesVolumeSlider)).BeginInit();
@@ -435,6 +436,7 @@ namespace CrewChiefV4
             this.personalisationLabel.TabIndex = 89;
             this.personalisationLabel.Text = "personalisation_label";
             this.myNameBoxTooltip.SetToolTip(this.personalisationLabel, "personalisation_tooltip");
+            this.personalisationLabel.Visible = false;
             // 
             // filenameTextbox
             // 
@@ -542,6 +544,7 @@ namespace CrewChiefV4
             this.personalisationBox.Name = "personalisationBox";
             this.personalisationBox.Size = new System.Drawing.Size(106, 21);
             this.personalisationBox.TabIndex = 90;
+			this.personalisationBox.Visible = false;
             this.myNameBoxTooltip.SetToolTip(this.personalisationBox, "personalisation_tooltip");
             // 
             // spotterNameLabel
@@ -732,6 +735,17 @@ namespace CrewChiefV4
             this.buttonVRWindowSettings.UseVisualStyleBackColor = true;
             this.buttonVRWindowSettings.Click += new System.EventHandler(this.buttonVRWindowSettings_Click);
             // 
+            // buttonMyName
+            // 
+            this.buttonMyName.Location = new System.Drawing.Point(961, 24);
+            this.buttonMyName.Margin = new System.Windows.Forms.Padding(6);
+            this.buttonMyName.Name = "buttonMyName";
+            this.buttonMyName.Size = new System.Drawing.Size(173, 31);
+            this.buttonMyName.TabIndex = 503;
+            this.buttonMyName.Text = "My name";
+            this.buttonMyName.UseVisualStyleBackColor = true;
+            this.buttonMyName.Click += new System.EventHandler(this.buttonMyName_Click);
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -788,6 +802,8 @@ namespace CrewChiefV4
             this.Controls.Add(this.buttonEditCommandMacros);
             this.Controls.Add(this.backgroundVolumeSlider);
             this.Controls.Add(this.messagesVolumeSlider);
+            this.Controls.Add(this.buttonMyName);
+			this.buttonMyName.Show();
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "MainWindow";
@@ -875,5 +891,6 @@ namespace CrewChiefV4
         private Button AddRemoveActions;
         public Button buttonVRWindowSettings;
         private RadioButton listenIfNotPressedButton;
+        public Button buttonMyName;
     }
 }

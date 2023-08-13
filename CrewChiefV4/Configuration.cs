@@ -22,21 +22,43 @@ namespace CrewChiefV4
         private static Dictionary<String, String> SpeechRecognitionConfig = LoadSpeechRecognitionConfig();
         private static Dictionary<String, String> SoundsConfig = LoadSoundsConfig();
 
-        public static String getUIString(String key) {
+        public static String getUIStringMaybeNull(String key, int maxLength = 44)
+        {
             string uiString = null;
-            if (UIStrings.TryGetValue(key, out uiString)) {
+            if (UIStrings.TryGetValue(key, out uiString)) 
+            {
+                if (key.EndsWith("_tooltip") ||
+                    key.EndsWith("_help"))
+                {
+                    return Utilities.Strings.NewlinesInLongString(uiString, maxLength);
+                }
                 return uiString;
             }
             return key;
         }
 
-        public static String getUIStringStrict(String key)
+        public static String getUIString(String key, int maxLength = 44)
+        {
+            string uiString = getUIStringMaybeNull(key, maxLength);
+            if (uiString == null)
+            {
+                Log.Debug($"No UI string for '{key}'");
+            }
+            return uiString;
+        }
+        public static String getUIStringStrict(String key, int maxLength = 44)
         {
             string uiString = null;
             if (UIStrings.TryGetValue(key, out uiString))
             {
+                if (key.EndsWith("_tooltip") ||
+                    key.EndsWith("_help"))
+                {
+                    return Utilities.Strings.NewlinesInLongString(uiString, maxLength);
+                }
                 return uiString;
             }
+            Log.Verbose($"No UI string for '{key}'");
             return null;
         }
 

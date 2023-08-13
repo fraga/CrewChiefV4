@@ -274,13 +274,28 @@ namespace CrewChiefV4
             return false;
         }
 
-        public static void runGame(String launchExe, String launchParams)
+        /// <summary>
+        /// Launch the game
+        /// </summary>
+        /// <param name="launchExe"></param>
+        /// <param name="launchParams"></param>
+        /// <returns>true: the game started
+        /// false: there was a problem running the game</returns>
+        public static bool runGame(String launchExe, String launchParams)
         {
+            string exception;
+            string exMsg;
             // Inconsistent handling of spaces in paths
             // ProcessStartInfo() is happy with the escaped " version: "\"c:\pa th\game.exe\""
             // GetDirectoryName() wants "c:\pa th\game.exe"
             // Neither is happy if the user enters "c:\pa th\game.exe" with quotes
             launchExe = launchExe.Trim().Trim('"').Trim('\'').Trim();
+            if (launchExe.IsNullOrEmpty())
+            {
+                // user wants to launch the game but hasn't specified a path. Bloody users.
+                Console.WriteLine("Skipping game launch because no path was provided");
+                return true;
+            }
             try
             {
                 Console.WriteLine("Attempting to run game using " + launchExe + " " + launchParams);
@@ -291,16 +306,24 @@ namespace CrewChiefV4
                     startInfo.WorkingDirectory = Path.GetDirectoryName(launchExe);
                     process.StartInfo = startInfo;
                     process.Start();
+                    return true;
                 }
             }
             catch (InvalidOperationException e)
             {
-                Console.WriteLine("InvalidOperationException starting game with path " + launchExe + " and params " + launchParams + ": " + e.Message);
+                exception = "InvalidOperationException";
+                exMsg = e.Message;
             }
             catch (Exception e)
             {
-                Console.WriteLine("Exception starting game with path " + launchExe + " and params " + launchParams + ": " + e.Message);
+                exception = "Exception";
+                exMsg = e.Message;
             }
+            string error = String.IsNullOrEmpty(launchParams) ? 
+                $"{exception} starting game with path '{launchExe}' : {exMsg}" : 
+                $"{exception} starting game with path '{launchExe}' and params '{launchParams}' : {exMsg}";
+            Log.Error(error);
+            return false;
         }
 
         /*
@@ -498,147 +521,205 @@ namespace CrewChiefV4
             }
             return newArgs;
         }
-    
+
+        public static void AddLinesToFile(string filePath, List<string> lines)
+            {
+                // Create the file if it doesn't exist
+                if (!File.Exists(filePath))
+                {
+                    File.Create(filePath).Close();
+                }
+
+                // Add the lines to the file
+                using (StreamWriter writer = File.AppendText(filePath))
+                {
+                    foreach (string line in lines)
+                    {
+                        writer.WriteLine(line);
+                    }
+                }
+            }
+
+        public class Strings
+        {
+
+            /// <summary>
+            /// If 'text' is longer than 'maxLength' insert a newline near
+            /// the middle after a word break
+            /// </summary>
+            /// <param name="text"></param>
+            /// <param name="maxLength"></param>
+            /// <returns></returns>
+            public static string SplitString(string text, int maxLength)
+            {
+                if (text.Length <= maxLength)
+                {
+                    return text;
+                }
+                //Degenerate case with only 1 word
+                if (!text.Any(Char.IsWhiteSpace))
+                {
+                    return text;
+                }
+
+                int mid = text.Length / 2;
+                if (!Char.IsWhiteSpace(text[mid]))
+                {
+                    for (int i = 1; i < mid; i += i)
+                    {
+                        if (Char.IsWhiteSpace(text[mid + i]))
+                        {
+                            mid = mid + i;
+                            break;
+                        }
+                        if (Char.IsWhiteSpace(text[mid - i]))
+                        {
+                            mid = mid - i;
+                            break;
+                        }
+                    }
+                }
+
+                return text.Substring(0, mid)
+                       + Environment.NewLine + text.Substring(mid + 1);
+            }
+            internal static string FirstLetterToUpper(string str)
+            {
+                if (str == null)
+                    return null;
+
+                if (str.Length > 1)
+                    return char.ToUpper(str[0]) + str.Substring(1);
+
+                return str.ToUpper();
+            }
+            /// <summary>
+            /// Put newlines into a long string e.g. for tooltips
+            /// A \ in the string is treated as a hard newline
+            /// e.g. Recorded name pairs\Select then...
+            /// </summary>
+            public static string NewlinesInLongString(string longString, int maxLength = 44)
+            {
+                string result = string.Empty;
+                var markedLines = longString.Split('\\');
+
+                foreach (var line in markedLines)
+                {
+                    string _line = line;
+                    while (_line.Length > maxLength)
+                    {
+                        int splitIndex = _line.Substring(0, maxLength).LastIndexOf(" ");
+                        if (splitIndex == -1) // no space found
+                            splitIndex = maxLength; // split at max length anyway
+
+                        result += (_line.Substring(0, splitIndex)) + Environment.NewLine;
+                        _line = _line.Substring(splitIndex + 1);
+                    }
+                    result += _line + Environment.NewLine; // add the last remaining part of the line
+                }
+
+                return result;
+            }
+        }
+
         /// <summary>
-        /// If 'text' is longer than 'maxLength' insert a newline near
-        /// the middle after a word break
+        /// Read the command line arguments into a dictionary
         /// </summary>
-        /// <param name="text"></param>
-        /// <param name="maxLength"></param>
-        /// <returns></returns>
-        public static string SplitString(string text, int maxLength)
+        public class CommandLineParametersReader
         {
-            if (text.Length <= maxLength)
+            private string[] _args
             {
-                return text;
+                get;
             }
-            //Degenerate case with only 1 word
-            if (!text.Any(Char.IsWhiteSpace))
+            public Dictionary<string, string> _dict
             {
-                return text;
+                get;
             }
 
-            int mid = text.Length / 2;
-            if (!Char.IsWhiteSpace(text[mid]))
+            private bool CaseSensitive
             {
-                for (int i = 1; i < mid; i += i)
+                get;
+            }
+
+            public CommandLineParametersReader(string[] args = null, bool isCaseSensitive = false)
+            {
+                if (args == null)
                 {
-                    if (Char.IsWhiteSpace(text[mid + i]))
-                    {
-                        mid = mid + i;
-                        break;
-                    }
-                    if (Char.IsWhiteSpace(text[mid - i]))
-                    {
-                        mid = mid - i;
-                        break;
-                    }
+                    args = Environment.GetCommandLineArgs();
                 }
+                _args = args;
+                CaseSensitive = isCaseSensitive;
+                _dict = new Dictionary<string, string>();
+                Process();
             }
 
-            return text.Substring(0, mid)
-                   + Environment.NewLine + text.Substring(mid + 1);
-        }
-
-
-    /// <summary>
-    /// Read the command line arguments into a dictionary
-    /// </summary>
-    public class CommandLineParametersReader
-    {
-        private string[] _args
-        {
-            get;
-        }
-        public Dictionary<string, string> _dict
-        {
-            get;
-        }
-
-        private bool CaseSensitive
-        {
-            get;
-        }
-
-        public CommandLineParametersReader(string[] args = null, bool isCaseSensitive = false)
-        {
-            if (args == null)
+            // Process Arguments into KeyPairs
+            private void Process()
             {
-                args = Environment.GetCommandLineArgs();
-            }
-            _args = args;
-            CaseSensitive = isCaseSensitive;
-            _dict = new Dictionary<string, string>();
-            Process();
-        }
-
-        // Process Arguments into KeyPairs
-        private void Process()
-        {
-            string currentKey = null;
-            foreach (var arg in _args)
-            {
-                var s = arg.Trim();
-                if (s.StartsWith("-"))
+                string currentKey = null;
+                foreach (var arg in _args)
                 {
-                    currentKey = s.Substring(1);
-                    if (!CaseSensitive)
+                    var s = arg.Trim();
+                    if (s.StartsWith("-"))
                     {
-                        currentKey = currentKey.ToLower();
+                        currentKey = s.Substring(1);
+                        if (!CaseSensitive)
+                        {
+                            currentKey = currentKey.ToLower();
+                        }
+                        _dict[currentKey] = "";
                     }
-                    _dict[currentKey] = "";
-                }
-                else
-                {
-                    if (currentKey != null)
+                    else
                     {
-                        _dict[currentKey] = s;
-                        currentKey = null;
+                        if (currentKey != null)
+                        {
+                            _dict[currentKey] = s;
+                            currentKey = null;
+                        }
                     }
                 }
             }
-        }
 
-        // Return the Key with a default value
-        public string Get(string key, string defaultvalue = null)
-        {
-            if (!CaseSensitive)
+            // Return the Key with a default value
+            public string Get(string key, string defaultvalue = null)
             {
-                key = key.ToLower();
-            }
-            return _dict.ContainsKey(key) ? _dict[key] : defaultvalue;
-        }
-
-        public void Add(string key, string value)
-        {
-            _dict[key] = value;
-        }
-        public void Remove(string key)
-        {
-            if (_dict.ContainsKey(key))
-            {
-                _dict.Remove(key);
-            }
-        }
-        /// <summary>
-        /// Return a -c_[command] argument
-        /// </summary>
-        /// <returns>
-        /// The command or "" if none
-        /// </returns>
-        public string GetCommandArg()
-        {
-            string cmd = "";
-            foreach (var arg in _dict)
-            {
-                if (arg.Key.StartsWith("c_"))
+                if (!CaseSensitive)
                 {
-                    cmd = "-" + arg.Key;
+                    key = key.ToLower();
+                }
+                return _dict.ContainsKey(key) ? _dict[key] : defaultvalue;
+            }
+
+            public void Add(string key, string value)
+            {
+                _dict[key] = value;
+            }
+            public void Remove(string key)
+            {
+                if (_dict.ContainsKey(key))
+                {
+                    _dict.Remove(key);
                 }
             }
-            return cmd;
+            /// <summary>
+            /// Return a -c_[command] argument
+            /// </summary>
+            /// <returns>
+            /// The command or "" if none
+            /// </returns>
+            public string GetCommandArg()
+            {
+                string cmd = "";
+                foreach (var arg in _dict)
+                {
+                    if (arg.Key.StartsWith("c_"))
+                    {
+                        cmd = "-" + arg.Key;
+                    }
+                }
+                return cmd;
+            }
         }
-    }
 
         internal static void ReportException(Exception e, string msg, bool needReport)
         {
@@ -739,16 +820,6 @@ namespace CrewChiefV4
             return true;
         }
 
-        internal static string FirstLetterToUpper(string str)
-        {
-            if (str == null)
-                return null;
-
-            if (str.Length > 1)
-                return char.ToUpper(str[0]) + str.Substring(1);
-
-            return str.ToUpper();
-        }
         public static int SizeOf<T>()
         {
             return Marshal.SizeOf(typeof(T));

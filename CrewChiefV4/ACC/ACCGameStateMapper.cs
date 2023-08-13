@@ -1,4 +1,5 @@
 ﻿using CrewChiefV4.ACC.accData;
+using CrewChiefV4.Audio;
 using CrewChiefV4.Events;
 using CrewChiefV4.GameState;
 using System;
@@ -284,6 +285,7 @@ namespace CrewChiefV4.ACC
                 lastSessionTotalRunTime = previousGameState.SessionData.SessionTotalRunTime;
                 lastSessionTimeRemaining = previousGameState.SessionData.SessionTimeRemaining;
                 currentGameState.carClass = previousGameState.carClass;
+                currentGameState.carName = previousGameState.carName;
 
                 currentGameState.SessionData.PlayerLapTimeSessionBest = previousGameState.SessionData.PlayerLapTimeSessionBest;
                 currentGameState.SessionData.PlayerLapTimeSessionBestPrevious = previousGameState.SessionData.PlayerLapTimeSessionBestPrevious;
@@ -480,6 +482,7 @@ namespace CrewChiefV4.ACC
 
                 //add carclasses for assetto corsa.
                 currentGameState.carClass = CarData.getCarClassForClassNameOrCarName(playerVehicle.carModel);
+                currentGameState.carName = playerVehicle.carModel;
                 GlobalBehaviourSettings.UpdateFromCarClass(currentGameState.carClass);
                 CarData.CLASS_ID = shared.accStatic.carModel;
 
@@ -503,7 +506,7 @@ namespace CrewChiefV4.ACC
                     accVehicleInfo participantStruct = shared.accChief.vehicle[i];
                     if (participantStruct.isConnected == 1)
                     {
-                        String participantName = participantStruct.driverName.ToLower();
+                        String participantName = participantStruct.driverName;
                         if (i != 0 && participantName != null && participantName.Length > 0)
                         {
                             CarData.CarClass opponentCarClass = CarData.getCarClassForClassNameOrCarName(participantStruct.carModel);
@@ -597,6 +600,7 @@ namespace CrewChiefV4.ACC
                             playerVehicle.speedMS, currentGameState.Now);
 
                         currentGameState.carClass = CarData.getCarClassForClassNameOrCarName(playerVehicle.carModel);
+                        currentGameState.carName = playerVehicle.carModel;
                         CarData.CLASS_ID = shared.accStatic.carModel;
                         GlobalBehaviourSettings.UpdateFromCarClass(currentGameState.carClass);
                         System.Diagnostics.Debug.WriteLine("Player is using car class " + currentGameState.carClass.getClassIdentifier());
@@ -675,6 +679,7 @@ namespace CrewChiefV4.ACC
                     currentGameState.SessionData.PlayerBestLapSector3Time = previousGameState.SessionData.PlayerBestLapSector3Time;
                     currentGameState.SessionData.LapTimePrevious = previousGameState.SessionData.LapTimePrevious;
                     currentGameState.Conditions.samples = previousGameState.Conditions.samples;
+                    currentGameState.Conditions.CurrentConditions = previousGameState.Conditions.CurrentConditions;
                     currentGameState.SessionData.trackLandmarksTiming = previousGameState.SessionData.trackLandmarksTiming;
                     currentGameState.TyreData.TyreTypeName = previousGameState.TyreData.TyreTypeName;
 
@@ -847,7 +852,7 @@ namespace CrewChiefV4.ACC
                 {
                     accVehicleInfo participantStruct = shared.accChief.vehicle[i];
 
-                    String participantName = participantStruct.driverName.ToLower();
+                    String participantName = participantStruct.driverName;
                     OpponentData currentOpponentData = getOpponentForName(currentGameState, participantName);
                     if (currentGameState.SessionData.SessionPhase == SessionPhase.Countdown
                         && participantStruct.carLeaderboardPosition == 1
@@ -1703,13 +1708,14 @@ namespace CrewChiefV4.ACC
         private OpponentData createOpponentData(accVehicleInfo participantStruct, Boolean loadDriverName, CarData.CarClass carClass, float trackLength, bool raceSessionIsUnderway)
         {
             OpponentData opponentData = new OpponentData();
-            String participantName = participantStruct.driverName.ToLower();
+            String participantName = participantStruct.driverName;
             opponentData.DriverRawName = participantName;
             opponentData.DriverNameSet = true;
             // note that in AC, drivers may be added to the session during the race - we don't want to load these driver names
             if (participantName != null && participantName.Length > 0 && loadDriverName && CrewChief.enableDriverNames && !raceSessionIsUnderway)
             {
                 if (speechRecogniser != null) speechRecogniser.addNewOpponentName(opponentData.DriverRawName, "-1");
+                SoundCache.loadDriverNameSound(DriverNameHelper.getUsableDriverName(opponentData.DriverRawName));
             }
 
             // when we first create an opponent use the game-provided leadboard position. Subsequent updates will use the realtime position

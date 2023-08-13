@@ -1,4 +1,5 @@
 using CrewChiefV4.assetto.assettoData;
+using CrewChiefV4.Audio;
 using CrewChiefV4.Events;
 using CrewChiefV4.GameState;
 using System;
@@ -1000,7 +1001,7 @@ namespace CrewChiefV4.assetto
                     acsVehicleInfo participantStruct = shared.acsChief.vehicle[i];
                     if (participantStruct.isConnected == 1)
                     {
-                        String participantName = getNameFromBytes(participantStruct.driverName).ToLower();
+                        String participantName = getNameFromBytes(participantStruct.driverName);
                         if (i != 0 && participantName != null && participantName.Length > 0)
                         {
                             CarData.CarClass opponentCarClass = CarData.getCarClassForClassNameOrCarName(getNameFromBytes(participantStruct.carModel));
@@ -1187,6 +1188,7 @@ namespace CrewChiefV4.assetto
                     currentGameState.SessionData.PlayerBestLapSector2Time = previousGameState.SessionData.PlayerBestLapSector2Time;
                     currentGameState.SessionData.PlayerBestLapSector3Time = previousGameState.SessionData.PlayerBestLapSector3Time;
                     currentGameState.SessionData.LapTimePrevious = previousGameState.SessionData.LapTimePrevious;
+                    currentGameState.Conditions.CurrentConditions = previousGameState.Conditions.CurrentConditions;
                     currentGameState.Conditions.samples = previousGameState.Conditions.samples;
                     currentGameState.SessionData.trackLandmarksTiming = previousGameState.SessionData.trackLandmarksTiming;
                     currentGameState.TyreData.TyreTypeName = previousGameState.TyreData.TyreTypeName;
@@ -1323,7 +1325,7 @@ namespace CrewChiefV4.assetto
                 List<string> duplicateNames = new List<string>();
                 for (int i = 0; i < Math.Min(shared.acsChief.numVehicles, 64); i++)
                 {
-                    String participantName = getNameFromBytes(shared.acsChief.vehicle[i].driverName).ToLower();
+                    String participantName = getNameFromBytes(shared.acsChief.vehicle[i].driverName);
                     if (driversToBeProcessed.Contains(participantName))
                     {
                         if (!duplicateNames.Contains(participantName))
@@ -1341,7 +1343,7 @@ namespace CrewChiefV4.assetto
                 {
                     acsVehicleInfo participantStruct = shared.acsChief.vehicle[i];
 
-                    String participantName = getNameFromBytes(participantStruct.driverName).ToLower();
+                    String participantName = getNameFromBytes(participantStruct.driverName);
                     OpponentData currentOpponentData = getOpponentForName(currentGameState, participantName);
 
                     if (i != 0 && participantName != null && participantName.Length > 0 && driversToBeProcessed.Contains(participantName))
@@ -1994,13 +1996,14 @@ namespace CrewChiefV4.assetto
             Boolean raceSessionIsUnderway)
         {
             OpponentData opponentData = new OpponentData();
-            String participantName = getNameFromBytes(participantStruct.driverName).ToLower();
+            String participantName = getNameFromBytes(participantStruct.driverName);
             opponentData.DriverRawName = participantName;
             opponentData.DriverNameSet = true;
             // note that in AC, drivers may be added to the session during the race - we don't want to load these driver names
             if (participantName != null && participantName.Length > 0 && loadDriverName && CrewChief.enableDriverNames && !raceSessionIsUnderway)
             {
                 if (speechRecogniser != null) speechRecogniser.addNewOpponentName(opponentData.DriverRawName, "-1");
+                SoundCache.loadDriverNameSound(DriverNameHelper.getUsableDriverName(opponentData.DriverRawName));
             }
 
             opponentData.OverallPosition = (int)participantStruct.carLeaderboardPosition;

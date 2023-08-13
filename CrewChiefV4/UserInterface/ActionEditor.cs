@@ -83,18 +83,18 @@ namespace CrewChiefV4
             {
 #if DEBUG
                 // I know those asserts are annoying.  They are here to understand why do we have dupes.
-                Debug.Assert(!uiAvailableActionList.Contains(new ActionEditor.ActionUiEntry(Utilities.FirstLetterToUpper(ba.resolvedUiText), ba.resolvedUiText)));
+                Debug.Assert(!uiAvailableActionList.Contains(new ActionEditor.ActionUiEntry(Utilities.Strings.FirstLetterToUpper(ba.resolvedUiText), ba.resolvedUiText)));
 #endif
-                uiAvailableActionList.Add(new ActionEditor.ActionUiEntry(Utilities.FirstLetterToUpper(ba.resolvedUiText), ba.resolvedUiText));
+                uiAvailableActionList.Add(new ActionEditor.ActionUiEntry(Utilities.Strings.FirstLetterToUpper(ba.resolvedUiText), ba.resolvedUiText));
             }
 
             var uiAdditionalActionList = new List<ActionEditor.ActionUiEntry>();
             foreach (ControllerConfiguration.ButtonAssignment ba in controllerConfigurationData.buttonAssignments.Where(ba => !ba.availableAction))
             {
 #if DEBUG
-                Debug.Assert(!uiAdditionalActionList.Contains(new ActionEditor.ActionUiEntry(Utilities.FirstLetterToUpper(ba.resolvedUiText), ba.resolvedUiText)));
+                Debug.Assert(!uiAdditionalActionList.Contains(new ActionEditor.ActionUiEntry(Utilities.Strings.FirstLetterToUpper(ba.resolvedUiText), ba.resolvedUiText)));
 #endif
-                uiAdditionalActionList.Add(new ActionEditor.ActionUiEntry(Utilities.FirstLetterToUpper(ba.resolvedUiText), ba.resolvedUiText));
+                uiAdditionalActionList.Add(new ActionEditor.ActionUiEntry(Utilities.Strings.FirstLetterToUpper(ba.resolvedUiText), ba.resolvedUiText));
             }
 
             uiAvailableActionList = uiAvailableActionList.OrderBy(x => x.uiText).ToList();
@@ -162,7 +162,8 @@ namespace CrewChiefV4
         {
             if (hasChanges)
             {
-                var warningMessage = string.Format(Configuration.getUIString("save_prop_changes_warning"), Path.GetFileNameWithoutExtension(UserSettings.GetUserSettings().getString("current_settings_profile")));
+                var warningMessage = string.Format(Utilities.Strings.NewlinesInLongString(Configuration.getUIString("save_prop_changes_warning")),
+                    Path.GetFileNameWithoutExtension(UserSettings.GetUserSettings().getString("current_settings_profile")));
                 if (CrewChief.Debugging)
                 {
                     warningMessage = "You have unsaved changes. Click 'Yes' to save these changes (you will need to manually restart the application). Click 'No' to discard these changes";

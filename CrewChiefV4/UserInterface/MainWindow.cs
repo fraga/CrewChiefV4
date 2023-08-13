@@ -21,6 +21,8 @@ using Valve.VR;
 using CrewChiefV4.ScreenCapture;
 using CrewChiefV4.VirtualReality;
 using System.Globalization;
+using CrewChiefV4.UserInterface;
+using CrewChiefV4.UserInterface.Models;
 
 namespace CrewChiefV4
 {
@@ -1018,20 +1020,25 @@ namespace CrewChiefV4
             this.label2.Text = Configuration.getUIString("available_actions");
             this.propertiesButton.Text = Configuration.getUIString("properties");
             this.groupBox1.Text = Configuration.getUIString("voice_recognition_mode");
-            voiceRecognitionToolTip.SetToolTip(this.groupBox1, Configuration.getUIString("voice_recognition_mode_help"));
+            SetButtonMyNameText();
+            voiceRecognitionToolTip.SetToolTip(this.groupBox1,
+                Configuration.getUIString("voice_recognition_mode_help"));
             this.alwaysOnButton.Text = Configuration.getUIString("always_on");
             voiceRecognitionAlwaysOnToolTip.SetToolTip(this.alwaysOnButton, Configuration.getUIString("voice_recognition_always_on_help"));
             this.toggleButton.Text = Configuration.getUIString("toggle_button");
-            voiceRecognitionToggleButtonToolTip.SetToolTip(this.toggleButton, Configuration.getUIString("voice_recognition_toggle_button_help"));
+            voiceRecognitionToggleButtonToolTip.SetToolTip(this.toggleButton,
+                Configuration.getUIString("voice_recognition_toggle_button_help"));
             this.holdButton.Text = Configuration.getUIString("hold_button");
             voiceRecognitionHoldButtonToolTip.SetToolTip(this.holdButton, Configuration.getUIString("voice_recognition_hold_button_help"));
             this.listenIfNotPressedButton.Text = Configuration.getUIString("voice_recognition_listen_if_not_pressed");
-            listenIfNotPressedButtonToolTip.SetToolTip(this.listenIfNotPressedButton, Configuration.getUIString("voice_recognition_release_button_help"));
+            listenIfNotPressedButtonToolTip.SetToolTip(this.listenIfNotPressedButton, 
+                Configuration.getUIString("voice_recognition_release_button_help"));
 
             this.voiceDisableButton.Text = Configuration.getUIString("disabled");
             voiceRecognitionDisabledToolTip.SetToolTip(this.voiceDisableButton, Configuration.getUIString("voice_recognition_disabled_help"));
             this.triggerWordButton.Text = Configuration.getUIString("trigger_word") + " (\"" + UserSettings.GetUserSettings().getString("trigger_word_for_always_on_sre") + "\")";
-            voiceRecognitionTriggerWordToolTip.SetToolTip(this.triggerWordButton, Configuration.getUIString("voice_recognition_trigger_word_help"));
+            voiceRecognitionTriggerWordToolTip.SetToolTip(this.triggerWordButton, 
+                Configuration.getUIString("voice_recognition_trigger_word_help"));
             this.messagesVolumeSliderLabel.Text = Configuration.getUIString("messages_volume");
             this.backgroundVolumeSliderLabel.Text = Configuration.getUIString("background_volume");
             this.label5.Text = Configuration.getUIString("game");
@@ -1147,30 +1154,47 @@ namespace CrewChiefV4
             Console.SetOut(consoleWriter);
             Console.WriteLine("Loading screen opened"); // The first point at which we can do that, the screen is already loaded.
 
-            // if we can't init the UserSettings the app will basically be fucked. So try to nuke the Britton_IT_Ltd directory from
-            // orbit (it's the only way to be sure) then restart the app. This shit is comically flakey but what else can we do here?
-            if (UserSettings.GetUserSettings().initFailed)
+            if (!UserSettings.GetUserSettings().initFailed)
             {
+                Console.WriteLine(UserSettings.GetUserSettings().initMessage);
+            }
+            else
+            {
+                // if we can't init the UserSettings Crew Chief will basically be fucked. So try to nuke the Britton_IT_Ltd directory from
+                // orbit (it's the only way to be sure) then restart Crew Chief. This shit is comically flakey but what else can we do here?
+
                 String path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4");
-                if (!Directory.Exists(path))
-                {
-                    Directory.CreateDirectory(path);
-                }
-                File.WriteAllText(path + @"\startupError.txt", "Message: " +
-                    UserSettings.GetUserSettings().initFailedMessage + "\nStack" + UserSettings.GetUserSettings().initFailedStack);
-                Console.WriteLine("Unable to upgrade properties from previous version, settings will be reset to default");
                 try
                 {
-                    UserSettings.ForceablyDeleteConfigDirectory();
-                    // note we can't load these from the UI settings because loading stuff will be broken at this point
-                    doRestart("Failed to load user settings. The app will automatically restart in order to recreate this file. " +
-                        "Once the app has restarted, please restart it again manually.", "Failed to load user settings");
+                    if (!Directory.Exists(path))
+                    {
+                        Directory.CreateDirectory(path);
+                    }
+                    File.WriteAllText(path + @"\startupError.txt", "Message: " + UserSettings.GetUserSettings().initMessage + "\n" +
+                        UserSettings.GetUserSettings().initFailedExceptionMessage + "\nStack" + UserSettings.GetUserSettings().initFailedStack);
                 }
-                catch (Exception)
+                catch (Exception e)
+                {
+                    // oh dear, we can't write the startup error log file.
+                    // throw a new exception to be shown in the "oh shit" popup message
+                    throw new Exception("Unable to write startup error logs: " + e.Message + "\n please ensure CrewChief can access " + path +
+                        "\nStartup error is " + UserSettings.GetUserSettings().initFailedExceptionMessage + "\nStack" + UserSettings.GetUserSettings().initFailedStack);
+                }
+                Console.WriteLine(UserSettings.GetUserSettings().initMessage);
+                Console.WriteLine("Unable to read settings or upgrade settings from previous version, settings will be reset to default");
+                try
+                {
+                    UserSettings.ForciblyDeleteConfigDirectory();
+                    // note we can't load these from the UI settings because loading stuff will be broken at this point
+                    doRestart("Failed to load user settings. Crew Chief will automatically restart in order to recreate this file. " +
+                            "Once Crew Chief has restarted, please restart it again manually.", "Failed to load user settings");
+                }
+                catch (Exception e)
                 {
                     // oh dear, now we are in a pickle.
                     // throw a new exception to be shown in the "oh shit" popup message
-                    throw new Exception("Unable to remove broken app settings file\n Please exit the app and manually delete folder " + UserSettings.userConfigFolder);
+                    throw new Exception("Unable to remove broken app settings file: " + e.Message +
+                        "\n Please exit Crew Chief and manually delete folder " + UserSettings.userConfigFolder);
                 }
             }
 
@@ -2473,7 +2497,7 @@ namespace CrewChiefV4
             this.buttonActionSelect.Items.Clear();
             foreach (ControllerConfiguration.ButtonAssignment assignment in controllerConfiguration.buttonAssignments)
             {
-                this.buttonActionSelect.Items.Add(Utilities.FirstLetterToUpper(assignment.getInfo()));
+                this.buttonActionSelect.Items.Add(Utilities.Strings.FirstLetterToUpper(assignment.getInfo()));
             }
         }
 
@@ -2694,6 +2718,8 @@ namespace CrewChiefV4
             }
             return $"{path}\nProfile: " +
                     UserSettings.currentUserProfileFileName +
+                    "\nGame: " +
+                    CrewChief.gameDefinition.friendlyName +
                     "\nVOICE_OPTION: " +
                     UserSettings.GetUserSettings().getString("VOICE_OPTION") +
                     "\n\nNon-default Properties:\n" +
@@ -2912,9 +2938,9 @@ namespace CrewChiefV4
         }
         private void personalisationSelected(object sender, EventArgs e)
         {
-            if (!UserSettings.GetUserSettings().getString("PERSONALISATION_NAME").Equals(this.personalisationBox.Text))
+            if (!MyName.myName.Equals(this.personalisationBox.Text))
             {
-                UserSettings.GetUserSettings().setProperty("PERSONALISATION_NAME", this.personalisationBox.Text);
+                MyName.myName = this.personalisationBox.Text;
                 UserSettings.GetUserSettings().saveUserSettings();
                 doRestart(Configuration.getUIString("the_application_must_be_restarted_to_load_the_new_sounds"), Configuration.getUIString("load_new_sounds"));
             }
@@ -3123,15 +3149,19 @@ namespace CrewChiefV4
                 try
                 {
                     var prevRacingType = CrewChief.gameDefinition.racingType;
+                    var prevGameDefinition = CrewChief.gameDefinition;
                     CrewChief.gameDefinition = GameDefinition.getGameDefinitionForFriendlyName(this.gameDefinitionList.Text);
 
                     if (prevRacingType != CrewChief.RacingType.Undefined &&
                         prevRacingType != CrewChief.gameDefinition.racingType)
                     {
-                        UserSettings.GetUserSettings().setProperty("last_game_definition", CrewChief.gameDefinition.commandLineName);
-                        UserSettings.GetUserSettings().saveUserSettings();
-
-                        doRestart(Configuration.getUIString("the_application_must_be_restarted_to_switch_between_circuit_and_rally_racing"), Configuration.getUIString("switch_racing_type"), removeSkipUpdates: false, mandatory: true);
+                        if (doRestart(Configuration.getUIString("the_application_must_be_restarted_to_switch_between_circuit_and_rally_racing"),
+                            Configuration.getUIString("switch_racing_type"), removeSkipUpdates: false, mandatory: false, saveUserSettings: true))
+                        {    // The user cancelled, bounce back to previous game
+                            CrewChief.gameDefinition = prevGameDefinition;
+                            this.gameDefinitionList.Text = CrewChief.gameDefinition.friendlyName;
+                            return;
+                        }
                     }
 
                     GlobalBehaviourSettings.racingType = CrewChief.gameDefinition.racingType;
@@ -3677,8 +3707,11 @@ namespace CrewChiefV4
         /// <param name="warningTitle"></param>
         /// <param name="removeSkipUpdates"></param>
         /// <param name="mandatory">Switching between race and rally modes</param>
-        private void doRestart(String warningMessage, String warningTitle, Boolean removeSkipUpdates = false, Boolean mandatory = false)
+        /// <returns>User cancelled</returns>
+        internal Boolean doRestart(String warningMessage, String warningTitle, Boolean removeSkipUpdates = false, Boolean mandatory = false, Boolean saveUserSettings = false)
         {
+            Boolean userCancelled = false;
+
             if (CrewChief.Debugging)
             {
                 warningMessage = "The app must be restarted manually";
@@ -3688,8 +3721,13 @@ namespace CrewChiefV4
             this.RestoreFromTray();
 
             if (MessageBox.Show(warningMessage, warningTitle,
-                CrewChief.Debugging || mandatory ? MessageBoxButtons.OK : MessageBoxButtons.OKCancel) == DialogResult.OK)
+                mandatory ? MessageBoxButtons.OK : MessageBoxButtons.OKCancel) == DialogResult.OK)
             {
+                if (saveUserSettings)
+                {
+                    UserSettings.GetUserSettings().setProperty("last_game_definition", CrewChief.gameDefinition.commandLineName);
+                    UserSettings.GetUserSettings().saveUserSettings();
+                }
                 if (Utilities.RestartApp(app_restart: true, 
                                          removeSkipUpdates: removeSkipUpdates,
                                          removeProfile: mandatory,
@@ -3698,13 +3736,19 @@ namespace CrewChiefV4
                     this.Close(); //to turn off current app
                 }
             }
+            else
+            {
+                userCancelled = true;
+            }
+            return userCancelled;
         }
 
         private void downloadSoundPackButtonPress(object sender, EventArgs e)
         {
             if (AudioPlayer.soundPackLanguage == null)
             {
-                DialogResult dialogResult = MessageBox.Show(Configuration.getUIString("unknown_sound_pack_language_text"),
+                DialogResult dialogResult = MessageBox.Show(
+                    Utilities.Strings.NewlinesInLongString(Configuration.getUIString("unknown_sound_pack_language_text")),
                     Configuration.getUIString("unknown_sound_pack_language_title"), MessageBoxButtons.YesNo);
                 if (dialogResult == DialogResult.Yes)
                 {
@@ -3730,7 +3774,8 @@ namespace CrewChiefV4
         {
             if (AudioPlayer.soundPackLanguage == null)
             {
-                DialogResult dialogResult = MessageBox.Show(Configuration.getUIString("unknown_driver_names_language_text"),
+                DialogResult dialogResult = MessageBox.Show(
+                    Utilities.Strings.NewlinesInLongString(Configuration.getUIString("unknown_driver_names_language_text")),
                     Configuration.getUIString("unknown_driver_names_language_title"), MessageBoxButtons.YesNo);
                 if (dialogResult == DialogResult.Yes)
                 {
@@ -3756,7 +3801,8 @@ namespace CrewChiefV4
         {
             if (AudioPlayer.soundPackLanguage == null)
             {
-                DialogResult dialogResult = MessageBox.Show(Configuration.getUIString("unknown_personalisations_language_text"),
+                DialogResult dialogResult = MessageBox.Show(
+                    Utilities.Strings.NewlinesInLongString(Configuration.getUIString("unknown_personalisations_language_text")),
                     Configuration.getUIString("unknown_personalisations_language_title"), MessageBoxButtons.YesNo);
                 if (dialogResult == DialogResult.Yes)
                 {
@@ -3826,6 +3872,16 @@ namespace CrewChiefV4
         {
             var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
             return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
+        }
+
+        private void buttonMyName_Click(object sender, EventArgs e)
+        {
+            var win = new MyName_V(this, MyName.myName);
+            win.ShowDialog(this);
+        }
+        public void SetButtonMyNameText()
+        {
+            this.buttonMyName.Text = $"{Configuration.getUIString("personalisation_label")} {MyName.myName}";
         }
     }
 

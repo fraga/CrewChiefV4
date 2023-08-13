@@ -13,6 +13,7 @@ using CrewChiefV4.Events;
 using rF2SharedMemory;
 using static rF2SharedMemory.rFactor2Constants;
 using rF2SharedMemory.rFactor2Data;
+using CrewChiefV4.Audio;
 
 /**
  * Maps memory mapped file to a local game-agnostic representation.
@@ -678,7 +679,9 @@ namespace CrewChiefV4.rFactor2
                 cgs.FlagData.currentLapIsFCY = pgs.FlagData.currentLapIsFCY;
                 cgs.FlagData.previousLapWasFCY = pgs.FlagData.previousLapWasFCY;
 
+                cgs.Conditions.CurrentConditions = pgs.Conditions.CurrentConditions;
                 cgs.Conditions.samples = pgs.Conditions.samples;
+                
                 cgs.PitData.PitBoxPositionEstimate = pgs.PitData.PitBoxPositionEstimate;
 
                 cgs.hardPartsOnTrackData = pgs.hardPartsOnTrackData;
@@ -1514,7 +1517,7 @@ namespace CrewChiefV4.rFactor2
                 {
                     if (!csd.IsNewSession && this.speechRecogniser != null)
                         this.speechRecogniser.addNewOpponentName(opponent.DriverRawName, "-1");
-
+                    SoundCache.loadDriverNameSound(DriverNameHelper.getUsableDriverName(opponent.DriverRawName));
                     Console.WriteLine("New driver \"" + driverName +
                         "\" is using car class " + opponent.CarClass.getClassIdentifier() +
                         " at position " + opponent.OverallPosition.ToString());
@@ -2315,7 +2318,7 @@ namespace CrewChiefV4.rFactor2
             else if (msg.Length > this.scrLuckyDogIsPrefix.Length
                 && msg.StartsWith(this.scrLuckyDogIsPrefix))
             {
-                scrData.luckyDogNameRaw = msg.Substring(this.scrLuckyDogIsPrefix.Length).ToLowerInvariant();
+                scrData.luckyDogNameRaw = msg.Substring(this.scrLuckyDogIsPrefix.Length);
                 scrData.luckyDogNameRaw = RF2GameStateMapper.GetSanitizedDriverName(scrData.luckyDogNameRaw);
                 scrData.stockCarRuleApplicable = StockCarRule.NEW_LUCKY_DOG;
             }
@@ -3355,7 +3358,7 @@ namespace CrewChiefV4.rFactor2
             if (this.idToCarInfoMap.TryGetValue(vehicleScoring.mID, out ci))
                 return ci;
 
-            var driverName = RF2GameStateMapper.GetStringFromBytes(vehicleScoring.mDriverName).ToLowerInvariant();
+            var driverName = RF2GameStateMapper.GetStringFromBytes(vehicleScoring.mDriverName);
             driverName = RF2GameStateMapper.GetSanitizedDriverName(driverName);
 
             var carClassId = RF2GameStateMapper.GetStringFromBytes(vehicleScoring.mVehicleClass);

@@ -54,6 +54,7 @@ namespace CrewChiefV4
         public FragmentType type;
         public Boolean allowShortHundreds = true;   // allow a number like 160 to be read as "one sixty" instead of "one hundred and sixty"
         public NumberReader.ARTICLE_GENDER gender = NumberReader.ARTICLE_GENDER.NA;
+        public Boolean allowTTS = false;
 
         private MessageFragment(String text)
         {
@@ -389,6 +390,11 @@ namespace CrewChiefV4
                             {
                                 messages.Add(messageFragment.text);
                             }
+                            else if (messageFragment.allowTTS && AudioPlayer.ttsOption != AudioPlayer.TTS_OPTION.NEVER)
+                            {
+                                messages.Add(SoundCache.TTS_IDENTIFIER + messageFragment.text);
+                                canBePlayed = true;
+                            }
                             else
                             {
                                 Console.WriteLine("Message " + this.messageName + " can't be played because there is no sound for text fragment " + messageFragment.text);
@@ -429,7 +435,7 @@ namespace CrewChiefV4
                             canBePlayed = false;
                             if (messageFragment.opponent != null && messageFragment.opponent.CanUseName)
                             {
-                                String usableName = DriverNameHelper.getUsableDriverName(messageFragment.opponent.DriverRawName);
+                                String usableName = DriverNameHelper.getUsableDriverName(messageFragment.opponent.DriverRawName, true);
                                 if (SoundCache.availableDriverNames.Contains(usableName))
                                 {
                                     messages.Add(usableName);

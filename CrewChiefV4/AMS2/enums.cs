@@ -220,4 +220,32 @@ namespace CrewChiefV4.AMS2
         DRS_AVAILABLE_NOW = (0 << 4),  // detection zone was triggered and we are now in the zone (only applies to f1 style rules)
         DRS_ACTIVE = (0 << 5),  // Wing is in activated state
     };
+
+    // (Type#15) ErsDeploymentMode (to be used with 'mErsDeploymentMode')
+    enum ErsDeploymentMode
+    {
+        ERS_DEPLOYMENT_MODE_NONE = 0, // The vehicle does not support deployment modes
+        ERS_DEPLOYMENT_MODE_OFF, // Regen only, no deployment
+        ERS_DEPLOYMENT_MODE_BUILD, // Heavy emphasis towards regen
+        ERS_DEPLOYMENT_MODE_BALANCED, // Deployment map automatically adjusted to try and maintain target SoC
+        ERS_DEPLOYMENT_MODE_ATTACK,  // More aggressive deployment, no target SoC
+        ERS_DEPLOYMENT_MODE_QUAL, // Maximum deployment, no target Soc
+    };
+
+    // (Type#16) YellowFlagState represents current FCY state (to be used with 'mYellowFlagState')
+    enum YellowFlagState
+    {
+        YFS_INVALID = -1,
+        YFS_NONE,           // No yellow flag pending on track
+        YFS_PENDING,        // Flag has been thrown, but not yet taken by leader
+        YFS_PITS_CLOSED,    // Flag taken by leader, pits not yet open
+        YFS_PIT_LEAD_LAP,   // Those on the lead lap may pit
+        YFS_PITS_OPEN,      // Everyone may pit
+        YFS_PITS_OPEN2,     // Everyone may pit
+        YFS_LAST_LAP,       // On the last caution lap
+        YFS_RESUME,         // About to restart (pace car will duck out)
+        YFS_RACE_HALT,      // Safety car will lead field into pits
+                            //-------------
+        YFS_MAXIMUM,
+    };
 }

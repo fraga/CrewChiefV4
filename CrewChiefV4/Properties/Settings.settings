@@ -1360,8 +1360,14 @@
     </Setting>
     <Setting Name="mqtt_topic_drivername" Type="System.String" Scope="User">
       <Value Profile="(Default)">Jim</Value>
-    </Setting>  
+    </Setting>
     <Setting Name="rf2_enable_auto_clear_tyre_change" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="report_fuel_laps_left_in_timed_races" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="use_fuzzy_driver_name_matching" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>

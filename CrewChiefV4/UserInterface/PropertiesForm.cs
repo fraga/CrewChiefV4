@@ -136,7 +136,7 @@ namespace CrewChiefV4
         private string GetHelpString(string propName)
         {
             propName = propName + "_help";
-            string result = Configuration.getUIString(propName);
+            string result = Configuration.getUIStringMaybeNull(propName);
             if (result == propName)
             {
                 result = Configuration.getUIString("no_help_provided");
@@ -566,7 +566,9 @@ namespace CrewChiefV4
             if (this.updatedProperties.Count() > 0)
             {
                 var requiresRestart = this.updatedPropertiesRequiringRestart.Count > 0;
-                var warningMessage = requiresRestart ? Configuration.getUIString("save_prop_changes_warning") : Configuration.getUIString("save_prop_changes_warning_no_restart");
+                var warningMessage = requiresRestart ? 
+                    Utilities.Strings.NewlinesInLongString(Configuration.getUIString("save_prop_changes_warning")) :
+                    Utilities.Strings.NewlinesInLongString(Configuration.getUIString("save_prop_changes_warning_no_restart"));
                 warningMessage = string.Format(warningMessage, Path.GetFileNameWithoutExtension(UserSettings.GetUserSettings().getString("current_settings_profile")));
                 if (CrewChief.Debugging && requiresRestart)
                 {
@@ -1049,7 +1051,9 @@ namespace CrewChiefV4
         {
             if (this.updatedProperties.Count() > 0)
             {
-                var warningMessage = string.Format(Configuration.getUIString("save_prop_changes_warning_no_restart"), Path.GetFileNameWithoutExtension(UserSettings.GetUserSettings().getString("current_settings_profile")));
+                var warningMessage = string.Format(
+                    Utilities.Strings.NewlinesInLongString(Configuration.getUIString("save_prop_changes_warning_no_restart")),
+                    Path.GetFileNameWithoutExtension(UserSettings.GetUserSettings().getString("current_settings_profile")));
                 if (MessageBox.Show(warningMessage, Configuration.getUIString("save_changes_title"), MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                     this.saveActiveProfile();
 

@@ -1,4 +1,10 @@
-CrewChief version 4.14
+CrewChief version 4.16
+
+(The Crew Chief Help menu was created from this file (and others) and has been updated since,
+this file hasn't except for the change log, so it's better to refer to the Help in Crew Chief
+- contents are at https://mr_belowski.gitlab.io/CrewChiefV4/index.html - than this.)
+
+________________________________________________________________________________
 
 Written by Jim Britton, Morten Roslev, Vytautas Leonavičius, Paul Burgess, Tony Whitley, Dan Allongo (Automobilista and rFactor1 implementation), Daniel Nowak (nAudio speech recognition port), Mike Schreiner and Brent Owen (technical input on stock car rules). The application is the result of lots of lots of hard work and input from the guys above as well as some great advice and support from the community and the guys at Sector3 and SMS.
 
@@ -431,6 +437,24 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.17.1.4: Fix some issues with fuel reporting; Some MQTT telemetry improvements; AMS2 - wire up tyre pressures; R3E - use game-provided car dimensions for spotter; GTR2 - plugin update
+
+Version 4.17.1.2: Fixed TTS (text-to-speech) for driver names; fix some speech recognition issues and reinstated the short position phrases disabled in the last release
+
+Version 4.17.1.1: Correct some bugs in the driver name mapping which was preventing some valid driver names from being read; Speech recognition bug fixes for driver names - note this includes removing the short position phrases ("who's in P1", "where's P12" etc) - use the longer versions ("who's in position 1", "where's position 12" etc) instead; GTR2 - plugin update
+
+Version 4.17.1.0: Rework opponent name matching to be more accurate and more conservative; added UI to modify suppress or manually override guessed opponent name matches ("Opponent Names" from the app's menu bar)
+
+Version 4.17.0.0: Use FuzzySharp to find names close to the player's name - the My Name popup now allows you to enter your name and the app will suggest possible matches for this. Sets Allow opponent names in 'My name' list Property if necessary; allow fuzzy and phonic matching for opponent driver names - enabled by default, can be toggled off with the 'Fuzzy opponent name matching' property; MQTT parses JSON messages with priority and distance at which the message should be played; Plugin installer now sets folder browser root to My Computer instead of Desktop; RF2 - Update rFactor2SharedMemoryMapPlugin64.dll to 3.7.15.1; ACC - Added car model to data; R3E - use game provided brake temperature thresholds; AMS2 - Use US terms for AMS2's indycars, some car class corrections; iRacing - Tsukuba track mapped, LMDH added, Formula Ford 1600 added; GTR2 - Updated plugin; various minor fixes
+
+Version 4.16.3.5: R3E - fix missing ADAC 2021 GT3 class mapping; GTR2 plugin update; added more channels to MQTT telemetry output; a few minor fixes
+
+Version 4.16.3.4: GTR2 plugin update; Added basic support for AMS2 full course yellow flags; Various minor fixes
+
+Version 4.16.3.2: GTR2 plugin update; Allow MQTT broker responses to trigger arbitrary text-to-speech responses; some minor fixes
+
+Version 4.16.3.1: Fix missing 'conditions' data (weather, track temp etc); Added option to report fuel remaining in number of laps, even for time-limited races ('Report fuel as laps left in timed races' in the Properties screen); RF2 - added 'display next' voice command to move to the next MFD screen; ACC - corrected car speed data (use a more frequently updated value); Various minor fixes
+
 Version 4.16.3.0: Support change of hosting location for assets; New configuration setting to publish live telemetry data to an MQTT broker. A default broker is hosted at <a href="https://github.com/b4mad/racing">github.com/b4mad/racing</a>. More under Help &rarr; Telemetry; Iracing - fix some issues with battery charge reporting; RF2 - clear existing tyre change setting when starting a race; General bug fixes
 
 Version 4.16.2.6: Added 'listen if not pressed' as a speech recognition mode - the app will always listen for voice commands unless the assigned button is held down (useful for cases where that button activates some other program's voice input); iRacing - fix the app not working with electric vehicles. Note that there's more work still to do here, the existing CC support for electric vehicles makes some assumptions about charging / vehicle swap rules that may not apply

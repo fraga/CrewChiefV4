@@ -1,19 +1,17 @@
 {
-	"TrackLandmarksData": [
-		{
+	"TrackLandmarksData": [{
 			"rf1TrackNames": [
 				"Bathurst Mount Panorama",
 				"Bathurst 2010 - MAX Detail"
 			],
-			"rf2TrackNames": [ "Bathurst" ],
+			"rf2TrackNames": ["Bathurst"],
 			"pcarsTrackName": "Bathurst:",
 			"pcars2TrackName": "Bathurst:Mount_Panorama",
 			"ams2TrackName": "Bathurst:Bathurst_2020",
 			"irTrackName": "bathurst",
 			"raceroomLayoutId": 1846,
 			"raceroomRollingStartLapDistance": 5655,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "hell_corner",
 					"distanceRoundLapStart": 210,
 					"distanceRoundLapEnd": 310,
@@ -82,9 +80,8 @@
 			]
 		},
 		{
-			"acTrackNames": [ "acu_bathurst:" ],
-			"trackLandmarks": [
-				{
+			"acTrackNames": ["acu_bathurst:"],
+			"trackLandmarks": [{
 					"landmarkName": "hell_corner",
 					"distanceRoundLapStart": 340,
 					"distanceRoundLapEnd": 450,
@@ -157,14 +154,13 @@
 				"Brands Indy",
 				"Brands Hatch Indy"
 			],
-			"acTrackNames": [ "ks_brands_hatch:indy" ],
+			"acTrackNames": ["ks_brands_hatch:indy"],
 			"pcarsTrackName": "Brands Hatch:Indy",
 			"pcars2TrackName": "Brands_Hatch:Indy",
 			"ams2TrackName": "BrandsHatch:Indy",
 			"raceroomLayoutId": 2520,
 			"raceroomRollingStartLapDistance": 1063,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "paddock_hill",
 					"distanceRoundLapStart": 2000,
 					"distanceRoundLapEnd": 380,
@@ -201,14 +197,13 @@
 				"Brands GP",
 				"Brands Hatch Grand Prix"
 			],
-			"acTrackNames": [ "ks_brands_hatch:gp" ],
+			"acTrackNames": ["ks_brands_hatch:gp"],
 			"pcarsTrackName": "Brands Hatch:Grand Prix",
 			"pcars2TrackName": "Brands_Hatch:GP",
 			"ams2TrackName": "BrandsHatch:GrandPrix",
 			"accTrackName": "brands_hatch:track config",
 			"raceroomLayoutId": 9473,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "paddock_hill",
 					"distanceRoundLapStart": 200,
 					"distanceRoundLapEnd": 380,
@@ -271,15 +266,14 @@
 			]
 		},
 		{
-			"rf1TrackNames": [ "Silverstone -- National Layout" ],
-			"rf2TrackNames": [ "Silverstone -- National Layout" ],
-			"acTrackNames": [ "ks_silverstone:national" ],
+			"rf1TrackNames": ["Silverstone -- National Layout"],
+			"rf2TrackNames": ["Silverstone -- National Layout"],
+			"acTrackNames": ["ks_silverstone:national"],
 			"pcarsTrackName": "Silverstone:National",
 			"pcars2TrackName": "Silverstone:Nat",
 			"raceroomLayoutId": 5817,
 			"raceroomRollingStartLapDistance": 1460,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "copse",
 					"distanceRoundLapStart": 180,
 					"distanceRoundLapEnd": 360,
@@ -306,11 +300,10 @@
 			]
 		},
 		{
-			"acTrackNames": [ "ks_silverstone:stowe_long" ],
+			"acTrackNames": ["ks_silverstone:stowe_long"],
 			"raceroomLayoutId": 6055,
 			"raceroomRollingStartLapDistance": 1316,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "the_first_chicane",
 					"distanceRoundLapStart": 100,
 					"distanceRoundLapEnd": 220,
@@ -361,12 +354,12 @@
 			]
 		},
 		{
-			"rf1TrackNames": [ "Spielberg Grand Prix Circuit" ],
+			"rf1TrackNames": ["Spielberg Grand Prix Circuit"],
 			"rf2TrackNames": [
 				"RaceRfactor Austria 2014",
 				"Red Bull Ring GP"
 			],
-			"gtr2TrackNames": [ "A1-Ring 2001" ],
+			"gtr2TrackNames": ["A1-Ring 2001"],
 			"acTrackNames": [
 				"ks_red_bull_ring:layout_gp",
 				"spielberg:circuit_full"
@@ -377,8 +370,7 @@
 			"raceroomLayoutId": 2556,
 			"irTrackName": " spielberg gp",
 			"raceroomRollingStartLapDistance": 3476,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 310,
 					"distanceRoundLapEnd": 390,
@@ -442,9 +434,8 @@
 			"pcars2TrackName": "Hockenheim:GP",
 			"raceroomLayoutId": 1693,
 			"raceroomRollingStartLapDistance": 4145,
-			"gtr2TrackNames": [ "Hockenheim GP, 2004 FIA GT Championship Round 4", "HQ Hockenheimring", "Hockenheimring, GT Masters Round 8", "HQ-NAP Hockenheim 2004", "HQ-Reborn Hockenheim 2004" ],
-			"trackLandmarks": [
-				{
+			"gtr2TrackNames": ["Hockenheim GP, 2004 FIA GT Championship Round 4", "HQ Hockenheimring", "Hockenheimring, GT Masters Round 8", "HQ-NAP Hockenheim 2004", "HQ-Reborn Hockenheim 2004"],
+			"trackLandmarks": [{
 					"landmarkName": "nord_kurve",
 					"distanceRoundLapStart": 200,
 					"distanceRoundLapEnd": 350,
@@ -537,12 +528,11 @@
 			]
 		},
 		{
-			"acTrackNames": [ "spa:" ],
+			"acTrackNames": ["spa:"],
 			"irTrackName": "spa up",
 			"pcars2TrackName": "Spa_Francorchamps:GP",
 			"ams2TrackName": "SpaFrancorchamps:Spa_Francorchamps_2020",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "la_source",
 					"distanceRoundLapStart": 360,
 					"distanceRoundLapEnd": 430,
@@ -631,8 +621,7 @@
 		{
 			"raceroomLayoutId": 3870,
 			"raceroomRollingStartLapDistance": 6367,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "la_source",
 					"distanceRoundLapStart": 200,
 					"distanceRoundLapEnd": 270,
@@ -719,11 +708,10 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Spa-Francorchamps", "RaceRfactor Spa 2013", "Spa Francorchamps" ],
-			"gtr2TrackNames": [ "Spa-Francorchamps, Blancpain Endurance Series Round 4" ],
+			"rf2TrackNames": ["Spa-Francorchamps", "RaceRfactor Spa 2013", "Spa Francorchamps"],
+			"gtr2TrackNames": ["Spa-Francorchamps, Blancpain Endurance Series Round 4"],
 			"accTrackName": "Spa:track config",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "la_source",
 					"distanceRoundLapStart": 290,
 					"distanceRoundLapEnd": 430,
@@ -817,8 +805,7 @@
 		},
 		{
 			"pcarsTrackName": "Circuit de Spa-Francorchamps:",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "la_source",
 					"distanceRoundLapStart": 6510,
 					"distanceRoundLapEnd": 6590,
@@ -905,12 +892,11 @@
 			]
 		},
 		{
-			"acTrackNames": [ "doningtonpark:national" ],
+			"acTrackNames": ["doningtonpark:national"],
 			"pcarsTrackName": "Donington Park:National",
 			"pcars2TrackName": "Donington_Park:National",
 			"ams2TrackName": "Donington:Donington_Nat",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "redgate",
 					"distanceRoundLapStart": 320,
 					"distanceRoundLapEnd": 440,
@@ -949,14 +935,13 @@
 			]
 		},
 		{
-			"acTrackNames": [ "doningtonpark:gp" ],
+			"acTrackNames": ["doningtonpark:gp"],
 			"pcarsTrackName": "Donington Park:Grand Prix",
 			"pcars2TrackName": "Donington_Park:GP",
 			"ams2TrackName": "Donington:Donington_GP",
 			"accTrackName": "donington:track config",
 
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "redgate",
 					"distanceRoundLapStart": 320,
 					"distanceRoundLapEnd": 440,
@@ -1007,17 +992,16 @@
 			]
 		},
 		{
-			"rf1TrackNames": [ "Imola 2016" ],
-			"rf2TrackNames": [ "Imola 2018" ],
-			"acTrackNames": [ "imola:" ],
+			"rf1TrackNames": ["Imola 2016"],
+			"rf2TrackNames": ["Imola 2018"],
+			"acTrackNames": ["imola:"],
 			"pcarsTrackName": "Imola:Grand Prix",
 			"pcars2TrackName": "Imola:GP",
 			"ams2TrackName": "ImolaAMS2:Imola_GP_2018",
 			"irTrackName": "imola gp",
 			"raceroomLayoutId": 1850,
-			"gtr2TrackNames": [ "Imola, 2004 FIA GT Championship Round 8", "Imola", "HQ Autodromo Enzo e Dino Ferrari" ],
-			"trackLandmarks": [
-				{
+			"gtr2TrackNames": ["Imola, 2004 FIA GT Championship Round 8", "Imola", "HQ Autodromo Enzo e Dino Ferrari"],
+			"trackLandmarks": [{
 					"landmarkName": "tamburello",
 					"distanceRoundLapStart": 660,
 					"distanceRoundLapEnd": 910,
@@ -1068,14 +1052,13 @@
 			]
 		},
 		{
-			"acTrackNames": [ "ks_zandvoort:", "zandvoort2020" ],
+			"acTrackNames": ["ks_zandvoort:", "zandvoort2020"],
 			"raceroomLayoutId": 1678,
-			"rf2TrackNames": [ "Zandvoort" ],
-			"gtr2TrackNames": [ "Zandvoort, GT Masters Round 2" ],
+			"rf2TrackNames": ["Zandvoort"],
+			"gtr2TrackNames": ["Zandvoort, GT Masters Round 2"],
 			"irTrackName": "zandvoort grandprix",
 			"raceroomRollingStartLapDistance": 3572,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "tarzanbocht",
 					"distanceRoundLapStart": 370,
 					"distanceRoundLapEnd": 510,
@@ -1141,11 +1124,10 @@
 			"pcarsTrackName": "Mazda Raceway:Laguna Seca",
 			"pcars2TrackName": "Laguna_Seca:",
 			"ams2TrackName": "Laguna_Seca:Laguna_Seca_2020",
-			"acTrackNames": [ "ks_laguna_seca:" ],
+			"acTrackNames": ["ks_laguna_seca:"],
 			"raceroomLayoutId": 1856,
 			"irTrackName": "lagunaseca",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 160,
 					"distanceRoundLapEnd": 260,
@@ -1208,11 +1190,10 @@
 			]
 		},
 		{
-			"acTrackNames": [ "suzuka:" ],
+			"acTrackNames": ["suzuka:"],
 			"raceroomLayoutId": 1841,
 			"raceroomRollingStartLapDistance": 4882,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 350,
 					"distanceRoundLapEnd": 440,
@@ -1277,18 +1258,17 @@
 		{
 			"pcarsTrackName": "Autodromo Nazionale Monza:Grand Prix",
 			"pcars2TrackName": "Monza:GP",
-			"acTrackNames": [ "monza:" ],
-			"rf2TrackNames": [ "RaceRfactor Monza 2014" ],
+			"acTrackNames": ["monza:"],
+			"rf2TrackNames": ["RaceRfactor Monza 2014"],
 			"raceroomLayoutId": 1671,
 			"raceroomRollingStartLapDistance": 4285,
-			"gtr2TrackNames": [ "Monza, 2003 FIA GT Championship Round 10", "Monza, 2004 FIA GT Championship Round 1", "Monza", "HQ Autodromo Nazionale di Monza", "HQ-Vanilla Monza 2004", "HQ-Vanilla Monza 2003", "HQ-Reborn Monza 2004", "HQ-Reborn Monza 2003", "HQ-NAP Monza 2004", "HQ-NAP Monza 2003" ],
+			"gtr2TrackNames": ["Monza, 2003 FIA GT Championship Round 10", "Monza, 2004 FIA GT Championship Round 1", "Monza", "HQ Autodromo Nazionale di Monza", "HQ-Vanilla Monza 2004", "HQ-Vanilla Monza 2003", "HQ-Reborn Monza 2004", "HQ-Reborn Monza 2003", "HQ-NAP Monza 2004", "HQ-NAP Monza 2003"],
 			"pitApproachPoint": [
 				5345,
 				755.2,
 				-384.5
 			],
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "variante_del_rettifilo",
 					"distanceRoundLapStart": 590,
 					"distanceRoundLapEnd": 690,
@@ -1334,8 +1314,7 @@
 		},
 		{
 			"irTrackName": "monza full",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "variante_del_rettifilo",
 					"distanceRoundLapStart": 867.24646,
 					"distanceRoundLapEnd": 1038.903,
@@ -1381,8 +1360,7 @@
 		},
 		{
 			"accTrackName": "monza:track config",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "variante_del_rettifilo",
 					"distanceRoundLapStart": 890,
 					"distanceRoundLapEnd": 990,
@@ -1430,8 +1408,7 @@
 			"pcarsTrackName": "Azure Circuit:Grand Prix",
 			"pcars2TrackName": "Azure_Circuit:GP",
 			"ams2TrackName": "Azure_Circuit:Azure_Circuit_2021",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "sainte_devote",
 					"distanceRoundLapStart": 180,
 					"distanceRoundLapEnd": 260,
@@ -1504,12 +1481,11 @@
 			"pcars2TrackName": "Zolder:GP",
 			"raceroomLayoutId": 1684,
 			"raceroomRollingStartLapDistance": 3347,
-			"rf2TrackNames": [ "Zolder" ],
+			"rf2TrackNames": ["Zolder"],
 			"irTrackName": "zolder gp",
 			"accTrackName": "Zolder:track config",
-			"gtr2TrackNames": [ "2005ZOLDER" ],
-			"trackLandmarks": [
-				{
+			"gtr2TrackNames": ["2005ZOLDER"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 250,
 					"distanceRoundLapEnd": 410,
@@ -1560,9 +1536,8 @@
 			]
 		},
 		{
-			"rf1TrackNames": [ "Road America" ],
-			"trackLandmarks": [
-				{
+			"rf1TrackNames": ["Road America"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 569,
 					"distanceRoundLapEnd": 779,
@@ -1631,11 +1606,10 @@
 			]
 		},
 		{
-			"rf1TrackNames": [ "Road America 2016" ],
+			"rf1TrackNames": ["Road America 2016"],
 			"pcarsTrackName": "Road America:",
 			"pcars2TrackName": "Road_America:",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 568,
 					"distanceRoundLapEnd": 758,
@@ -1705,8 +1679,7 @@
 		},
 		{
 			"irTrackName": "roadamerica full",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 541.937134,
 					"distanceRoundLapEnd": 758,
@@ -1788,8 +1761,7 @@
 		},
 		{
 			"irTrackName": "phillipisland",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 395.6062,
 					"distanceRoundLapEnd": 733.0769,
@@ -1864,10 +1836,9 @@
 			]
 		},
 		{
-			"rf1TrackNames": [ "VIR Grand Course" ],
-			"rf2TrackNames": [ "VIR Grand Course" ],
-			"trackLandmarks": [
-				{
+			"rf1TrackNames": ["VIR Grand Course"],
+			"rf2TrackNames": ["VIR Grand Course"],
+			"trackLandmarks": [{
 					"landmarkName": "horseshoe",
 					"distanceRoundLapStart": 340,
 					"distanceRoundLapEnd": 605,
@@ -1924,11 +1895,10 @@
 			]
 		},
 		{
-			"rf1TrackNames": [ "VIR North Course" ],
-			"rf2TrackNames": [ "VIR North Course" ],
-			"acTrackNames": [ "vir:north course" ],
-			"trackLandmarks": [
-				{
+			"rf1TrackNames": ["VIR North Course"],
+			"rf2TrackNames": ["VIR North Course"],
+			"acTrackNames": ["vir:north course"],
+			"trackLandmarks": [{
 					"landmarkName": "horseshoe",
 					"distanceRoundLapStart": 340,
 					"distanceRoundLapEnd": 605,
@@ -1973,11 +1943,10 @@
 			]
 		},
 		{
-			"rf1TrackNames": [ "VIR Patriot Course" ],
-			"rf2TrackNames": [ "VIR Patriot Course" ],
-			"acTrackNames": [ "vir:patriot course" ],
-			"trackLandmarks": [
-				{
+			"rf1TrackNames": ["VIR Patriot Course"],
+			"rf2TrackNames": ["VIR Patriot Course"],
+			"acTrackNames": ["vir:patriot course"],
+			"trackLandmarks": [{
 					"landmarkName": "western_esses",
 					"distanceRoundLapStart": 282,
 					"distanceRoundLapEnd": 482,
@@ -1998,11 +1967,10 @@
 			]
 		},
 		{
-			"rf1TrackNames": [ "VIR South Course" ],
-			"rf2TrackNames": [ "VIR South Course" ],
-			"acTrackNames": [ "vir:south course" ],
-			"trackLandmarks": [
-				{
+			"rf1TrackNames": ["VIR South Course"],
+			"rf2TrackNames": ["VIR South Course"],
+			"acTrackNames": ["vir:south course"],
+			"trackLandmarks": [{
 					"landmarkName": "the_bitch",
 					"distanceRoundLapStart": 639,
 					"distanceRoundLapEnd": 782,
@@ -2035,12 +2003,11 @@
 			]
 		},
 		{
-			"rf1TrackNames": [ "Mid-Ohio With Chicane" ],
-			"rf2TrackNames": [ "Mid-Ohio With Chicane" ],
+			"rf1TrackNames": ["Mid-Ohio With Chicane"],
+			"rf2TrackNames": ["Mid-Ohio With Chicane"],
 			"raceroomLayoutId": 1676,
 			"raceroomRollingStartLapDistance": 3325,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 219,
 					"distanceRoundLapEnd": 413,
@@ -2113,8 +2080,7 @@
 			],
 			"raceroomLayoutId": 1674,
 			"raceroomRollingStartLapDistance": 3331,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 239,
 					"distanceRoundLapEnd": 431,
@@ -2177,10 +2143,9 @@
 			]
 		},
 		{
-			"rf1TrackNames": [ "Barber Motorsports Park 2015" ],
-			"rf2TrackNames": [ "Barber Motorsports Park 2015" ],
-			"trackLandmarks": [
-				{
+			"rf1TrackNames": ["Barber Motorsports Park 2015"],
+			"rf2TrackNames": ["Barber Motorsports Park 2015"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 71,
 					"distanceRoundLapEnd": 225,
@@ -2245,8 +2210,7 @@
 		{
 			"raceroomLayoutId": 3683,
 			"raceroomRollingStartLapDistance": 3238,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 200,
 					"distanceRoundLapEnd": 270,
@@ -2329,8 +2293,7 @@
 		{
 			"raceroomLayoutId": 3383,
 			"raceroomRollingStartLapDistance": 3265,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 200,
 					"distanceRoundLapEnd": 270,
@@ -2427,11 +2390,10 @@
 			"pcars2TrackName": "Nurburgring:GP",
 			"raceroomLayoutId": 1691,
 			"raceroomRollingStartLapDistance": 4591,
-			"rf2TrackNames": [ "Nuerburg GP", "Nurburgring -- Grand Prix" ],
-			"gtr2TrackNames": [ "Nürburgring, GT Masters Round 7", "Nürburgring GP, FIA GT Special Event" ],
+			"rf2TrackNames": ["Nuerburg GP", "Nurburgring -- Grand Prix"],
+			"gtr2TrackNames": ["Nürburgring, GT Masters Round 7", "Nürburgring GP, FIA GT Special Event"],
 			"accTrackName": "nurburgring:track config",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 600,
 					"distanceRoundLapEnd": 690,
@@ -2521,12 +2483,11 @@
 			"pcarsTrackName": "Hungaroring:Grand Prix",
 			"raceroomLayoutId": 1866,
 			"raceroomRollingStartLapDistance": 3828,
-			"rf2TrackNames": [ "RaceRfactor Hungaroring 2013" ],
-			"gtr2TrackNames": [ "Hungaroring", "Hungaroring GP, 2016" ],
+			"rf2TrackNames": ["RaceRfactor Hungaroring 2013"],
+			"gtr2TrackNames": ["Hungaroring", "Hungaroring GP, 2016"],
 			"accTrackName": "Hungaroring:track config",
 			"irTrackName": "hungaroring",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 550,
 					"distanceRoundLapEnd": 650,
@@ -2608,9 +2569,8 @@
 		},
 		{
 			"raceroomLayoutId": 6010,
-			"rf2TrackNames": [ "Mantorp Park" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Mantorp Park"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 180,
 					"distanceRoundLapEnd": 380,
@@ -2663,8 +2623,7 @@
 		{
 			"raceroomLayoutId": 3538,
 			"raceroomRollingStartLapDistance": 2975,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 280,
 					"distanceRoundLapEnd": 420,
@@ -2747,9 +2706,8 @@
 		{
 			"raceroomLayoutId": 2518,
 			"raceroomRollingStartLapDistance": 1456,
-			"rf2TrackNames": [ "Norisring" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Norisring"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 460,
 					"distanceRoundLapEnd": 540,
@@ -2776,10 +2734,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Knockhill11" ],
+			"rf2TrackNames": ["Knockhill11"],
 			"pcars2TrackName": "Knockhill:International",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "the_right_into_duffus_dip",
 					"distanceRoundLapStart": 267,
 					"distanceRoundLapEnd": 325,
@@ -2831,8 +2788,7 @@
 		},
 		{
 			"irTrackName": "knockhill international",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "the_right_into_duffus_dip",
 					"distanceRoundLapStart": 317,
 					"distanceRoundLapEnd": 375,
@@ -2883,12 +2839,11 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "CadwellParkSRW" ],
+			"rf2TrackNames": ["CadwellParkSRW"],
 			"pcarsTrackName": "Cadwell:Grand Prix",
 			"pcars2TrackName": "Cadwell:GP",
 			"ams2TrackName": "CadwellPark:CadwellPark",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "coppice",
 					"distanceRoundLapStart": 275,
 					"distanceRoundLapEnd": 390,
@@ -2963,9 +2918,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Croft -- Road Course" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Croft -- Road Course"],
+			"trackLandmarks": [{
 					"landmarkName": "clervaux",
 					"distanceRoundLapStart": 342,
 					"distanceRoundLapEnd": 425,
@@ -3040,13 +2994,12 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Oulton Park Fosters" ],
+			"rf2TrackNames": ["Oulton Park Fosters"],
 			"pcarsTrackName": "Oulton Park:Fosters",
 			"pcars2TrackName": "Oulton_Park:Fosters",
 			"ams2TrackName": "OultonPark:OultonPark_Fosters",
 			"irTrackName": "oulton fosters",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "old_hall",
 					"distanceRoundLapStart": 130,
 					"distanceRoundLapEnd": 310,
@@ -3097,14 +3050,13 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Oulton Park International" ],
-			"gtr2TrackNames": [ "Oulton Park International Circuit" ],
+			"rf2TrackNames": ["Oulton Park International"],
+			"gtr2TrackNames": ["Oulton Park International Circuit"],
 			"pcarsTrackName": "Oulton Park:International",
 			"pcars2TrackName": "Oulton_Park:International",
 			"ams2TrackName": "OultonPark:OultonPark_International",
 			"irTrackName": "oulton international",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "old_hall",
 					"distanceRoundLapStart": 130,
 					"distanceRoundLapEnd": 310,
@@ -3168,8 +3120,7 @@
 		},
 		{
 			"irTrackName": "oulton inthislop",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "old_hall",
 					"distanceRoundLapStart": 130,
 					"distanceRoundLapEnd": 310,
@@ -3232,9 +3183,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Oulton Park International NC" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Oulton Park International NC"],
+			"trackLandmarks": [{
 					"landmarkName": "old_hall",
 					"distanceRoundLapStart": 130,
 					"distanceRoundLapEnd": 310,
@@ -3297,13 +3247,12 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Oulton Park Island" ],
+			"rf2TrackNames": ["Oulton Park Island"],
 			"pcarsTrackName": "Oulton Park:Island",
 			"pcars2TrackName": "Oulton_Park:Island",
 			"ams2TrackName": "OultonPark:OultonPark_Island",
 			"irTrackName": "oulton islandhistoric",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "old_hall",
 					"distanceRoundLapStart": 130,
 					"distanceRoundLapEnd": 310,
@@ -3360,12 +3309,11 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Circuit de la Sarthe" ],
-			"gtr2TrackNames": [ "Le Mans 2019" ],
+			"rf2TrackNames": ["Circuit de la Sarthe"],
+			"gtr2TrackNames": ["Le Mans 2019"],
 			"pcarsTrackName": "Le Mans:Circuit des 24 Heures du Mans",
 			"pcars2TrackName": "Le_Mans:24_Hours_of_Le_Mans_Circuit",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "dunlop_curve",
 					"distanceRoundLapStart": 380,
 					"distanceRoundLapEnd": 770,
@@ -3440,10 +3388,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "LeMans91" ],
-			"acTrackNames": [ "sx_lemans:chicane" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["LeMans91"],
+			"acTrackNames": ["sx_lemans:chicane"],
+			"trackLandmarks": [{
 					"landmarkName": "dunlop_curve",
 					"distanceRoundLapStart": 380,
 					"distanceRoundLapEnd": 780,
@@ -3518,11 +3465,10 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Le Bugatti Circuit" ],
+			"rf2TrackNames": ["Le Bugatti Circuit"],
 			"pcarsTrackName": "Le Mans:Le Circuit Bugatti",
 			"pcars2TrackName": "Le_Mans:Le_Mans_Bugatti_Circuit",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "dunlop_curve",
 					"distanceRoundLapStart": 200,
 					"distanceRoundLapEnd": 975,
@@ -3573,10 +3519,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Lime Rock Park -- No Chicanes" ],
+			"rf2TrackNames": ["Lime Rock Park -- No Chicanes"],
 			"irTrackName": "limerock full",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "big_bend",
 					"distanceRoundLapStart": 190,
 					"distanceRoundLapEnd": 500,
@@ -3615,10 +3560,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Lime Rock Park -- Uphill Chicane" ],
+			"rf2TrackNames": ["Lime Rock Park -- Uphill Chicane"],
 			"irTrackName": "limerock chicane",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "big_bend",
 					"distanceRoundLapStart": 190,
 					"distanceRoundLapEnd": 500,
@@ -3657,9 +3601,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Lime Rock Park -- West Bend Chicane" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Lime Rock Park -- West Bend Chicane"],
+			"trackLandmarks": [{
 					"landmarkName": "big_bend",
 					"distanceRoundLapStart": 190,
 					"distanceRoundLapEnd": 500,
@@ -3698,9 +3641,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Lime Rock Park -- All Chicanes" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Lime Rock Park -- All Chicanes"],
+			"trackLandmarks": [{
 					"landmarkName": "big_bend",
 					"distanceRoundLapStart": 190,
 					"distanceRoundLapEnd": 500,
@@ -3744,8 +3686,7 @@
 				"Sebring 12h Course League Edition"
 			],
 			"irTrackName": "sebring international",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 320,
 					"distanceRoundLapEnd": 660,
@@ -3820,10 +3761,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Sebring Club Course" ],
+			"rf2TrackNames": ["Sebring Club Course"],
 			"irTrackName": "sebring  club course",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "cunningham",
 					"distanceRoundLapStart": 290,
 					"distanceRoundLapEnd": 425,
@@ -3868,10 +3808,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Sebring Modified Course" ],
+			"rf2TrackNames": ["Sebring Modified Course"],
 
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 3150,
 					"distanceRoundLapEnd": 650,
@@ -3910,11 +3849,10 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "RaceRfactor Montreal 2013", "Montreal GP" ],
+			"rf2TrackNames": ["RaceRfactor Montreal 2013", "Montreal GP"],
 			"ams2TrackName": "Montreal:Modern",
 			"irTrackName": "montreal",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 190,
 					"distanceRoundLapEnd": 280,
@@ -3983,9 +3921,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "RaceRfactor Monaco 2013", "Circuit d'Azur" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["RaceRfactor Monaco 2013", "Circuit d'Azur"],
+			"gtr2TrackNames": ["Monaco GP 2021"],
+			"trackLandmarks": [{
 					"landmarkName": "sainte_devote",
 					"distanceRoundLapStart": 150,
 					"distanceRoundLapEnd": 270,
@@ -4072,9 +4010,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "RockinghamBTCC" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["RockinghamBTCC"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 75,
 					"distanceRoundLapEnd": 530,
@@ -4137,10 +4074,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "SaoPaulo GP" ],
-			"gtr2TrackNames": [ "94Interlagos" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["SaoPaulo GP"],
+			"gtr2TrackNames": ["94Interlagos"],
+			"trackLandmarks": [{
 					"landmarkName": "senna_s",
 					"distanceRoundLapStart": 205,
 					"distanceRoundLapEnd": 455,
@@ -4203,12 +4139,11 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "200", "Snetterton200" ],
+			"rf2TrackNames": ["200", "Snetterton200"],
 			"pcarsTrackName": "Snetterton:200 Circuit",
 			"pcars2TrackName": "Snetterton:200_Circuit",
 			"ams2TrackName": "Snetterton_200",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "riches",
 					"distanceRoundLapStart": 295,
 					"distanceRoundLapEnd": 555,
@@ -4253,12 +4188,11 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "300", "Snetterton300" ],
+			"rf2TrackNames": ["300", "Snetterton300"],
 			"pcarsTrackName": "Snetterton:300 Circuit",
 			"pcars2TrackName": "Snetterton:300_Circuit",
 			"ams2TrackName": "Snetterton_300",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "riches",
 					"distanceRoundLapStart": 255,
 					"distanceRoundLapEnd": 555,
@@ -4333,9 +4267,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Mills Inner Loop A" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Mills Inner Loop A"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 135,
 					"distanceRoundLapEnd": 240,
@@ -4368,9 +4301,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Mills Inner Loop B" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Mills Inner Loop B"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 135,
 					"distanceRoundLapEnd": 240,
@@ -4421,9 +4353,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Mills Inner Loop C" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Mills Inner Loop C"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 135,
 					"distanceRoundLapEnd": 240,
@@ -4480,9 +4411,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Mills Outer Loop A" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Mills Outer Loop A"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 135,
 					"distanceRoundLapEnd": 240,
@@ -4539,9 +4469,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Mills Outer Loop B" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Mills Outer Loop B"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 135,
 					"distanceRoundLapEnd": 240,
@@ -4610,9 +4539,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Mills Outer Loop C" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Mills Outer Loop C"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 135,
 					"distanceRoundLapEnd": 240,
@@ -4687,9 +4615,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Sardian Heights Short" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Sardian Heights Short"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 0,
 					"distanceRoundLapEnd": 165,
@@ -4728,9 +4655,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Sardian Heights Long" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Sardian Heights Long"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 0,
 					"distanceRoundLapEnd": 165,
@@ -4817,11 +4743,10 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Indianapolis -- Oval" ],
+			"rf2TrackNames": ["Indianapolis -- Oval"],
 			"pcars2TrackName": "Indianapolis_Motor_Speedway:Oval",
 			"isOval": true,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 250,
 					"distanceRoundLapEnd": 700,
@@ -4852,9 +4777,8 @@
 			"raceroomRollingStartLapDistance": 5217,
 			"pcarsTrackName": "Silverstone:Grand Prix",
 			"pcars2TrackName": "Silverstone:GP",
-			"acTrackNames": [ "ks_silverstone:gp" ],
-			"trackLandmarks": [
-				{
+			"acTrackNames": ["ks_silverstone:gp"],
+			"trackLandmarks": [{
 					"landmarkName": "abbey",
 					"distanceRoundLapStart": 270,
 					"distanceRoundLapEnd": 370,
@@ -4947,9 +4871,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "RacerFactor Melbourne 2013" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["RacerFactor Melbourne 2013"],
+			"trackLandmarks": [{
 					"landmarkName": "brabham",
 					"distanceRoundLapStart": 330,
 					"distanceRoundLapEnd": 405,
@@ -5048,9 +4971,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "RacerFactor Suzuka 2013" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["RacerFactor Suzuka 2013"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 620,
 					"distanceRoundLapEnd": 735,
@@ -5143,11 +5065,10 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "RaceRfactor China 2014" ],
+			"rf2TrackNames": ["RaceRfactor China 2014"],
 			"raceroomLayoutId": 2027,
 			"raceroomRollingStartLapDistance": 4756,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 470,
 					"distanceRoundLapEnd": 700,
@@ -5246,9 +5167,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "RaceRfactor Yas Marina 2013" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["RaceRfactor Yas Marina 2013"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 315,
 					"distanceRoundLapEnd": 460,
@@ -5377,14 +5297,13 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "RaceRfactor Barcelona 2013" ],
+			"rf2TrackNames": ["RaceRfactor Barcelona 2013"],
 			"pcarsTrackName": "Circuit de Barcelona-Catalunya:Grand Prix",
 			"pcars2TrackName": "Barcelona_Catalunya:GP",
 			"accTrackName": "Barcelona:track config",
 			"irTrackName": "barcelona gp",
-			"gtr2TrackNames": [ "Barcelona, 2003 FIA GT Championship Round 1", "HQ Circuit de Catalunya", "HQ-Reborn Barcelona 2003", "HQ-Reborn Barcelona 2004" ],
-			"trackLandmarks": [
-				{
+			"gtr2TrackNames": ["Barcelona, 2003 FIA GT Championship Round 1", "HQ Circuit de Catalunya", "HQ-Reborn Barcelona 2003", "HQ-Reborn Barcelona 2004"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 765,
 					"distanceRoundLapEnd": 875,
@@ -5483,9 +5402,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "RaceRfactor Mexico 2015" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["RaceRfactor Mexico 2015"],
+			"trackLandmarks": [{
 					"landmarkName": "esses_moises_solana",
 					"distanceRoundLapStart": 1240,
 					"distanceRoundLapEnd": 1525,
@@ -5530,9 +5448,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "RaceRfactor Austin 2013" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["RaceRfactor Austin 2013"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 595,
 					"distanceRoundLapEnd": 715,
@@ -5655,9 +5572,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "RaceRfactor Sochi 2014" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["RaceRfactor Sochi 2014"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 365,
 					"distanceRoundLapEnd": 635,
@@ -5775,9 +5691,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "RaceRfactor Singapur 2013" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["RaceRfactor Singapur 2013"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 375,
 					"distanceRoundLapEnd": 435,
@@ -5918,9 +5833,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Malaysian Full Loop" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Malaysian Full Loop"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 540,
 					"distanceRoundLapEnd": 740,
@@ -6013,9 +5927,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "60sHockenheim" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["60sHockenheim"],
+			"trackLandmarks": [{
 					"landmarkName": "nord_kurve",
 					"distanceRoundLapStart": 240,
 					"distanceRoundLapEnd": 380,
@@ -6060,9 +5973,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "75Kyalami" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["75Kyalami"],
+			"trackLandmarks": [{
 					"landmarkName": "crowthorne_corner",
 					"distanceRoundLapStart": 720,
 					"distanceRoundLapEnd": 940,
@@ -6113,10 +6025,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Adelaide Street Circuit" ],
+			"rf2TrackNames": ["Adelaide Street Circuit"],
 			"ams2TrackName": "Adelaide:Modern",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "senna_chicane",
 					"distanceRoundLapStart": 230,
 					"distanceRoundLapEnd": 450,
@@ -6179,10 +6090,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Alabama Superspeedway" ],
+			"rf2TrackNames": ["Alabama Superspeedway"],
 			"isOval": true,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 300,
 					"distanceRoundLapEnd": 780,
@@ -6215,10 +6125,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Apple Valley Speedway" ],
+			"rf2TrackNames": ["Apple Valley Speedway"],
 			"isOval": true,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "the_tri_oval",
 					"distanceRoundLapStart": 1,
 					"distanceRoundLapEnd": 230,
@@ -6257,9 +6166,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Assen TT Circuit" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Assen TT Circuit"],
+			"trackLandmarks": [{
 					"landmarkName": "haarbocht",
 					"distanceRoundLapStart": 355,
 					"distanceRoundLapEnd": 460,
@@ -6346,9 +6254,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Portugal GP Layout" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Portugal GP Layout"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 375,
 					"distanceRoundLapEnd": 545,
@@ -6411,9 +6318,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Portugal GT Layout" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Portugal GT Layout"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 375,
 					"distanceRoundLapEnd": 545,
@@ -6488,7 +6394,7 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Portimao Circuit" ],
+			"rf2TrackNames": ["Portimao Circuit"],
 			"raceroomLayoutId": 1778,
 			"raceroomRollingStartLapDistance": 3555,
 			"pitApproachPoint": [
@@ -6496,8 +6402,7 @@
 				-130.2,
 				-98.6
 			],
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "primeira",
 					"distanceRoundLapStart": 615,
 					"distanceRoundLapEnd": 710,
@@ -6584,9 +6489,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "BATHURST2016" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["BATHURST2016"],
+			"trackLandmarks": [{
 					"landmarkName": "hell_corner",
 					"distanceRoundLapStart": 280,
 					"distanceRoundLapEnd": 440,
@@ -6650,9 +6554,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Barbagallo", "Barbagallo2013" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Barbagallo", "Barbagallo2013"],
+			"trackLandmarks": [{
 					"landmarkName": "handley_corner",
 					"distanceRoundLapStart": 110,
 					"distanceRoundLapEnd": 325,
@@ -6691,9 +6594,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Barbagallo_short" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Barbagallo_short"],
+			"trackLandmarks": [{
 					"landmarkName": "handley_corner",
 					"distanceRoundLapStart": 110,
 					"distanceRoundLapEnd": 325,
@@ -6738,10 +6640,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Barber Motorsports Park" ],
+			"rf2TrackNames": ["Barber Motorsports Park"],
 			"irTrackName": "barber full",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 80,
 					"distanceRoundLapEnd": 220,
@@ -6822,7 +6723,7 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Belgium" ],
+			"rf2TrackNames": ["Belgium"],
 			"trackLandmarks": [
 
 				{
@@ -6882,8 +6783,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Brands Hatch INDY", "Brands" ],
-			"gtr2TrackNames": [ "Brands Hatch 2008 Indy", "Brands Hatch Indy I" ],
+			"rf2TrackNames": ["Brands Hatch INDY", "Brands"],
+			"gtr2TrackNames": ["Brands Hatch 2008 Indy", "Brands Hatch Indy I"],
 			"irTrackName": "brandshatch indy",
 			"trackLandmarks": [
 
@@ -6926,7 +6827,7 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Brands Hatch GP" ],
+			"rf2TrackNames": ["Brands Hatch GP"],
 			"irTrackName": "brandshatch grandprix",
 			"trackLandmarks": [
 
@@ -6987,9 +6888,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "1966 Brianza" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["1966 Brianza"],
+			"trackLandmarks": [{
 					"landmarkName": "curva_grande",
 					"distanceRoundLapStart": 925,
 					"distanceRoundLapEnd": 1525,
@@ -7023,9 +6923,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Brianza 10K" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Brianza 10K"],
+			"trackLandmarks": [{
 					"landmarkName": "curva_grande",
 					"distanceRoundLapStart": 925,
 					"distanceRoundLapEnd": 1525,
@@ -7070,9 +6969,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Brianza Junior" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Brianza Junior"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 170,
 					"distanceRoundLapEnd": 385,
@@ -7105,10 +7003,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Bristol Motor Speedway" ],
+			"rf2TrackNames": ["Bristol Motor Speedway"],
 			"isOval": true,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 45,
 					"distanceRoundLapEnd": 195,
@@ -7136,10 +7033,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Brookdale Speedway" ],
+			"rf2TrackNames": ["Brookdale Speedway"],
 			"isOval": true,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 200,
 					"distanceRoundLapEnd": 592,
@@ -7167,74 +7063,70 @@
 			]
 		},
 		{
-			"trackLandmarksData": [
-				{
-					"irTrackName": "mosport",
-					"trackLandmarks": [
-						{
-							"midPoint": -1.0,
-							"landmarkName": "turn1",
-							"distanceRoundLapStart": 165.695084,
-							"distanceRoundLapEnd": 363.5834,
-							"isCommonOvertakingSpot": true
-						},
-						{
-							"midPoint": -1.0,
-							"landmarkName": "clayton_corner",
-							"distanceRoundLapStart": 621.920166,
-							"distanceRoundLapEnd": 928.3879,
-							"isCommonOvertakingSpot": false
-						},
-						{
-							"midPoint": -1.0,
-							"landmarkName": "quebec_corner",
-							"distanceRoundLapStart": 1062.76672,
-							"distanceRoundLapEnd": 1358.18787,
-							"isCommonOvertakingSpot": false
-						},
-						{
-							"midPoint": -1.0,
-							"landmarkName": "turn4",
-							"distanceRoundLapStart": 1652.10242,
-							"distanceRoundLapEnd": 1820.96277,
-							"isCommonOvertakingSpot": false
-						},
-						{
-							"midPoint": -1.0,
-							"landmarkName": "moss_corner",
-							"distanceRoundLapStart": 1858.22131,
-							"distanceRoundLapEnd": 2060,
-							"isCommonOvertakingSpot": true
-						},
-						{
-							"midPoint": -1.0,
-							"landmarkName": "turn7",
-							"distanceRoundLapStart": 2081.09229,
-							"distanceRoundLapEnd": 2243.99365,
-							"isCommonOvertakingSpot": false
-						},
-						{
-							"midPoint": -1.0,
-							"landmarkName": "the_esses",
-							"distanceRoundLapStart": 3140,
-							"distanceRoundLapEnd": 3610,
-							"isCommonOvertakingSpot": true
-						},
-						{
-							"midPoint": -1.0,
-							"landmarkName": "whites_corner",
-							"distanceRoundLapStart": 3620,
-							"distanceRoundLapEnd": 3825,
-							"isCommonOvertakingSpot": true
-						}
-					]
-				}
-			]
+			"trackLandmarksData": [{
+				"irTrackName": "mosport",
+				"trackLandmarks": [{
+						"midPoint": -1.0,
+						"landmarkName": "turn1",
+						"distanceRoundLapStart": 165.695084,
+						"distanceRoundLapEnd": 363.5834,
+						"isCommonOvertakingSpot": true
+					},
+					{
+						"midPoint": -1.0,
+						"landmarkName": "clayton_corner",
+						"distanceRoundLapStart": 621.920166,
+						"distanceRoundLapEnd": 928.3879,
+						"isCommonOvertakingSpot": false
+					},
+					{
+						"midPoint": -1.0,
+						"landmarkName": "quebec_corner",
+						"distanceRoundLapStart": 1062.76672,
+						"distanceRoundLapEnd": 1358.18787,
+						"isCommonOvertakingSpot": false
+					},
+					{
+						"midPoint": -1.0,
+						"landmarkName": "turn4",
+						"distanceRoundLapStart": 1652.10242,
+						"distanceRoundLapEnd": 1820.96277,
+						"isCommonOvertakingSpot": false
+					},
+					{
+						"midPoint": -1.0,
+						"landmarkName": "moss_corner",
+						"distanceRoundLapStart": 1858.22131,
+						"distanceRoundLapEnd": 2060,
+						"isCommonOvertakingSpot": true
+					},
+					{
+						"midPoint": -1.0,
+						"landmarkName": "turn7",
+						"distanceRoundLapStart": 2081.09229,
+						"distanceRoundLapEnd": 2243.99365,
+						"isCommonOvertakingSpot": false
+					},
+					{
+						"midPoint": -1.0,
+						"landmarkName": "the_esses",
+						"distanceRoundLapStart": 3140,
+						"distanceRoundLapEnd": 3610,
+						"isCommonOvertakingSpot": true
+					},
+					{
+						"midPoint": -1.0,
+						"landmarkName": "whites_corner",
+						"distanceRoundLapStart": 3620,
+						"distanceRoundLapEnd": 3825,
+						"isCommonOvertakingSpot": true
+					}
+				]
+			}]
 		},
 		{
-			"rf2TrackNames": [ "Canadian Tire Motorsport Park (after 2013)", "Mosport Park", "Canadian Tire Motorsport Park" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Canadian Tire Motorsport Park (after 2013)", "Mosport Park", "Canadian Tire Motorsport Park"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 535,
 					"distanceRoundLapEnd": 915,
@@ -7285,9 +7177,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Castle Combe modern" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Castle Combe modern"],
+			"trackLandmarks": [{
 					"landmarkName": "folley",
 					"distanceRoundLapStart": 135,
 					"distanceRoundLapEnd": 280,
@@ -7344,9 +7235,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Castle Combe classic" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Castle Combe classic"],
+			"trackLandmarks": [{
 					"landmarkName": "folley",
 					"distanceRoundLapStart": 135,
 					"distanceRoundLapEnd": 280,
@@ -7391,9 +7281,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Circuito Monteblanco Variante 1" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Circuito Monteblanco Variante 1"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 440,
 					"distanceRoundLapEnd": 545,
@@ -7498,9 +7387,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Circuito Monteblanco Variante 10" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Circuito Monteblanco Variante 10"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 50,
 					"distanceRoundLapEnd": 160,
@@ -7533,9 +7421,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Circuito Monteblanco Variante 2" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Circuito Monteblanco Variante 2"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 440,
 					"distanceRoundLapEnd": 545,
@@ -7622,9 +7509,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Circuito Monteblanco Variante 2ch2" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Circuito Monteblanco Variante 2ch2"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 440,
 					"distanceRoundLapEnd": 545,
@@ -7711,9 +7597,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Circuito Monteblanco Variante 3" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Circuito Monteblanco Variante 3"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 440,
 					"distanceRoundLapEnd": 545,
@@ -7776,9 +7661,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Circuito Monteblanco Variante 4" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Circuito Monteblanco Variante 4"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 440,
 					"distanceRoundLapEnd": 545,
@@ -7823,9 +7707,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Circuito Monteblanco Variante 4ch3" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Circuito Monteblanco Variante 4ch3"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 440,
 					"distanceRoundLapEnd": 545,
@@ -7870,9 +7753,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Circuito Monteblanco Variante 6" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Circuito Monteblanco Variante 6"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 440,
 					"distanceRoundLapEnd": 545,
@@ -7971,9 +7853,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Circuito Monteblanco Variante 5" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Circuito Monteblanco Variante 5"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 440,
 					"distanceRoundLapEnd": 545,
@@ -8060,9 +7941,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Circuito Monteblanco Variante 7" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Circuito Monteblanco Variante 7"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 440,
 					"distanceRoundLapEnd": 545,
@@ -8110,8 +7990,7 @@
 			"pcarsTrackName": "Watkins Glen International:Grand Prix",
 			"pcars2TrackName": "Watkins_Glen_International:GP",
 			"raceroomLayoutId": 9324,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 275,
 					"distanceRoundLapEnd": 410,
@@ -8188,10 +8067,9 @@
 		{
 			"pcarsTrackName": "Watkins Glen International:Short Circuit",
 			"pcars2TrackName": "Watkins_Glen_International:Short",
-			"rf2TrackNames": [ "Watkins Glen Short Endurance", "Watkins Glen Short" ],
+			"rf2TrackNames": ["Watkins Glen Short Endurance", "Watkins Glen Short"],
 			"raceroomLayoutId": 9177,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 275,
 					"distanceRoundLapEnd": 410,
@@ -8242,10 +8120,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Dijon-Prenois" ],
+			"rf2TrackNames": ["Dijon-Prenois"],
 			"approximateTrackLength": 3717,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "villeroy_double_right",
 					"distanceRoundLapStart": 350,
 					"distanceRoundLapEnd": 690,
@@ -8296,10 +8173,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Dijon-Prenois" ],
+			"rf2TrackNames": ["Dijon-Prenois"],
 			"approximateTrackLength": 3193,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "villeroy_double_right",
 					"distanceRoundLapStart": 350,
 					"distanceRoundLapEnd": 690,
@@ -8344,14 +8220,13 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Daytona International Speedway", "Daytona Road Course DX11" ],
+			"rf2TrackNames": ["Daytona International Speedway", "Daytona Road Course DX11"],
 			"pcars2TrackName": "Daytona_International_Speedway:Road_Course",
 			"ams2TrackName": "Daytona:Daytona_Road_Course",
 			"irTrackName": "daytona 2011 road",
 			"raceroomLayoutId": 8367,
 			"approximateTrackLength": 5800,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 420,
 					"distanceRoundLapEnd": 560,
@@ -8409,14 +8284,13 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Daytona International Speedway" ],
+			"rf2TrackNames": ["Daytona International Speedway"],
 			"pcars2TrackName": "Daytona_International_Speedway:Tri_Oval",
 			"ams2TrackName": "Daytona:Daytona_Speedway_Tri_Oval",
 			"approximateTrackLength": 4000,
 			"raceroomLayoutId": 8648,
 			"isOval": true,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "the_tri_oval",
 					"distanceRoundLapStart": 0,
 					"distanceRoundLapEnd": 225,
@@ -8476,10 +8350,9 @@
 			"trackLandmarks": []
 		},
 		{
-			"rf2TrackNames": [ "Dover International Speedway" ],
+			"rf2TrackNames": ["Dover International Speedway"],
 			"isOval": true,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 115,
 					"distanceRoundLapEnd": 390,
@@ -8507,10 +8380,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Eagle Creek Speedway" ],
+			"rf2TrackNames": ["Eagle Creek Speedway"],
 			"isOval": true,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "the_tri_oval",
 					"distanceRoundLapStart": 0,
 					"distanceRoundLapEnd": 235,
@@ -8550,10 +8422,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Paul Ricard HTTT" ],
+			"rf2TrackNames": ["Paul Ricard HTTT"],
 			"approximateTrackLength": 5657,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "verriere",
 					"distanceRoundLapStart": 500,
 					"distanceRoundLapEnd": 800,
@@ -8634,10 +8505,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Paul Ricard HTTT" ],
+			"rf2TrackNames": ["Paul Ricard HTTT"],
 			"approximateTrackLength": 5582,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "verriere",
 					"distanceRoundLapStart": 510,
 					"distanceRoundLapEnd": 915,
@@ -8706,10 +8576,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Paul Ricard HTTT" ],
+			"rf2TrackNames": ["Paul Ricard HTTT"],
 			"approximateTrackLength": 3752,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 440,
 					"distanceRoundLapEnd": 510,
@@ -8766,9 +8635,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Jacarepagua  1988" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Jacarepagua  1988"],
+			"trackLandmarks": [{
 					"landmarkName": "molykote",
 					"distanceRoundLapStart": 365,
 					"distanceRoundLapEnd": 700,
@@ -8837,11 +8705,10 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Imola 1988" ],
-			"gtr2TrackNames": [ "Imola  1994" ],
+			"rf2TrackNames": ["Imola 1988"],
+			"gtr2TrackNames": ["Imola  1994"],
 			"ams2TrackName": "ImolaAMS2:Imola_GP_1988",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "tamburello",
 					"distanceRoundLapStart": 360,
 					"distanceRoundLapEnd": 755,
@@ -8898,9 +8765,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Monte Carlo  1988" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Monte Carlo  1988"],
+			"trackLandmarks": [{
 					"landmarkName": "sainte_devote",
 					"distanceRoundLapStart": 170,
 					"distanceRoundLapEnd": 225,
@@ -8981,9 +8847,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Hermanos Rodriguez 1988" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Hermanos Rodriguez 1988"],
+			"trackLandmarks": [{
 					"landmarkName": "esses_moises_solana",
 					"distanceRoundLapStart": 900,
 					"distanceRoundLapEnd": 1260,
@@ -9040,10 +8905,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Montreal  1988" ],
+			"rf2TrackNames": ["Montreal  1988"],
 			"ams2TrackName": "Montreal:Historic",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "casino",
 					"distanceRoundLapStart": 190,
 					"distanceRoundLapEnd": 285,
@@ -9142,9 +9006,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Detroit  1988" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Detroit  1988"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 180,
 					"distanceRoundLapEnd": 395,
@@ -9255,9 +9118,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Paul Ricard  1988" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Paul Ricard  1988"],
+			"trackLandmarks": [{
 					"landmarkName": "la_bretelle",
 					"distanceRoundLapStart": 465,
 					"distanceRoundLapEnd": 570,
@@ -9308,10 +9170,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Silverstone 1988" ],
+			"rf2TrackNames": ["Silverstone 1988"],
 			"pcars2TrackName": "Silverstone_Classic:GP",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "copse",
 					"distanceRoundLapStart": 325,
 					"distanceRoundLapEnd": 455,
@@ -9369,10 +9230,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Hockenheim  1988" ],
+			"rf2TrackNames": ["Hockenheim  1988"],
 			"pcars2TrackName": "Hockenheim_Classic:GP",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "nord_kurve",
 					"distanceRoundLapStart": 220,
 					"distanceRoundLapEnd": 365,
@@ -9424,9 +9284,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Hungaroring  1988" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Hungaroring  1988"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 350,
 					"distanceRoundLapEnd": 565,
@@ -9507,9 +9366,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Monza  1988" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Monza  1988"],
+			"trackLandmarks": [{
 					"landmarkName": "variante_del_rettifilo",
 					"distanceRoundLapStart": 600,
 					"distanceRoundLapEnd": 845,
@@ -9560,10 +9418,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Estoril  1988" ],
-			"gtr2TrackNames": [ "Estoril, 2003 FIA GT Championship Round 9", "HQ Autodromo do Estoril", "HQ-Vanilla Estoril 2003", "HQ-Reborn Estoril 2003", "HQ-NAP Estoril 2003" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Estoril  1988"],
+			"gtr2TrackNames": ["Estoril, 2003 FIA GT Championship Round 9", "HQ Autodromo do Estoril", "HQ-Vanilla Estoril 2003", "HQ-Reborn Estoril 2003", "HQ-NAP Estoril 2003"],
+			"trackLandmarks": [{
 					"landmarkName": "curva1",
 					"distanceRoundLapStart": 425,
 					"distanceRoundLapEnd": 600,
@@ -9632,9 +9489,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Jerez  1988" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Jerez  1988"],
+			"trackLandmarks": [{
 					"landmarkName": "curva_expo_92",
 					"distanceRoundLapStart": 300,
 					"distanceRoundLapEnd": 435,
@@ -9721,9 +9577,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Spa Francorchamps  1988" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Spa Francorchamps  1988"],
+			"trackLandmarks": [{
 					"landmarkName": "la_source",
 					"distanceRoundLapStart": 190,
 					"distanceRoundLapEnd": 290,
@@ -9804,9 +9659,8 @@
 			]
 		},
 		{
-			"gtr2TrackNames": [ "HQ Circuit de Spa-Francorchamps", "Spa-Francorchamps, 2003 FIA GT Championship Round 6", "Spa-Francorchamps, 2004 FIA GT Championship Round 7", "HQ-Vanilla Spa-Francorchamps 2004", "HQ-Vanilla Spa-Francorchamps 2003", "HQ-Reborn Spa-Francorchamps 2004", "HQ-Reborn Spa-Francorchamps 2003", "HQ-NAP Spa-Francorchamps 2004", "HQ-NAP Spa-Francorchamps 2003" ],
-			"trackLandmarks": [
-				{
+			"gtr2TrackNames": ["HQ Circuit de Spa-Francorchamps", "Spa-Francorchamps, 2003 FIA GT Championship Round 6", "Spa-Francorchamps, 2004 FIA GT Championship Round 7", "HQ-Vanilla Spa-Francorchamps 2004", "HQ-Vanilla Spa-Francorchamps 2003", "HQ-Reborn Spa-Francorchamps 2004", "HQ-Reborn Spa-Francorchamps 2003", "HQ-NAP Spa-Francorchamps 2004", "HQ-NAP Spa-Francorchamps 2003"],
+			"trackLandmarks": [{
 					"landmarkName": "eau_rouge",
 					"distanceRoundLapStart": 205,
 					"distanceRoundLapEnd": 455,
@@ -9887,9 +9741,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Suzuka 1988" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Suzuka 1988"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 260,
 					"distanceRoundLapEnd": 400,
@@ -9964,9 +9817,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Adelaide  1988" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Adelaide  1988"],
+			"trackLandmarks": [{
 					"landmarkName": "senna_chicane",
 					"distanceRoundLapStart": 225,
 					"distanceRoundLapEnd": 340,
@@ -10047,12 +9899,11 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Donington Park GP Circuit" ],
+			"rf2TrackNames": ["Donington Park GP Circuit"],
 			"irTrackName": "donington gp",
-			"gtr2TrackNames": [ "Donington Park GP, 2003 FIA GT Championship Round 5", "Donington Park GP, 2004 FIA GT Championship Round 6", "HQ Donington Park" ],
+			"gtr2TrackNames": ["Donington Park GP, 2003 FIA GT Championship Round 5", "Donington Park GP, 2004 FIA GT Championship Round 6", "HQ Donington Park"],
 
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "redgate",
 					"distanceRoundLapStart": 220,
 					"distanceRoundLapEnd": 365,
@@ -10121,10 +9972,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Donington Park National Circuit" ],
+			"rf2TrackNames": ["Donington Park National Circuit"],
 			"irTrackName": "donington national",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "redgate",
 					"distanceRoundLapStart": 220,
 					"distanceRoundLapEnd": 365,
@@ -10181,9 +10031,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Hockenheimring" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Hockenheimring"],
+			"trackLandmarks": [{
 					"landmarkName": "nord_kurve",
 					"distanceRoundLapStart": 210,
 					"distanceRoundLapEnd": 470,
@@ -10282,9 +10131,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Indianapolis - 2007 GP" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Indianapolis - 2007 GP"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 555,
 					"distanceRoundLapEnd": 680,
@@ -10365,9 +10213,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Indianapolis - 2013 GP" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Indianapolis - 2013 GP"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 555,
 					"distanceRoundLapEnd": 680,
@@ -10466,9 +10313,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Indianapolis - 2014 GP" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Indianapolis - 2014 GP"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 595,
 					"distanceRoundLapEnd": 685,
@@ -10555,10 +10401,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Indianapolis - Brickyard", "Indianapolis - Oval" ],
+			"rf2TrackNames": ["Indianapolis - Brickyard", "Indianapolis - Oval"],
 			"isOval": true,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 235,
 					"distanceRoundLapEnd": 735,
@@ -10586,10 +10431,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Jacksonville Superspeedway" ],
+			"rf2TrackNames": ["Jacksonville Superspeedway"],
 			"isOval": true,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "the_tri_oval",
 					"distanceRoundLapStart": 0,
 					"distanceRoundLapEnd": 215,
@@ -10629,10 +10473,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Joseville Speedway" ],
+			"rf2TrackNames": ["Joseville Speedway"],
 			"isOval": true,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 30,
 					"distanceRoundLapEnd": 155,
@@ -10660,10 +10503,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Kansas Speedway" ],
+			"rf2TrackNames": ["Kansas Speedway"],
 			"isOval": true,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "the_tri_oval",
 					"distanceRoundLapStart": 0,
 					"distanceRoundLapEnd": 235,
@@ -10703,10 +10545,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Las Vagas Motor Speedway" ],
+			"rf2TrackNames": ["Las Vagas Motor Speedway"],
 			"isOval": true,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "the_tri_oval",
 					"distanceRoundLapStart": 0,
 					"distanceRoundLapEnd": 225,
@@ -10746,12 +10587,11 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Lausitzring" ],
+			"rf2TrackNames": ["Lausitzring"],
 			"raceroomLayoutId": 6166,
 			"raceroomRollingStartLapDistance": 3571,
 			"approximateTrackLength": 4528,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 300,
 					"distanceRoundLapEnd": 420,
@@ -10838,13 +10678,12 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Lausitzring" ],
-			"gtr2TrackNames": [ "Lausitzring DTM, Klettwitz", "Lausitzring GP Sprint" ],
+			"rf2TrackNames": ["Lausitzring"],
+			"gtr2TrackNames": ["Lausitzring DTM, Klettwitz", "Lausitzring GP Sprint"],
 			"raceroomLayoutId": 2468,
 			"raceroomRollingStartLapDistance": 2467,
 			"approximateTrackLength": 3356,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 300,
 					"distanceRoundLapEnd": 420,
@@ -10919,13 +10758,12 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "lausitzring superspeedway" ],
+			"rf2TrackNames": ["lausitzring superspeedway"],
 			"approximateTrackLength": 3256,
 			"raceroomLayoutId": 3291,
 			"raceroomRollingStartLapDistance": 2441,
 			"isOval": true,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 345,
 					"distanceRoundLapEnd": 955,
@@ -10946,9 +10784,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Loch Drummond - Short Layout" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Loch Drummond - Short Layout"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 85,
 					"distanceRoundLapEnd": 249,
@@ -11023,9 +10860,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Loch Drummond - Long Layout" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Loch Drummond - Long Layout"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 85,
 					"distanceRoundLapEnd": 249,
@@ -11120,11 +10956,10 @@
 
 
 		{
-			"rf2TrackNames": [ "Long_Beech_2014" ],
+			"rf2TrackNames": ["Long_Beech_2014"],
 			"pcars2TrackName": "Long_Beach:Street_Circuit",
 			"ams2TrackName": "Long_Beach:Long_Beach",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 700,
 					"distanceRoundLapEnd": 795,
@@ -11193,9 +11028,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Longford 1967" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Longford 1967"],
+			"trackLandmarks": [{
 					"landmarkName": "viaduct",
 					"distanceRoundLapStart": 1070,
 					"distanceRoundLapEnd": 1230,
@@ -11228,10 +11062,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Guia_Circuit" ],
+			"rf2TrackNames": ["Guia_Circuit"],
 			"raceroomLayoutId": 2123,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "reservoir",
 					"distanceRoundLapStart": 55,
 					"distanceRoundLapEnd": 195,
@@ -11372,9 +11205,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Magnificent_Park_Endurance" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Magnificent_Park_Endurance"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 230,
 					"distanceRoundLapEnd": 435,
@@ -11527,9 +11359,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Magnificent_Park_International GP" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Magnificent_Park_International GP"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 230,
 					"distanceRoundLapEnd": 435,
@@ -11629,9 +11460,8 @@
 		},
 		{
 
-			"rf2TrackNames": [ "Magnificent_Park_National GP" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Magnificent_Park_National GP"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 230,
 					"distanceRoundLapEnd": 435,
@@ -11694,11 +11524,10 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Magny-Cours" ],
-			"gtr2TrackNames": [ "Magny-Cours, 2003 FIA GT Championship Round 2", "Magny-Cours, 2004 FIA GT Championship Round 3", "Magny-Cours", "HQ Circuit de Nevers Magny-Cours" ],
+			"rf2TrackNames": ["Magny-Cours"],
+			"gtr2TrackNames": ["Magny-Cours, 2003 FIA GT Championship Round 2", "Magny-Cours, 2004 FIA GT Championship Round 3", "Magny-Cours", "HQ Circuit de Nevers Magny-Cours"],
 
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "grande_courbe",
 					"distanceRoundLapStart": 140,
 					"distanceRoundLapEnd": 290,
@@ -11805,9 +11634,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Norising" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Norising"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 185,
 					"distanceRoundLapEnd": 385,
@@ -11852,10 +11680,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Martinsville Speedway" ],
+			"rf2TrackNames": ["Martinsville Speedway"],
 			"isOval": true,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 90,
 					"distanceRoundLapEnd": 200,
@@ -11882,10 +11709,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "New Hampshire Motor Speedway" ],
+			"rf2TrackNames": ["New Hampshire Motor Speedway"],
 			"isOval": true,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 150,
 					"distanceRoundLapEnd": 397,
@@ -11913,9 +11739,8 @@
 		},
 		{
 
-			"rf2TrackNames": [ "Matsusaka East Circuit" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Matsusaka East Circuit"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 640,
 					"distanceRoundLapEnd": 760,
@@ -11967,9 +11792,8 @@
 		},
 		{
 
-			"rf2TrackNames": [ "Matsusaka Grand Prix Circuit", "Matsusaka International Circuit" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Matsusaka Grand Prix Circuit", "Matsusaka International Circuit"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 640,
 					"distanceRoundLapEnd": 760,
@@ -12063,9 +11887,8 @@
 		},
 		{
 
-			"rf2TrackNames": [ "Matsusaka International Old Chicane" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Matsusaka International Old Chicane"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 640,
 					"distanceRoundLapEnd": 760,
@@ -12159,9 +11982,8 @@
 		},
 		{
 
-			"rf2TrackNames": [ "Matsusaka International West Chicane" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Matsusaka International West Chicane"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 640,
 					"distanceRoundLapEnd": 760,
@@ -12255,9 +12077,8 @@
 		},
 		{
 
-			"rf2TrackNames": [ "Matsusaka Motorcycle Circuit" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Matsusaka Motorcycle Circuit"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 640,
 					"distanceRoundLapEnd": 760,
@@ -12351,9 +12172,8 @@
 		},
 		{
 
-			"rf2TrackNames": [ "Matsusaka West - West Chicane" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Matsusaka West - West Chicane"],
+			"trackLandmarks": [{
 					"landmarkName": "130R",
 					"distanceRoundLapStart": 435,
 					"distanceRoundLapEnd": 685,
@@ -12405,9 +12225,8 @@
 		},
 		{
 
-			"rf2TrackNames": [ "Matsusaka West Circuit" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Matsusaka West Circuit"],
+			"trackLandmarks": [{
 					"landmarkName": "130R",
 					"distanceRoundLapStart": 435,
 					"distanceRoundLapEnd": 685,
@@ -12458,9 +12277,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Mazda Raceway Laguna Seca" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Mazda Raceway Laguna Seca"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 200,
 					"distanceRoundLapEnd": 320,
@@ -12529,10 +12347,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Michigan International Speedway" ],
+			"rf2TrackNames": ["Michigan International Speedway"],
 			"isOval": true,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "the_tri_oval",
 					"distanceRoundLapStart": 0,
 					"distanceRoundLapEnd": 350,
@@ -12573,9 +12390,8 @@
 		},
 		{
 
-			"rf2TrackNames": [ "1966 Monte Carlo" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["1966 Monte Carlo"],
+			"trackLandmarks": [{
 					"landmarkName": "sainte_devote",
 					"distanceRoundLapStart": 350,
 					"distanceRoundLapEnd": 440,
@@ -12646,9 +12462,8 @@
 
 		{
 
-			"rf2TrackNames": [ "Full Course" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Full Course"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 125,
 					"distanceRoundLapEnd": 340,
@@ -12700,9 +12515,8 @@
 		},
 		{
 
-			"rf2TrackNames": [ "Mores - Short Layout" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Mores - Short Layout"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 250,
 					"distanceRoundLapEnd": 250,
@@ -12741,10 +12555,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Mountain Peak - Legends Oval" ],
+			"rf2TrackNames": ["Mountain Peak - Legends Oval"],
 			"isOval": true,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 25,
 					"distanceRoundLapEnd": 175,
@@ -12761,9 +12574,8 @@
 		},
 		{
 
-			"rf2TrackNames": [ "mountainpeak road course" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["mountainpeak road course"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 120,
 					"distanceRoundLapEnd": 230,
@@ -12832,10 +12644,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "mountain peak speedway" ],
+			"rf2TrackNames": ["mountain peak speedway"],
 			"isOval": true,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "trioval",
 					"distanceRoundLapStart": 0,
 					"distanceRoundLapEnd": 200,
@@ -12876,9 +12687,8 @@
 		},
 		{
 
-			"rf2TrackNames": [ "Louisiana -- Indy Grand Prixp" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Louisiana -- Indy Grand Prixp"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 500,
 					"distanceRoundLapEnd": 590,
@@ -12960,9 +12770,8 @@
 		},
 		{
 
-			"rf2TrackNames": [ "NolaMP -- A - Course" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["NolaMP -- A - Course"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 500,
 					"distanceRoundLapEnd": 590,
@@ -13062,9 +12871,8 @@
 		},
 		{
 
-			"rf2TrackNames": [ "NolaMP -- B - Course" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["NolaMP -- B - Course"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 500,
 					"distanceRoundLapEnd": 590,
@@ -13139,9 +12947,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "NolaMP -- C - Course" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["NolaMP -- C - Course"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 1030,
 					"distanceRoundLapEnd": 1145,
@@ -13216,9 +13023,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "NolaMP -- D - Course" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["NolaMP -- D - Course"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 735,
 					"distanceRoundLapEnd": 820,
@@ -13305,9 +13111,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Nogaro" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Nogaro"],
+			"trackLandmarks": [{
 					"landmarkName": "premiere_virage",
 					"distanceRoundLapStart": 170,
 					"distanceRoundLapEnd": 315,
@@ -13388,10 +13193,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Northside International Racewa" ],
+			"rf2TrackNames": ["Northside International Racewa"],
 			"isOval": true,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "trioval",
 					"distanceRoundLapStart": 0,
 					"distanceRoundLapEnd": 105,
@@ -13431,11 +13235,10 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ " Nuerburg Sprint" ],
+			"rf2TrackNames": [" Nuerburg Sprint"],
 			"raceroomLayoutId": 2011,
 			"raceroomRollingStartLapDistance": 3100,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "haug_Hhken",
 					"distanceRoundLapStart": 545,
 					"distanceRoundLapEnd": 665,
@@ -13486,9 +13289,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Oschersleben_MC" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Oschersleben_MC"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 375,
 					"distanceRoundLapEnd": 480,
@@ -13551,16 +13353,15 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Oschersleben Motorsport Park" ],
+			"rf2TrackNames": ["Oschersleben Motorsport Park"],
 			"approximateTrackLength": 3670.4,
 			"pcarsTrackName": "Oschersleben:Grand Prix",
 			"pcars2TrackName": "Oschersleben:A_Course",
 			"raceroomLayoutId": 2384,
 			"irTrackName": "oschersleben gp",
 			"raceroomRollingStartLapDistance": 3181,
-			"gtr2TrackNames": [ "Oschersleben, 2003 FIA GT Championship Round 8", "Oschersleben, 2004 FIA GT Championship Round 9", "Oschersleben", "HQ Motorsport Arena Oschersleben", "HQ-Vanilla Oschersleben 2003", "HQ-Reborn Oschersleben 2003", "HQ-NAP Oschersleben 2003", "Oschersleben, GT Masters Round 1" ],
-			"trackLandmarks": [
-				{
+			"gtr2TrackNames": ["Oschersleben, 2003 FIA GT Championship Round 8", "Oschersleben, 2004 FIA GT Championship Round 9", "Oschersleben", "HQ Motorsport Arena Oschersleben", "HQ-Vanilla Oschersleben 2003", "HQ-Reborn Oschersleben 2003", "HQ-NAP Oschersleben 2003", "Oschersleben, GT Masters Round 1"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 430,
 					"distanceRoundLapEnd": 505,
@@ -13623,9 +13424,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Palm Beach Intl Road Course" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Palm Beach Intl Road Course"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 175,
 					"distanceRoundLapEnd": 270,
@@ -13694,9 +13494,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Palm Springs Road Course A" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Palm Springs Road Course A"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 160,
 					"distanceRoundLapEnd": 285,
@@ -13783,10 +13582,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Palm Springs Speedway" ],
+			"rf2TrackNames": ["Palm Springs Speedway"],
 			"isOval": true,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 180,
 					"distanceRoundLapEnd": 590,
@@ -13813,9 +13611,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Pembrey" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Pembrey"],
+			"trackLandmarks": [{
 					"landmarkName": "hatchets_hairpin",
 					"distanceRoundLapStart": 230,
 					"distanceRoundLapEnd": 310,
@@ -13866,9 +13663,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Phakisa" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Phakisa"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 205,
 					"distanceRoundLapEnd": 495,
@@ -13937,10 +13733,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Phoenix" ],
+			"rf2TrackNames": ["Phoenix"],
 			"isOval": true,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 127,
 					"distanceRoundLapEnd": 323,
@@ -13968,10 +13763,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Pocono Raceway" ],
+			"rf2TrackNames": ["Pocono Raceway"],
 			"isOval": true,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 715,
 					"distanceRoundLapEnd": 1320,
@@ -13992,9 +13786,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Portland International Raceway Chicane" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Portland International Raceway Chicane"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 270,
 					"distanceRoundLapEnd": 340,
@@ -14069,9 +13862,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Portland International Raceway No Chicane" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Portland International Raceway No Chicane"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 650,
 					"distanceRoundLapEnd": 805,
@@ -14128,11 +13920,10 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Road America 2016" ],
+			"rf2TrackNames": ["Road America 2016"],
 			"approximateTrackLength": 6494.4,
 			"raceroomLayoutId": 5276,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 565,
 					"distanceRoundLapEnd": 755,
@@ -14219,10 +14010,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Road America 2016" ],
+			"rf2TrackNames": ["Road America 2016"],
 			"approximateTrackLength": 6439,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 565,
 					"distanceRoundLapEnd": 755,
@@ -14303,10 +14093,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Road America" ],
+			"rf2TrackNames": ["Road America"],
 			"approximateTrackLength": 6274.7,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 565,
 					"distanceRoundLapEnd": 755,
@@ -14387,9 +14176,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Poznan Circuit -- Race Weekend" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Poznan Circuit -- Race Weekend"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 315,
 					"distanceRoundLapEnd": 675,
@@ -14476,9 +14264,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Poznan Circuit -- Track Day" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Poznan Circuit -- Track Day"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 315,
 					"distanceRoundLapEnd": 675,
@@ -14565,9 +14352,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "PrinceGeorgeCircuit" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["PrinceGeorgeCircuit"],
+			"trackLandmarks": [{
 					"landmarkName": "potters_pass_curve",
 					"distanceRoundLapStart": 470,
 					"distanceRoundLapEnd": 725,
@@ -14618,9 +14404,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Rouen 1955-70" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Rouen 1955-70"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 65,
 					"distanceRoundLapEnd": 295,
@@ -14707,10 +14492,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Sachsenring" ],
-			"gtr2TrackNames": [ "Sachsenring, GT Masters Round 3" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Sachsenring"],
+			"gtr2TrackNames": ["Sachsenring, GT Masters Round 3"],
+			"trackLandmarks": [{
 					"landmarkName": "coca_cola_kurve",
 					"distanceRoundLapStart": 265,
 					"distanceRoundLapEnd": 430,
@@ -14767,9 +14551,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Palm Springs Road Course B" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Palm Springs Road Course B"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 160,
 					"distanceRoundLapEnd": 285,
@@ -14841,8 +14624,7 @@
 			"rf2TrackNames": [
 				"Hong Kong"
 			],
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 146.661469,
 					"distanceRoundLapEnd": 190.171463,
@@ -14916,10 +14698,9 @@
 			"isOval": true
 		},
 		{
-			"rf2TrackNames": [ "Sebring -- 12 Hour Road Course", "Sebring -- Full Layout" ],
+			"rf2TrackNames": ["Sebring -- 12 Hour Road Course", "Sebring -- Full Layout"],
 			"approximateTrackLength": 5825,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 370,
 					"distanceRoundLapEnd": 610,
@@ -14994,10 +14775,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Sebring -- Johnson Club" ],
+			"rf2TrackNames": ["Sebring -- Johnson Club"],
 			"approximateTrackLength": 2666,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "cunningham",
 					"distanceRoundLapStart": 195,
 					"distanceRoundLapEnd": 275,
@@ -15042,10 +14822,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Sebring -- School" ],
+			"rf2TrackNames": ["Sebring -- School"],
 			"approximateTrackLength": 3060,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 370,
 					"distanceRoundLapEnd": 610,
@@ -15084,10 +14863,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Misano World Circuit Grand Prix" ],
+			"rf2TrackNames": ["Misano World Circuit Grand Prix"],
 			"approximateTrackLength": 4279,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "variante_del_parco",
 					"distanceRoundLapStart": 210,
 					"distanceRoundLapEnd": 635,
@@ -15132,10 +14910,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Zolder2016" ],
+			"rf2TrackNames": ["Zolder2016"],
 			"approximateTrackLength": 3981,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "earste",
 					"distanceRoundLapStart": 180,
 					"distanceRoundLapEnd": 385,
@@ -15204,10 +14981,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Silverstone -- GT Layout" ],
+			"rf2TrackNames": ["Silverstone -- GT Layout"],
 			"approximateTrackLength": 5847,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "abbey",
 					"distanceRoundLapStart": 190,
 					"distanceRoundLapEnd": 345,
@@ -15300,10 +15076,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Silverstone -- International Layout" ],
+			"rf2TrackNames": ["Silverstone -- International Layout"],
 			"approximateTrackLength": 2966,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "abbey",
 					"distanceRoundLapStart": 190,
 					"distanceRoundLapEnd": 345,
@@ -15348,10 +15123,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Nuerburg Ring GP" ],
+			"rf2TrackNames": ["Nuerburg Ring GP"],
 			"approximateTrackLength": 5117,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "haug_haken",
 					"distanceRoundLapStart": 520,
 					"distanceRoundLapEnd": 720,
@@ -15428,8 +15202,7 @@
 			"pcars2TrackName": "",
 			"raceroomLayoutId": -1,
 			"approximateTrackLength": -1.0,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"midPoint": -1.0,
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 56.8324127,
@@ -15532,11 +15305,10 @@
 			"raceroomRollingStartLapDistance": -1.0
 		},
 		{
-			"rf2TrackNames": [ "Okayama 2017" ],
-			"gtr2TrackNames": [ "Okayama" ],
+			"rf2TrackNames": ["Okayama 2017"],
+			"gtr2TrackNames": ["Okayama"],
 			"approximateTrackLength": 3700,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "first_corner",
 					"distanceRoundLapStart": 170,
 					"distanceRoundLapEnd": 350,
@@ -15605,10 +15377,9 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Okayama piper 2017" ],
+			"rf2TrackNames": ["Okayama piper 2017"],
 			"approximateTrackLength": 1950,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "first_corner",
 					"distanceRoundLapStart": 170,
 					"distanceRoundLapEnd": 350,
@@ -15654,8 +15425,7 @@
 		},
 		{
 			"irTrackName": "okayama full",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "first_corner",
 					"distanceRoundLapStart": 150,
 					"distanceRoundLapEnd": 370,
@@ -15725,8 +15495,7 @@
 		},
 		{
 			"irTrackName": "okayama short",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "first_corner",
 					"distanceRoundLapStart": 150,
 					"distanceRoundLapEnd": 370,
@@ -15771,12 +15540,11 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Sepang" ],
-			"acTrackNames": [ "Sepang" ],
+			"rf2TrackNames": ["Sepang"],
+			"acTrackNames": ["Sepang"],
 			"raceroomLayoutId": 6341,
 			"approximateTrackLength": 5528,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"midPoint": -1.0,
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 568.298,
@@ -15868,8 +15636,7 @@
 			"pcars2TrackName": "this is Raceroom's Nordschliefe VLN layout, complete only as far as Karussell",
 			"raceroomLayoutId": 4975,
 			"approximateTrackLength": 24321.31,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"midPoint": -1.0,
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 600.3771,
@@ -16178,8 +15945,7 @@
 			"pcars2TrackName": "this is Raceroom's Nordschliefe layout, complete only as far as Karussell",
 			"raceroomLayoutId": 2813,
 			"approximateTrackLength": -1.0,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"midPoint": -1.0,
 					"landmarkName": "nordkehre",
 					"distanceRoundLapStart": 47.157,
@@ -16438,8 +16204,7 @@
 			"pcars2TrackName": "",
 			"raceroomLayoutId": -1,
 			"approximateTrackLength": 1738.0,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"midPoint": -1.0,
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 127.443214,
@@ -16518,8 +16283,7 @@
 			"pcars2TrackName": "",
 			"raceroomLayoutId": -1,
 			"approximateTrackLength": -1.0,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"midPoint": -1.0,
 					"landmarkName": "dunlop_curve",
 					"distanceRoundLapStart": 504.250916,
@@ -16634,8 +16398,7 @@
 			"accTrackName": "",
 			"raceroomLayoutId": -1,
 			"approximateTrackLength": -1.0,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"midPoint": -1.0,
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 350.366821,
@@ -16740,9 +16503,8 @@
 			"pitApproachPoint": null
 		},
 		{
-			"rf2TrackNames": [ "Watkins Glen Boot", "Watkins Glen Boot Endurance" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Watkins Glen Boot", "Watkins Glen Boot Endurance"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 264,
 					"distanceRoundLapEnd": 424,
@@ -16828,8 +16590,7 @@
 			"accTrackName": "",
 			"raceroomLayoutId": -1,
 			"approximateTrackLength": -1.0,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"midPoint": -1.0,
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 307,
@@ -16934,9 +16695,8 @@
 			"pitApproachPoint": null
 		},
 		{
-			"gtr2TrackNames": [ "Anderstorp, 2003 FIA GT Championship Round 7", "Anderstorp 2007", "HQ Anderstorp" ],
-			"trackLandmarks": [
-				{
+			"gtr2TrackNames": ["Anderstorp, 2003 FIA GT Championship Round 7", "Anderstorp 2007", "HQ Anderstorp"],
+			"trackLandmarks": [{
 					"landmarkName": "SOEDRA",
 					"distanceRoundLapStart": 65,
 					"distanceRoundLapEnd": 300,
@@ -16987,9 +16747,8 @@
 			]
 		},
 		{
-			"gtr2TrackNames": [ "Anderstorp South" ],
-			"trackLandmarks": [
-				{
+			"gtr2TrackNames": ["Anderstorp South"],
+			"trackLandmarks": [{
 					"landmarkName": "SOEDRA",
 					"distanceRoundLapStart": 65,
 					"distanceRoundLapEnd": 300,
@@ -17022,10 +16781,9 @@
 			]
 		},
 		{
-			"gtr2TrackNames": [ "Brno, 2003 FIA GT Championship Round 4", "Brno, 2004 FIA GT Championship Round 5", "Circuit de Masaryk", "HQ Circuit de Masaryk", "HQ-Vanilla Brno 2004", "HQ-Vanilla Brno 2003", "HQ-Reborn Brno 2004", "HQ-Reborn Brno 2003", "HQ-NAP Brno 2004", "HQ-NAP Brno 2003" ],
+			"gtr2TrackNames": ["Brno, 2003 FIA GT Championship Round 4", "Brno, 2004 FIA GT Championship Round 5", "Circuit de Masaryk", "HQ Circuit de Masaryk", "HQ-Vanilla Brno 2004", "HQ-Vanilla Brno 2003", "HQ-Reborn Brno 2004", "HQ-Reborn Brno 2003", "HQ-NAP Brno 2004", "HQ-NAP Brno 2003"],
 			"raceroomLayoutId": 5298,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 415,
 					"distanceRoundLapEnd": 750,
@@ -17106,9 +16864,8 @@
 			]
 		},
 		{
-			"gtr2TrackNames": [ "Valencia GP, 2004 FIA GT Championship Round 2", "HQ Circuit Ricardo Tormo", "Valencia GP" ],
-			"trackLandmarks": [
-				{
+			"gtr2TrackNames": ["Valencia GP, 2004 FIA GT Championship Round 2", "HQ Circuit Ricardo Tormo", "Valencia GP"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 470,
 					"distanceRoundLapEnd": 590,
@@ -17171,9 +16928,8 @@
 			]
 		},
 		{
-			"gtr2TrackNames": [ "Zhuhai, FIA GT Championship Round 11", "HQ Zhuhai International Circuit" ],
-			"trackLandmarks": [
-				{
+			"gtr2TrackNames": ["Zhuhai, FIA GT Championship Round 11", "HQ Zhuhai International Circuit"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 405,
 					"distanceRoundLapEnd": 540,
@@ -17224,9 +16980,8 @@
 			]
 		},
 		{
-			"gtr2TrackNames": [ "Enna Pergusa, 2003 FIA GT Championship Round 3", "HQ Autodromo di Pergusa", "HQ-Reborn Enna Pergusa 2003", "HQ-Reborn Enna Pergusa 2004" ],
-			"trackLandmarks": [
-				{
+			"gtr2TrackNames": ["Enna Pergusa, 2003 FIA GT Championship Round 3", "HQ Autodromo di Pergusa", "HQ-Reborn Enna Pergusa 2003", "HQ-Reborn Enna Pergusa 2004"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 250,
 					"distanceRoundLapEnd": 390,
@@ -17271,9 +17026,8 @@
 			]
 		},
 		{
-			"gtr2TrackNames": [ "Dubai, 2004 FIA GT Championship Round 11", "HQ Dubai Autodrome" ],
-			"trackLandmarks": [
-				{
+			"gtr2TrackNames": ["Dubai, 2004 FIA GT Championship Round 11", "HQ Dubai Autodrome"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 720,
 					"distanceRoundLapEnd": 820,
@@ -17360,9 +17114,8 @@
 			]
 		},
 		{
-			"gtr2TrackNames": [ "Valencia GP, 2004 FIA GT Championship Round 2" ],
-			"trackLandmarks": [
-				{
+			"gtr2TrackNames": ["Valencia GP, 2004 FIA GT Championship Round 2"],
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 470,
 					"distanceRoundLapEnd": 590,
@@ -17427,8 +17180,7 @@
 		{
 			"irTrackName": "charlotte 2018 2019 roval",
 			"isOval": false,
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"midPoint": -1.0,
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 153.9004,
@@ -17515,9 +17267,8 @@
 			]
 		},
 		{
-			"acTrackNames": [ "ks_monza66:full" ],
-			"trackLandmarks": [
-				{
+			"acTrackNames": ["ks_monza66:full"],
+			"trackLandmarks": [{
 					"landmarkName": "curva_grande",
 					"distanceRoundLapStart": 945.56665,
 					"distanceRoundLapEnd": 1420.25684,
@@ -17575,8 +17326,7 @@
 		},
 		{
 			"irTrackName": "spa combined",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "la_source",
 					"distanceRoundLapStart": 310.0927,
 					"distanceRoundLapEnd": 453.63028,
@@ -17665,8 +17415,7 @@
 		},
 		{
 			"irTrackName": "limerock 2019 classic",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "big_bend",
 					"distanceRoundLapStart": 176.443146,
 					"distanceRoundLapEnd": 500.613373,
@@ -17707,8 +17456,7 @@
 		},
 		{
 			"irTrackName": "hockenheim gp",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "nord_kurve",
 					"distanceRoundLapStart": 195.582169,
 					"distanceRoundLapEnd": 351.976135,
@@ -17806,6 +17554,119 @@
 				}
 			],
 			"isOval": false
+		},
+		{
+			"ams2TrackName": "Indianapolis:Indianapolis_2022_OVAL",
+			"raceroomLayoutId": 9958,
+			"isOval": true,
+			"trackLandmarks": [
+				{
+					"landmarkName": "turn1",
+					"distanceRoundLapStart": 330,
+					"distanceRoundLapEnd": 730,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn2",
+					"distanceRoundLapStart": 920,
+					"distanceRoundLapEnd": 1370,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn3",
+					"distanceRoundLapStart": 2270,
+					"distanceRoundLapEnd": 2760,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn4",
+					"distanceRoundLapStart": 2950,
+					"distanceRoundLapEnd": 3360,
+					"isCommonOvertakingSpot": true
+				}
+			]
+		},
+		{
+			"rf1TrackNames": [],
+			"rf2TrackNames": [],
+			"gtr2TrackNames": [],
+			"acTrackNames": [],
+			"irTrackName": "tsukuba 2kfull",
+			"pcarsTrackName": "",
+			"pcars2TrackName": "",
+			"ams2TrackName": "",
+			"accTrackName": "",
+			"raceroomLayoutId": -1,
+			"approximateTrackLength": -1.0,
+			"trackLandmarks": [
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn1",
+					"distanceRoundLapStart": 146.508179,
+					"distanceRoundLapEnd": 357.351,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn2",
+					"distanceRoundLapStart": 401.7895,
+					"distanceRoundLapEnd": 489.98407,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn3",
+					"distanceRoundLapStart": 504.829956,
+					"distanceRoundLapEnd": 568.847534,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn4",
+					"distanceRoundLapStart": 593.4238,
+					"distanceRoundLapEnd": 720.0764,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn5",
+					"distanceRoundLapStart": 783.81665,
+					"distanceRoundLapEnd": 895.361755,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn6",
+					"distanceRoundLapStart": 912.1783,
+					"distanceRoundLapEnd": 1045.08923,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn7",
+					"distanceRoundLapStart": 1056.5614,
+					"distanceRoundLapEnd": 1126.94556,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn8",
+					"distanceRoundLapStart": 1180.5448,
+					"distanceRoundLapEnd": 1316.1615,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn9",
+					"distanceRoundLapStart": 1724.33264,
+					"distanceRoundLapEnd": 2028.6532,
+					"isCommonOvertakingSpot": false
+				}
+			],
+			"isOval": false,
+			"raceroomRollingStartLapDistance": -1.0,
+			"iracingPitEntranceDistanceRoundTrack": -1.0,
+			"pitApproachPoint": null
 		}
 	]
-		}
+}

@@ -723,8 +723,19 @@ namespace CrewChiefV4.Events
                         case FullCourseYellowPhase.PITS_OPEN:
                             if (CrewChief.yellowFlagMessagesEnabled)
                             {
-                                audioPlayer.playMessage(new QueuedMessage(GlobalBehaviourSettings.useAmericanTerms ? folderFCYellowPitsOpenUS : folderFCYellowPitsOpenEU,
-                                    delay + 6, secondsDelay: delay, abstractEvent: this, priority: 10));
+                                // WIP AMS2 logic - state goes RACING -> PITS_OPEN with nothing in between so queue 'yellow' then 'pit open' some time later
+                                if (CrewChief.gameDefinition.gameEnum == GameEnum.AMS2 && previousGameState.FlagData.fcyPhase == FullCourseYellowPhase.RACING)
+                                {
+                                    audioPlayer.playMessage(new QueuedMessage(GlobalBehaviourSettings.useAmericanTerms ? folderFCYellowStartUS : folderFCYellowStartEU,
+                                        5, secondsDelay: 0, abstractEvent: this, priority: 10));
+                                    audioPlayer.playMessage(new QueuedMessage(GlobalBehaviourSettings.useAmericanTerms ? folderFCYellowPitsOpenUS : folderFCYellowPitsOpenEU,
+                                        15, secondsDelay: 8, abstractEvent: this, priority: 10));
+                                }
+                                else
+                                {
+                                    audioPlayer.playMessage(new QueuedMessage(GlobalBehaviourSettings.useAmericanTerms ? folderFCYellowPitsOpenUS : folderFCYellowPitsOpenEU,
+                                        delay + 6, secondsDelay: delay, abstractEvent: this, priority: 10));
+                                }
                             }
                             break;
                         case FullCourseYellowPhase.IN_PROGRESS:

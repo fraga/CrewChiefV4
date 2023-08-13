@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -20,6 +20,7 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <TargetFrameworkProfile />
+    <LangVersion>7.2</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -56,6 +57,7 @@
     <None Include="GrammarFiles\TDD\TDD_GetGrammars.cs" />
     <Compile Include="Misc\CommandLineParametersReader.cs" />
     <Compile Include="Misc\TDD_ParseTimeInput.cs" />
+    <Compile Include="Misc\TestFuzzyNames.cs" />
     <Compile Include="PitMenu\PitMenuEventHandler.cs" />
     <None Include="GrammarFiles\NUnitTestSpeechGrammar.cs" />
     <None Include="GrammarFiles\TestSpeechGrammar.cs" />
@@ -66,16 +68,16 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MSTest.TestAdapter">
-      <Version>2.1.2</Version>
+      <Version>3.0.2</Version>
     </PackageReference>
     <PackageReference Include="MSTest.TestFramework">
-      <Version>2.1.2</Version>
+      <Version>3.0.2</Version>
     </PackageReference>
     <PackageReference Include="NUnit">
-      <Version>3.13.0</Version>
+      <Version>3.13.3</Version>
     </PackageReference>
     <PackageReference Include="NUnit3TestAdapter">
-      <Version>4.2.1</Version>
+      <Version>4.4.2</Version>
     </PackageReference>
     <PackageReference Include="System.Speech">
       <Version>6.0.0</Version>
@@ -92,6 +94,10 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="GrammarFiles\TestStrings\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Misc\driverNameFiles.txt" />
+    <Content Include="Misc\unvocalisedNames.h" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

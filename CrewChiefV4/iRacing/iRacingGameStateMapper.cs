@@ -7,6 +7,7 @@ using CrewChiefV4.GameState;
 using CrewChiefV4.Events;
 using System.Diagnostics;
 using CrewChiefV4.Overlay;
+using CrewChiefV4.Audio;
 
 namespace CrewChiefV4.iRacing
 {
@@ -100,7 +101,7 @@ namespace CrewChiefV4.iRacing
             if (shared.Driver != null)
             {
                 playerCar = shared.Driver;
-                playerName = playerCar.Name.ToLower();
+                playerName = playerCar.Name;
             }
             // only used for auto fuelling check
             currentGameState.ControlData.ControlType = shared.Telemetry.IsReplayPlaying ? ControlType.Replay : ControlType.Player;
@@ -417,6 +418,7 @@ namespace CrewChiefV4.iRacing
                     currentGameState.SessionData.StrengthOfField = previousGameState.SessionData.StrengthOfField;
 
                     currentGameState.Conditions.samples = previousGameState.Conditions.samples;
+                    currentGameState.Conditions.CurrentConditions = previousGameState.Conditions.CurrentConditions;
                     currentGameState.PenaltiesData.CutTrackWarnings = previousGameState.PenaltiesData.CutTrackWarnings;
                     currentGameState.retriedDriverNames = previousGameState.retriedDriverNames;
                     currentGameState.disqualifiedDriverNames = previousGameState.disqualifiedDriverNames;
@@ -862,7 +864,7 @@ namespace CrewChiefV4.iRacing
                     continue;
                 }
 
-                String driverName = driver.Name.ToLower();
+                String driverName = driver.Name;
                 lastActiveTimeForOpponents[opponentDataKey] = currentGameState.Now;
                 Boolean createNewDriver = true;
                 OpponentData currentOpponentData = null;
@@ -1286,6 +1288,7 @@ namespace CrewChiefV4.iRacing
                 opponentData.DriverRawName = driverName;
                 opponentData.CostId = CostId;
                 if (speechRecogniser != null) speechRecogniser.addNewOpponentName(driverName, opponentData.CarNumber);
+                SoundCache.loadDriverNameSound(DriverNameHelper.getUsableDriverName(opponentData.DriverRawName));
             }
             Boolean validSpeed = true;
             if (speed > 500)
@@ -1522,10 +1525,11 @@ namespace CrewChiefV4.iRacing
 
         private OpponentData createOpponentData(Driver driver, Boolean loadDriverName, float trackLength)
         {
-            String driverName = driver.Name.ToLower();
+            String driverName = driver.Name;
             if (loadDriverName && CrewChief.enableDriverNames)
             {
                 if (speechRecogniser != null) speechRecogniser.addNewOpponentName(driverName, driver.CarNumber);
+                SoundCache.loadDriverNameSound(DriverNameHelper.getUsableDriverName(driverName));
             }
             OpponentData opponentData = new OpponentData();
             opponentData.IsActive = true;

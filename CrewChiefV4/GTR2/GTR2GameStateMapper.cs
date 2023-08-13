@@ -13,6 +13,7 @@ using CrewChiefV4.Events;
 using GTR2SharedMemory;
 using static GTR2SharedMemory.GTR2Constants;
 using GTR2SharedMemory.GTR2Data;
+using CrewChiefV4.Audio;
 
 /**
  * Maps memory mapped file to a local game-agnostic representation.
@@ -101,6 +102,7 @@ namespace CrewChiefV4.GTR2
         private DateTime lastPenaltyTime = DateTime.MinValue;
 
         // Session caches:
+        private Dictionary<string, TyreType> compoundNameToTyreType = new Dictionary<string, TyreType>();
 
         class CarInfo
         {
@@ -180,7 +182,7 @@ namespace CrewChiefV4.GTR2
             this.tyreDirtPickupThresholds.Add(new CornerData.EnumWithThresholds(TyreDirtPickupState.MAJOR, 0.7f, 1.1f));
         }
 
-        private int[] minimumSupportedVersionParts = new int[] { 2, 0, 0, 0 };
+        private int[] minimumSupportedVersionParts = new int[] { 2, 4, 2, 0 };
         public static bool pluginVerified = false;
         private static int reinitWaitAttempts = 0;
         public override void versionCheck(Object memoryMappedFileStruct)
@@ -279,6 +281,7 @@ namespace CrewChiefV4.GTR2
             this.lastTimeEngineWasRunning = DateTime.MaxValue;
             this.idToCarInfoMap.Clear();
             this.driverNameToCarInfoMap.Clear();
+            this.compoundNameToTyreType.Clear();
             this.lastPenaltyTime = DateTime.MinValue;
 
             // Do not reset MC tracking variables as "Disqualified" messages seem to stick for a bit on restart.
@@ -611,7 +614,7 @@ namespace CrewChiefV4.GTR2
             }
             else
             {
-                csd.SessionNumberOfLaps = shared.scoring.mScoringInfo.mMaxLaps > 0 && shared.scoring.mScoringInfo.mMaxLaps < 1000 ? shared.scoring.mScoringInfo.mMaxLaps : 0;
+                csd.SessionNumberOfLaps = shared.scoring.mScoringInfo.mMaxLaps > 0 && shared.scoring.mScoringInfo.mMaxLaps < 999 ? shared.scoring.mScoringInfo.mMaxLaps : 0;
 
                 // default to 60:30 if both session time and number of laps undefined (test day)
                 csd.SessionTotalRunTime
@@ -662,6 +665,7 @@ namespace CrewChiefV4.GTR2
                 csd.TrackDefinition = new TrackDefinition(GTR2GameStateMapper.GetStringFromBytes(shared.scoring.mScoringInfo.mTrackName), (float)shared.scoring.mScoringInfo.mLapDist);
 
                 GlobalBehaviourSettings.UpdateFromCarClass(cgs.carClass);
+                this.ProcessTyreTypeClassMapping(cgs.carClass);
 
                 // Initialize track landmarks for this session.
                 TrackDataContainer tdc = null;
@@ -720,6 +724,7 @@ namespace CrewChiefV4.GTR2
                 cgs.FlagData.currentLapIsFCY = pgs.FlagData.currentLapIsFCY;
                 cgs.FlagData.previousLapWasFCY = pgs.FlagData.previousLapWasFCY;
 
+                cgs.Conditions.CurrentConditions = pgs.Conditions.CurrentConditions;
                 cgs.Conditions.samples = pgs.Conditions.samples;
                 cgs.PitData.PitBoxPositionEstimate = pgs.PitData.PitBoxPositionEstimate;
 
@@ -1333,7 +1338,6 @@ namespace CrewChiefV4.GTR2
             if (shared.extended.mActiveDRSRuleSet == (char)GTR2DRSRuleSet.DTM18)
             {
                 cgs.OvertakingAids.DrsEnabled = shared.extended.mCurrDRSSystemState == (char)GTR2DRSSystemState.Enabled;
-                // cgs.OvertakingAids.DrsDetected = F1 specific
                 var ledState = (GTR2DTM18DRSState)shared.extended.mCurrDRSLEDState;
 
                 cgs.OvertakingAids.DrsAvailable = ledState == GTR2DTM18DRSState.Available1
@@ -1348,6 +1352,16 @@ namespace CrewChiefV4.GTR2
 
                 if (cgs.SessionData.SessionType == SessionType.Race)
                     cgs.OvertakingAids.DrsActivationsRemaining = shared.extended.mActiveDRSDTM18ActivationsPerRace - shared.extended.mCurrActivationsInRace;
+            }
+            else if (shared.extended.mActiveDRSRuleSet == (char)GTR2DRSRuleSet.F1_2011 || shared.extended.mActiveDRSRuleSet == (char)GTR2DRSRuleSet.F1_2013)
+            {
+                cgs.OvertakingAids.DrsEnabled = shared.extended.mCurrDRSSystemState == (char)GTR2DRSSystemState.Enabled;
+                
+                var ledState = (GTR2F1DRSState)shared.extended.mCurrDRSLEDState;
+                cgs.OvertakingAids.DrsAvailable = ledState == GTR2F1DRSState.Available;
+                cgs.OvertakingAids.DrsDetected = ledState == GTR2F1DRSState.Eligible;
+                cgs.OvertakingAids.DrsEngaged = ledState == GTR2F1DRSState.Active;
+                cgs.OvertakingAids.DrsRange = shared.extended.mActiveDRSActivationThresholdSeconds;
             }
 
             // --------------------------------
@@ -1545,6 +1559,7 @@ namespace CrewChiefV4.GTR2
                 {
                     if (!csd.IsNewSession && this.speechRecogniser != null)
                         this.speechRecogniser.addNewOpponentName(opponent.DriverRawName, "-1");
+                    SoundCache.loadDriverNameSound(DriverNameHelper.getUsableDriverName(opponent.DriverRawName));
 
                     Console.WriteLine("New driver \"" + driverName +
                         "\" is using car class " + opponent.CarClass.getClassIdentifier() +
@@ -2792,21 +2807,68 @@ namespace CrewChiefV4.GTR2
             }
         }
 
+        private void ProcessTyreTypeClassMapping(CarData.CarClass carClass)
+        {
+            if (carClass.gameTyreToTyreType.Count == 0)
+                return;
+
+            Debug.Assert(this.compoundNameToTyreType.Count == 0);
+            Console.WriteLine("Using custom tyre type mapping:");
+            foreach (var entry in carClass.gameTyreToTyreType)
+            {
+                Console.WriteLine($"Compound: \"{entry.Key}\" mapped to: \"{entry.Value}\"");
+                this.compoundNameToTyreType.Add(entry.Key.ToUpperInvariant(), entry.Value);
+            }
+        }
+
         private TyreType MapToTyreType(ref GTR2Extended extended, ref GTR2ExtendedVehicleScoring vehicleExtendedScoring)
         {
-            var tyreType = TyreType.Unknown_Race; 
-            var tc = (GTR2Constants.ISITyreCompound)vehicleExtendedScoring.mTireCompoundIndex;
-            if (tc == ISITyreCompound.Hard_Compound)
-                tyreType = TyreType.Hard;
-            else if (tc == ISITyreCompound.Medium_Compound)
-                tyreType = TyreType.Medium;
-            else if (tc == ISITyreCompound.Soft_Compound)
-                tyreType = TyreType.Soft;
-            else if (tc == ISITyreCompound.Intermediate_Compound)
-                tyreType = TyreType.Intermediate;
-            else if (tc == ISITyreCompound.Wet_Compound
-                || tc == ISITyreCompound.Monsoon_Compound)
+            // Do not cache tyre type if telemetry is not available yet.
+            if (vehicleExtendedScoring.mCurrCompoundName == null)
+                return TyreType.Uninitialized;
+
+            // For now, use fronts.
+            var frontCompound = GTR2GameStateMapper.GetStringFromBytes(vehicleExtendedScoring.mCurrCompoundName).ToUpperInvariant();
+            var tyreType = TyreType.Unknown_Race;
+            if (this.compoundNameToTyreType.TryGetValue(frontCompound, out tyreType))
+                return tyreType;
+
+            tyreType = TyreType.Unknown_Race;
+            if (string.IsNullOrWhiteSpace(frontCompound))
+                tyreType = TyreType.Unknown_Race;
+            // TODO_RF2: this is broken in rF2, adjust order in rF2.
+            else if (frontCompound.Contains("WET") || frontCompound.Contains("RAIN") || frontCompound.Contains("MONSOON"))
                 tyreType = TyreType.Wet;
+            else if (frontCompound.Contains("INTERMEDIATE"))
+                tyreType = TyreType.Intermediate;
+            else if (frontCompound.Contains("HARD"))
+                tyreType = TyreType.Hard;
+            else if (frontCompound.Contains("MEDIUM"))
+                tyreType = TyreType.Medium;
+            else if (frontCompound.Contains("SOFT"))
+            {
+                if (frontCompound.Contains("SUPER"))
+                    tyreType = TyreType.Super_Soft;
+                else if (frontCompound.Contains("ULTRA"))
+                    tyreType = TyreType.Ultra_Soft;
+                else if (frontCompound.Contains("HYPER"))
+                    tyreType = TyreType.Hyper_Soft;
+                else
+                    tyreType = TyreType.Soft;
+            }
+            else if (frontCompound.Contains("BIAS") && frontCompound.Contains("PLY"))
+                tyreType = TyreType.Bias_Ply;
+            else if (frontCompound.Contains("PRIME"))
+                tyreType = TyreType.Prime;
+            else if (frontCompound.Contains("OPTION"))
+                tyreType = TyreType.Option;
+            else if (frontCompound.Contains("ALTERNATE"))
+                tyreType = TyreType.Alternate;
+            else if (frontCompound.Contains("PRIMARY"))
+                tyreType = TyreType.Primary;
+
+            // Cache the tyre type.
+            this.compoundNameToTyreType.Add(frontCompound, tyreType);
 
             return tyreType;
         }
@@ -3256,7 +3318,7 @@ namespace CrewChiefV4.GTR2
             if (this.idToCarInfoMap.TryGetValue(vehicleScoring.mID, out ci))
                 return ci;
 
-            var driverName = GTR2GameStateMapper.GetStringFromBytes(vehicleScoring.mDriverName).ToLowerInvariant();
+            var driverName = GTR2GameStateMapper.GetStringFromBytes(vehicleScoring.mDriverName);
             driverName = GTR2GameStateMapper.GetSanitizedDriverName(driverName);
 
             var vehicleExtendedScoring = extended.mExtendedVehicleScoring[vehicleScoring.mID % GTR2Constants.MAX_MAPPED_IDS];

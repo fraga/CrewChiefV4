@@ -99,7 +99,7 @@ namespace CrewChiefV4
             "gtr2_launch_exe", null /*gameStartCommandOptionsProperty*/, "launch_gtr2", true, "GTR2",
             approxFilterNames: new String[] { "gtr2", "gtr 2", "gtr_2", "gtr-2" });
         public static GameDefinition dirt = new GameDefinition(GameEnum.DIRT, "dirt", null, null /*spotterName*/,
-            "dirt_launch_exe", "dirt2_launch_params" /*gameStartCommandOptionsProperty*/, "launch_dirt", false, "", null, racingType:CrewChief.RacingType.Rally,
+            "dirt_launch_exe", "dirt_launch_params" /*gameStartCommandOptionsProperty*/, "launch_dirt", false, "", null, racingType:CrewChief.RacingType.Rally,
             approxFilterNames: new String[] { "dirt" });
         public static GameDefinition dirt2 = new GameDefinition(GameEnum.DIRT_2, "dirt2", null, null /*spotterName*/,
             "dirt2_launch_exe", "dirt2_launch_params" /*gameStartCommandOptionsProperty*/, "launch_dirt2", false, "", null, racingType:CrewChief.RacingType.Rally,

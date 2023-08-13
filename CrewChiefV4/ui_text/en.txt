@@ -6,6 +6,8 @@
 #
 # Any text set in that file will replace the corresponding default here
 #
+# A few _help or _tooltip strings include a \ which inserts a newline
+#
 ###################################### UI ######################################################
 main_window_title_prefix = Crew Chief V4 - Active Profile:
 checking_sound_pack_version = Checking Sound Pack version...
@@ -28,6 +30,7 @@ stop_and_save = &Stop and Save trace
 start_application = &Start Crew Chief
 incremental_updates_count = updates to apply
 
+all_games = All games
 pcars_64_bit = pCARS (64 bit)
 pcars_32_bit = pCARS (32 bit)
 pcars_2 = pCARS 2
@@ -80,6 +83,8 @@ disabled = Disabled
 clear_console = Clear c&onsole
 copy_console_text = Copy &all console text
 copy_selected_text = Copy &selected console text
+copy_crew_chief_settings = Copy Crew Chief &settings
+copy_crew_chief_settings_tooltip = Copy to the clipboard the Crew Chief settings that differ from default
 game = &Game
 app_version = App version
 help_menu = &Help
@@ -152,12 +157,36 @@ button = button
 POV = PoV
 not_assigned = not assigned
 
+###################################### My Name dialog ######################################################
+enter_your_name = Enter your name
+full_personalisation = Full personalisations
+driver_name = Driver names
+other_driver_name = Other possible driver names
+play_name_sample = Play name sample
+select = Select
+
+###################################### Opponent Names dialog ######################################################
+dialog_title_opponent_names = Opponent Names
+guessed_opponent_names = Guessed Opponent Names
+edit_guessed_names_file = Edit Guessed Names File
+delete_additional_names_file = Delete Additional Names File
+edit_opponent_names_file = Edit Opponent Names File
+edit_guessed_names_file_tooltip = Opens the file in Notepad which contains oppponent names that Crew Chief has guessed so you can edit the guesses or delete the contents completely
+edit_opponent_names_file_tooltip = Opens the file in Notepad which contains preset opponent names so you can edit them
+opponent_names_list_tooltip = Opponent name : Recorded name pairs\Select then right click to listen to or change the sound
+
+###################################### Opponent Name Selection dialog ######################################################
+dialog_title_opponent_name_selection = Opponent Name Selection
+opponent_name = Opponent name
+none_of_the_above = None of the above
+none_of_the_above_tooltip = If none of the recorded names are suitable then Crew Chief will not use a name
+
 text_prop_type = (text)
 integer_prop_type = (integer)
 real_number_prop_type = (real number)
 
-save_prop_changes_warning = Profile '{0}' has unsaved changes. Click 'Yes' to save these changes and restart the application. Click 'No' to discard these changes
-save_prop_changes_warning_no_restart = Profile '{0}' has unsaved changes. Click 'Yes' to save these changes. Click 'No' to discard these changes
+save_prop_changes_warning = Profile '{0}' has unsaved changes.\Click 'Yes' to save these changes and restart the application.\Click 'No' to discard these changes
+save_prop_changes_warning_no_restart = Profile '{0}' has unsaved changes.\Click 'Yes' to save these changes.\Click 'No' to discard these changes
 save_changes = &Save changes
 save_changes_title = Save changes?
 save_and_restart = S&ave profile settings and restart
@@ -169,20 +198,21 @@ show_changed_props_tooltip = Show only changed/unsaved properties
 all_preferences_label = All Properties
 common_preferences_label = Common Properties
 
-unknown_sound_pack_language_text = The current Sound Pack has no language specified. Click "Yes" to proceed with the update (which will apply the default English Sound Pack update files and set the language to English). Click "No" to cancel.
+unknown_sound_pack_language_text = The current Sound Pack has no language specified.\Click "Yes" to proceed with the update (which will apply the default English Sound Pack update files and set the language to English).\Click "No" to cancel.
 unknown_sound_pack_language_title = No Sound Pack language defined
 
-unknown_driver_names_language_text = The current Sound Pack has no language specified. Click "Yes" to proceed with the update (which will download the default English driver name updates). Click "No" to cancel.
+unknown_driver_names_language_text = The current Sound Pack has no language specified.\Click "Yes" to proceed with the update (which will download the default English driver name updates).\Click "No" to cancel.
 unknown_driver_names_language_title = No Sound Pack language defined
 
-unknown_personalisations_language_text = The current Sound Pack has no language specified. Click "Yes" to proceed with the update (which will download the default English personalisations). Click "No" to cancel.
+unknown_personalisations_language_text = The current Sound Pack has no language specified.\Click "Yes" to proceed with the update (which will download the default English personalisations).\Click "No" to cancel.
 unknown_personalisations_language_title = No Sound Pack language defined
 
 personalisations_are_up_to_date = Personalisations are up to date
 personalisation_label = M&y name:
 personalisation_tooltip = Choose a name you'd like Chief to call you (requires restart)
 
-install_plugin_popup_text = Crew Chief needs additional files to be installed or updated for the selected game. Click OK to install or Cancel to Return
+install_plugin_popup_text = Crew Chief has additional files which it needs to be installed or updated before you can run
+install_plugin_popup_text2 = Click OK to install or Cancel to Return
 install_plugin_popup_title = Plugin Needed
 install_plugin_select_directory_start = Please select
 install_plugin_select_directory_end = installation directory
@@ -192,8 +222,8 @@ install_plugin_popup_error_text = Failed to Install or Update the Plugin.  Pleas
 install_plugin_popup_error_title = Plugin Install or Update failed
 
 install_speechplatform_popup_title = Missing dependency
-install_speechplatform_popup_text = It appears that your system is missing a dependency for speech recogniser to work. Press OK to get redirected to the download location, Or Cancel to return
-install_any_speechlanguage_popup_text = It appears that your system is missing a dependency for speech recogniser to work. Please download and install one of the following MSSpeech_SR_en-GB_TELE.msi, MSSpeech_SR_en-US_TELE.msi,MSSpeech_SR_en-AU_TELE.msi, MSSpeech_SR_en-CA_TELE.msi or MSSpeech_SR_en-IN_TELE.msi. Press OK to get redirected to the download location, Or Cancel to return
+install_speechplatform_popup_text = It appears that your system is missing a dependency for speech recogniser to work.\Press OK to get redirected to the download location\Or Cancel to return
+install_any_speechlanguage_popup_text = It appears that your system is missing a dependency for speech recogniser to work. Please download and install one of the following MSSpeech_SR_en-GB_TELE.msi, MSSpeech_SR_en-US_TELE.msi,MSSpeech_SR_en-AU_TELE.msi, MSSpeech_SR_en-CA_TELE.msi or MSSpeech_SR_en-IN_TELE.msi.\Press OK to get redirected to the download location\Or Cancel to return
 install_single_speechlanguage_popup_text_start = It appears that your system is missing a dependency for speech recogniser to work. Please download and install MSSpeech_SR_
 install_single_speechlanguage_popup_text_end = _TELE.msi. Press OK to get redirected to the download location, Or Cancel to return
 
@@ -546,7 +576,7 @@ enable_drs_messages_category = FLAGS_AND_RULES
 
 # Property: Enable DRS beeps
 enable_drs_beeps = Enable DRS beeps
-enable_drs_beeps_filter = IRACING;RACE_ROOM;RF2_64BIT
+enable_drs_beeps_filter = IRACING;RACE_ROOM;RF2_64BIT;GTR2
 enable_drs_beeps_category = FLAGS_AND_RULES
 enable_drs_beeps_help = Beep for DRS detection (iRacing only) and availability
 
@@ -677,7 +707,7 @@ use_alternate_beeps_metadata = RESTART_REQUIRED
 
 # Property: Use Fahrenheit for temps
 use_fahrenheit = Use Fahrenheit for temps
-use_fahrenheit_help = If not set, use Celcius
+use_fahrenheit_help = If not checked, use Celcius
 use_fahrenheit_category = INTERNATIONALISATION;FUEL_TEMPS_AND_DAMAGES
 
 # Property: Use listen beep
@@ -853,12 +883,12 @@ update_interval_metadata = RESTART_REQUIRED
 
 # Property: Use sweary messages
 use_sweary_messages = Use sweary messages
-use_sweary_messages_help = A few messages contain swearing - then enables / disables these
+use_sweary_messages_help = A few messages contain swearing - this enables / disables these
 use_sweary_messages_metadata = RESTART_REQUIRED
 
 # Property: Enable Spotter
 enable_spotter = Enable Spotter
-enable_spotter_help = The Spotter can be enabled and disabled with a button. This setting sets it initial state
+enable_spotter_help = The Spotter can be enabled and disabled with a button. This sets its initial state
 enable_spotter_category = SPOTTER
 
 # Property: Speech recognition country
@@ -1368,7 +1398,7 @@ launch_iracing_metadata = RESTART_REQUIRED
 
 # Property: Run immediately
 run_immediately = Run immediately
-run_immediately_help = If this is true the application will start running Crew Chief as soon as you start it up, using whatever options you previously set
+run_immediately_help = The application will start running Crew Chief as soon as you start it up, using whatever options you previously set
 run_immediately_category = UI_STARTUP_AND_PATHS
 run_immediately_metadata = RESTART_REQUIRED
 
@@ -1452,12 +1482,12 @@ frequency_of_being_overtaken_messages_category = MESSAGE_FREQUENCIES
 
 # Property: Frequency of car close ahead reports
 frequency_of_car_close_ahead_reports = Frequency of car close ahead reports
-frequency_of_car_close_ahead_reports_help = How often to report a car close behind (being pressured). 0 (never) to 10 (as often as possible)
+frequency_of_car_close_ahead_reports_help = How often to report a car close ahead (that you are pressuring). 0 (never) to 10 (as often as possible)
 frequency_of_car_close_ahead_reports_category = MESSAGE_FREQUENCIES;TIMINGS
 
 # Property: Frequency of car close behind reports
 frequency_of_car_close_behind_reports = Frequency of car close behind reports
-frequency_of_car_close_behind_reports_help = How often to report a car close in front (pressuring an opponent). 0 (never) to 10 (as often as possible)
+frequency_of_car_close_behind_reports_help = How often to report a car close behind (that is pressuring you). 0 (never) to 10 (as often as possible)
 frequency_of_car_close_behind_reports_category = MESSAGE_FREQUENCIES;TIMINGS
 
 # Property: Frequency of gap ahead reports
@@ -1565,7 +1595,7 @@ load_sound_files_on_startup_metadata = RESTART_REQUIRED
 
 # Property: Update game plugins on startup
 enable_automatic_plugin_update = Update game plugins on startup
-enable_automatic_plugin_update_help = If enabled, CC will check if latest plugin is installed and will prompt to install plugin if it is not found or out of date.
+enable_automatic_plugin_update_help = Crew Chief will check if latest plugin is installed and will prompt to install plugin if it is not found or out of date.
 enable_automatic_plugin_update_category = UI_STARTUP_AND_PATHS
 
 # Property: pCARS character encoding
@@ -1588,7 +1618,7 @@ enable_pcars_pit_window_messages_category = PIT_STOPS_AND_MULTICLASS
 
 # Property: Report yellows in all sectors
 report_yellows_in_all_sectors = Report yellows in all sectors
-report_yellows_in_all_sectors_help = If this is disabled the app will report yellow flags only in the current and next sector
+report_yellows_in_all_sectors_help = If this is unchecked the app will report yellow flags only in the current and next sector
 report_yellows_in_all_sectors_category = FLAGS_AND_RULES
 
 # Property: Max distance moved for yellow announcement
@@ -1692,12 +1722,12 @@ use_american_terms_category = INTERNATIONALISATION;FLAGS_AND_RULES
 
 # Property: Use metric
 use_metric = Use metric
-use_metric_help = Use metric units (KPH, litres etc). If not set use MPH, gallons etc.
+use_metric_help = Use metric units (KPH, litres etc). If not checked use MPH, gallons etc.
 use_metric_category = INTERNATIONALISATION;PIT_STOPS_AND_MULTICLASS
 
 # Property: Realistic mode
 realistic_mode = Realistic mode
-realistic_mode_help = Experimental: Restrict available message types based on the car and track in use
+realistic_mode_help = Restrict available message types based on the car and track in use
 realistic_mode_metadata = RESTART_REQUIRED
 
 # Property: Always report time in hundredths
@@ -1749,19 +1779,19 @@ enable_rf2_frozen_order_messages_category = FLAGS_AND_RULES
 
 # Property: Enable rF2 cut track heuristic detection
 enable_rf2_cut_track_heuristics = Enable rF2 cut track heuristic detection
-enable_rf2_cut_track_heuristics_help = If enabled, CC will try to detect if user cut track.  If disabled, cut track will only be reported if game reported that lap got invalidated.
+enable_rf2_cut_track_heuristics_help = Crew Chief will try to detect if user cut track.  If unchecked, cut track will only be reported if game reported that lap got invalidated.
 enable_rf2_cut_track_heuristics_filter = RF2_64BIT
 enable_rf2_cut_track_heuristics_category = FLAGS_AND_RULES
 
 # Property: Enable GTR 2 cut track heuristic detection
 enable_gtr2_cut_track_heuristics = Enable GTR 2 cut track heuristic detection
-enable_gtr2_cut_track_heuristics_help = If enabled, CC will try to detect if user cut track.  If disabled, cut track will only be reported if game reported that lap got invalidated.
+enable_gtr2_cut_track_heuristics_help = Crew Chief will try to detect if user cut track.  If unchecked, cut track will only be reported if game reported that lap got invalidated.
 enable_gtr2_cut_track_heuristics_filter = GTR2
 enable_gtr2_cut_track_heuristics_category = FLAGS_AND_RULES
 
 # Property: Enable rF2 pit lane approach detection
 enable_rf2_pit_lane_approach_heuristics = Enable rF2 pit lane approach detection
-enable_rf2_pit_lane_approach_heuristics_help = Experimental: If enabled, CC will try to detect if user approaches the pit lane entry and remind him to respect speed limit.  Might not work correctly for all tracks.
+enable_rf2_pit_lane_approach_heuristics_help = Crew Chief will try to detect if user approaches the pit lane entry and remind him to respect speed limit.  Might not work correctly for all tracks.
 enable_rf2_pit_lane_approach_heuristics_filter = RF2_64BIT
 enable_rf2_pit_lane_approach_heuristics_category = PIT_STOPS_AND_MULTICLASS
 
@@ -1778,13 +1808,13 @@ pcars_enable_rain_prediction_filter = PCARS_64BIT;PCARS_32BIT;PCARS_NETWORK
 
 # Property: Disable alternative voice commands
 disable_alternative_voice_commands = Disable alternative voice commands
-disable_alternative_voice_commands_help = Experimental: If enabled, CC will only use the first item from each voice command set - may improve recognition accuracy
+disable_alternative_voice_commands_help = Crew Chief will only use the first item from each voice command set - may improve recognition accuracy
 disable_alternative_voice_commands_category = AUDIO_VOICE_AND_CONTROLLERS
 disable_alternative_voice_commands_metadata = RESTART_REQUIRED
 
 # Property: Use verbose command responses
 use_verbose_responses = Use verbose command responses
-use_verbose_responses_help = If enabled, will automatically request more info for the previously issued voice or button command
+use_verbose_responses_help = Automatically request more info for the previously issued voice or button command
 use_verbose_responses_category = AUDIO_VOICE_AND_CONTROLLERS
 use_verbose_responses_metadata = RESTART_REQUIRED
 
@@ -1822,7 +1852,7 @@ tts_trim_end_milliseconds_metadata = RESTART_REQUIRED
 
 # Property: iRacing tyre pressure adjustments in PSI
 iracing_pit_tyre_pressure_in_psi = iRacing tyre pressure adjustments in PSI
-iracing_pit_tyre_pressure_in_psi_help = Assume tyre adjust tyre pressure commands are in PSI (disable this to use kPa)
+iracing_pit_tyre_pressure_in_psi_help = Assume tyre adjust tyre pressure commands are in PSI (uncheck this to use kPa)
 iracing_pit_tyre_pressure_in_psi_filter = IRACING
 iracing_pit_tyre_pressure_in_psi_category = INTERNATIONALISATION;PIT_STOPS_AND_MULTICLASS
 
@@ -1957,13 +1987,13 @@ max_unknown_car_classes_for_assetto_category = PIT_STOPS_AND_MULTICLASS
 
 # Property: iRacing faster parser
 iracing_fast_parsing = iRacing faster parser
-iracing_fast_parsing_help = Use fast parser for iRacing session info. Disable only if you experience crashes (and please tell us)
+iracing_fast_parsing_help = Use fast parser for iRacing session info. Uncheck only if you experience crashes (and please tell us)
 iracing_fast_parsing_filter = IRACING
 iracing_fast_parsing_metadata = RESTART_REQUIRED
 
 # Property: Enable iRacing pit stop voice commands
 enable_iracing_pit_stop_commands = Enable iRacing pit stop voice commands
-enable_iracing_pit_stop_commands_help = If you do not use iRacing pit stop commands, you may disable this.  If disabled, CC will exclude iRacing pit stop commands from the command set - may improve recognition accuracy
+enable_iracing_pit_stop_commands_help = If you do not use iRacing pit stop commands, you may uncheck this.  If unchecked, Crew Chief will exclude iRacing pit stop commands from the command set - may improve recognition accuracy
 enable_iracing_pit_stop_commands_filter = IRACING
 enable_iracing_pit_stop_commands_category = AUDIO_VOICE_AND_CONTROLLERS;PIT_STOPS_AND_MULTICLASS
 
@@ -1974,7 +2004,7 @@ add_additional_fuel_category = FUEL_TEMPS_AND_DAMAGES;PIT_STOPS_AND_MULTICLASS
 
 # Property: iRacing Invalidate cut track Laps
 iracing_invalidate_cut_track_laps = iRacing Invalidate cut track Laps
-iracing_invalidate_cut_track_laps_help = Disable this if you don't want the app to invalidate laps where you cut the track.
+iracing_invalidate_cut_track_laps_help = Uncheck this if you don't want the app to invalidate laps where you cut the track.
 iracing_invalidate_cut_track_laps_filter = IRACING
 iracing_invalidate_cut_track_laps_category = FLAGS_AND_RULES
 
@@ -2089,7 +2119,7 @@ trigger_word_listen_timeout_metadata = RESTART_REQUIRED
 
 # Property: Enable alarm clock voice commands
 enable_alarm_clock_voice_recognition = Enable alarm clock voice commands
-enable_alarm_clock_voice_recognition_help = Enable this if you want to use the alarm clock feature, this is disabled by default to limit the number of voice commands
+enable_alarm_clock_voice_recognition_help = Check this if you want to use the alarm clock feature, this is unchecked by default to limit the number of voice commands
 enable_alarm_clock_voice_recognition_category = AUDIO_VOICE_AND_CONTROLLERS;TIMINGS
 
 # Property: Alarm time(s)
@@ -2099,13 +2129,13 @@ alarm_clock_times_category = AUDIO_VOICE_AND_CONTROLLERS;TIMINGS
 
 # Property: Disable behaviour voice commands
 disable_behavior_altering_voice_commands = Disable behaviour voice commands
-disable_behavior_altering_voice_commands_help = When checked, will disable all voice commands that affect CC behaviour, for example: "Spot", "Don't spot", "Keep quiet" etc.
+disable_behavior_altering_voice_commands_help = Disable all voice commands that affect Crew Chief behaviour, for example: "Spot", "Don't spot", "Keep quiet" etc.
 disable_behavior_altering_voice_commands_category = AUDIO_VOICE_AND_CONTROLLERS
 disable_behavior_altering_voice_commands_metadata = RESTART_REQUIRED
 
 # Property: Disable overlay voice commands
 disable_overlay_voice_commands = Disable overlay voice commands
-disable_overlay_voice_commands_help = When checked, will disable all voice commands that affect CC overlays, for example: "Show subtitles", "Toggle VR overlays" etc.
+disable_overlay_voice_commands_help = Disable all voice commands that affect Crew Chief overlays, for example: "Show subtitles", "Toggle VR overlays" etc.
 disable_overlay_voice_commands_category = AUDIO_VOICE_AND_CONTROLLERS;UI_STARTUP_AND_PATHS;VR_SETTINGS
 disable_overlay_voice_commands_metadata = RESTART_REQUIRED
 
@@ -2180,7 +2210,7 @@ game_data_websocket_port_metadata = RESTART_REQUIRED
 
 # Property: Disable rF2 race end msg. for abandoned events
 disable_rf2_race_end_messages_on_abandoned_sessions = Disable rF2 race end msg. for abandoned events
-disable_rf2_race_end_messages_on_abandoned_sessions_help = Enable this preference if you would like to turn off race end messages for times when you quit Single Player race without finishing it.
+disable_rf2_race_end_messages_on_abandoned_sessions_help = Check this if you would like to turn off race end messages for times when you quit Single Player race without finishing it.
 disable_rf2_race_end_messages_on_abandoned_sessions_filter = RF2_64BIT
 disable_rf2_race_end_messages_on_abandoned_sessions_category = MESSAGE_FREQUENCIES
 
@@ -2200,6 +2230,11 @@ sre_wait_time_metadata = RESTART_REQUIRED
 prefer_max_consumption_in_fuel_calculations = Base fuel calculations on max fuel consumption
 prefer_max_consumption_in_fuel_calculations_help = Use max per-lap fuel consumption when calculating fuel on all track types
 prefer_max_consumption_in_fuel_calculations_category = FUEL_TEMPS_AND_DAMAGES;PIT_STOPS_AND_MULTICLASS
+
+# Property: Report fuel laps left in timed races
+report_fuel_laps_left_in_timed_races = Report fuel as laps left in timed races
+report_fuel_laps_left_in_timed_races_help = Report how many laps left in timed races rather than how long it will last
+report_fuel_laps_left_in_timed_races_category = FUEL_TEMPS_AND_DAMAGES
 
 # Property: Identify opponents by race position
 sre_enable_opponents_by_position = Identify opponents by race position
@@ -2272,8 +2307,8 @@ prefer_system_sre_help = Use Windows' built-in speech recogniser, can be trained
 prefer_system_sre_category = AUDIO_VOICE_AND_CONTROLLERS
 prefer_system_sre_metadata = RESTART_REQUIRED
 
-# Property: Enable free dictation chat messages (experimental)
-use_free_dictation_for_chat = Enable free dictation chat messages (experimental)
+# Property: Enable free dictation chat messages
+use_free_dictation_for_chat = Enable free dictation chat messages
 use_free_dictation_for_chat_help = Use free dictation for chat messages (Windows Speech recogniser only)
 use_free_dictation_for_chat_category = AUDIO_VOICE_AND_CONTROLLERS
 use_free_dictation_for_chat_metadata = RESTART_REQUIRED
@@ -2419,7 +2454,7 @@ watched_opponent_names_help = Comma separated list of opponent names to report o
 
 # Property: Always show VR Settings window as overlay
 show_vr_settings_as_overlay = Always show VR Settings window as overlay
-show_vr_settings_as_overlay_help = If enabled, SteamVR Settings window is always shown as an overlay.  Disable if it gets in a way of other windows
+show_vr_settings_as_overlay_help = SteamVR Settings window is always shown as an overlay.  Uncheck if it gets in a way of other windows
 show_vr_settings_as_overlay_category = VR_SETTINGS
 
 # Property: Co-driver rushing speed threshold (km/h)
@@ -2475,7 +2510,7 @@ show_splash_screen_category = MISC
 
 # Property: Enable GTR 2 pit lane approach detection
 enable_gtr2_pit_lane_approach_heuristics = Enable GTR 2 pit lane approach detection
-enable_gtr2_pit_lane_approach_heuristics_help = Experimental: If enabled, CC will try to detect if user approaches the pit lane entry and remind him to respect speed limit.  Might not work correctly for all tracks.
+enable_gtr2_pit_lane_approach_heuristics_help = Crew Chief will try to detect if user approaches the pit lane entry and remind him to respect speed limit.  Might not work correctly for all tracks.
 enable_gtr2_pit_lane_approach_heuristics_filter = GTR2
 enable_gtr2_pit_lane_approach_heuristics_category = PIT_STOPS_AND_MULTICLASS
 
@@ -2611,7 +2646,7 @@ enable_frozen_order_messages_category = FLAGS_AND_RULES
 
 # Property: Force Seated tracking mode on Reset VR View
 force_seated_on_vr_view_reset = Force Seated tracking mode on Reset VR View
-force_seated_on_vr_view_reset_help = If enabled, will force Seated position reset on Reset VR View.  If disabled, will respect the current SteamVR tracking mode.
+force_seated_on_vr_view_reset_help = Force Seated position reset on Reset VR View.  If unchecked, will respect the current SteamVR tracking mode.
 force_seated_on_vr_view_reset_category = VR_SETTINGS
 
 # Property: Speak only when spoken to
@@ -2633,3 +2668,9 @@ enable_mqtt_telemetry_category = MISC
 mqtt_topic_drivername = MQTT drivername
 mqtt_topic_drivername_help = A unique driver name to be inserted into the MQTT topic
 mqtt_topic_drivername_category = MISC
+
+# Property: allow fuzzy opponent name matching
+use_fuzzy_driver_name_matching = Fuzzy opponent name matching
+use_fuzzy_driver_name_matching_help = Allow opponent names to be matched to similar sounding recordings
+use_fuzzy_driver_name_matching_category = AUDIO_VOICE_AND_CONTROLLERS
+use_fuzzy_driver_name_matching_metadata = RESTART_REQUIRED

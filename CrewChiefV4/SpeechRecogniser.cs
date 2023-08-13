@@ -301,7 +301,7 @@ namespace CrewChiefV4
         public static String[] PIT_STOP_HARD_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_HARD_TYRES");
         public static String[] PIT_STOP_INTERMEDIATE_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_INTERMEDIATE_TYRES");
         public static String[] PIT_STOP_WET_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_WET_TYRES");
-        public static String[] PIT_STOP_SELECT_TYRE_SET = Configuration.getSpeechRecognitionPhrases("PIT_STOP_SELECT_TYRE_SET");        
+        public static String[] PIT_STOP_SELECT_TYRE_SET = Configuration.getSpeechRecognitionPhrases("PIT_STOP_SELECT_TYRE_SET");
         public static String[] PIT_STOP_DRY_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_DRY_TYRES");
         public static String[] PIT_STOP_MONSOON_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_MONSOON_TYRES");
         public static String[] PIT_STOP_OPTION_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_OPTION_TYRES");
@@ -581,8 +581,8 @@ namespace CrewChiefV4
 
         private HashSet<string> driverNamesInUse = new HashSet<string>();
         private HashSet<string> carNumbersInUse = new HashSet<string>();
+        private HashSet<string> opponentsAddedToSoundCacheMidSession = new HashSet<string>();
 
-        private HashSet<string> opponentsAddedMidSession = new HashSet<string>();
         private List<GrammarWrapper> opponentGrammarList = new List<GrammarWrapper>();
         private List<GrammarWrapper> iracingPitstopGrammarList = new List<GrammarWrapper>();
         private List<GrammarWrapper> r3ePitstopGrammarList = new List<GrammarWrapper>();
@@ -637,7 +637,7 @@ namespace CrewChiefV4
         private GrammarWrapper chatDictationGrammar;
         private static ExecutableCommandMacro startChatMacro = null;
         private static ExecutableCommandMacro endChatMacro = null;
-        
+
         [DllImport("winmm.dll", SetLastError = true)]
         public static extern uint waveInGetNumDevs();
         [DllImport("winmm.dll", SetLastError = true)]
@@ -1092,7 +1092,9 @@ namespace CrewChiefV4
             {
                 if (langCodes.langToUse == "en")
                 {
-                    if (MessageBox.Show(Configuration.getUIString("install_any_speechlanguage_popup_text"), Configuration.getUIString("install_speechplatform_popup_title"),
+                    if (MessageBox.Show(
+                        Utilities.Strings.NewlinesInLongString(Configuration.getUIString("install_any_speechlanguage_popup_text"), 55),
+                        Configuration.getUIString("install_speechplatform_popup_title"),
                     MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
                     {
                         Process.Start("https://www.microsoft.com/en-us/download/details.aspx?id=27224");
@@ -1192,9 +1194,11 @@ namespace CrewChiefV4
             }
             var sre = SREWrapperFactory.createNewSREWrapper(this.cultureInfo, voiceOptionEnum == MainWindow.VoiceOptionEnum.HOLD ? TimeSpan.FromSeconds(1.5) : (TimeSpan?) null, true);
 
-            if(sre == null)
+            if (sre == null)
             {
-                if (MessageBox.Show(Configuration.getUIString("install_speechplatform_popup_text"), Configuration.getUIString("install_speechplatform_popup_title"),
+                if (MessageBox.Show(
+                    Utilities.Strings.NewlinesInLongString(Configuration.getUIString("install_speechplatform_popup_text"), 55),
+                    Configuration.getUIString("install_speechplatform_popup_title"),
                     MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
                 {
                     Process.Start("https://www.microsoft.com/en-us/download/details.aspx?id=27225");
@@ -1734,84 +1738,18 @@ namespace CrewChiefV4
             }
             try
             {
-                if (initialised)
-                {
-                    String usableName = DriverNameHelper.getUsableDriverName(rawDriverName);
-                    if (!opponentsAddedMidSession.Contains(usableName))
-                    {
-                        opponentsAddedMidSession.Add(usableName);
-                        Console.WriteLine("Adding new (mid-session joined) opponent name to speech recogniser: " + Environment.NewLine + usableName);
-                        // This method is called when a new driver appears mid-session. We need to load the sound file for this new driver
-                        // so do it here - nasty nasty hack, need to refactor this. The alternative is to call
-                        // SoundCache.loadDriverNameSound in each of mappers when a new driver is added.
-                        SoundCache.loadDriverNameSound(usableName);
-
-                        HashSet<string> nameChoices = new HashSet<string>();
-                        HashSet<string> namePossessiveChoices = new HashSet<string>();
-                        if (identifyOpponentsByName && usableName != null && usableName.Length > 0 && !driverNamesInUse.Contains(rawDriverName))
-                        {
-                            driverNamesInUse.Add(rawDriverName);
-                            nameChoices.Add(usableName);
-                            namePossessiveChoices.Add(usableName + POSSESSIVE);
-                        }
-                        if (identifyOpponentsByNumber && carNumberString != "-1" && carNumberToNumber.ContainsValue(carNumberString))
-                        {
-                            if (!carNumbersInUse.Contains(carNumberString))
-                            {
-                                carNumbersInUse.Add(carNumberString);
-                                String[] numberOptions = carNumberToNumber.FirstOrDefault(x => x.Value == carNumberString).Key;
-                                foreach (String number in numberOptions)
-                                {
-                                    nameChoices.Add(CAR_NUMBER + " " + number);
-                                    namePossessiveChoices.Add(CAR_NUMBER + " " + number + POSSESSIVE);
-                                }
-                            }
-                            // if the car number has a 0 or 00 in front of it, also listen for the number without the leading zero(s)
-                            if (carNumberString.StartsWith("0"))
-                            {
-                                int parsed;
-                                if (int.TryParse(carNumberString, out parsed))
-                                {
-                                    String carNumberStringAlternate = parsed.ToString();
-                                    if (!carNumbersInUse.Contains(carNumberStringAlternate))
-                                    {
-                                        carNumbersInUse.Add(carNumberStringAlternate);
-                                        String[] numberOptionsWithoutLeadingZeros = carNumberToNumber.FirstOrDefault(x => x.Value == parsed.ToString()).Key;
-                                        foreach (String number in numberOptionsWithoutLeadingZeros)
-                                        {
-                                            nameChoices.Add(CAR_NUMBER + " " + number);
-                                            namePossessiveChoices.Add(CAR_NUMBER + " " + number + POSSESSIVE);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        ChoicesWrapper opponentNameChoices = SREWrapperFactory.createNewChoicesWrapper(nameChoices.ToArray<string>());
-                        ChoicesWrapper opponentNamePossessiveChoices = SREWrapperFactory.createNewChoicesWrapper(namePossessiveChoices.ToArray<string>());
-                        String[] enabledOpponentChoices = UserSettings.GetUserSettings().getBoolean("enable_watch_car_command") ?
-                            new String[] { WHERE_IS, WHERES, WATCH, TEAM_MATE, RIVAL, STOP_WATCHING } : new String[] { WHERE_IS, WHERES };
-                        opponentGrammarList.AddRange(addCompoundChoices(enabledOpponentChoices, false, opponentNameChoices, null, true));
-                        // todo: iracing definitely has no opponent tyre type data, probably more games lack this info
-                        if (CrewChief.gameDefinition != null && CrewChief.gameDefinition.gameEnum != GameEnum.IRACING)
-                        {
-                            opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHAT_TYRE_IS, WHAT_TYRES_IS }, false, opponentNameChoices, new String[] { ON }, true));
-                        }
-                        if (CrewChief.gameDefinition != null && CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM)
-                        {
-                            opponentGrammarList.AddRange(addCompoundChoices(HOW_GOOD_IS, false, opponentNameChoices, null, true));
-                        }
-                        opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHATS }, true, opponentNamePossessiveChoices, getWhatsPossessiveChoices(), true));
-                    }
-                }
+                String usableNameForSRE = DriverNameHelper.getUsableDriverNameForSRE(rawDriverName);
+                Console.WriteLine("Adding new (mid-session joined) opponent name to speech recogniser: " + Environment.NewLine + usableNameForSRE);
+                Tuple<HashSet<string>, HashSet<string>> choices = getDriverChoices(usableNameForSRE, carNumberString);
+                loadNameAndNamePossessiveChoices(choices.Item1, choices.Item2);
             }
             catch (Exception e)
             {
                 Console.WriteLine("Unable to add new driver to speech recognition engine - " + e.Message);
             }
-
         }
 
-        public void addOpponentSpeechRecognition(List<String> names, HashSet<string> carNumbers)
+        public void addOpponentsSpeechRecognition(List<String> names, HashSet<string> carNumbers)
         {
             if (!initialised)
             {
@@ -1824,115 +1762,155 @@ namespace CrewChiefV4
                 sreWrapper.UnloadGrammar(opponentGrammar);
             }
             opponentGrammarList.Clear();
-            opponentsAddedMidSession.Clear();
-            ChoicesWrapper opponentChoices = SREWrapperFactory.createNewChoicesWrapper();
+            opponentsAddedToSoundCacheMidSession.Clear();
 
             // need choice sets for names, possessive names, positions, possessive positions, and combined:
-            ChoicesWrapper opponentNameOrPositionChoices = SREWrapperFactory.createNewChoicesWrapper();
-            ChoicesWrapper opponentPositionChoices = SREWrapperFactory.createNewChoicesWrapper();
-            ChoicesWrapper opponentNameOrPositionPossessiveChoices = SREWrapperFactory.createNewChoicesWrapper();
-
-            if (identifyOpponentsByName)
+            HashSet<string> nameChoices = new HashSet<string>();
+            HashSet<string> namePossessiveChoices = new HashSet<string>();
+            foreach (String name in names)
             {
-                Console.WriteLine("Adding " + names.Count + " new session opponent names to speech recogniser");
-                foreach (String name in names)
-                {
-                    opponentNameOrPositionChoices.Add(name);
-                    opponentNameOrPositionPossessiveChoices.Add(name + POSSESSIVE);
-                    driverNamesInUse.Add(name);
-                }
+                Tuple<HashSet<string>, HashSet<string>> choices = getDriverChoices(name, "-1");
+                nameChoices.UnionWith(choices.Item1);
+                namePossessiveChoices.UnionWith(choices.Item2);
             }
+            Console.WriteLine("Adding names to SRE: " + Environment.NewLine + String.Join(", ", nameChoices));
+            foreach (String number in carNumbers)
+            {
+                Tuple<HashSet<string>, HashSet<string>> choices = getDriverChoices(null, number);
+                nameChoices.UnionWith(choices.Item1);
+                namePossessiveChoices.UnionWith(choices.Item2);
+            }
+            ChoicesWrapper opponentNameChoices = SREWrapperFactory.createNewChoicesWrapper();
+            ChoicesWrapper opponentNamePossessiveChoices = SREWrapperFactory.createNewChoicesWrapper();
+            opponentNameChoices.Add(THE_CAR_AHEAD);
+            opponentNameChoices.Add(THE_CAR_BEHIND);
+            opponentNameChoices.Add(THE_LEADER);
+            opponentNamePossessiveChoices.Add(THE_CAR_AHEAD + POSSESSIVE);
+            opponentNamePossessiveChoices.Add(THE_CAR_BEHIND + POSSESSIVE);
+            opponentNamePossessiveChoices.Add(THE_LEADER + POSSESSIVE);
+
+            if (!disable_alternative_voice_commands)
+            {
+                opponentNameChoices.Add(THE_GUY_AHEAD);
+                opponentNameChoices.Add(THE_CAR_IN_FRONT);
+                opponentNameChoices.Add(THE_GUY_IN_FRONT);
+                opponentNameChoices.Add(THE_GUY_BEHIND);
+                opponentNamePossessiveChoices.Add(THE_GUY_AHEAD + POSSESSIVE);
+                opponentNamePossessiveChoices.Add(THE_CAR_IN_FRONT + POSSESSIVE);
+                opponentNamePossessiveChoices.Add(THE_GUY_IN_FRONT + POSSESSIVE);
+                opponentNamePossessiveChoices.Add(THE_GUY_BEHIND + POSSESSIVE);
+            }
+            loadNameAndNamePossessiveChoices(nameChoices, namePossessiveChoices, opponentNameChoices, opponentNamePossessiveChoices);
 
             if (identifyOpponentsByPosition)
             {
+                ChoicesWrapper whosInPositionChoices = SREWrapperFactory.createNewChoicesWrapper();
+                HashSet<string> positions = new HashSet<string>();
+                HashSet<string> positionsPossessive = new HashSet<string>();
                 foreach (KeyValuePair<String[], int> entry in racePositionNumberToNumber)
                 {
                     foreach (String numberStr in entry.Key)
                     {
-                        opponentNameOrPositionChoices.Add(POSITION_SHORT + " " + numberStr);
-                        opponentPositionChoices.Add(POSITION_SHORT + " " + numberStr);
-                        opponentNameOrPositionPossessiveChoices.Add(POSITION_SHORT + " " + numberStr + POSSESSIVE);
+                        positions.Add(POSITION_SHORT + " " + numberStr);
+                        positionsPossessive.Add(POSITION_SHORT + " " + numberStr + POSSESSIVE);
+                        whosInPositionChoices.Add(POSITION_SHORT + " " + numberStr);
                         if (!disable_alternative_voice_commands)
                         {
-                            opponentNameOrPositionChoices.Add(POSITION_LONG + " " + numberStr);
-                            opponentPositionChoices.Add(POSITION_LONG + " " + numberStr);
-                            opponentNameOrPositionPossessiveChoices.Add(POSITION_LONG + " " + numberStr + POSSESSIVE);
+                            positions.Add(POSITION_LONG + " " + numberStr);
+                            positionsPossessive.Add(POSITION_LONG + " " + numberStr + POSSESSIVE);
+                            whosInPositionChoices.Add(POSITION_LONG + " " + numberStr);
                         }
                     }
                 }
+                opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHOS_IN }, false, whosInPositionChoices, null, true));
+                loadNameAndNamePossessiveChoices(positions, positionsPossessive);
             }
-            if (identifyOpponentsByNumber)
-            {
-                foreach (string carNumberString in carNumbers)
-                {
-                    if (carNumberString != "-1" && carNumberToNumber.ContainsValue(carNumberString))
-                    {
-                        if (!carNumbersInUse.Contains(carNumberString))
-                        {
-                            carNumbersInUse.Add(carNumberString);
-                            String[] numberOptions = carNumberToNumber.FirstOrDefault(x => x.Value == carNumberString).Key;
-                            foreach (String number in numberOptions)
-                            {
-                                opponentNameOrPositionChoices.Add(CAR_NUMBER + " " + number);
-                                opponentNameOrPositionPossessiveChoices.Add(CAR_NUMBER + " " + number + POSSESSIVE);
-                            }
-                        }
-                        // if the car number has a 0 or 00 in front of it, also listen for the number without the leading zero(s)
-                        if (carNumberString.StartsWith("0"))
-                        {
-                            int parsed;
-                            if (int.TryParse(carNumberString, out parsed))
-                            {
-                                String carNumberStringAlternate = parsed.ToString();
-                                if (!carNumbersInUse.Contains(carNumberStringAlternate))
-                                {
-                                    carNumbersInUse.Add(carNumberStringAlternate);
-                                    String[] numberOptionsWithoutLeadingZeros = carNumberToNumber.FirstOrDefault(x => x.Value == carNumberStringAlternate).Key;
-                                    foreach (String number in numberOptionsWithoutLeadingZeros)
-                                    {
-                                        opponentNameOrPositionChoices.Add(CAR_NUMBER + " " + number);
-                                        opponentNameOrPositionPossessiveChoices.Add(CAR_NUMBER + " " + number + POSSESSIVE);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            opponentNameOrPositionChoices.Add(THE_CAR_AHEAD);
-            opponentNameOrPositionChoices.Add(THE_CAR_BEHIND);
-            opponentNameOrPositionChoices.Add(THE_LEADER);
-            opponentNameOrPositionPossessiveChoices.Add(THE_CAR_AHEAD);
-            opponentNameOrPositionPossessiveChoices.Add(THE_CAR_BEHIND);
-            opponentNameOrPositionPossessiveChoices.Add(THE_LEADER);
+        }
 
-            if (!disable_alternative_voice_commands)
+        private Tuple<HashSet<string>, HashSet<string>> getDriverChoices(string usableNameForSRE, string carNumberString)
+        {
+            HashSet<string> nameChoices = new HashSet<string>();
+            HashSet<string> namePossessiveChoices = new HashSet<string>();
+
+            if (identifyOpponentsByName && usableNameForSRE != null && usableNameForSRE.Length > 0 && !driverNamesInUse.Contains(usableNameForSRE))
             {
-                opponentNameOrPositionChoices.Add(THE_GUY_AHEAD);
-                opponentNameOrPositionChoices.Add(THE_CAR_IN_FRONT);
-                opponentNameOrPositionChoices.Add(THE_GUY_IN_FRONT);
-                opponentNameOrPositionChoices.Add(THE_GUY_BEHIND);
-                opponentNameOrPositionPossessiveChoices.Add(THE_GUY_AHEAD);
-                opponentNameOrPositionPossessiveChoices.Add(THE_CAR_IN_FRONT);
-                opponentNameOrPositionPossessiveChoices.Add(THE_GUY_IN_FRONT);
-                opponentNameOrPositionPossessiveChoices.Add(THE_GUY_BEHIND);
+                driverNamesInUse.Add(usableNameForSRE);
+                nameChoices.Add(usableNameForSRE);
+                namePossessiveChoices.Add(usableNameForSRE + POSSESSIVE);
             }
-            String[] enabledOpponentChoices = UserSettings.GetUserSettings().getBoolean("enable_watch_car_command") ?
-                new String[] { WHERE_IS, WHERES, WATCH, TEAM_MATE, RIVAL, STOP_WATCHING } : new String[] { WHERE_IS, WHERES };
-            opponentGrammarList.AddRange(addCompoundChoices(enabledOpponentChoices, false, opponentNameOrPositionChoices, null, true));
-            if (identifyOpponentsByPosition)
+            if (identifyOpponentsByNumber && carNumberString != "-1" && carNumberToNumber.ContainsValue(carNumberString))
             {
-                opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHOS_IN }, false, opponentPositionChoices, null, true));
+                if (!carNumbersInUse.Contains(carNumberString))
+                {
+                    carNumbersInUse.Add(carNumberString);
+                    String[] numberOptions = carNumberToNumber.FirstOrDefault(x => x.Value == carNumberString).Key;
+                    foreach (String number in numberOptions)
+                    {
+                        nameChoices.Add(CAR_NUMBER + " " + number);
+                        namePossessiveChoices.Add(CAR_NUMBER + " " + number + POSSESSIVE);
+                    }
+                }
+                // if the car number has a 0 or 00 in front of it, also listen for the number without the leading zero(s)
+                if (carNumberString.StartsWith("0"))
+                {
+                    int parsed;
+                    if (int.TryParse(carNumberString, out parsed))
+                    {
+                        String carNumberStringAlternate = parsed.ToString();
+                        if (!carNumbersInUse.Contains(carNumberStringAlternate))
+                        {
+                            carNumbersInUse.Add(carNumberStringAlternate);
+                            String[] numberOptionsWithoutLeadingZeros = carNumberToNumber.FirstOrDefault(x => x.Value == parsed.ToString()).Key;
+                            foreach (String number in numberOptionsWithoutLeadingZeros)
+                            {
+                                nameChoices.Add(CAR_NUMBER + " " + number);
+                                namePossessiveChoices.Add(CAR_NUMBER + " " + number + POSSESSIVE);
+                            }
+                        }
+                    }
+                }
             }
-            if (CrewChief.gameDefinition != null && CrewChief.gameDefinition.gameEnum != GameEnum.IRACING)
+            return new Tuple<HashSet<string>, HashSet<string>>(nameChoices, namePossessiveChoices);
+        }
+
+        private void loadNameAndNamePossessiveChoices(HashSet<string> nameChoices, HashSet<string> namePossessiveChoices,
+            ChoicesWrapper opponentNameChoices = null, ChoicesWrapper opponentNamePossessiveChoices = null)
+        {
+            if (opponentNameChoices == null)
             {
-                opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHAT_TYRE_IS, WHAT_TYRES_IS }, false, opponentNameOrPositionChoices, new String[] { ON }, true));
+                opponentNameChoices = SREWrapperFactory.createNewChoicesWrapper();
             }
-            if (CrewChief.gameDefinition != null && CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM)
+            if (opponentNamePossessiveChoices == null)
             {
-                opponentGrammarList.AddRange(addCompoundChoices(HOW_GOOD_IS, false, opponentNameOrPositionChoices, null, true));
+                opponentNamePossessiveChoices = SREWrapperFactory.createNewChoicesWrapper();
             }
-            opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHATS }, false, opponentNameOrPositionPossessiveChoices, getWhatsPossessiveChoices(), true));
+            if (nameChoices.Count() > 0)
+            {
+                foreach (string nameChoice in nameChoices)
+                {
+                    opponentNameChoices.Add(nameChoice);
+                }
+                String[] enabledOpponentChoices = UserSettings.GetUserSettings().getBoolean("enable_watch_car_command") ?
+                    new String[] { WHERE_IS, WHERES, WATCH, TEAM_MATE, RIVAL, STOP_WATCHING } : new String[] { WHERE_IS, WHERES };
+                opponentGrammarList.AddRange(addCompoundChoices(enabledOpponentChoices, false, opponentNameChoices, null, true));
+                // todo: iracing definitely has no opponent tyre type data, probably more games lack this info
+                if (CrewChief.gameDefinition != null && CrewChief.gameDefinition.gameEnum != GameEnum.IRACING)
+                {
+                    opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHAT_TYRE_IS, WHAT_TYRES_IS }, false, opponentNameChoices, new String[] { ON }, true));
+                }
+                if (CrewChief.gameDefinition != null && CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM)
+                {
+                    opponentGrammarList.AddRange(addCompoundChoices(HOW_GOOD_IS, false, opponentNameChoices, null, true));
+                }
+            }
+            if (namePossessiveChoices.Count() > 0)
+            {
+                foreach (string namePossessiveChoice in namePossessiveChoices)
+                {
+                    opponentNamePossessiveChoices.Add(namePossessiveChoice);
+                }
+                opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHATS }, true, opponentNamePossessiveChoices, getWhatsPossessiveChoices(), true));
+            }
         }
 
         public void addOverlayGrammar()
@@ -3456,8 +3434,8 @@ namespace CrewChiefV4
             else if (ResultContains(recognisedSpeech, PIT_STOP_TEAROFF, false) ||   // tbd Does this actually do anything?
                 ResultContains(recognisedSpeech, PIT_STOP_FAST_REPAIR, false) ||    // already captured by
                 ResultContains(recognisedSpeech, PIT_STOP_CLEAR_ALL, false) ||      // else if (GrammarWrapperListContains(iracingPitstopGrammarList, recognitionGrammar))
-                ResultContains(recognisedSpeech, PIT_STOP_CLEAR_TYRES, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_CLEAR_WIND_SCREEN, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CLEAR_TYRES, false) ||    // Morten: Yes its needed for button press to sre command as its not passed through sre_SpeechRecognized() but ControllerConfiguration.ButtonAssignment.findEvent()
+                ResultContains(recognisedSpeech, PIT_STOP_CLEAR_WIND_SCREEN, false) || // all sre events that can be executed by controller action needs to be defined in getEventForAction
                 ResultContains(recognisedSpeech, PIT_STOP_CLEAR_FAST_REPAIR, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_CLEAR_FUEL, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_CHANGE_ALL_TYRES, false) ||

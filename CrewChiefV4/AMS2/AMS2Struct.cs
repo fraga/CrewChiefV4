@@ -470,7 +470,7 @@ namespace CrewChiefV4.AMS2
 
         public override string ToString()
         {
-            return "position " + mRacePosition + " name " + StructHelper.getNameFromBytes(mName).ToLower() + " lapsCompleted " + mLapsCompleted + " lapDist " + mCurrentLapDistance;
+            return "position " + mRacePosition + " name " + StructHelper.getNameFromBytes(mName) + " lapsCompleted " + mLapsCompleted + " lapDist " + mCurrentLapDistance;
         }
     }
 
@@ -662,7 +662,7 @@ namespace CrewChiefV4.AMS2
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
         public float[] mSuspensionVelocity;            // [ UNITS = Rate of change of pushrod deflection ] [ RANGE 0.f =>... ]  [ UNSET =  0.0f ]
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
-        public float[] mAirPressure;                   // [ UNITS = PSI ]  [ RANGE 0.f =>... ]  [ UNSET =  0.0f ]
+        public float[] mAirPressure;                   // [ UNITS = kPa ]  [ RANGE 0.f =>... ]  [ UNSET =  0.0f ]
         public float mEngineSpeed;                             // [ UNITS = Rad/s ] [UNSET = 0.f ]
         public float mEngineTorque;                            // [ UNITS = Newton Meters] [UNSET = 0.f ] [ RANGE = 0.0f->... ]
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2)]
@@ -755,5 +755,23 @@ namespace CrewChiefV4.AMS2
         // Input
         public byte mJoyPad0;            // button mask
         public byte mDPad;               // button mask
+
+        // added for version 13:
+
+        public int mAntiLockSetting;             // [ UNSET = -1 ] Current ABS garage setting. Valid under player control only.
+        public int mTractionControlSetting;      // [ UNSET = -1 ] Current ABS garage setting. Valid under player control only.
+
+        // ERS
+        public int mErsDeploymentMode;           // [ enum (Type#15)  ErsDeploymentMode ]
+        public bool mErsAutoModeEnabled;         // true if the deployment mode was selected by auto system. Valid only when mErsDeploymentMode > ERS_DEPLOYMENT_MODE_NONE
+
+        // Clutch State & Damage
+        // note temp and wear appear to be the wrong way around in the API
+        public float mClutchWear;                // [ RANGE = 0.0f->1.0f... ] - this is always 0
+        public float mClutchTemp;                // [ UNITS = Kelvin ] [ UNSET = -273.16 ] - this appears to have no bearing on the overheated value below
+        public bool mClutchOverheated;          // true if clutch performance is degraded due to overheating
+        public bool mClutchSlipping;            // true if clutch is slipping (can be induced by overheating or wear)
+
+        public int mYellowFlagState;             // [ enum (Type#16) YellowFlagState ]
     }
 }

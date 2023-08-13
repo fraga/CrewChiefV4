@@ -34,8 +34,11 @@ namespace CrewChiefV4.SRE
             {
                 this.internalSRE.EndSilenceTimeoutAmbiguous = endSilenceTimeoutAmbiguous.Value;
             }
-            this.internalSRE.AudioLevelUpdated += new EventHandler<AudioLevelUpdatedEventArgs>(recognizer_AudioLevelUpdated); ;
-            this.internalSRE.AudioSignalProblemOccurred += new EventHandler<AudioSignalProblemOccurredEventArgs>(recognizer_AudioSignalProblemOccurred);
+            if (writeSREDebugData)
+            {
+                this.internalSRE.AudioLevelUpdated += new EventHandler<AudioLevelUpdatedEventArgs>(recognizer_AudioLevelUpdated); ;
+                this.internalSRE.AudioSignalProblemOccurred += new EventHandler<AudioSignalProblemOccurredEventArgs>(recognizer_AudioSignalProblemOccurred);
+            }
             this.writeDebugData = writeSREDebugData;
         }
 
