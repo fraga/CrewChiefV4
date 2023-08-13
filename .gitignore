@@ -210,7 +210,4 @@ ModelManifest.xml
 /CrewChiefV4/HelpFiles
 /UnitTest/Packages
 /XunitTest/Packages
-/CrewChiefV4/PitManager/PitManagerEventHandlersTable_ACC.cs
-/CrewChiefV4/PitManager/PitManagerEventHandlersTable_iRacing.cs
-/CrewChiefV4/PitManager/PitManagerEventHandlersTable_R3E.cs
-/CrewChiefV4/PitManager/PitManagerEventHandlersTable_RF2.cs
+/CrewChiefV4/PitManager/PitManagerEventHandlersTable_*.cs
