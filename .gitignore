@@ -210,3 +210,4 @@ ModelManifest.xml
 /CrewChiefV4/HelpFiles
 /UnitTest/Packages
 /XunitTest/Packages
+/CrewChiefV4/PitManager/PitManagerEventHandlersTable_*.cs

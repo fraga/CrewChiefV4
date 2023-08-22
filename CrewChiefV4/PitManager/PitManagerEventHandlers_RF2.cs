@@ -550,7 +550,7 @@ namespace CrewChiefV4.PitManager
                     PMrF2eh_RepairNone(null);
                 }
             }
-            return false;
+            return true;
         }
 
 
