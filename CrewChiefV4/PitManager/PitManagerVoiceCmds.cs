@@ -3,115 +3,23 @@ using CrewChiefV4.Events;
 using CrewChiefV4.GameState;
 using System;
 using System.Collections.Generic;
-using System.Xml;
 
 namespace CrewChiefV4.PitManager
 {
-    using PME = PitManagerEvent;  // shorthand
-    using SRE = SpeechRecogniser;
-
     public class PitManagerVoiceCmds : AbstractEvent
     {
         #region Private Fields
 
         private static readonly PitManager pmh = new PitManager();
 
-        private static readonly Dictionary<PitManagerEvent, String[]> voiceCmds =
-            new Dictionary<PitManagerEvent, String[]>
-        {
-            {PME.TyreChangeAll,           SRE.PIT_STOP_CHANGE_ALL_TYRES },
-            {PME.TyreChangeNone,          SRE.PIT_STOP_CLEAR_TYRES },
-            {PME.TyreChangeFront,         SRE.PIT_STOP_CHANGE_FRONT_TYRES },
-            {PME.TyreChangeRear,          SRE.PIT_STOP_CHANGE_REAR_TYRES },
-            {PME.TyreChangeLeft,          SRE.PIT_STOP_CHANGE_LEFT_SIDE_TYRES },
-            {PME.TyreChangeRight,         SRE.PIT_STOP_CHANGE_RIGHT_SIDE_TYRES},
-            {PME.TyreChangeLF,            SRE.PIT_STOP_CHANGE_FRONT_LEFT_TYRE },
-            {PME.TyreChangeRF,            SRE.PIT_STOP_CHANGE_FRONT_RIGHT_TYRE },
-            {PME.TyreChangeLR,            SRE.PIT_STOP_CHANGE_REAR_LEFT_TYRE },
-            {PME.TyreChangeRR,            SRE.PIT_STOP_CHANGE_REAR_RIGHT_TYRE },
-
-            {PME.TyrePressure,            SRE.PIT_STOP_CHANGE_TYRE_PRESSURE },
-            {PME.TyrePressureLF,          SRE.PIT_STOP_CHANGE_FRONT_LEFT_TYRE_PRESSURE },
-            {PME.TyrePressureRF,          SRE.PIT_STOP_CHANGE_FRONT_RIGHT_TYRE_PRESSURE },
-            {PME.TyrePressureLR,          SRE.PIT_STOP_CHANGE_REAR_LEFT_TYRE_PRESSURE },
-            {PME.TyrePressureRR,          SRE.PIT_STOP_CHANGE_REAR_RIGHT_TYRE_PRESSURE },
-
-            {PME.TyreCompoundHard,        SRE.PIT_STOP_HARD_TYRES },
-            {PME.TyreCompoundMedium,      SRE.PIT_STOP_MEDIUM_TYRES },
-            {PME.TyreCompoundSoft,        SRE.PIT_STOP_SOFT_TYRES },
-            {PME.TyreCompoundSupersoft,   SRE.PIT_STOP_SUPERSOFT_TYRES },
-            {PME.TyreCompoundUltrasoft,   SRE.PIT_STOP_ULTRASOFT_TYRES },
-            {PME.TyreCompoundHypersoft,   SRE.PIT_STOP_HYPERSOFT_TYRES },
-            {PME.TyreCompoundIntermediate,SRE.PIT_STOP_INTERMEDIATE_TYRES },
-            {PME.TyreCompoundWet,         SRE.PIT_STOP_WET_TYRES },
-            {PME.TyreCompoundMonsoon,     SRE.PIT_STOP_MONSOON_TYRES },
-            {PME.TyreCompoundOption,      SRE.PIT_STOP_OPTION_TYRES },
-            {PME.TyreCompoundPrime,       SRE.PIT_STOP_PRIME_TYRES },
-            {PME.TyreCompoundAlternate,   SRE.PIT_STOP_ALTERNATE_TYRES },
-            {PME.TyreCompoundNext,        SRE.PIT_STOP_NEXT_TYRE_COMPOUND },
-
-            {PME.FuelAddXlitres,          SRE.PIT_STOP_ADD },
-            {PME.FuelFillToXlitres,       SRE.PIT_STOP_FILL_TO },
-            {PME.FuelFillToEnd,           SRE.PIT_STOP_FUEL_TO_THE_END },
-            {PME.FuelNone,                SRE.PIT_STOP_DONT_REFUEL },
-            //{PME.FuelNone,              SRE.PIT_STOP_CLEAR_FUEL },
-
-            {PME.RepairAll,               SRE.PIT_STOP_FIX_ALL },          // rF2
-            {PME.RepairNone,              SRE.PIT_STOP_FIX_NONE },         // rF2
-            {PME.RepairFast,              SRE.PIT_STOP_FAST_REPAIR },        // iRacing
-            {PME.RepairAllAero,           SRE.PIT_STOP_FIX_ALL_AERO },       // R3E
-            {PME.RepairFrontAero,         SRE.PIT_STOP_FIX_FRONT_AERO },
-            {PME.RepairRearAero,          SRE.PIT_STOP_FIX_REAR_AERO },
-            {PME.RepairSuspension,        SRE.PIT_STOP_FIX_SUSPENSION },
-            {PME.RepairSuspensionNone,    SRE.PIT_STOP_DONT_FIX_SUSPENSION },
-            {PME.RepairBody,              SRE.PIT_STOP_FIX_BODY },         // rF2
-
-            {PME.PenaltyServe,            SRE.PIT_STOP_SERVE_PENALTY },
-            {PME.PenaltyServeNone,        SRE.PIT_STOP_DONT_SERVE_PENALTY },
-
-            {PME.ClearAll,                SRE.PIT_STOP_CLEAR_ALL },
-
-            // tbd {PME.AeroFrontPlusMinusX, SRE.PIT_STOP },     // tbd: would require added speech handling
-            // tbd {PME.AeroRearPlusMinusX,  SRE.PIT_STOP },
-            // tbd {PME.AeroFrontSetToX,  SRE.PIT_STOP },
-            // tbd {PME.AeroRearSetToX,   SRE.PIT_STOP },
-
-            // tbd {PME.GrillePlusMinusX, SRE.PIT_STOP },        // tbd: rF2
-            // tbd {PME.GrilleSetToX,     SRE.PIT_STOP },
-            // tbd {PME.WedgePlusMinusX,  SRE.PIT_STOP },
-            // tbd {PME.WedgeSetToX,      SRE.PIT_STOP },
-            // tbd {PME.TrackBarPlusMinusX,  SRE.PIT_STOP },
-            // tbd {PME.TrackBarSetToX,   SRE.PIT_STOP },
-            // tbd {PME.RubberLF,         SRE.PIT_STOP },
-            // tbd {PME.RubberRF,         SRE.PIT_STOP },
-            // tbd {PME.RubberLR,         SRE.PIT_STOP },
-            // tbd {PME.RubberRR,         SRE.PIT_STOP },
-            // tbd {PME.FenderL,          SRE.PIT_STOP },
-            // tbd {PME.FenderR,          SRE.PIT_STOP },
-            // tbd {PME.FlipUpL,          SRE.PIT_STOP },
-            // tbd {PME.FlipUpR,          SRE.PIT_STOP },
-
-            {PME.Tearoff,                 SRE.PIT_STOP_TEAROFF },    // iRacing
-            {PME.TearOffNone,             SRE.PIT_STOP_CLEAR_WIND_SCREEN },
-
-            {PME.DisplaySectors,          SRE.DISPLAY_SECTORS },
-            {PME.DisplayPitMenu,          SRE.DISPLAY_PIT_MENU },
-            {PME.DisplayTyres,            SRE.DISPLAY_TYRES },
-            {PME.DisplayTemps,            SRE.DISPLAY_TEMPS },
-            {PME.DisplayRaceInfo,         SRE.DISPLAY_RACE_INFO },
-            {PME.DisplayStandings,        SRE.DISPLAY_STANDINGS },
-            {PME.DisplayPenalties,        SRE.DISPLAY_PENALTIES },
-            {PME.DisplayNext,             SRE.DISPLAY_NEXT }
-            };
-
         private static float fuelCapacity = -1;
         private static float currentFuel = -1;
         // In the car (in real time)
-        private static bool inCar = false;
+        private static bool inCar;
 
         private static Boolean rf2AutoFuelToEnd = UserSettings.GetUserSettings().getBoolean("rf2_enable_auto_fuel_to_end_of_race");
 
-        public static Boolean tyresAutoCleared = false;
+        public static Boolean tyresAutoCleared;
 
         #endregion Private Fields
 
@@ -170,37 +78,22 @@ namespace CrewChiefV4.PitManager
         /// <param name="voiceMessage"></param>
         public override void respond(String voiceMessage)
         {
-            // Check the Pit commands
-            foreach (var cmd in voiceCmds)
+            var cmd = PitManager.IsPitManagerCommand(voiceMessage);
+            if (cmd != null)
             {
-                if (SRE.ResultContains(voiceMessage, cmd.Value))
+                if (inCar)
                 {
-                    if (inCar)
-                    {
-                        Log.Debug("Pit Manager voice command " + cmd.Value[0]);
-                        pmh.EventHandler(cmd.Key, voiceMessage);
-                        break;
-                    }
-                    else
-                    {
-                        PitManagerResponseHandlers.PMrh_CantDoThat(); // tbd
-                        Log.Commentary("Not in car received Pit Manager voice command " + cmd.Value[0]);
-                    }
+                    Log.Debug("Pit Manager voice command " + cmd.Item2.SpeechRecognitionPhrases[0]);
+                    pmh.EventHandler(cmd.Item1, voiceMessage);
+                }
+                else
+                {
+                    PitManagerResponseHandlers.PMrh_CantDoThat(); // tbd
+                    Log.Commentary("Not in car received Pit Manager voice command " + cmd.Item2.SpeechRecognitionPhrases[0]);
                 }
             }
         }
-        public static bool IsPitManagerCommand(String voiceMessage)
-        {
-            // Check the Pit commands
-            foreach (var cmd in voiceCmds)
-            {
-                if (SRE.ResultContains(voiceMessage, cmd.Value))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
+
         /// <summary>
         /// reinitialise any state held by the event subtype
         /// </summary>
@@ -219,7 +112,7 @@ namespace CrewChiefV4.PitManager
         {
             fuelCapacity = -1;
             currentFuel = -1;
-            pmh.EventHandler(PME.Teardown, "");
+            pmh.EventHandler(PitManagerEvent.Teardown, "");
         }
 
         public static float getFuelCapacity()
@@ -251,7 +144,7 @@ namespace CrewChiefV4.PitManager
     /// </summary>
     /// <param name="previousGameState"></param>
     /// <param name="currentGameState"></param>
-    override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
+    protected override void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
         {
             inCar = currentGameState.inCar;
             if (!previousGameState.inCar && currentGameState.inCar)
@@ -291,7 +184,7 @@ namespace CrewChiefV4.PitManager
                                 var litres = PitFuelling.fuelToEnd(fuelCapacity, currentFuel);
                                 if (litres >= 0)
                                 {
-                                    PitManagerEventHandlers_RF2.rF2SetFuel(litres);
+                                    PitManagerEventHandlers_RF2.SetFuel(litres);
                                 }
                                 // else couldn't calculate fuel required
                             }
@@ -330,7 +223,7 @@ namespace CrewChiefV4.PitManager
         /// <returns>
         /// The number, 0 if the number couldn't be parsed
         /// </returns>
-        static public int processNumber(string _voiceMessage)
+        public static int processNumber(string _voiceMessage)
         {
             int amount = 0;
 
@@ -363,7 +256,7 @@ namespace CrewChiefV4.PitManager
         /// <returns>
         /// The number of litres
         /// </returns>
-        static public int processLitresGallons(int amount, string _voiceMessage)
+        public static int processLitresGallons(int amount, string _voiceMessage)
         {
             bool litres = true;
             if (SpeechRecogniser.ResultContains(_voiceMessage, SpeechRecogniser.LITERS))
@@ -412,7 +305,7 @@ namespace CrewChiefV4.PitManager
 
         #region Private Methods
 
-        static private int convertGallonsToLitres(int gallons)
+        private static int convertGallonsToLitres(int gallons)
         {
             return (int)Math.Ceiling(gallons * litresPerGallon);
         }
@@ -424,9 +317,9 @@ namespace CrewChiefV4.PitManager
     {
         private static readonly CrewChief crewChief = MainWindow.instance.crewChief;
 
-        static private float addAdditionalFuelLaps = UserSettings.GetUserSettings().getFloat("add_additional_fuel");
+        private static float addAdditionalFuelLaps = UserSettings.GetUserSettings().getFloat("add_additional_fuel");
 
-        static private Boolean baseCalculationsOnMaxConsumption = UserSettings.GetUserSettings().getBoolean("prefer_max_consumption_in_fuel_calculations");
+        private static Boolean baseCalculationsOnMaxConsumption = UserSettings.GetUserSettings().getBoolean("prefer_max_consumption_in_fuel_calculations");
 
         #region Public Methods
         /// <summary>
@@ -435,11 +328,11 @@ namespace CrewChiefV4.PitManager
         /// <param name="fuelCapacity"></param>
         /// <param name="currentFuel"></param>
         /// <returns>
-        /// > 0: Litres needed
+        /// +ve: Litres needed
         /// 0:   Enough fuel in car already
-        /// < 0: Couldn't calculate fuel required
+        /// -ve: Couldn't calculate fuel required
         /// </returns>
-        static public int fuelToEnd(float fuelCapacity, float currentFuel)
+        public static int fuelToEnd(float fuelCapacity, float currentFuel)
         {
             int roundedLitresNeeded = -1;
             Fuel fuelEvent = (Fuel)CrewChief.getEvent("Fuel");

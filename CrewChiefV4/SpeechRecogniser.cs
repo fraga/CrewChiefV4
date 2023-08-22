@@ -3457,7 +3457,7 @@ namespace CrewChiefV4
                 return CrewChief.getEvent("IRacingBroadcastMessageEvent");
             }
             else if (CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT &&
-                PitManagerVoiceCmds.IsPitManagerCommand(recognisedSpeech))
+                PitManager.PitManager.IsPitManagerCommand(recognisedSpeech) != null)
             {
                 return CrewChief.getEvent("PitManagerVoiceCmds");
             }

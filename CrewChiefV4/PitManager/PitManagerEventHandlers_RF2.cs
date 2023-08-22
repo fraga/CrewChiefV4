@@ -2,58 +2,15 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
+
 using Newtonsoft.Json;
+
 using PitMenuAPI;
 
-// Pit stop texts
-// TIRES:
-// STOP/GO:
-// R TIRES:
-// F TIRES:
-// DRIVER:
-// R SPOILER:
-// GRILLE:
-// WEDGE:
-// TRACK BAR:
-// RADIATOR:
-// FR PRESS:
-// FL PRESS:
-// RR PRESS:
-// RL PRESS:
-// FR RUBBER:
-// FL RUBBER:
-// RR RUBBER:
-// RL RUBBER:
-// PITSTOPS:
-// DAMAGE:
-// RT TIRES:
-// LF TIRES:
-// FR TIRE:
-// FL TIRE:
-// RR TIRE:
-// RL TIRE:
-// L FENDER:
-// L FLIP UP:
-// R FENDER:
-// R FLIP UP:
-// F WING:
-// FRONT DF:
-// F AIR DAM:
-// F SPLITTER:
-// R WING:
-// REAR DF:
-//
-// Player.JSON entries relevant to the Pit Menu:
-//"Relative Fuel Strategy":false,
-//"Relative Fuel Strategy#":"Show how much fuel to ADD, rather than how much TOTAL fuel to fill the tank up to (note: new default is true)",
-//      Pit Manager handles true or false
-//"Smart Pitcrew":true,
-//"Smart Pitcrew#":"Pitcrew does things even if you mistakenly forgot to ask (one example is changing a damaged tire)",
-//      Doesn't affect Pit Manager
 
 namespace CrewChiefV4.PitManager
 {
-    public class PitManagerEventHandlers_RF2 // public for unit testing
+    public partial class PitManagerEventHandlers_RF2 // private for unit testing
     {
         private static readonly PitMenuAbstractionLayer Pmal = new PitMenuAbstractionLayer();
 
@@ -75,7 +32,7 @@ namespace CrewChiefV4.PitManager
 
         public static class FuelVoiceCommand
         {
-            private static bool _fuelVoiceCommandGiven = false;
+            private static bool _fuelVoiceCommandGiven;
 
             public static bool Given
             {
@@ -115,14 +72,60 @@ namespace CrewChiefV4.PitManager
         #endregion Private field made Public for unit testing
 
         #region Private Fields
-        static private TyreDictionary tyreTranslationDict =
+        private static TyreDictionary tyreTranslationDict =
                     TyreDictFile.getTyreDictionaryFromFile();
 
-        static private CurrentRf2TyreType currentRf2TyreType = new CurrentRf2TyreType();
+        private static CurrentRf2TyreType currentRf2TyreType = new CurrentRf2TyreType();
 
         #endregion Private Fields
 
         #region Public Methods
+
+        // Pit stop texts
+        // TIRES:
+        // STOP/GO:
+        // R TIRES:
+        // F TIRES:
+        // DRIVER:
+        // R SPOILER:
+        // GRILLE:
+        // WEDGE:
+        // TRACK BAR:
+        // RADIATOR:
+        // FR PRESS:
+        // FL PRESS:
+        // RR PRESS:
+        // RL PRESS:
+        // FR RUBBER:
+        // FL RUBBER:
+        // RR RUBBER:
+        // RL RUBBER:
+        // PITSTOPS:
+        // DAMAGE:
+        // RT TIRES:
+        // LF TIRES:
+        // FR TIRE:
+        // FL TIRE:
+        // RR TIRE:
+        // RL TIRE:
+        // L FENDER:
+        // L FLIP UP:
+        // R FENDER:
+        // R FLIP UP:
+        // F WING:
+        // FRONT DF:
+        // F AIR DAM:
+        // F SPLITTER:
+        // R WING:
+        // REAR DF:
+        //
+        // Player.JSON entries relevant to the Pit Menu:
+        //"Relative Fuel Strategy":false,
+        //"Relative Fuel Strategy#":"Show how much fuel to ADD, rather than how much TOTAL fuel to fill the tank up to (note: new default is true)",
+        //      Pit Manager handles true or false
+        //"Smart Pitcrew":true,
+        //"Smart Pitcrew#":"Pitcrew does things even if you mistakenly forgot to ask (one example is changing a damaged tire)",
+        //      Doesn't affect Pit Manager
 
         /// <summary>
         /// Take a list of tyre types available in the menu and map them on to
@@ -226,7 +229,7 @@ namespace CrewChiefV4.PitManager
         ///////////////////////////////////////////////////////////////////////
         // Event handlers
 
-        static public bool PMrF2eh_initialise(string __)
+        private static bool EH_initialise(string __)
         {
             Pmal.PmalConnect();
             List<string> tyreTypeNames = Pmal.GetTyreTypeNames();
@@ -238,7 +241,7 @@ namespace CrewChiefV4.PitManager
             }
             return true;
         }
-        static public bool PMrF2eh_teardown(string __)
+        private static bool EH_teardown(string __)
         {
             Pmal.Disconnect();
             return true;
@@ -247,83 +250,88 @@ namespace CrewChiefV4.PitManager
         /// <summary>
         /// Switch rFactor to the menu page and wake up the inputs driver
         /// </summary>
-        static public bool PMrF2eh_prepareToUseMenu(string __)
+        private static bool EH_prepareToUseMenu(string __)
         {
             PitMenu pm = new PitMenu();
             pm.startUsingPitMenu();
             return true;
         }
 
-        /// <summary> PMrF2eh_example
-        /// Dummy action handler for rF2
+        /// <summary> EH_example
+        /// Dummy action handler
         /// </summary>
-        static public bool PMrF2eh_example(string __)
+        private static bool EH_example(string __)
         {
             return true;
         }
 
         #region Tyre compounds
-        static public bool PMrF2eh_TyreCompoundHard(string __)
+        private static bool EH_TyreCompoundDry(string __)
+        {
+            return setTyreCompound("Dry");
+        }
+
+        private static bool EH_TyreCompoundHard(string __)
         {
             return setTyreCompound("Hard");
         }
 
-        static public bool PMrF2eh_TyreCompoundMedium(string __)
+        private static bool EH_TyreCompoundMedium(string __)
         {
             return setTyreCompound("Medium");
         }
 
-        static public bool PMrF2eh_TyreCompoundSoft(string __)
+        private static bool EH_TyreCompoundSoft(string __)
         {
             return setTyreCompound("Soft");
         }
 
-        static public bool PMrF2eh_TyreCompoundSupersoft(string __)
+        private static bool EH_TyreCompoundSupersoft(string __)
         {
             return setTyreCompound("Supersoft");
         }
 
-        static public bool PMrF2eh_TyreCompoundUltrasoft(string __)
+        private static bool EH_TyreCompoundUltrasoft(string __)
         {
             return setTyreCompound("Ultrasoft");
         }
 
-        static public bool PMrF2eh_TyreCompoundHypersoft(string __)
+        private static bool EH_TyreCompoundHypersoft(string __)
         {
             return setTyreCompound("Hypersoft");
         }
 
-        static public bool PMrF2eh_TyreCompoundIntermediate(string __)
+        private static bool EH_TyreCompoundIntermediate(string __)
         {
             return setTyreCompound("Intermediate");
         }
 
-        static public bool PMrF2eh_TyreCompoundWet(string __)
+        private static bool EH_TyreCompoundWet(string __)
         {
             return setTyreCompound("Wet");
         }
 
-        static public bool PMrF2eh_TyreCompoundMonsoon(string __)
+        private static bool EH_TyreCompoundMonsoon(string __)
         {
             return setTyreCompound("Monsoon");
         }
 
-        static public bool PMrF2eh_TyreCompoundOption(string __)
+        private static bool EH_TyreCompoundOption(string __)
         {
             return setTyreCompound("Soft");
         }
 
-        static public bool PMrF2eh_TyreCompoundPrime(string __)
+        private static bool EH_TyreCompoundPrime(string __)
         {
             return setTyreCompound("Hard");
         }
 
-        static public bool PMrF2eh_TyreCompoundAlternate(string __)
+        private static bool EH_TyreCompoundAlternate(string __)
         {
             return setTyreCompound("Soft");
         }
 
-        static public bool PMrF2eh_TyreCompoundNext(string __)
+        private static bool EH_TyreCompoundNext(string __)
         {
             // Select the next compound available for this car
             // Get the current tyre type
@@ -336,71 +344,100 @@ namespace CrewChiefV4.PitManager
             if (currentTyreTypeIndex >= tyreTypes.Count)
                 currentTyreTypeIndex = 0;
             currentRf2TyreType.Set(tyreTypes[currentTyreTypeIndex]);
-            return PMrF2eh_changeAllTyres(null);
+            return EH_changeAllTyres(null);
         }
         #endregion Tyre compounds
 
         #region Which tyres to change
-        static public bool PMrF2eh_changeAllTyres(string __)
+        private static bool EH_changeAllTyres(string __)
         {
             return changeTyres(Pmal.GetAllTyreCategories());
         }
 
-        static public bool PMrF2eh_changeNoTyres(string __)
+        private static bool EH_changeNoTyres(string __)
         {
             return changeTyres(Pmal.GetAllTyreCategories(), true);
         }
 
-        static public bool PMrF2eh_changeFrontTyres(string __)
+        private static bool EH_changeFrontTyres(string __)
         {
             changeTyres(Pmal.GetAllTyreCategories(), true);
             return changeTyres(Pmal.GetFrontTyreCategories());
         }
 
-        static public bool PMrF2eh_changeRearTyres(string __)
+        private static bool EH_changeRearTyres(string __)
         {
             changeTyres(Pmal.GetAllTyreCategories(), true);
             return changeTyres(Pmal.GetRearTyreCategories());
         }
 
-        static public bool PMrF2eh_changeLeftTyres(string __)
+        private static bool EH_changeLeftTyres(string __)
         {
             changeTyres(Pmal.GetAllTyreCategories(), true);
             return changeTyres(Pmal.GetLeftTyreCategories());
         }
 
-        static public bool PMrF2eh_changeRightTyres(string __)
+        private static bool EH_changeRightTyres(string __)
         {
             changeTyres(Pmal.GetAllTyreCategories(), true);
             return changeTyres(Pmal.GetRightTyreCategories());
         }
 
-        static public bool PMrF2eh_changeFLTyre(string __)
+        private static bool EH_changeFLTyre(string __)
         {
             return changeTyre("FL TIRE:");
         }
 
-        static public bool PMrF2eh_changeFRTyre(string __)
+        private static bool EH_changeFRTyre(string __)
         {
             return changeTyre("FR TIRE:");
         }
 
-        static public bool PMrF2eh_changeRLTyre(string __)
+        private static bool EH_changeRLTyre(string __)
         {
             return changeTyre("RL TIRE:");
         }
 
-        static public bool PMrF2eh_changeRRTyre(string __)
+        private static bool EH_changeRRTyre(string __)
         {
             return changeTyre("RR TIRE:");
         }
         #endregion Which tyres to change
 
         #region Tyre pressures
-        static public bool PMrF2eh_changeFLpressure(string voiceMessage)
+        private static bool EH_changeFrontPressure(string voiceMessage)
+        {
+            if (changeTyrePressure("FL PRESS:", voiceMessage))
+            {
+                return changeTyrePressure("FR PRESS:", voiceMessage);
+            }
+            return false;
+        }
+        private static bool EH_changeRearPressure(string voiceMessage)
+        {
+            if (changeTyrePressure("RL PRESS:", voiceMessage))
+            {
+                return changeTyrePressure("RR PRESS:", voiceMessage);
+            }
+            return false;
+        }
+        private static bool EH_changeLFpressure(string voiceMessage)
         {
             return changeTyrePressure("FL PRESS:", voiceMessage);
         }
+        private static bool EH_changeRFpressure(string voiceMessage)
+        {
+            return changeTyrePressure("FR PRESS:", voiceMessage);
+        }
+        private static bool EH_changeLRpressure(string voiceMessage)
+        {
+            return changeTyrePressure("RL PRESS:", voiceMessage);
+        }
+        private static bool EH_changeRRpressure(string voiceMessage)
+        {
+            return changeTyrePressure("RR PRESS:", voiceMessage);
+        }
+
         #endregion Tyre pressures
 
         #region Fuel
@@ -413,7 +450,7 @@ namespace CrewChiefV4.PitManager
         //
         // in rF2SetFuel(X')
         // If "Relative Fuel Strategy" set to X'-current else set to X'
-        static private bool FuelAddXlitres(string voiceMessage, int current)
+        private static bool FuelAddXlitres(string voiceMessage, int current)
         {
             var amount = PitNumberHandling.processNumber(voiceMessage);
             amount = PitNumberHandling.processLitresGallons(amount, voiceMessage);
@@ -426,18 +463,18 @@ namespace CrewChiefV4.PitManager
                 amount = (int)PitManagerVoiceCmds.getFuelCapacity();
             }
             FuelVoiceCommand.Given = true;
-            return rF2SetFuel(amount + current);
+            return SetFuel(amount + current);
         }
-        static public bool PMrF2eh_FuelAddXlitres(string voiceMessage)
+        private static bool EH_FuelAddXlitres(string voiceMessage)
         {
             return FuelAddXlitres(voiceMessage, (int)PitManagerVoiceCmds.getCurrentFuel());
         }
-        static public bool PMrF2eh_FuelToXlitres(string voiceMessage)
+        private static bool EH_FuelToXlitres(string voiceMessage)
         {
             return FuelAddXlitres(voiceMessage, 0);
         }
 
-        static public bool PMrF2eh_FuelToEnd(string __)
+        private static bool EH_FuelToEnd(string __)
         {
             var litresNeeded = PitFuelling.fuelToEnd(
                 PitManagerVoiceCmds.getFuelCapacity(),
@@ -447,16 +484,16 @@ namespace CrewChiefV4.PitManager
                 return true;    // Couldn't calculate
             }
             FuelVoiceCommand.Given = true;
-            return rF2SetFuel(litresNeeded);
+            return SetFuel(litresNeeded);
         }
 
-        static public bool PMrF2eh_FuelNone(string __)
+        private static bool EH_FuelNone(string __)
         {
             FuelVoiceCommand.Given = true;
-            return rF2SetFuel(1);
+            return SetFuel(1);
         }
 
-        static public bool rF2SetFuel(int amount)
+        public static bool SetFuel(int amount)
         {
             if (Pmal.RelativeFuelStrategy())
             {
@@ -467,7 +504,7 @@ namespace CrewChiefV4.PitManager
         #endregion Fuel
 
         #region Repairs
-        static public bool PMrF2eh_RepairAll(string __)
+        private static bool EH_RepairAll(string __)
     {
         if (!Pmal.SoftMatchCategory("DAMAGE:"))
         {
@@ -480,7 +517,7 @@ namespace CrewChiefV4.PitManager
         return false;
     }
 
-    static public bool PMrF2eh_RepairNone(string __)
+    private static bool EH_RepairNone(string __)
     {
         if (!Pmal.SoftMatchCategory("DAMAGE:"))
         {
@@ -493,7 +530,42 @@ namespace CrewChiefV4.PitManager
         return false;
     }
 
-    static public bool PMrF2eh_RepairBody(string __)
+        private static bool EH_RepairAllAero(string __)
+        {
+            return false;
+        }
+
+        private static bool EH_RepairAeroNone(string __)
+        {
+            return false;
+        }
+
+        private static bool EH_RepairFrontAero(string __)
+        {
+            return false;
+        }
+
+        private static bool EH_RepairRearAero(string __)
+        {
+            return false;
+        }
+
+        private static bool EH_RepairSuspension(string __)
+        {
+            return false;
+        }
+
+        private static bool EH_RepairSuspensionNone(string __)
+        {
+            return false;
+        }
+
+        private static bool EH_WhatsThePitActions(string __)
+        {
+            return false;
+        }
+
+    private static bool EH_RepairBody(string __)
     {
         if (!Pmal.SoftMatchCategory("DAMAGE:"))
         {
@@ -507,7 +579,7 @@ namespace CrewChiefV4.PitManager
     }
     #endregion Repairs
         #region Penalties
-        static public bool PMrF2eh_PenaltyServe(string __)
+        private static bool EH_PenaltyServe(string __)
         {
             if (!Pmal.GetCategories().Contains("STOP/GO"))
             {
@@ -520,7 +592,7 @@ namespace CrewChiefV4.PitManager
             return false;
         }
 
-        static public bool PMrF2eh_PenaltyServeNone(string __)
+        private static bool EH_PenaltyServeNone(string __)
         {
             if (!Pmal.GetCategories().Contains("STOP/GO"))
             {
@@ -534,20 +606,20 @@ namespace CrewChiefV4.PitManager
         }
         #endregion Penalties
 
-        static public bool PMrF2eh_ClearAll(string __)
+        private static bool EH_ClearAll(string __)
         {
-            if (PMrF2eh_FuelNone(null) &&
-                PMrF2eh_changeNoTyres(null))
+            if (EH_FuelNone(null) &&
+                EH_changeNoTyres(null))
             {
                 Pmal.RereadPitMenu();   // STOP/GO or DAMAGE: is not in initial menu, check if it is now
                 var categories = Pmal.GetCategories();
                 if (categories.Contains("STOP/GO"))
                 {
-                    PMrF2eh_PenaltyServeNone(null);
+                    EH_PenaltyServeNone(null);
                 }
                 if (categories.Contains("DAMAGE:"))
                 {
-                    PMrF2eh_RepairNone(null);
+                    EH_RepairNone(null);
                 }
             }
             return true;
@@ -558,7 +630,7 @@ namespace CrewChiefV4.PitManager
 
         #region MFD
         static string currentMFD = "MFDF";
-        static private bool changeMFD(string mfd)
+        private static bool changeMFD(string mfd)
         {
             if (Pmal.MfdPage(mfd))
             {
@@ -568,39 +640,39 @@ namespace CrewChiefV4.PitManager
             }
             return false;
         }
-        static public bool PMrF2eh_DisplaySectors(string __)
+        private static bool EH_DisplaySectors(string __)
         {
             return changeMFD("MFDA");
         }
-        static public bool PMrF2eh_DisplayPitMenu(string __)
+        private static bool EH_DisplayPitMenu(string __)
         {
             return changeMFD("MFDB");
         }
-        static public bool PMrF2eh_DisplayTyres(string __)
+        private static bool EH_DisplayTyres(string __)
         {
             return changeMFD("MFDC");
         }
         // MFDD is Driving Aids, not worth a command
-        static public bool PMrF2eh_DisplayTemps(string __)
+        private static bool EH_DisplayTemps(string __)
         {
             return changeMFD("MFDE");
         }
-        static public bool PMrF2eh_DisplayRaceInfo(string __)
+        private static bool EH_DisplayRaceInfo(string __)
         {
             return changeMFD("MFDF");
         }
-        static public bool PMrF2eh_DisplayStandings(string __)
+        private static bool EH_DisplayStandings(string __)
         {
             return changeMFD("MFDG");
         }
-        static public bool PMrF2eh_DisplayPenalties(string __)
+        private static bool EH_DisplayPenalties(string __)
         {
             return changeMFD("MFDH");
         }
         /// <summary>
         /// Display the next MFD screen
         /// </summary>
-        static public bool PMrF2eh_DisplayNext(string __)
+        private static bool EH_DisplayNext(string __)
         {
             var lastLetter = currentMFD[currentMFD.Length - 1] + 1;
             if (lastLetter == 'I')
@@ -618,7 +690,7 @@ namespace CrewChiefV4.PitManager
         /// </summary>
         /// <param name="ccTyreType">Soft / Medium / Wet etc.</param>
         /// <returns></returns>
-        static private bool setTyreCompound(string ccTyreType)
+        private static bool setTyreCompound(string ccTyreType)
         {
             var inMenu = Pmal.GetTyreTypeNames();
             var result = TranslateTyreTypes(tyreTranslationDict, inMenu);
@@ -630,7 +702,7 @@ namespace CrewChiefV4.PitManager
 
             currentRf2TyreType.Set(result[ccTyreType]);
             Log.Commentary($"Fitting {result[ccTyreType]}");
-            return PMrF2eh_changeAllTyres(null);
+            return EH_changeAllTyres(null);
         }
 
         /// <summary>
@@ -639,7 +711,7 @@ namespace CrewChiefV4.PitManager
         /// <param name="tyreCategory"></param>
         /// <param name="noChange">Set it to "No change"</param>
         /// <returns>true => success</returns>
-        static private bool changeTyre(string tyreCategory, bool noChange = false)
+        private static bool changeTyre(string tyreCategory, bool noChange = false)
         {
             bool response = false;
             string tyreType = noChange ? "No Change" : currentRf2TyreType.Get();
@@ -674,7 +746,7 @@ namespace CrewChiefV4.PitManager
         /// <param name="tyreCategories"></param>
         /// <param name="noChange">Set them to "No Change"</param>
         /// <returns>true => success</returns>
-        static private bool changeTyres(List<string> tyreCategories, bool noChange = false)
+        private static bool changeTyres(List<string> tyreCategories, bool noChange = false)
         {
             bool result = true;
             foreach (string tyreCategory in tyreCategories)
@@ -687,7 +759,7 @@ namespace CrewChiefV4.PitManager
             return result;
         }
 
-        static private bool changeTyrePressure(string tyreCategory, string voiceMessage)
+        private static bool changeTyrePressure(string tyreCategory, string voiceMessage)
         {
             bool response = false;
 
@@ -748,7 +820,7 @@ namespace CrewChiefV4.PitManager
 
         #endregion Private Classes
 
-        public static class TyreDictFile
+        private static class TyreDictFile
         {
             private static Tuple<string,  string> getUserTyreDictionaryFileLocation()
             {
@@ -791,7 +863,7 @@ namespace CrewChiefV4.PitManager
                 return SampleTyreTranslationDict;
             }
 
-            public static void saveTyreDictionaryFile(TyreDictionary tyreDict)
+            private static void saveTyreDictionaryFile(TyreDictionary tyreDict)
             {
                 var path = getUserTyreDictionaryFileLocation().Item1;
                 var fileName = getUserTyreDictionaryFileLocation().Item2;

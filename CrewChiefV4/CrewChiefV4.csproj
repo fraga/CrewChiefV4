@@ -336,6 +336,11 @@
     <Compile Include="Overlay\OverlaySettings.cs" />
     <Compile Include="Overlay\SubtitleOverlay.cs" />
     <Compile Include="PitManager\PitManager.cs" />
+    <Compile Include="PitManager\PitManagerEventHandlersTable_RF2.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>PitManagerEventHandlersTable_RF2.tt</DependentUpon>
+    </Compile>
     <Compile Include="PitManager\PitManagerEventHandlers_RF2.cs" />
     <Compile Include="PitManager\PitManagerResponseHandlers.cs" />
     <Compile Include="PitManager\PitManagerVoiceCmds.cs" />
@@ -686,6 +691,10 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="PitManager\Documentation\rF2_PitManager.jpg" />
+    <Content Include="PitManager\PitManagerEventHandlersTable_RF2.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>PitManagerEventHandlersTable_RF2.cs</LastGenOutput>
+    </Content>
     <Content Include="Resources\cursor.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -756,6 +765,9 @@
     <PackageReference Include="WebSocketSharp-netstandard">
       <Version>1.0.1</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
