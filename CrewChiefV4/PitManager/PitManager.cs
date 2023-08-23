@@ -25,6 +25,14 @@ namespace CrewChiefV4.PitManager
         Teardown,
         PrepareToUseMenu,
 
+        // Fuel
+        FuelAddXlitres,
+        FuelFillToXlitres,
+        FuelNone,
+        FuelFillToEnd,
+        Refuel,
+
+        // Tyres
         TyreChangeAll,
         TyreChangeNone,
         TyreChangeFront,
@@ -36,14 +44,6 @@ namespace CrewChiefV4.PitManager
         TyreChangeLR,
         TyreChangeRR,
 
-        TyrePressure,
-        TyrePressureFront,       // ACC
-        TyrePressureRear,        // ACC
-        TyrePressureLF,
-        TyrePressureRF,
-        TyrePressureLR,
-        TyrePressureRR,
-
         TyreCompoundDry,
         TyreCompoundHard,
         TyreCompoundMedium,
@@ -51,44 +51,74 @@ namespace CrewChiefV4.PitManager
         TyreCompoundSupersoft,
         TyreCompoundUltrasoft,
         TyreCompoundHypersoft,
+        TyreCompoundPrime,
+        TyreCompoundOption,
+        TyreCompoundAlternate,
         TyreCompoundIntermediate,
         TyreCompoundWet,
         TyreCompoundMonsoon,
-        TyreCompoundOption,
-        TyreCompoundPrime,
-        TyreCompoundAlternate,
         TyreCompoundNext,
 
-        FuelAddXlitres,
-        FuelFillToXlitres,
-        FuelFillToEnd,
-        Refuel,
-        FuelNone,
+        TyreSet,
+        LeastUsedTyreSet,
 
-        RepairAll,              // rF2
+        TyrePressure,
+        TyrePressureFront,
+        TyrePressureRear,
+        TyrePressureLF,
+        TyrePressureRF,
+        TyrePressureLR,
+        TyrePressureRR,
+
+        // Repairs
+        RepairFast,
         RepairNone,
-        RepairFast,             // iRacing
-        RepairAllAero,          // R3E
+        RepairAllAero,
         RepairAeroNone,
         RepairFrontAero,
         RepairRearAero,
+        RepairRearNone,
         RepairSuspension,
         RepairSuspensionNone,
-        RepairBody,             // rF2
+        RepairBody,
+        RepairAll,
 
+        // Penalties
         PenaltyServe,
         PenaltyServeNone,
 
+        // Misc
+        TearOff,
+        TearOffNone,
         ClearAll,
 
+        // Are these pit menu items?,
+        HowManyIncidentPoints,
+        WhatsTheIncidentLimit,
+        WhatsMyIrating,
+        WhatsMyLicenseClass,
+        WhatsTheSof,
+        WhatsThePitActions,
+
+        // rF2 MFD
+        DisplaySectors,
+        DisplayPitMenu,
+        DisplayTyres,
+        DisplayTemps,
+        DisplayRaceInfo,
+        DisplayStandings,
+        DisplayPenalties,
+        DisplayNext,
+
+        // TBD
         AeroFrontPlusMinusX,
         AeroRearPlusMinusX,
         AeroFrontSetToX,
         AeroRearSetToX,
 
-        GrillePlusMinusX,       // rF2
+        GrillePlusMinusX,
         GrilleSetToX,
-        WedgePlusMinusX,        // TBD: guessing actions for these
+        WedgePlusMinusX,
         WedgeSetToX,
         TrackBarPlusMinusX,
         TrackBarSetToX,
@@ -100,25 +130,6 @@ namespace CrewChiefV4.PitManager
         FenderR,
         FlipUpL,
         FlipUpR,
-
-        Tearoff,                // iRacing
-        TearOffNone,
-        HowManyIncidentPoints,
-        WhatsTheIncidentLimit,
-        WhatMyIrating,
-        WhatsMyLicenseClass,
-        WhatsTheSof,
-
-        WhatsThePitActions,     // R3E
-
-        DisplaySectors,         // rF2 Multi-Function Display pages
-        DisplayPitMenu,
-        DisplayTyres,
-        DisplayTemps,
-        DisplayRaceInfo,
-        DisplayStandings,
-        DisplayPenalties,
-        DisplayNext
     }
 
     public class PitManager
@@ -345,6 +356,6 @@ namespace CrewChiefV4.PitManager
         /// <summary>
         /// Shorthand
         /// </summary>
-        internal static PitManagerEventTableEntry PMeh = new PitManagerEventTableEntry();
+        internal static PitManagerEventTableEntry _PMeh = new PitManagerEventTableEntry();
     }
 }
