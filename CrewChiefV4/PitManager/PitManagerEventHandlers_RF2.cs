@@ -10,7 +10,7 @@ using PitMenuAPI;
 
 namespace CrewChiefV4.PitManager
 {
-    public partial class PitManagerEventHandlers_RF2 // private for unit testing
+    public partial class PitManagerEventHandlers_RF2 // public for unit testing
     {
         private static readonly PitMenuAbstractionLayer Pmal = new PitMenuAbstractionLayer();
 
@@ -219,8 +219,8 @@ namespace CrewChiefV4.PitManager
             {
                 if (!result.ContainsKey(ccTyretype.Key))
                 {
-                // Still didn't match, give it something
-                result[ccTyretype.Key] = inMenu[0];
+                    // Still didn't match, give it something
+                    result[ccTyretype.Key] = inMenu[0];
                 }
             }
             return result;
@@ -448,7 +448,7 @@ namespace CrewChiefV4.PitManager
         // If "Relative Fuel Strategy" set menu to X litres-current else set to X
         // X' = X
         //
-        // in rF2SetFuel(X')
+        // in SetFuel(X')
         // If "Relative Fuel Strategy" set to X'-current else set to X'
         private static bool FuelAddXlitres(string voiceMessage, int current)
         {
@@ -529,41 +529,6 @@ namespace CrewChiefV4.PitManager
         }
         return false;
     }
-
-        private static bool EH_RepairAllAero(string __)
-        {
-            return false;
-        }
-
-        private static bool EH_RepairAeroNone(string __)
-        {
-            return false;
-        }
-
-        private static bool EH_RepairFrontAero(string __)
-        {
-            return false;
-        }
-
-        private static bool EH_RepairRearAero(string __)
-        {
-            return false;
-        }
-
-        private static bool EH_RepairSuspension(string __)
-        {
-            return false;
-        }
-
-        private static bool EH_RepairSuspensionNone(string __)
-        {
-            return false;
-        }
-
-        private static bool EH_WhatsThePitActions(string __)
-        {
-            return false;
-        }
 
     private static bool EH_RepairBody(string __)
     {
@@ -889,7 +854,7 @@ namespace CrewChiefV4.PitManager
                         using (StreamWriter file = File.CreateText(filePath))
                         {
                             JsonSerializer serializer = new JsonSerializer();
-                            serializer.Formatting = Newtonsoft.Json.Formatting.Indented;
+                            serializer.Formatting = Formatting.Indented;
                             serializer.Serialize(file, tyreDict);
                         }
                     }
