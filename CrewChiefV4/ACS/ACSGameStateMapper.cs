@@ -1230,7 +1230,8 @@ namespace CrewChiefV4.assetto
                     currentGameState.SessionData.LeaderSectorNumber = currentGameState.SessionData.SectorNumber;
                 }
                 currentGameState.SessionData.IsNewSector = previousGameState == null || currentGameState.SessionData.SectorNumber != previousGameState.SessionData.SectorNumber;
-                if (currentGameState.SessionData.IsNewSector && previousGameState.SessionData.SectorNumber == 1)
+                if (currentGameState.SessionData.IsNewSector &&
+                    previousGameState != null && previousGameState.SessionData.SectorNumber == 1)
                 {
                     lapCountAtSector1End = shared.acsGraphic.completedLaps;
                     // belt & braces, just in case we never had 'new lap data' so never updated the lap count on crossing the line
@@ -1281,8 +1282,8 @@ namespace CrewChiefV4.assetto
                 }
 
                 //Sector
-                if (currentGameState.SessionData.IsNewSector && !currentGameState.SessionData.IsNewLap && 
-                    previousGameState.SessionData.SectorNumber != 0 && currentGameState.SessionData.SessionRunningTime > 10)
+                if (currentGameState.SessionData.IsNewSector && !currentGameState.SessionData.IsNewLap &&
+                    previousGameState != null && previousGameState.SessionData.SectorNumber != 0 && currentGameState.SessionData.SessionRunningTime > 10)
                 {
                     currentGameState.SessionData.playerAddCumulativeSectorData(previousGameState.SessionData.SectorNumber, currentGameState.SessionData.OverallPosition,
                         currentGameState.SessionData.LapTimeCurrent, currentGameState.SessionData.SessionRunningTime, currentGameState.SessionData.CurrentLapIsValid, false,
