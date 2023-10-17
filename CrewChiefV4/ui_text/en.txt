@@ -1727,8 +1727,9 @@ use_metric_category = INTERNATIONALISATION;PIT_STOPS_AND_MULTICLASS
 
 # Property: Realistic mode
 realistic_mode = Realistic mode
-realistic_mode_help = Restrict available message types based on the car and track in use
+realistic_mode_help = Restrict available message types based on the car and track in use. Among other things that means the spotter only works on ovals
 realistic_mode_metadata = RESTART_REQUIRED
+realistic_mode_category = SPOTTER
 
 # Property: Always report time in hundredths
 always_report_time_in_hundredths = Always report time in hundredths
