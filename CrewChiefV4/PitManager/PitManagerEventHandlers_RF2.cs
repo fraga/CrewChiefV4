@@ -91,23 +91,23 @@ namespace CrewChiefV4.PitManager
         // The user can edit that file to add new names if required
         public static readonly TyreDictionary SampleTyreTranslationDict =
           new TyreDictionary() {
-            { "Hypersoft",    new List <string> {"hypersoft", "c1", "ultrasoft", "supersoft", "soft", "alternates",
+            { "Hypersoft",    new List <string> {"soft cold", "hypersoft", "c1", "ultrasoft", "supersoft", "soft", "s7m - soft", "alternates",
+                        "s310", "slick", "dry", "race", "allweather", "Xmedium" } },
+            { "Ultrasoft",    new List <string> {"soft cold", "ultrasoft","c1", "hypersoft", "supersoft", "soft", "s7m - soft", "alternates",
+                        "s310", "slick", "dry", "race", "allweather", "Xmedium" } },
+            { "Supersoft",    new List <string> {"soft cold", "supersoft", "c2", "hypersoft", "ultrasoft", "soft", "s7m - soft", "alternates",
+                        "s310", "slick", "dry", "race", "allweather", "Xmedium" } },
+            { "Soft",         new List <string> {"soft hot", "soft", "c3", "s7m - soft", "alternates",
                         "s310", "slick", "dry", "race", "allweather", "medium" } },
-            { "Ultrasoft",    new List <string> {"ultrasoft","c1", "hypersoft", "supersoft", "soft", "alternates",
-                        "s310", "slick", "dry", "race", "allweather", "medium" } },
-            { "Supersoft",    new List <string> {"supersoft", "c2", "hypersoft", "ultrasoft", "soft", "alternates",
-                        "s310", "slick", "dry", "race", "allweather", "medium" } },
-            { "Soft",         new List <string> {"soft", "c3", "alternates",
-                        "s310", "slick", "dry", "race", "allweather", "medium" } },
-            { "Medium",       new List <string> { "medium", "c4", "default",
+            { "Medium",       new List <string> { "medium", "c4", "s8m - medium", "default",
                         "s310", "slick", "dry", "race", "allweather" } },
-            { "Hard",         new List <string> {"hard", "c5", "p310", "endur", "primary",
+            { "Hard",         new List <string> {"hard", "c5", "p310", "s9m - hard", "endur", "primary",
                         "medium", "default",
                                 "slick", "dry", "race", "allweather" } },
             { "Intermediate", new List <string> { "intermediate", "inter", "inters",
                         "wet", "rain", "monsoon", "allweather" } },
             { "Wet",          new List <string> {
-                        "wet", "rain", "monsoon", "allweather", "intermediate", "inter", "inters" } },
+                        "wet", "rain", "monsoon", "pr2m - wet", "allweather", "intermediate", "inter", "inters" } },
             { "Monsoon",      new List <string> {"monsoon",
                         "wet", "rain",  "allweather", "intermediate", "inter", "inters" } },
             { "No Change",    new List <string> {"no change"} }
@@ -184,8 +184,10 @@ namespace CrewChiefV4.PitManager
                                     var normalisedRf2TyreType = Regex.Replace(rF2TyreType, " |-|_", "");
                                     if (run == 0)
                                     {
-                                        if (normalisedRf2TyreType.Length == dictTyreName.Length &&
-                                            normalisedRf2TyreType.IndexOf(dictTyreName, StringComparison.OrdinalIgnoreCase) >= 0)
+                                        if ((rF2TyreType.Length == dictTyreName.Length &&
+                                            rF2TyreType.IndexOf(dictTyreName, StringComparison.OrdinalIgnoreCase) >= 0) // exact match
+                                            || (normalisedRf2TyreType.Length == dictTyreName.Length &&
+                                            normalisedRf2TyreType.IndexOf(dictTyreName, StringComparison.OrdinalIgnoreCase) >= 0)) // normalised match
                                         {
 #pragma warning disable S1066
                                             if (!result.ContainsKey(ccTyreType.Key))
