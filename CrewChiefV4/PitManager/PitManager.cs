@@ -1,13 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
-
-using CrewChiefV4.GameState;
-using CrewChiefV4.Audio;
-using CrewChiefV4.Events;
 using System.Threading;
 
 /// <summary>
@@ -20,8 +12,7 @@ using System.Threading;
 namespace CrewChiefV4.PitManager
 {
     using PME = PitManagerEvent;  // shorthand
-    using PMEHrF2 = PitManagerEventHandlers_RF2;
-    using PMER = PitManagerResponseHandlers;
+    using SRE = SpeechRecogniser;
 
     /// <summary>
     /// All the events that Pit Manager handles
@@ -34,6 +25,14 @@ namespace CrewChiefV4.PitManager
         Teardown,
         PrepareToUseMenu,
 
+        // Fuel
+        FuelAddXlitres,
+        FuelFillToXlitres,
+        FuelNone,
+        FuelFillToEnd,
+        Refuel,
+
+        // Tyres
         TyreChangeAll,
         TyreChangeNone,
         TyreChangeFront,
@@ -45,54 +44,81 @@ namespace CrewChiefV4.PitManager
         TyreChangeLR,
         TyreChangeRR,
 
-        TyrePressure,
-        TyrePressureLF,
-        TyrePressureRF,
-        TyrePressureLR,
-        TyrePressureRR,
-
+        TyreCompoundDry,
         TyreCompoundHard,
         TyreCompoundMedium,
         TyreCompoundSoft,
         TyreCompoundSupersoft,
         TyreCompoundUltrasoft,
         TyreCompoundHypersoft,
+        TyreCompoundPrime,
+        TyreCompoundOption,
+        TyreCompoundAlternate,
         TyreCompoundIntermediate,
         TyreCompoundWet,
         TyreCompoundMonsoon,
-        TyreCompoundOption,
-        TyreCompoundPrime,
-        TyreCompoundAlternate,
         TyreCompoundNext,
 
-        FuelAddXlitres,
-        FuelFillToXlitres,
-        FuelFillToEnd,
-        FuelNone,
+        TyreSet,
+        LeastUsedTyreSet,
 
-        RepairAll,              // rF2
+        TyrePressure,
+        TyrePressureFront,
+        TyrePressureRear,
+        TyrePressureLF,
+        TyrePressureRF,
+        TyrePressureLR,
+        TyrePressureRR,
+
+        // Repairs
+        RepairFast,
         RepairNone,
-        RepairFast,             // iRacing
-        RepairAllAero,          // R3E
+        RepairAllAero,
+        RepairAeroNone,
         RepairFrontAero,
         RepairRearAero,
+        RepairRearNone,
         RepairSuspension,
         RepairSuspensionNone,
-        RepairBody,             // rF2
+        RepairBody,
+        RepairAll,
 
+        // Penalties
         PenaltyServe,
         PenaltyServeNone,
 
+        // Misc
+        TearOff,
+        TearOffNone,
         ClearAll,
 
+        // Are these pit menu items?,
+        HowManyIncidentPoints,
+        WhatsTheIncidentLimit,
+        WhatsMyIrating,
+        WhatsMyLicenseClass,
+        WhatsTheSof,
+        WhatsThePitActions,
+
+        // rF2 MFD
+        DisplaySectors,
+        DisplayPitMenu,
+        DisplayTyres,
+        DisplayTemps,
+        DisplayRaceInfo,
+        DisplayStandings,
+        DisplayPenalties,
+        DisplayNext,
+
+        // TBD
         AeroFrontPlusMinusX,
         AeroRearPlusMinusX,
         AeroFrontSetToX,
         AeroRearSetToX,
 
-        GrillePlusMinusX,       // rF2
+        GrillePlusMinusX,
         GrilleSetToX,
-        WedgePlusMinusX,        // TBD: guessing actions for these
+        WedgePlusMinusX,
         WedgeSetToX,
         TrackBarPlusMinusX,
         TrackBarSetToX,
@@ -104,18 +130,6 @@ namespace CrewChiefV4.PitManager
         FenderR,
         FlipUpL,
         FlipUpR,
-
-        Tearoff,                // iRacing
-        TearOffNone,
-
-        DisplaySectors,         // rF2 Multi-Function Display pages
-        DisplayPitMenu,
-        DisplayTyres,
-        DisplayTemps,
-        DisplayRaceInfo,
-        DisplayStandings,
-        DisplayPenalties,
-        DisplayNext
     }
 
     public class PitManager
@@ -123,7 +137,7 @@ namespace CrewChiefV4.PitManager
         //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         // This gets very messy but you don't need to worry about it
         // It allows each game to set up a dictionary PM_event_dict containing
-        // PitManagerEvent, actionHandler fn, responseHandler fn
+        // PitManagerEvent, actionHandler fn, responseHandler fn, SpeechRecognitionPhrases
         // for all the events handled by the game.
         // There's probably a neater way of doing it but it's beyond my C# skills.
         public struct PitManagerEventTableEntry
@@ -134,20 +148,58 @@ namespace CrewChiefV4.PitManager
 
             public PitManagerEventAction_Delegate PitManagerEventAction;
             public PitManagerEventResponse_Delegate PitManagerEventResponse;
+            public String[] SpeechRecognitionPhrases;
         }
 
-        private class GamePitManagerDict : Dictionary<PME, PitManagerEventTableEntry>
+        internal class GamePitManagerDict : Dictionary<PME, PitManagerEventTableEntry>
         {
         }
 
         //-------------------------------------------------------------------------
 
         // Dictionary of games and their event dicts
-        private readonly Dictionary<CrewChiefV4.GameEnum, GamePitManagerDict>
-            games_dict = new Dictionary<CrewChiefV4.GameEnum, GamePitManagerDict>
+        private readonly Dictionary<GameEnum, GamePitManagerDict>
+            games_dict = new Dictionary<GameEnum, GamePitManagerDict>
         {
-          {GameEnum.RF2_64BIT,  PM_event_dict_RF2}
+          {GameEnum.RF2_64BIT,  PitManagerEventHandlers_RF2.PM_event_dict_RF2},
         };
+
+        private static readonly Object myLock = new Object();
+
+        private static Thread executeThread;
+
+        /// <summary>
+        /// Used to initialise PM event handler the first time a command is
+        /// issued in a session
+        /// </summary>
+        private static bool initialised;
+
+        private static GamePitManagerDict PM_event_dict;
+        private static bool unitTest;
+        public PitManager()
+        {
+            try
+            {   // Use the event dict for the current game
+                if (games_dict.TryGetValue(CrewChief.gameDefinition.gameEnum, out GamePitManagerDict value))
+                {
+                    PM_event_dict = value;
+                }
+                else
+                {
+                    //TBD: default handler "Pit menu control is not available in this game"
+                    PM_event_dict = null;
+                }
+            }
+            catch
+            {   // Running in Unit test
+                PM_event_dict = games_dict[GameEnum.RF2_64BIT];
+                unitTest = true;
+            }
+        }
+        public void EventHandlerInit()
+        {
+            initialised = false;
+        }
 
         ///////////////////////////////////////////////////////////////////////////
         /// <summary>
@@ -160,43 +212,13 @@ namespace CrewChiefV4.PitManager
         /// <returns>
         /// true if event was handled
         /// </returns>
-        private static Object myLock = new Object();
-
-        private static Thread executeThread = null;
-
-        /// <summary>
-        /// Used to initialise PM event handler the first time a command is
-        /// issued in a session
-        /// </summary>
-        private static bool initialised = false;
-
-        public void EventHandlerInit()
-        {
-            initialised = false;
-        }
-
         public bool EventHandler(PitManagerEvent ev, string voiceMessage)
         {
             bool result = false;
-            bool unitTest = false;
-            GamePitManagerDict PM_event_dict;
-            try
-            {   // Use the event dict for the current game
-                if (games_dict.ContainsKey(CrewChief.gameDefinition.gameEnum))
-                {
-                    PM_event_dict = games_dict[CrewChief.gameDefinition.gameEnum];
-                }
-                else
-                {
-                    //TBD: default handler "Pit menu control is not available in this game"
-                    return result;
-                }
-            }
-            catch
-            {   // Running in Unit test
-                PM_event_dict = games_dict[GameEnum.RF2_64BIT];
-                unitTest = true;
-            }
+            if (PM_event_dict == null)
+            {
+                return result;
+            }    
 
             if (!unitTest)
             {
@@ -242,7 +264,7 @@ namespace CrewChiefV4.PitManager
                             }
                             catch (Exception e)
                             {
-                                Log.Error("Pit Manager event error " + e.ToString());
+                                Log.Exception(e, "Pit Manager event error");
                             }
                         }
                         else
@@ -291,6 +313,23 @@ namespace CrewChiefV4.PitManager
             return result;
         }
 
+        public static Tuple<PME, PitManagerEventTableEntry> IsPitManagerCommand(String voiceMessage)
+        {
+            if (PM_event_dict != null)
+            {
+                // Check the Pit commands
+                foreach (var cmd in PM_event_dict)
+                {
+                    if (cmd.Value.SpeechRecognitionPhrases != null &&
+                        SRE.ResultContains(voiceMessage, cmd.Value.SpeechRecognitionPhrases))
+                    {
+                        return Tuple.Create(cmd.Key, cmd.Value);
+                    }
+                }
+            }
+            return null;
+        }
+
         //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         // More messy stuff to set up the dictionary
         // Again, there's probably a neater way of doing it but it's beyond my C# skills.
@@ -301,120 +340,22 @@ namespace CrewChiefV4.PitManager
         /// <param name="existing"></param>
         /// <param name="actionHandler"></param>
         /// <param name="responseHandler"></param>
+        /// <param name="SpeechRecognitionPhrases"></param>
         /// <returns></returns>
-        static public PitManagerEventTableEntry _PMet(PitManagerEventTableEntry existing,
+        public static PitManagerEventTableEntry _PMet(PitManagerEventTableEntry existing,
               PitManagerEventTableEntry.PitManagerEventAction_Delegate actionHandler,
-              PitManagerEventTableEntry.PitManagerEventResponse_Delegate responseHandler)
+              PitManagerEventTableEntry.PitManagerEventResponse_Delegate responseHandler,
+              String[] SpeechRecognitionPhrases)
         {
-            existing.PitManagerEventAction = new PitManagerEventTableEntry.PitManagerEventAction_Delegate(actionHandler);
-            existing.PitManagerEventResponse = new PitManagerEventTableEntry.PitManagerEventResponse_Delegate(responseHandler);
+            existing.PitManagerEventAction = actionHandler;
+            existing.PitManagerEventResponse = responseHandler;
+            existing.SpeechRecognitionPhrases = SpeechRecognitionPhrases;
             return existing;
         }
 
         /// <summary>
         /// Shorthand
         /// </summary>
-        static private PitManagerEventTableEntry _PMeh = new PitManagerEventTableEntry();
-
-        //-------------------------------------------------------------------------
-
-        ///////////////////////////////////////////////////////////////////////////
-        /// <summary>
-        /// The event dictionary for rF2
-        /// </summary>
-        private static readonly GamePitManagerDict PM_event_dict_RF2 = new GamePitManagerDict
-        {
-            //  The event                                      the fn that implements it        the fn that handles speech
-            //                                                 (changes the pit menu)           response and any other outcomes
-            {PME.Initialise,              _PMet(_PMeh, PMEHrF2.PMrF2eh_initialise,         PMER.PMrh_NoResponse) },
-            {PME.Teardown,                _PMet(_PMeh, PMEHrF2.PMrF2eh_teardown,           PMER.PMrh_NoResponse) },
-            {PME.PrepareToUseMenu,        _PMet(_PMeh, PMEHrF2.PMrF2eh_prepareToUseMenu,   PMER.PMrh_NoResponse) },
-            {PME.TyreChangeAll,           _PMet(_PMeh, PMEHrF2.PMrF2eh_changeAllTyres,     PMER.PMrh_ChangeAllTyres) },
-            {PME.TyreChangeNone,          _PMet(_PMeh, PMEHrF2.PMrF2eh_changeNoTyres,      PMER.PMrh_ChangeNoTyres) },
-            {PME.TyreChangeFront,         _PMet(_PMeh, PMEHrF2.PMrF2eh_changeFrontTyres,   PMER.PMrh_ChangeFrontTyres) },
-            {PME.TyreChangeRear,          _PMet(_PMeh, PMEHrF2.PMrF2eh_changeRearTyres,    PMER.PMrh_ChangeRearTyres) },
-            {PME.TyreChangeLeft,          _PMet(_PMeh, PMEHrF2.PMrF2eh_changeLeftTyres,    PMER.PMrh_ChangeLeftTyres) },
-            {PME.TyreChangeRight,         _PMet(_PMeh, PMEHrF2.PMrF2eh_changeRightTyres,   PMER.PMrh_ChangeRightTyres) },
-            {PME.TyreChangeLF,            _PMet(_PMeh, PMEHrF2.PMrF2eh_changeFLTyre,       PMER.PMrh_ChangeFrontLeftTyre) },
-            {PME.TyreChangeRF,            _PMet(_PMeh, PMEHrF2.PMrF2eh_changeFRTyre,       PMER.PMrh_ChangeFrontRightTyre) },
-            {PME.TyreChangeLR,            _PMet(_PMeh, PMEHrF2.PMrF2eh_changeRLTyre,       PMER.PMrh_ChangeRearLeftTyre) },
-            {PME.TyreChangeRR,            _PMet(_PMeh, PMEHrF2.PMrF2eh_changeRRTyre,       PMER.PMrh_ChangeRearRightTyre) },
-
-            {PME.TyrePressureLF,          _PMet(_PMeh, PMEHrF2.PMrF2eh_changeFLpressure,   PMER.PMrh_Acknowledge) },
-            {PME.TyrePressureRF,          _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_Acknowledge) },
-            {PME.TyrePressureLR,          _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_Acknowledge) },
-            {PME.TyrePressureRR,          _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_Acknowledge) },
-
-            {PME.TyreCompoundHard,        _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundHard,   PMER.PMrh_TyreCompoundHard) },
-            {PME.TyreCompoundMedium,      _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundMedium, PMER.PMrh_TyreCompoundMedium) },
-            {PME.TyreCompoundSoft,        _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundSoft,   PMER.PMrh_TyreCompoundSoft) },
-            {PME.TyreCompoundSupersoft,   _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundSupersoft, PMER.PMrh_TyreCompoundSupersoft) },
-            {PME.TyreCompoundUltrasoft,   _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundUltrasoft, PMER.PMrh_TyreCompoundUltrasoft) },
-            {PME.TyreCompoundHypersoft,   _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundHypersoft, PMER.PMrh_TyreCompoundHypersoft) },
-            {PME.TyreCompoundIntermediate,_PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundIntermediate, PMER.PMrh_TyreCompoundIntermediate) },
-            {PME.TyreCompoundWet,         _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundWet,    PMER.PMrh_TyreCompoundWet) },
-            {PME.TyreCompoundMonsoon,     _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundMonsoon, PMER.PMrh_TyreCompoundMonsoon) },
-            {PME.TyreCompoundOption,      _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundOption, PMER.PMrh_TyreCompoundOption) },
-            {PME.TyreCompoundPrime,       _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundPrime,  PMER.PMrh_TyreCompoundPrime) },
-            {PME.TyreCompoundAlternate,   _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundAlternate, PMER.PMrh_TyreCompoundAlternate) },
-            {PME.TyreCompoundNext,        _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundNext,   PMER.PMrh_TyreCompoundNext) },
-
-            {PME.FuelAddXlitres,          _PMet(_PMeh, PMEHrF2.PMrF2eh_FuelAddXlitres,     PMER.PMrh_FuelAddXlitres) },
-            {PME.FuelFillToXlitres,       _PMet(_PMeh, PMEHrF2.PMrF2eh_FuelToXlitres,      PMER.PMrh_FuelAddXlitres) },
-            {PME.FuelFillToEnd,           _PMet(_PMeh, PMEHrF2.PMrF2eh_FuelToEnd,          PMER.PMrh_NoResponse) }, // Multiple responses in event handler
-            {PME.FuelNone,                _PMet(_PMeh, PMEHrF2.PMrF2eh_FuelNone,           PMER.PMrh_noFuel) },
-
-            {PME.RepairAll,               _PMet(_PMeh, PMEHrF2.PMrF2eh_RepairAll,          PMER.PMrh_RepairAll) },
-            {PME.RepairNone,              _PMet(_PMeh, PMEHrF2.PMrF2eh_RepairNone,         PMER.PMrh_RepairNone) },
-            //{PME.RepairFast,            _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_Acknowledge) },     // iRacing
-            //{PME.RepairAllAero,         _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_Acknowledge) },     // R3E
-            //{PME.RepairFrontAero,       _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_Acknowledge) },
-            //{PME.RepairRearAero,        _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_Acknowledge) },
-            //{PME.RepairSuspension,      _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_Acknowledge) },
-            //{PME.RepairSuspensionNone,  _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_Acknowledge) },
-            {PME.RepairBody,              _PMet(_PMeh, PMEHrF2.PMrF2eh_RepairBody,         PMER.PMrh_RepairBody) },
-
-            {PME.PenaltyServe,            _PMet(_PMeh, PMEHrF2.PMrF2eh_PenaltyServe,       PMER.PMrh_ServePenalty) },
-            {PME.PenaltyServeNone,        _PMet(_PMeh, PMEHrF2.PMrF2eh_PenaltyServeNone,   PMER.PMrh_DontServePenalty) },
-
-            {PME.ClearAll,                _PMet(_PMeh, PMEHrF2.PMrF2eh_ClearAll,           PMER.PMrh_Acknowledge) },
-
-            {PME.AeroFrontPlusMinusX,     _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
-            {PME.AeroRearPlusMinusX,      _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
-            {PME.AeroFrontSetToX,         _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
-            {PME.AeroRearSetToX,          _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
-
-            {PME.GrillePlusMinusX,        _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) }, // rF2
-            {PME.GrilleSetToX,            _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
-            {PME.WedgePlusMinusX,         _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
-            {PME.WedgeSetToX,             _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
-            {PME.TrackBarPlusMinusX,      _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
-            {PME.TrackBarSetToX,          _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
-            {PME.RubberLF,                _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
-            {PME.RubberRF,                _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
-            {PME.RubberLR,                _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
-            {PME.RubberRR,                _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
-            {PME.FenderL,                 _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
-            {PME.FenderR,                 _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
-            {PME.FlipUpL,                 _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
-            {PME.FlipUpR,                 _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
-
-            //{PME.Tearoff,               _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) }, // iRacing
-            //{PME.TearOffNone,           _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
-
-            {PME.DisplaySectors,          _PMet(_PMeh, PMEHrF2.PMrF2eh_DisplaySectors,     PMER.PMrh_NoResponse) },
-            {PME.DisplayPitMenu,          _PMet(_PMeh, PMEHrF2.PMrF2eh_DisplayPitMenu,     PMER.PMrh_NoResponse) },
-            {PME.DisplayTyres,            _PMet(_PMeh, PMEHrF2.PMrF2eh_DisplayTyres,       PMER.PMrh_NoResponse) },
-            {PME.DisplayTemps,            _PMet(_PMeh, PMEHrF2.PMrF2eh_DisplayTemps,       PMER.PMrh_NoResponse) },
-            {PME.DisplayRaceInfo,         _PMet(_PMeh, PMEHrF2.PMrF2eh_DisplayRaceInfo,    PMER.PMrh_NoResponse) },
-            {PME.DisplayStandings,        _PMet(_PMeh, PMEHrF2.PMrF2eh_DisplayStandings,   PMER.PMrh_NoResponse) },
-            {PME.DisplayPenalties,        _PMet(_PMeh, PMEHrF2.PMrF2eh_DisplayPenalties,   PMER.PMrh_NoResponse) },
-            {PME.DisplayNext,             _PMet(_PMeh, PMEHrF2.PMrF2eh_DisplayNext,       PMER.PMrh_NoResponse) },
-        };
-
-        ///////////////////////////////////////////////////////////////////////////
-        /// <summary>
-        /// The event dictionary for...
-        /// </summary>
+        internal static PitManagerEventTableEntry _PMeh = new PitManagerEventTableEntry();
     }
 }
