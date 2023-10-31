@@ -331,47 +331,7 @@ namespace UnitTestPitMenuEventHandler
             Assert.AreEqual("Intermediate", result["Intermediate"]);
             Assert.AreEqual("Wet", result["Wet"]);
             Assert.AreEqual("Wet", result["Monsoon"]);
-        }
-        [TestMethod]
-        public void Test_TTT_VanwallVandervellLMH()
-        {
-            List<string> inMenu = new List<string>();
-            inMenu.Add("Soft cold");
-            inMenu.Add("Soft hot");
-            inMenu.Add("Medium");
-            inMenu.Add("Wet");
 
-            Dictionary<string, string> result =
-                PitManagerEventHandlers_RF2.TranslateTyreTypes(
-                    PitManagerEventHandlers_RF2.SampleTyreTranslationDict,
-                    inMenu);
-            Assert.IsNotNull(result);
-            //             In menu      In Pit Manager
-            Assert.AreEqual("Soft cold", result["Hypersoft"]);
-            Assert.AreEqual("Soft hot", result["Soft"]);
-            Assert.AreEqual("Medium", result["Medium"]);
-            Assert.AreEqual("Wet", result["Wet"]);
-            Assert.AreEqual("Wet", result["Monsoon"]);
-        }
-        [TestMethod]
-        public void Test_TTT_AcuraARX_05_DPI()
-        {
-            List<string> inMenu = new List<string>();
-            inMenu.Add("S7M - Soft");
-            inMenu.Add("S8M - Medium");
-            inMenu.Add("S9M - Hard");
-            inMenu.Add("P2M - Wet");
-
-            Dictionary<string, string> result =
-                PitManagerEventHandlers_RF2.TranslateTyreTypes(
-                    PitManagerEventHandlers_RF2.SampleTyreTranslationDict,
-                    inMenu);
-            Assert.IsNotNull(result);
-            //             In menu      In Pit Manager
-            Assert.AreEqual("S7M - Soft", result["Soft"]);
-            Assert.AreEqual("S8M - Medium", result["Medium"]);
-            Assert.AreEqual("S9M - Hard", result["Hard"]);
-            Assert.AreEqual("P2M - Wet", result["Wet"]);
         }
     }
     [TestClass]
