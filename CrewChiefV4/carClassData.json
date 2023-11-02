@@ -189,7 +189,7 @@
 			"rf2ClassNames": [ "*GT3*" ],
 			"ams2ClassNames": [ "GT3" ],
 			"acClassNames": [ "ks_audi_r8_lms*", "*GT3*" ],
-			"iracingCarIds": [ 43, 55, 59, 72, 73, 94, 132, 133, 137, 144, 156 ],
+			"iracingCarIds": [ 43, 55, 59, 72, 73, 94, 132, 133, 137, 144, 156, 169, 173 ],
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL",
 			"maxSafeOilTemp": 135,
@@ -1438,7 +1438,7 @@
 		},
 		{
 			"carClassEnum": "LMDH",
-			"iracingCarIds": [ 159 ],
+			"iracingCarIds": [ 159, 168, 170, 174 ],
 			"brakeType": "Ceramic",
 			"isBatteryPowered": false
 		},
