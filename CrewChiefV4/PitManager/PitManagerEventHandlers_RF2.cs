@@ -49,11 +49,11 @@ namespace CrewChiefV4.PitManager
         public static readonly TyreDictionary SampleTyreTranslationDict =
           new TyreDictionary() {
             { "Hypersoft",    new List <string> {"soft cold", "hypersoft", "c1", "ultrasoft", "supersoft", "soft", "s7m - soft", "alternates",
-                        "s310", "slick", "dry", "race", "allweather", "Xmedium" } },
+                        "s310", "slick", "dry", "race", "allweather", "medium" } },
             { "Ultrasoft",    new List <string> {"soft cold", "ultrasoft","c1", "hypersoft", "supersoft", "soft", "s7m - soft", "alternates",
-                        "s310", "slick", "dry", "race", "allweather", "Xmedium" } },
+                        "s310", "slick", "dry", "race", "allweather", "medium" } },
             { "Supersoft",    new List <string> {"soft cold", "supersoft", "c2", "hypersoft", "ultrasoft", "soft", "s7m - soft", "alternates",
-                        "s310", "slick", "dry", "race", "allweather", "Xmedium" } },
+                        "s310", "slick", "dry", "race", "allweather", "medium" } },
             { "Soft",         new List <string> {"soft hot", "soft", "c3", "s7m - soft", "alternates",
                         "s310", "slick", "dry", "race", "allweather", "medium" } },
             { "Medium",       new List <string> { "medium", "c4", "s8m - medium", "default",
