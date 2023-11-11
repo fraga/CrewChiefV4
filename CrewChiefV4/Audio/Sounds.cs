@@ -21,6 +21,7 @@ namespace CrewChiefV4.Audio
         public static Boolean IS_PLAYING = false;
 
         public static String TTS_IDENTIFIER = "TTS_IDENTIFIER";
+        public static String DOWNLOAD_IDENTIFIER = "DOWNLOAD_IDENTIFIER";
         private Boolean useAlternateBeeps = UserSettings.GetUserSettings().getBoolean("use_alternate_beeps");
         public static Boolean forceStereoPlayback = UserSettings.GetUserSettings().getBoolean("force_stereo");
         public static int forceResamplePlayback = UserSettings.GetUserSettings().getInt("force_resample");
@@ -369,7 +370,7 @@ namespace CrewChiefV4.Audio
                         SoundCache.cacheSoundsThread.Start();
                     }
                 }
-                else if (soundFolder.Name == "driver_names" 
+                else if (soundFolder.Name == "driver_names"
                     && GlobalBehaviourSettings.racingType == CrewChief.RacingType.Circuit)
                 {
                     // The folder of driver names is processed on the main thread and objects are created to hold the sounds,
@@ -612,6 +613,17 @@ namespace CrewChiefV4.Audio
                     if (!singleSounds.TryGetValue(soundName, out singleSound))
                     {
                         singleSound = new SingleSound(soundName.Substring(TTS_IDENTIFIER.Count()));
+                        singleSounds.Add(soundName, singleSound);
+                    }
+                    moveToTopOfCache(soundName);
+                    singleSoundsToPlay.Add(singleSound);
+                }
+                else if (soundName.StartsWith(DOWNLOAD_IDENTIFIER))
+                {
+                    SingleSound singleSound = null;
+                    if (!singleSounds.TryGetValue(soundName, out singleSound))
+                    {
+                        singleSound = new SingleSound(soundName.Substring(DOWNLOAD_IDENTIFIER.Count()), true);
                         singleSounds.Add(soundName, singleSound);
                     }
                     moveToTopOfCache(soundName);
@@ -980,7 +992,7 @@ namespace CrewChiefV4.Audio
                     {
                         String fullEventName = eventFolder.Name + "/" + eventDetailFolder.Name;
                         // if we're caching this sound set permanently, create the sound players immediately after the files are loaded
-                        SoundSet soundSet = new SoundSet(eventDetailFolder, this.useSwearyMessages, this.useMaleSounds, 
+                        SoundSet soundSet = new SoundSet(eventDetailFolder, this.useSwearyMessages, this.useMaleSounds,
                             allowCaching, allowCaching, cachePermanently, cachePermanently);
                         if (soundSet.hasSounds)
                         {
@@ -1525,13 +1537,13 @@ namespace CrewChiefV4.Audio
             this.pauseLength = pauseLength;
         }
 
-        public SingleSound(String textToRender)
+        public SingleSound(String textToRender, Boolean allowDownload = false)
         {
             this.ttsString = textToRender;
             // always eagerly load and cache TTS phrases:
             cacheFileData = true;
             cacheSoundPlayer = true;
-            LoadAndCacheFile();
+            LoadAndCacheFile(allowDownload);
             this.subtitle = textToRender;
             //Console.WriteLine("Loaded subtitle for sound = " + this.subtitle);
         }
@@ -1609,7 +1621,53 @@ namespace CrewChiefV4.Audio
             this.loadSubtitleBeforePlaying = false;
         }
 
-        public void LoadAndCacheFile()
+        public byte[] DownloadDataFromUrl(string url)
+        {
+            using (var webClient = new System.Net.WebClient())
+            {
+                try
+                {
+                    byte[] data = webClient.DownloadData(url);
+
+                    if (url.EndsWith(".mp3"))
+                    {
+                        return ConvertMp3ToWav(data);
+                    }
+
+                    return data;
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Failed to download data from URL: " + e.StackTrace);
+                    return null;
+                }
+            }
+        }
+
+        public byte[] ConvertMp3ToWav(byte[] mp3Data)
+        {
+            try
+            {
+                using (var mp3Stream = new MemoryStream(mp3Data))
+                using (var mp3Reader = new Mp3FileReader(mp3Stream))
+                using (var wavStream = new MemoryStream())
+                using (var wavWriter = new WaveFileWriter(wavStream, mp3Reader.WaveFormat))
+                {
+                    byte[] bytes = new byte[mp3Reader.Length];
+                    mp3Reader.Read(bytes, 0, bytes.Length);
+                    wavWriter.Write(bytes, 0, bytes.Length);
+                    wavWriter.Flush();
+                    return wavStream.ToArray();
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error($"Failed to convert mp3.\n Error: {e.StackTrace}");
+                return null;
+            }
+        }
+
+        public void LoadAndCacheFile(Boolean allowDownload = false)
         {
             lock (this)
             {
@@ -1619,21 +1677,28 @@ namespace CrewChiefV4.Audio
                     {
                         if (ttsString != null)
                         {
-                            MemoryStream rawStream = new MemoryStream();
-                            SoundCache.synthesizer.SetOutputToWaveStream(rawStream);
-                            SoundCache.synthesizer.Speak(ttsString);
-                            rawStream.Position = 0;
-                            try
+                            if (allowDownload && ttsString.StartsWith("http"))
                             {
-                                this.fileBytes = ConvertTTSWaveStreamToBytes(rawStream, SoundCache.ttsTrimStartMilliseconds, SoundCache.ttsTrimEndMilliseconds);
+                                this.fileBytes = DownloadDataFromUrl(ttsString);
                             }
-                            catch (Exception e)
+                            else
                             {
-                                // unable to trim and convert the tts stream, so save the raw stream and use that instead
-                                Console.WriteLine("Failed to pre-process TTS audio data: " + e.StackTrace);
-                                this.memoryStream = rawStream;
+                                MemoryStream rawStream = new MemoryStream();
+                                SoundCache.synthesizer.SetOutputToWaveStream(rawStream);
+                                SoundCache.synthesizer.Speak(ttsString);
+                                rawStream.Position = 0;
+                                try
+                                {
+                                    this.fileBytes = ConvertTTSWaveStreamToBytes(rawStream, SoundCache.ttsTrimStartMilliseconds, SoundCache.ttsTrimEndMilliseconds);
+                                }
+                                catch (Exception e)
+                                {
+                                    // unable to trim and convert the tts stream, so save the raw stream and use that instead
+                                    Console.WriteLine("Failed to pre-process TTS audio data: " + e.StackTrace);
+                                    this.memoryStream = rawStream;
+                                }
+                                SoundCache.synthesizer.SetOutputToNull();
                             }
-                            SoundCache.synthesizer.SetOutputToNull();
                         }
                         else
                         {
@@ -1878,7 +1943,7 @@ namespace CrewChiefV4.Audio
             this.nAudioOut.SubscribePlaybackStopped(this.eventHandler);
             float volume = getVolume(volumeBoost);
 
-            ISampleProvider sampleProvider = createSampleProvider(this.reader, volume);            
+            ISampleProvider sampleProvider = createSampleProvider(this.reader, volume);
             this.nAudioOut.Init(sampleProvider);
             this.reader.CurrentTime = TimeSpan.Zero;
         }

@@ -16,10 +16,10 @@ namespace CrewChiefV4
     }
 
     // Delayed message event allows us to insert a message into the queue who's content will be altered in some way immediately before it's played.
-    // The method 'methodName' is invoked in the specified AbstractEvent as late as possible int he workflow. 
+    // The method 'methodName' is invoked in the specified AbstractEvent as late as possible int he workflow.
     // The elements in the methodParams Object[] are passed to the named method. They must match in type and ordering.
-    // 
-    // This method MUST return Tuple<List<MessageFragment>, List<MessageFragment>>. Item1 is the 'primary' message contents and Item2 is the (optional) 
+    //
+    // This method MUST return Tuple<List<MessageFragment>, List<MessageFragment>>. Item1 is the 'primary' message contents and Item2 is the (optional)
     // alternate message contents after the method has done its work to resolve them. Item2 is optional and can be null.
     public class DelayedMessageEvent
     {
@@ -46,7 +46,7 @@ namespace CrewChiefV4
     }
 
     public class MessageFragment
-    {        
+    {
         public String text;
         public TimeSpanWrapper timeSpan;
         public OpponentData opponent;
@@ -55,6 +55,7 @@ namespace CrewChiefV4
         public Boolean allowShortHundreds = true;   // allow a number like 160 to be read as "one sixty" instead of "one hundred and sixty"
         public NumberReader.ARTICLE_GENDER gender = NumberReader.ARTICLE_GENDER.NA;
         public Boolean allowTTS = false;
+        public Boolean allowDownload = false;
 
         private MessageFragment(String text)
         {
@@ -176,9 +177,9 @@ namespace CrewChiefV4
     }
 
     public class QueuedMessage
-    {        
-        // Note that even when queuing a message with 0 delay, we always wait 1 complete update interval. This is to 
-        // (hopefully...) address issues where some data in the block get updated (like the lap count), but other data haven't 
+    {
+        // Note that even when queuing a message with 0 delay, we always wait 1 complete update interval. This is to
+        // (hopefully...) address issues where some data in the block get updated (like the lap count), but other data haven't
         // get been updated (like the session phase)
         public readonly int updateInterval = UserSettings.GetUserSettings().getInt("update_interval");
 
@@ -189,7 +190,7 @@ namespace CrewChiefV4
 
         public SoundMetadata metadata = null;  // null => a generic 'regular message' meta data object will be created automatically
                                                // for regular queue messages, and a 'high importance' metadata object create for immediate-queue messages
-        
+
         public int maxPermittedQueueLengthForMessage = 0;         // 0 => don't check queue length
         public long dueTime;
         public AbstractEvent abstractEvent;
@@ -205,7 +206,7 @@ namespace CrewChiefV4
 
         public long creationTime;
 
-        // some snapshot of pertentent data at the point of creation, 
+        // some snapshot of pertentent data at the point of creation,
         // which can be validated before it actually gets played. E.g.
         // e.g. {SessionData.Position = 1}
         public Dictionary<String, Object> validationData = null;
@@ -234,7 +235,7 @@ namespace CrewChiefV4
             }
         }
 
-        public QueuedMessage(String messageName, int expiresAfter, List<MessageFragment> messageFragments = null, 
+        public QueuedMessage(String messageName, int expiresAfter, List<MessageFragment> messageFragments = null,
             List<MessageFragment> alternateMessageFragments = null, DelayedMessageEvent delayedMessageEvent = null,
             int secondsDelay = 0, AbstractEvent abstractEvent = null, Dictionary<String, Object> validationData = null,
             int priority = SoundMetadata.DEFAULT_PRIORITY, SoundType type = SoundType.AUTO, Func<GameStateData, bool> triggerFunction = null)
@@ -335,7 +336,7 @@ namespace CrewChiefV4
 
         public Boolean isMessageStillValid(String eventSubType, GameStateData currentGameState)
         {
-            return this.abstractEvent == null || 
+            return this.abstractEvent == null ||
                 this.abstractEvent.isMessageStillValid(eventSubType, currentGameState, validationData);
         }
 
@@ -389,6 +390,11 @@ namespace CrewChiefV4
                                 SoundCache.hasSingleSound(messageFragment.text))
                             {
                                 messages.Add(messageFragment.text);
+                            }
+                            else if (messageFragment.allowDownload)
+                            {
+                                messages.Add(SoundCache.DOWNLOAD_IDENTIFIER + messageFragment.text);
+                                canBePlayed = true;
                             }
                             else if (messageFragment.allowTTS && AudioPlayer.ttsOption != AudioPlayer.TTS_OPTION.NEVER)
                             {
