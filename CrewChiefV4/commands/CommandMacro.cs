@@ -2,13 +2,16 @@
 using CrewChiefV4.Events;
 using CrewChiefV4.GameState;
 using CrewChiefV4.R3E;
+
 using Newtonsoft.Json;
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
+
 using WindowsInput.Native;
 namespace CrewChiefV4.commands
 {
@@ -26,15 +29,16 @@ namespace CrewChiefV4.commands
 
         private bool macroExecutingOnCommandMacroThread = false;
 
+        private const int defaultKeypressTime = 10;
         public ExecutableCommandMacro(AudioPlayer audioPlayer, Macro macro)
         {
             this.audioPlayer = audioPlayer;
             this.macro = macro;
         }
         [DllImport("user32.dll")]
-        public static extern bool SetForegroundWindow(IntPtr hWnd);
+        private static extern bool SetForegroundWindow(IntPtr hWnd);
         [DllImport("user32.dll")]
-        public static extern IntPtr GetForegroundWindow();
+        private static extern IntPtr GetForegroundWindow();
 
         /// <summary>
         /// If the game process is not already the foreground window, set it to be.
@@ -74,7 +78,7 @@ namespace CrewChiefV4.commands
         /// names the game might use</param>
         /// <param name="currentForgroundWindow"></param>
         /// <returns>true: foreground was changed</returns>
-        bool BringGameWindowToFront(String processName, String[] alternateProcessNames, IntPtr currentForgroundWindow)
+        private bool BringGameWindowToFront(String processName, String[] alternateProcessNames, IntPtr currentForgroundWindow)
         {
             if (!UserSettings.GetUserSettings().getBoolean("bring_game_window_to_front_for_macros"))
             {
@@ -263,7 +267,7 @@ namespace CrewChiefV4.commands
             return null;
         }
 
-        public int getWaitBetweenEachCommand()
+        private int getWaitBetweenEachCommand()
         {
             //defaut to 100
             int waitTime = 100;
@@ -374,68 +378,27 @@ namespace CrewChiefV4.commands
                 // Couldn't set the game to foreground
             }
         }
- 
+
+        private bool useRf2ChatTransceiver;
         private void sendKeys(int count, ActionItem actionItem, int? keyPressTime, int waitBetweenKeys, bool autoExecuteStartChatMacro, bool autoExecuteEndChatMacro)
         {
+            if (CrewChief.rf2ChatTransceiver.isAvailable &&
+                actionItem.actionItemsBeforeFreeText.Count == 0 &&
+                actionItem.actionItemsAfterFreeText.Count == 0)
+            {
+                // Just sending chat text in rF2, use rf2 Chat Transceiver plugin
+                // instead of key presses
+                autoExecuteStartChatMacro = false;
+                autoExecuteEndChatMacro = false;
+                useRf2ChatTransceiver = true;
+            }
+            else // useRf2ChatTransceiver unavailable or this is not a simple chat action
+            {
+                useRf2ChatTransceiver = false;
+            }
             if (actionItem.allowFreeText)
             {
-                // 3 cases here: either we have one or more actions either side the free text, or we have no actions either
-                // side but have start / end chat macros, or we guess and surround the free text with T and ENTER
-                if (actionItem.actionItemsBeforeFreeText.Count > 0)
-                {
-                    foreach (ActionItem beforeItem in actionItem.actionItemsBeforeFreeText)
-                    {
-                        // TODO: do we actually need to parse out the repeats here?
-                        sendKeys(1, beforeItem, actionItem.holdTime, waitBetweenKeys, autoExecuteStartChatMacro, autoExecuteEndChatMacro);
-                    }
-                }
-                else
-                {
-                    ActionItem startChatActionItem = SpeechRecogniser.getStartChatMacro() == null ? null : SpeechRecogniser.getStartChatMacro().getSingleActionItemForChatStartAndEnd();
-                    if (startChatActionItem == null && autoExecuteStartChatMacro)
-                    {
-                        // yikes, no start chat macro, press T and hope
-                        KeyPresser.SendKeyPress(new Tuple<VirtualKeyCode?, VirtualKeyCode>(null, VirtualKeyCode.VK_T), keyPressTime);
-                    }
-                    else if (autoExecuteStartChatMacro)
-                    {
-                        KeyPresser.SendKeyPresses(startChatActionItem.keyCodes, keyPressTime, startChatActionItem.waitTime);
-                    }
-                }
-
-                string freeTextToSend = "";
-                if (!string.IsNullOrWhiteSpace(actionItem.freeTextBeforeNumber))
-                    freeTextToSend = actionItem.freeTextBeforeNumber;
-                if (actionItem.isNumberString)
-                    freeTextToSend += count;
-                if (!string.IsNullOrWhiteSpace(actionItem.freeTextAfterNumber))
-                    freeTextToSend += actionItem.freeTextAfterNumber;
-
-                Console.WriteLine("Sending " + freeTextToSend);
-                sendMacroTextKeyPresses(freeTextToSend);
-                Thread.Sleep(getWaitBetweenEachCommand());
-
-                if (actionItem.actionItemsAfterFreeText.Count > 0)
-                {
-                    foreach (ActionItem afterItem in actionItem.actionItemsAfterFreeText)
-                    {
-                        // TODO: do we actually need to parse out the repeats here?
-                        sendKeys(1, afterItem, actionItem.holdTime, waitBetweenKeys, autoExecuteStartChatMacro, autoExecuteEndChatMacro);
-                    }
-                }
-                else
-                {
-                    ActionItem endChatActionItem = SpeechRecogniser.getEndChatMacro() == null ? null : SpeechRecogniser.getEndChatMacro().getSingleActionItemForChatStartAndEnd();
-                    if (endChatActionItem == null && autoExecuteEndChatMacro)
-                    {
-                        // yikes, no end chat macro, press ENTER and hope
-                        KeyPresser.SendKeyPress(new Tuple<VirtualKeyCode?, VirtualKeyCode>(null, VirtualKeyCode.RETURN), keyPressTime);
-                    }
-                    else if (autoExecuteEndChatMacro)
-                    {
-                        KeyPresser.SendKeyPresses(endChatActionItem.keyCodes, keyPressTime, endChatActionItem.waitTime);
-                    }
-                }
+                FreeText(count, actionItem, keyPressTime, waitBetweenKeys, autoExecuteStartChatMacro, autoExecuteEndChatMacro);
             }
             // completely arbitrary sanity check on resolved count. We don't want the app trying to press 'right' MaxInt times
             else if (actionItem.keyCodes.Length * count > 300)
@@ -458,6 +421,106 @@ namespace CrewChiefV4.commands
             }
         }
 
+        private void FreeText(int count, ActionItem actionItem, int? keyPressTime, int waitBetweenKeys,
+                    bool autoExecuteStartChatMacro, bool autoExecuteEndChatMacro)
+        {
+            // 3 cases here: either we have one or more actions either side the free text, or we have no actions either
+            // side but have start / end chat macros, or we guess and surround the free text with T and ENTER
+            // Take 2:
+            // We may have actions before the free text or Auto execute start chat may be checked
+            // We may have actions after the free text or Auto execute end chat may be checked
+            // We may have start / end chat macros or we guess and use T / ENTER
+            // If rf2 Chat Transceiver plugin is present and active we don't use start / end chat macros
+            ActionsBeforeFreeText(actionItem, keyPressTime, waitBetweenKeys, autoExecuteStartChatMacro, autoExecuteEndChatMacro);
+            SendFreeText(count, actionItem);
+            Thread.Sleep(getWaitBetweenEachCommand());
+            ActionsAfterFreeText(actionItem, keyPressTime, waitBetweenKeys, autoExecuteStartChatMacro, autoExecuteEndChatMacro);
+        }
+        private void ActionsBeforeFreeText(ActionItem actionItem, int? keyPressTime, int waitBetweenKeys,
+                    bool autoExecuteStartChatMacro, bool autoExecuteEndChatMacro)
+        {
+            if (actionItem.actionItemsBeforeFreeText.Count > 0)
+            {
+                foreach (ActionItem beforeItem in actionItem.actionItemsBeforeFreeText)
+                {
+                    // TODO: do we actually need to parse out the repeats here?
+                    sendKeys(1, beforeItem, actionItem.holdTime, waitBetweenKeys, autoExecuteStartChatMacro, autoExecuteEndChatMacro);
+                }
+            }
+            else if (autoExecuteStartChatMacro)
+            {
+                StartChatMacro(keyPressTime);
+            }
+        }
+        internal static void StartChatMacro(int? keyPressTime = defaultKeypressTime)
+        {
+            ActionItem startChatActionItem = SpeechRecogniser.getStartChatMacro() == null
+                ? null
+                : SpeechRecogniser.getStartChatMacro().getSingleActionItemForChatStartAndEnd();
+            if (startChatActionItem == null)
+            {
+                // yikes, no start chat macro, press T and hope
+                KeyPresser.SendKeyPress(new Tuple<VirtualKeyCode?, VirtualKeyCode>(null, VirtualKeyCode.VK_T), keyPressTime);
+            }
+            else
+            {
+                KeyPresser.SendKeyPresses(startChatActionItem.keyCodes, keyPressTime, startChatActionItem.waitTime);
+            }
+        }
+        private void SendFreeText(int count, ActionItem actionItem)
+        {
+            string freeTextToSend = "";
+            if (!string.IsNullOrWhiteSpace(actionItem.freeTextBeforeNumber))
+                freeTextToSend = actionItem.freeTextBeforeNumber;
+            if (actionItem.isNumberString)
+                freeTextToSend += count;
+            if (!string.IsNullOrWhiteSpace(actionItem.freeTextAfterNumber))
+                freeTextToSend += actionItem.freeTextAfterNumber;
+            if (useRf2ChatTransceiver)
+            {
+                if (CrewChief.rf2ChatTransceiver.SendChat(freeTextToSend))
+                {
+                    return;
+                }
+                // else it just failed, fall back to key presses
+            }
+            Console.WriteLine("Sending " + freeTextToSend);
+            sendMacroTextKeyPresses(freeTextToSend);
+        }
+        private void ActionsAfterFreeText(ActionItem actionItem, int? keyPressTime, int waitBetweenKeys,
+                    bool autoExecuteStartChatMacro, bool autoExecuteEndChatMacro)
+        {
+            if (actionItem.actionItemsAfterFreeText.Count > 0)
+            {
+                foreach (ActionItem afterItem in actionItem.actionItemsAfterFreeText)
+                {
+                    // TODO: do we actually need to parse out the repeats here?
+                    sendKeys(1, afterItem, actionItem.holdTime, waitBetweenKeys, autoExecuteStartChatMacro, autoExecuteEndChatMacro);
+                }
+            }
+            else if (autoExecuteEndChatMacro)
+            {
+                EndChatMacro(keyPressTime);
+            }
+        }
+        internal static void EndChatMacro(int? keyPressTime = defaultKeypressTime)
+        {
+            ActionItem endChatActionItem = SpeechRecogniser.getEndChatMacro() == null
+                ? null
+                : SpeechRecogniser.getEndChatMacro().getSingleActionItemForChatStartAndEnd();
+            if (endChatActionItem == null)
+            {
+                // yikes, no end chat macro, press ENTER and hope
+                KeyPresser.SendKeyPress(new Tuple<VirtualKeyCode?, VirtualKeyCode>(null, VirtualKeyCode.RETURN),
+                    keyPressTime);
+            }
+            else
+            {
+                KeyPresser.SendKeyPresses(endChatActionItem.keyCodes, keyPressTime, endChatActionItem.waitTime);
+            }
+        }
+
+
         private static void sendMacroTextKeyPresses(string keys)
         {
             if (useInputSimForFreeText || CrewChief.gameDefinition.gameEnum == GameEnum.IRACING)
@@ -474,11 +537,29 @@ namespace CrewChiefV4.commands
                         Console.WriteLine("Unable to parse char " + keys[i].ToString() + " of free text " + keys);
                     }
                 }
-                KeyPresser.SendKeyPresses(keyCodesArray, 10, 20);
+                KeyPresser.SendKeyPresses(keyCodesArray, defaultKeypressTime, 20);
             }
         }
     }
 
+    public static class Chat
+    {
+        // Reuse some Macro freetext code for chat text
+        public static void SendChatText(string text)
+        {
+            if (CrewChief.rf2ChatTransceiver.isAvailable)
+            {
+                CrewChief.rf2ChatTransceiver.SendChat(text);
+            }
+            // (if it just failed, fall back to key presses)
+            if (!CrewChief.rf2ChatTransceiver.isAvailable)
+            {
+                ExecutableCommandMacro.StartChatMacro();
+                KeyPresser.InputSim.Keyboard.TextEntry(text).Sleep(50);
+                ExecutableCommandMacro.EndChatMacro();
+            }
+        }
+    }
     // JSON objects
     public class MacroContainer
     {

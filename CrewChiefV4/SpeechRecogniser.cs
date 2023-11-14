@@ -15,7 +15,6 @@ using NAudio.CoreAudioApi;
 using CrewChiefV4.Overlay;
 using System.IO;
 using CrewChiefV4.ACC;
-using CrewChiefV4.PitManager;
 
 namespace CrewChiefV4
 {
@@ -2726,168 +2725,169 @@ namespace CrewChiefV4
                 }
                 else
                 {
-                    if (useFreeDictationForChatMessages && this.chatDictationGrammar != null && recognitionGrammar == this.chatDictationGrammar.GetInternalGrammar())
+                    bool chatSent = false;
+                    if (useFreeDictationForChatMessages && this.chatDictationGrammar != null &&
+                        recognitionGrammar == this.chatDictationGrammar.GetInternalGrammar())
                     {
                         Console.WriteLine("chat recognised: \"" + recognisedText + "\"");
+
                         if (recognisedText.StartsWith(chatContextStart))
                         {
-                            ActionItem startChatActionItem = SpeechRecogniser.getStartChatMacro() == null ? null : SpeechRecogniser.getStartChatMacro().getSingleActionItemForChatStartAndEnd();
-                            ActionItem endChatActionItem = SpeechRecogniser.getEndChatMacro() == null ? null : SpeechRecogniser.getEndChatMacro().getSingleActionItemForChatStartAndEnd();
-                            if (startChatActionItem != null && endChatActionItem != null)
+                            string chatText = TidyChatText(recognisedText, chatContextStart, driverNamesInUse);
+                            Chat.SendChatText(chatText);
+                            chatSent = true;
+                        }
+                    }
+
+                    if (!chatSent)
+                    {
+                        if (CrewChief.gameDefinition.racingType == CrewChief.RacingType.Rally &&
+                            GrammarWrapperListContains(rallyGrammarList, recognitionGrammar))
+                        {
+                            SREThresholdInfo thresholdInfo = thresholds[ThresholdType.RALLY];
+                            if (thresholdInfo.checkConfidence(recognitionConfidence, recognisedText))
                             {
-                                string chatText = recognisedText.TrimStart(chatContextStart.ToCharArray()).Trim();
-                                KeyPresser.SendKeyPresses(startChatActionItem.keyCodes, startChatActionItem.holdTime, startChatActionItem.waitTime);
-                                KeyPresser.InputSim.Keyboard.TextEntry(chatText).Sleep(50);
-                                KeyPresser.SendKeyPresses(endChatActionItem.keyCodes, endChatActionItem.holdTime, endChatActionItem.waitTime);
+                                this.lastRecognisedText = recognisedText;
+                                CrewChief.getEvent("CoDriver").respond(recognisedText);
                             }
                             else
                             {
-                                Console.WriteLine("Unable to send free chat output because suitable \"" + startChatMacroName + "\" and \"" + endChatMacroName
-                                    + "\" macros were not found for game " + CrewChief.gameDefinition.gameEnum);
+                                Console.WriteLine("Confidence " + recognitionConfidence.ToString("0.000") +
+                                                  " is below the minimum threshold of " +
+                                                  thresholdInfo.getCurrentThreshold() + " set in property \"" +
+                                                  thresholdInfo.thresholdPropertyName + "\"");
+                                crewChief.youWot(true);
+                                youWot = true;
                             }
                         }
-                        else
+                        else if (GrammarWrapperListContains(opponentGrammarList, recognitionGrammar))
                         {
-                            Console.WriteLine("Chat message doesn't appear to start with context " + chatContextStart + " so will not be executed");
-                            crewChief.youWot(true);
-                            youWot = true;
+                            SREThresholdInfo thresholdInfo = thresholds[ThresholdType.NAMES];
+                            if (thresholdInfo.checkConfidence(recognitionConfidence, recognisedText))
+                            {
+                                this.lastRecognisedText = recognisedText;
+                                if (recognisedText.StartsWith(WATCH) || recognisedText.StartsWith(RIVAL) ||
+                                    recognisedText.StartsWith(TEAM_MATE) || recognisedText.StartsWith(STOP_WATCHING))
+                                {
+                                    CrewChief.getEvent("WatchedOpponents").respond(recognisedText);
+                                }
+                                else
+                                {
+                                    CrewChief.getEvent("Opponents").respond(recognisedText);
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine("Confidence " + recognitionConfidence.ToString("0.000") +
+                                                  " is below the minimum threshold of " +
+                                                  thresholdInfo.getCurrentThreshold() + " set in property \"" +
+                                                  thresholdInfo.thresholdPropertyName + "\"");
+                                crewChief.youWot(true);
+                                youWot = true;
+                            }
                         }
-                    }
-                    else if (CrewChief.gameDefinition.racingType == CrewChief.RacingType.Rally && GrammarWrapperListContains(rallyGrammarList, recognitionGrammar))
-                    {
-                        SREThresholdInfo thresholdInfo = thresholds[ThresholdType.RALLY];
-                        if (thresholdInfo.checkConfidence(recognitionConfidence, recognisedText))
+                        else if (thresholds[ThresholdType.STANDARD]
+                                 .checkConfidence(recognitionConfidence, recognisedText))
                         {
+                            if (macroGrammar != null && macroGrammar.GetInternalGrammar() == recognitionGrammar &&
+                                macroLookup.ContainsKey(recognisedText))
+                            {
+                                this.lastRecognisedText = recognisedText;
+                                macroLookup[recognisedText].execute(recognisedText, false, true);
+                            }
+                            else if (GrammarWrapperListContains(iracingPitstopGrammarList, recognitionGrammar))
+                            {
+                                this.lastRecognisedText = recognisedText;
+                                CrewChief.getEvent("IRacingBroadcastMessageEvent").respond(recognisedText);
+                            }
+                            else if (GrammarWrapperListContains(r3ePitstopGrammarList, recognitionGrammar))
+                            {
+                                this.lastRecognisedText = recognisedText;
+                                R3EPitMenuManager.processVoiceCommand(recognisedText, crewChief.audioPlayer);
+                            }
+                            else if (GrammarWrapperListContains(accPitstopGrammarList, recognitionGrammar))
+                            {
+                                this.lastRecognisedText = recognisedText;
+                                ACCPitMenuManager.processVoiceCommand(recognisedText, crewChief.audioPlayer);
+                            }
+                            else if (GrammarWrapperListContains(pitManagerGrammarList, recognitionGrammar))
+                            {
+                                this.lastRecognisedText = recognisedText;
+                                try
+                                {
+                                    CrewChief.getEvent("PitManagerVoiceCmds").respond(recognisedText);
+                                }
+                                catch
+                                {
+                                    if (CrewChief.Debugging)
+                                    {
+                                        Console.WriteLine("Pit Manager not included");
+                                    }
+                                }
+                            }
+                            else if (GrammarWrapperListContains(overlayGrammarList, recognitionGrammar))
+                            {
+                                this.lastRecognisedText = recognisedText;
+                                CrewChief.getEvent("OverlayController").respond(recognisedText);
+                            }
+                            else if (ResultContains(recognisedText, REPEAT_LAST_MESSAGE, false))
+                            {
+                                // in rally mode, repeat-last-message needs to replay all the last command batch so send this to the CoDriver event
+                                if (CrewChief.gameDefinition.racingType == CrewChief.RacingType.Rally)
+                                {
+                                    CrewChief.getEvent("CoDriver").respond(recognisedText);
+                                }
+                                else
+                                {
+                                    crewChief.audioPlayer.repeatLastMessage();
+                                }
+                            }
+                            else if (ResultContains(recognisedText, MORE_INFO, false) &&
+                                     this.lastRecognisedText != null && !use_verbose_responses)
+                            {
+                                AbstractEvent abstractEvent = getEventForSpeech(this.lastRecognisedText);
+                                if (abstractEvent != null)
+                                {
+                                    abstractEvent.respondMoreInformation(this.lastRecognisedText, true);
+                                }
+                            }
+                            else
+                            {
+                                this.lastRecognisedText = recognisedText;
+                                AbstractEvent abstractEvent = getEventForSpeech(recognisedText);
+                                if (abstractEvent != null)
+                                {
+                                    abstractEvent.respond(recognisedText);
+
+                                    if (use_verbose_responses)
+                                    {
+                                        // In verbose mode, always respond with more info.
+                                        abstractEvent.respondMoreInformation(this.lastRecognisedText, false);
+                                    }
+                                }
+                            }
+                        }
+                        else if (CrewChief.gameDefinition.racingType == CrewChief.RacingType.Rally
+                                 && SREWrapperFactory.useSystem
+                                 && useDictationGrammarForRally
+                                 && recognitionConfidence > confidenceRallyDictationThreshold)
+                        {
+                            // note that cases where the confidence is high for a free dictation rally grammar match, we'll have already
+                            // invoked the CoDriver Respond call - this check is for cases where confidence is below the 'proper' threshold
+                            // but above the (lower) rally free dictation threshold
                             this.lastRecognisedText = recognisedText;
                             CrewChief.getEvent("CoDriver").respond(recognisedText);
                         }
                         else
                         {
                             Console.WriteLine("Confidence " + recognitionConfidence.ToString("0.000") +
-                                " is below the minimum threshold of " + thresholdInfo.getCurrentThreshold() + " set in property \"" + thresholdInfo.thresholdPropertyName + "\"");
+                                              " is below the minimum threshold of " +
+                                              thresholds[ThresholdType.STANDARD].getCurrentThreshold() +
+                                              " set in property \"" +
+                                              thresholds[ThresholdType.STANDARD].thresholdPropertyName + "\"");
                             crewChief.youWot(true);
                             youWot = true;
                         }
-                    }
-                    else if (GrammarWrapperListContains(opponentGrammarList, recognitionGrammar))
-                    {
-                        SREThresholdInfo thresholdInfo = thresholds[ThresholdType.NAMES];
-                        if (thresholdInfo.checkConfidence(recognitionConfidence, recognisedText))
-                        {
-                            this.lastRecognisedText = recognisedText;
-                            if (recognisedText.StartsWith(WATCH) || recognisedText.StartsWith(RIVAL) || recognisedText.StartsWith(TEAM_MATE) || recognisedText.StartsWith(STOP_WATCHING))
-                            {
-                                CrewChief.getEvent("WatchedOpponents").respond(recognisedText);
-                            }
-                            else
-                            {
-                                CrewChief.getEvent("Opponents").respond(recognisedText);
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine("Confidence " + recognitionConfidence.ToString("0.000") +
-                                " is below the minimum threshold of " + thresholdInfo.getCurrentThreshold() + " set in property \"" + thresholdInfo.thresholdPropertyName + "\"");
-                            crewChief.youWot(true);
-                            youWot = true;
-                        }
-                    }
-                    else if (thresholds[ThresholdType.STANDARD].checkConfidence(recognitionConfidence, recognisedText))
-                    {              
-                        if (macroGrammar != null && macroGrammar.GetInternalGrammar() == recognitionGrammar && macroLookup.ContainsKey(recognisedText))
-                        {
-                            this.lastRecognisedText = recognisedText;
-                            macroLookup[recognisedText].execute(recognisedText, false, true);
-                        }
-                        else if (GrammarWrapperListContains(iracingPitstopGrammarList, recognitionGrammar))
-                        {
-                            this.lastRecognisedText = recognisedText;
-                            CrewChief.getEvent("IRacingBroadcastMessageEvent").respond(recognisedText);
-                        }
-                        else if (GrammarWrapperListContains(r3ePitstopGrammarList, recognitionGrammar))
-                        {
-                            this.lastRecognisedText = recognisedText;
-                            R3EPitMenuManager.processVoiceCommand(recognisedText, crewChief.audioPlayer);
-                        }
-                        else if (GrammarWrapperListContains(accPitstopGrammarList, recognitionGrammar))
-                        {
-                            this.lastRecognisedText = recognisedText;
-                            ACCPitMenuManager.processVoiceCommand(recognisedText, crewChief.audioPlayer);
-                        }
-                        else if (GrammarWrapperListContains(pitManagerGrammarList, recognitionGrammar))
-                        {
-                            this.lastRecognisedText = recognisedText;
-							try
-							{
-                            	CrewChief.getEvent("PitManagerVoiceCmds").respond(recognisedText);
-							}
-							catch
-							{
-								if (CrewChief.Debugging)
-								{
-									Console.WriteLine("Pit Manager not included");
-								}
-							}
-                        }
-                        else if (GrammarWrapperListContains(overlayGrammarList, recognitionGrammar))
-                        {
-                            this.lastRecognisedText = recognisedText;
-                            CrewChief.getEvent("OverlayController").respond(recognisedText);
-                        }
-                        else if (ResultContains(recognisedText, REPEAT_LAST_MESSAGE, false))
-                        {
-                            // in rally mode, repeat-last-message needs to replay all the last command batch so send this to the CoDriver event
-                            if (CrewChief.gameDefinition.racingType == CrewChief.RacingType.Rally)
-                            {
-                                CrewChief.getEvent("CoDriver").respond(recognisedText);
-                            }
-                            else
-                            {
-                                crewChief.audioPlayer.repeatLastMessage();
-                            }
-                        }
-                        else if (ResultContains(recognisedText, MORE_INFO, false) && this.lastRecognisedText != null && !use_verbose_responses)
-                        {
-                            AbstractEvent abstractEvent = getEventForSpeech(this.lastRecognisedText);
-                            if (abstractEvent != null)
-                            {
-                                abstractEvent.respondMoreInformation(this.lastRecognisedText, true);
-                            }
-                        }
-                        else
-                        {
-                            this.lastRecognisedText = recognisedText;
-                            AbstractEvent abstractEvent = getEventForSpeech(recognisedText);
-                            if (abstractEvent != null)
-                            {
-                                abstractEvent.respond(recognisedText);
-
-                                if (use_verbose_responses)
-                                {
-                                    // In verbose mode, always respond with more info.
-                                    abstractEvent.respondMoreInformation(this.lastRecognisedText, false);
-                                }
-                            }
-                        }
-                    }
-                    else if (CrewChief.gameDefinition.racingType == CrewChief.RacingType.Rally
-                       && SREWrapperFactory.useSystem
-                       && useDictationGrammarForRally
-                       && recognitionConfidence > confidenceRallyDictationThreshold)
-                    {
-                        // note that cases where the confidence is high for a free dictation rally grammar match, we'll have already
-                        // invoked the CoDriver Respond call - this check is for cases where confidence is below the 'proper' threshold
-                        // but above the (lower) rally free dictation threshold
-                        this.lastRecognisedText = recognisedText;
-                        CrewChief.getEvent("CoDriver").respond(recognisedText);                        
-                    }
-                    else
-                    {
-                        Console.WriteLine("Confidence " + recognitionConfidence.ToString("0.000") +
-                            " is below the minimum threshold of " + thresholds[ThresholdType.STANDARD].getCurrentThreshold() + 
-                            " set in property \"" + thresholds[ThresholdType.STANDARD].thresholdPropertyName + "\"");
-                        crewChief.youWot(true);
-                        youWot = true;
                     }
                 }
             }
@@ -2945,6 +2945,41 @@ namespace CrewChiefV4
                     waitingForSpeech = true;
                 }
             }
+        }
+
+        /// <summary>
+        /// Tidy up the recognised text:
+        ///   remove the chat trigger word,
+        ///   Capitalise the first letter,
+        ///   prefix with [AutoChat],
+        ///   Capitalise any opponent names
+        /// </summary>
+        /// <param name="recognisedText">recognised speech</param>
+        /// <param name="chatContextStart">chat trigger word</param>
+        /// <param name="opponentNames">list of other drivers</param>
+        /// <returns>The tidied content with prefix</returns>
+        internal static string TidyChatText(string recognisedText,
+            string chatContextStart,
+            HashSet<string> opponentNames = null)
+        {
+            string chatText = recognisedText.TrimStart(chatContextStart.ToCharArray()).Trim();
+            var words = chatText.Split(' ');
+            for (var word = 0; word < words.Length; word++)
+            {
+                foreach (var name in opponentNames)
+                {
+                    if (string.Equals(words[word], name.ToLower()))
+                    {
+                        words[word] = char.ToUpper(name[0]) + name.Substring(1); ;
+                    }
+                }
+            }
+
+            chatText = string.Join(" ", words);
+            // Capitalise the first letter
+            chatText = char.ToUpper(chatText[0]) + chatText.Substring(1);
+            chatText = "[AutoChat]" + chatText;
+            return chatText;
         }
 
         public void stopTriggerRecogniser()
