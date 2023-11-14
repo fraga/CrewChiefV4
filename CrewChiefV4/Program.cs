@@ -65,7 +65,7 @@ namespace CrewChiefV4
             if (!allowMultipleInst)
             {
                 String commandPassed = CrewChief.CommandLine.GetCommandArg();
-                if (commandPassed != null)
+                if (!string.IsNullOrEmpty(commandPassed))
                 {
                     if (CommandManager.ProcesssCommand(commandPassed))
                         return;  // This is execution to perform command, exit.
