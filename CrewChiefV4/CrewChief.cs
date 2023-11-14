@@ -8,6 +8,7 @@ using CrewChiefV4.Events;
 using CrewChiefV4.GameState;
 using CrewChiefV4.PCars;
 using CrewChiefV4.Audio;
+using CrewChiefV4.commands;
 using CrewChiefV4.Overlay;
 using CrewChiefV4.SharedMemory;
 using CrewChiefV4.PitManager;
@@ -52,6 +53,7 @@ namespace CrewChiefV4
             new Utilities.CommandLineParametersReader();
 
         public static GameDefinition gameDefinition = new GameDefinition(); // Init to Undefined
+        public static Rf2ChatTransceiver rf2ChatTransceiver;
 
         private const int IRACING_INTERVAL = 16;               // always use 60Hz for iracing
         private const int DEFAULT_START_LIGHTS_INTERVAL = 10;  // default 10ms during race countdown
@@ -241,6 +243,7 @@ namespace CrewChiefV4
                 UserSettings.GetUserSettings().setProperty("last_game_definition", gameDefinition.commandLineName);
                 UserSettings.GetUserSettings().saveUserSettings();
                 CrewChief.gameDefinition = gameDefinition;
+                CrewChief.rf2ChatTransceiver = new Rf2ChatTransceiver();
                 if (UserSettings.GetUserSettings().getBoolean("enable_automatic_plugin_update"))
                 {
                     if (gameDefinition.gameEnum == GameEnum.ASSETTO_32BIT ||
