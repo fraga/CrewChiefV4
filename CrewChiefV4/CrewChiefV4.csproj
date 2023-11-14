@@ -143,6 +143,7 @@
     <Compile Include="commands\KeyPresser.cs" />
     <Compile Include="commands\CommandMacro.cs" />
     <Compile Include="commands\MacroManager.cs" />
+    <Compile Include="commands\Rf2ChatTransceiver.cs" />
     <Compile Include="Dirt\DirtData.cs" />
     <Compile Include="DriverNameHelper.cs" />
     <Compile Include="DriverTrainingService.cs" />
