@@ -158,11 +158,18 @@ POV = PoV
 not_assigned = not assigned
 
 ###################################### My Name dialog ######################################################
-enter_your_name = Enter your name
+selecting_a_name = Selecting a name
+enter_your_name = Enter your name and then\press the Search button
+enter_your_name_help = Crew Chief AI will do its best to match you to the available names
 full_personalisation = Full personalisations
+full_personalisation_help = Multiple individual recordings of messages by Mr Belowski
 driver_name = Driver names
+driver_name_help = Canned messages by Mr Belowski with the name stitched in (may sound a little clunky)
 other_driver_name = Other possible driver names
-play_name_sample = Play name sample
+other_driver_name_help = Names that can be stitched into canned messages
+play_name_sample_help = Play name sample
+no_name = No name thanks
+no_name_help = If no name is selected Crew Chief will simply not say personalised messages
 select = Select
 
 ###################################### Opponent Names dialog ######################################################
