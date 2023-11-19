@@ -43,21 +43,22 @@
             this.labelOtherDriverName = new System.Windows.Forms.Label();
             this.buttonNoName = new System.Windows.Forms.Button();
             this.buttonSearch = new System.Windows.Forms.Button();
-            this.toolTipNoName = new System.Windows.Forms.ToolTip(this.components);
+            this.toolTipMyName = new System.Windows.Forms.ToolTip(this.components);
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // labelEnterYourName
             // 
-            this.labelEnterYourName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.labelEnterYourName.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.labelEnterYourName.AutoSize = true;
-            this.labelEnterYourName.Location = new System.Drawing.Point(232, 0);
+            this.labelEnterYourName.Location = new System.Drawing.Point(4, 0);
             this.labelEnterYourName.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelEnterYourName.Name = "labelEnterYourName";
-            this.labelEnterYourName.Size = new System.Drawing.Size(170, 44);
+            this.labelEnterYourName.Size = new System.Drawing.Size(398, 52);
             this.labelEnterYourName.TabIndex = 0;
-            this.labelEnterYourName.Text = "Enter your name";
+            this.labelEnterYourName.Text = "enter_your_name";
             this.labelEnterYourName.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // textBoxMyName
@@ -114,7 +115,7 @@
             this.labelFullPersonalisation.Name = "labelFullPersonalisation";
             this.labelFullPersonalisation.Size = new System.Drawing.Size(398, 25);
             this.labelFullPersonalisation.TabIndex = 3;
-            this.labelFullPersonalisation.Text = "Full personalisation";
+            this.labelFullPersonalisation.Text = "full_personalisation";
             this.labelFullPersonalisation.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             // 
             // labelDriverName
@@ -126,15 +127,15 @@
             this.labelDriverName.Name = "labelDriverName";
             this.labelDriverName.Size = new System.Drawing.Size(398, 25);
             this.labelDriverName.TabIndex = 4;
-            this.labelDriverName.Text = "Driver name";
+            this.labelDriverName.Text = "driver_name";
             this.labelDriverName.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             // 
             // tableLayoutPanel1
             // 
             this.tableLayoutPanel1.ColumnCount = 3;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33334F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33334F));
             this.tableLayoutPanel1.Controls.Add(this.listBoxDriverNames, 1, 2);
             this.tableLayoutPanel1.Controls.Add(this.labelDriverName, 1, 1);
             this.tableLayoutPanel1.Controls.Add(this.listBoxPersonalisations, 0, 2);
@@ -151,8 +152,8 @@
             this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(4);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 4;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 52.77778F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 47.22222F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 61.38119F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 38.61881F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 285F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 46F));
             this.tableLayoutPanel1.Size = new System.Drawing.Size(1220, 416);
@@ -184,7 +185,7 @@
             this.buttonNameSelect.Name = "buttonNameSelect";
             this.buttonNameSelect.Size = new System.Drawing.Size(366, 39);
             this.buttonNameSelect.TabIndex = 6;
-            this.buttonNameSelect.Text = "Select";
+            this.buttonNameSelect.Text = "_select";
             this.buttonNameSelect.UseVisualStyleBackColor = true;
             this.buttonNameSelect.Click += new System.EventHandler(this.buttonNameSelect_Click);
             // 
@@ -210,11 +211,11 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.labelOtherDriverName.AutoSize = true;
-            this.labelOtherDriverName.Location = new System.Drawing.Point(815, 44);
+            this.labelOtherDriverName.Location = new System.Drawing.Point(815, 52);
             this.labelOtherDriverName.Name = "labelOtherDriverName";
-            this.labelOtherDriverName.Size = new System.Drawing.Size(402, 40);
+            this.labelOtherDriverName.Size = new System.Drawing.Size(402, 32);
             this.labelOtherDriverName.TabIndex = 8;
-            this.labelOtherDriverName.Text = "Other possible driver names";
+            this.labelOtherDriverName.Text = "other_possible_driver_names";
             this.labelOtherDriverName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // buttonNoName
@@ -226,8 +227,6 @@
             this.buttonNoName.Name = "buttonNoName";
             this.buttonNoName.Size = new System.Drawing.Size(402, 41);
             this.buttonNoName.TabIndex = 9;
-            this.buttonNoName.Text = "No name thanks";
-            this.toolTipNoName.SetToolTip(this.buttonNoName, "If no name is selected Crew Chief will simply not say personalised messages");
             this.buttonNoName.UseVisualStyleBackColor = true;
             this.buttonNoName.Click += new System.EventHandler(this.buttonNoName_Click);
             // 
@@ -238,7 +237,7 @@
             this.buttonSearch.Image = ((System.Drawing.Image)(resources.GetObject("buttonSearch.Image")));
             this.buttonSearch.Location = new System.Drawing.Point(815, 3);
             this.buttonSearch.Name = "buttonSearch";
-            this.buttonSearch.Size = new System.Drawing.Size(41, 38);
+            this.buttonSearch.Size = new System.Drawing.Size(41, 46);
             this.buttonSearch.TabIndex = 10;
             this.buttonSearch.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.buttonSearch.UseVisualStyleBackColor = true;
@@ -253,7 +252,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "MyName_V";
-            this.Text = "Selecting a name";
+            this.Text = "selecting_a_name";
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.MyName_V_KeyDown);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
@@ -275,7 +274,7 @@
         private System.Windows.Forms.ListBox listBoxOtherDriverNames;
         private System.Windows.Forms.Label labelOtherDriverName;
         private System.Windows.Forms.Button buttonNoName;
-        private System.Windows.Forms.ToolTip toolTipNoName;
+        private System.Windows.Forms.ToolTip toolTipMyName;
         private System.Windows.Forms.Button buttonSearch;
     }
 }

@@ -25,13 +25,28 @@ namespace CrewChiefV4.UserInterface
             vm = new MyName_VM(this);
             model = new MyName(vm);
             this.SuspendLayout();
-            labelEnterYourName.Text = Configuration.getUIString("enter_your_name");
+            this.Text = Configuration.getUIString("selecting_a_name");
+            labelEnterYourName.Text = Utilities.Strings.NewlinesInLongString(Configuration.getUIString("enter_your_name"));
+            toolTipMyName.SetToolTip(labelEnterYourName, Configuration.getUIString("enter_your_name_help"));
             textBoxMyName.Text = oldName;
+            toolTipMyName.SetToolTip(textBoxMyName, Configuration.getUIString("enter_your_name_help"));
             labelFullPersonalisation.Text = Configuration.getUIString("full_personalisation");
+            toolTipMyName.SetToolTip(labelFullPersonalisation, Configuration.getUIString("full_personalisation_help"));
+            toolTipMyName.SetToolTip(listBoxPersonalisations, Configuration.getUIString("full_personalisation_help"));
             labelDriverName.Text = Configuration.getUIString("driver_name");
+            toolTipMyName.SetToolTip(labelDriverName, Configuration.getUIString("driver_name_help"));
+            toolTipMyName.SetToolTip(listBoxDriverNames, Configuration.getUIString("driver_name_help"));
             labelOtherDriverName.Text = Configuration.getUIString("other_driver_name");
+            toolTipMyName.SetToolTip(labelOtherDriverName, Configuration.getUIString("other_driver_name_help"));
+            toolTipMyName.SetToolTip(listBoxDriverNames, Configuration.getUIString("other_driver_name_help"));
             //buttonPlayName.Text = Configuration.getUIString("play_name_sample");
             buttonNameSelect.Text = Configuration.getUIString("select");
+            buttonNoName.Text = Configuration.getUIString("no_name");
+            toolTipMyName.SetToolTip(buttonNoName, Configuration.getUIString("no_name_help"));
+            toolTipMyName.SetToolTip(buttonPlayName, Configuration.getUIString("play_name_sample_help"));
+            
+
+
             // Set the Play and Search button icon sizes
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MyName_V));
             var img = (System.Drawing.Image)(resources.GetObject("buttonPlayName.Image"));
