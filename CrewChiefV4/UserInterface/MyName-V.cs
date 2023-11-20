@@ -38,7 +38,7 @@ namespace CrewChiefV4.UserInterface
             toolTipMyName.SetToolTip(listBoxDriverNames, Configuration.getUIString("driver_name_help"));
             labelOtherDriverName.Text = Configuration.getUIString("other_driver_name");
             toolTipMyName.SetToolTip(labelOtherDriverName, Configuration.getUIString("other_driver_name_help"));
-            toolTipMyName.SetToolTip(listBoxDriverNames, Configuration.getUIString("other_driver_name_help"));
+            toolTipMyName.SetToolTip(listBoxOtherDriverNames, Configuration.getUIString("other_driver_name_help"));
             //buttonPlayName.Text = Configuration.getUIString("play_name_sample");
             buttonNameSelect.Text = Configuration.getUIString("select");
             buttonNoName.Text = Configuration.getUIString("no_name");
