@@ -82,7 +82,7 @@ namespace CrewChiefV4.Events
         private static String folderClassStub = "multiclass/";
         private static String folderRunnersSuffix = "_runners";
 
-        private static Dictionary<CarData.CarClassEnum, string> carClassEnumToSound = new Dictionary<CarData.CarClassEnum, string>();
+        public static Dictionary<CarData.CarClassEnum, string> carClassEnumToSound = new Dictionary<CarData.CarClassEnum, string>();
         private static Dictionary<TrackData.TrackLengthClass, int> minLapsForTrackLengthClass = new Dictionary<TrackData.TrackLengthClass, int>();
         private static Dictionary<TrackData.TrackLengthClass, int> minTimeForTrackLengthClass = new Dictionary<TrackData.TrackLengthClass, int>();
 

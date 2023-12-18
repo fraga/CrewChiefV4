@@ -676,6 +676,164 @@ namespace CrewChiefV4.Events
             }
             return -1;
         }
+        // The philosophy of the detailed message is to keep the message as terse as possible whilst returning as much relevant information
+        // about the car and driver as possible. That means not including information that is obvious (e.g. if this is invoked when it is
+        // clear that it's for the car ahead then we don't include position). We use the absense of information to imply "similar
+        // as you" for car class, license, rating, etc.
+        //
+        // Requesting to include the car position implies that this is a track position query, rather than a leaderboard query, where
+        // the user might not be sure if they are racing the car (different class, lapped).
+        //
+        // A litmus test is that if some information doesn't help to answer:
+        //
+        // - how can I refer to this person on the radio?
+        // - am I racing them for position?
+        // - can I trust this person to race cleanly?
+        //
+        // or the information is obvious from the context, then we should not include that information.
+        //
+        // Things we'd like to include in the future:
+        //
+        //   - club (where US is considered the default for ovals, your own club elsewhere)
+        //   - latency (only when it is above a threshold)
+        //   - customerid / length of time on the service (e.g. racing less than 6 months)
+        //   - when they last pitted (relevant to let us know if we're racing them)
+        //   - have we recorded them in a list of wreckless (or clean or clueless) drivers
+        //   - incident points in this race
+        //
+        // Things we should not include, because they are better suited for a "gap to" style query
+        //
+        //   - lap difference
+        //   - faster/slower than us
+        private Tuple<List<MessageFragment>, List<MessageFragment>> getOpponentDetailed(OpponentData opponent, bool includePosition)
+        {
+            List<MessageFragment> fragments = new List<MessageFragment>();
+
+            // if they are a different class, say the class
+            if (!CarData.IsCarClassEqual(opponent.CarClass, currentGameState.carClass))
+            {
+                string clazz;
+                MulticlassWarnings.carClassEnumToSound.TryGetValue(opponent.CarClass.carClassEnum, out clazz);
+                if (clazz != null)
+                {
+                    fragments.Add(MessageFragment.Text(clazz));
+                }
+            } else if (includePosition)
+            {
+                // position in class. There's no point in reporting the position of other classes, although
+                // it might make sense to report when it's the leader.
+                fragments.Add(MessageFragment.Text(Position.folderStub + opponent.ClassPosition));
+            }
+
+            if (CrewChief.gameDefinition.gameEnum == GameEnum.IRACING)
+            {
+                // safety license (only report if different to us)
+                Tuple<string, float> license = opponent.LicensLevel;
+                Tuple<string, float> our_license = currentGameState.SessionData.LicenseLevel;
+                if (license.Item2 != -1 && license.Item1.ToLower() != our_license.Item1.ToLower())
+                {
+                    switch (license.Item1.ToLower())
+                    {
+                        case "a": fragments.Add(MessageFragment.Text(folderLicenseA)); break;
+                        case "b": fragments.Add(MessageFragment.Text(folderLicenseB)); break;
+                        case "c": fragments.Add(MessageFragment.Text(folderLicenseC)); break;
+                        case "d": fragments.Add(MessageFragment.Text(folderLicenseD)); break;
+                        case "r": fragments.Add(MessageFragment.Text(folderLicenseR)); break;
+                        case "wc": fragments.Add(MessageFragment.Text(folderLicensePro)); break;
+                        default: break;
+                    }
+                }
+
+                // iRating (only report if significantly different to us)
+                int irating = opponent.iRating;
+                int our_irating = currentGameState.SessionData.iRating;
+                if (irating > 0 && Math.Abs(irating - our_irating) >= our_irating / 10)
+                {
+                    fragments.Add(MessageFragment.Text(folderRatingIntro));
+                    // will this automatically convert into the optimised 1point3 sound packs?
+                    Tuple<int, int> parts = Utilities.WholeAndFractionalPart(irating / 1000.0f);
+                    fragments.Add(MessageFragment.Integer(parts.Item1));
+                    fragments.Add(MessageFragment.Text(NumberReader.folderPoint));
+                    fragments.Add(MessageFragment.Integer(parts.Item2));
+                    // fragments.Add(MessageFragment.Text("k"));
+                }
+            } else if (CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM)
+            {
+                R3ERatingData ratingData = R3ERatings.getRatingForUserId(opponent.r3eUserId);
+                if (R3ERatings.playerRating != null && ratingData != null)
+                {
+                    Console.WriteLine("got rating data for opponent:" + ratingData.ToString());
+
+                    float their_rep = ratingData.reputation;
+                    float our_rep = R3ERatings.playerRating.reputation;
+                    if (Math.Abs(their_rep - our_rep) >= Math.Abs(our_rep / 10.0))
+                    {
+                        fragments.Add(MessageFragment.Text(folderReputationIntro));
+                        Tuple<int, int> rep = Utilities.WholeAndFractionalPart(their_rep);
+                        fragments.Add(MessageFragment.Integer(rep.Item1));
+                        fragments.Add(MessageFragment.Text(NumberReader.folderPoint));
+                        fragments.Add(MessageFragment.Integer(rep.Item2));
+                    }
+
+                    float their_rating = ratingData.rating;
+                    float our_rating = R3ERatings.playerRating.rating;
+                    if (Math.Abs(their_rating - our_rating) >= Math.Abs(our_rating / 10.0))
+                    {
+                        fragments.Add(MessageFragment.Text(folderRatingIntro));
+                        Tuple<int, int> rating = Utilities.WholeAndFractionalPart(their_rating);
+                        fragments.Add(MessageFragment.Integer(rating.Item1));
+                        fragments.Add(MessageFragment.Text(NumberReader.folderPoint));
+                        fragments.Add(MessageFragment.Integer(rating.Item2));
+                    }
+
+                    //int their_rank = ratingData.rank;
+                    //int our_rank = R3ERatings.playerRating.rank;
+                    //if (Math.Abs(their_rank - our_rank) >= Math.Abs(our_rank / 10.0))
+                    //{
+                    //    // we don't have an intro for rank
+                    //    // fragments.Add(MessageFragment.Text(folderRankIntro));
+                    //    fragments.Add(MessageFragment.Integer(their_rank, false));
+                    //}
+                }
+            }
+
+            List<MessageFragment> fragments_alt = new List<MessageFragment>(fragments);
+
+            // prefer the driver name, but fall back to their car number
+            fragments.Insert(0, MessageFragment.Opponent(opponent));
+            fragments_alt.Insert(0, MessageFragment.Text(Opponents.folderCarNumber));
+            fragments_alt.InsertRange(1, new CarNumber(opponent.CarNumber).getMessageFragments());
+
+            return Tuple.Create(fragments, fragments_alt);
+        }
+        private bool PlayOpponentDetailed(string opponentKey, bool includePosition)
+        {
+            OpponentData opponent;
+            currentGameState.OpponentData.TryGetValue(opponentKey, out opponent);
+            return PlayOpponentDetailed(opponent, includePosition);
+        }
+        private bool PlayOpponentDetailed(OpponentData opponent, bool includePosition)
+        {
+            if (opponent == null)
+            {
+                return false;
+            }
+            Tuple<List<MessageFragment>, List<MessageFragment>> messages = getOpponentDetailed(opponent, includePosition);
+            if (messages != null)
+            {
+                QueuedMessage queuedMessage = new QueuedMessage("opponentDetailed", 0,
+                    messageFragments: messages.Item1,
+                    alternateMessageFragments: messages.Item2);
+
+                if (queuedMessage.canBePlayed)
+                {
+                    audioPlayer.playMessageImmediately(queuedMessage);
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public override void respond(String voiceMessage)
         {
             Boolean gotData = false;
@@ -1009,54 +1167,16 @@ namespace CrewChiefV4.Events
 
                 else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHOS_BEHIND_ON_TRACK))
                 {
-                    string opponentKey = currentGameState.getOpponentKeyBehindOnTrack();
-                    if (opponentKey != null)
+                    if (PlayOpponentDetailed(currentGameState.getOpponentKeyBehindOnTrack(), includePosition: true))
                     {
-                        OpponentData opponent = currentGameState.OpponentData[opponentKey];
-                        QueuedMessage queuedMessage;
-                        if (AudioPlayer.ttsOption != AudioPlayer.TTS_OPTION.NEVER)
-                        {
-                            queuedMessage = new QueuedMessage("opponentNameAndPosition", 0, 
-                                messageFragments: MessageContents(opponent, Position.folderStub + opponent.ClassPosition));
-                        }
-                        else
-                        {
-                            queuedMessage = new QueuedMessage("opponentNameAndPosition", 0, 
-                                messageFragments: MessageContents(opponent, Position.folderStub + opponent.ClassPosition),
-                                alternateMessageFragments: MessageContents(Position.folderStub + opponent.ClassPosition, folderCantPronounceName));
-                        }
-                        if (queuedMessage.canBePlayed)
-                        {
-                            audioPlayer.playMessageImmediately(queuedMessage);
-                            gotData = true;
-                        }
+                        gotData = true;
                     }
                 }
                 else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHOS_IN_FRONT_ON_TRACK))
                 {
-                    string opponentKey = currentGameState.getOpponentKeyInFrontOnTrack();
-                    if (opponentKey != null)
+                    if (PlayOpponentDetailed(currentGameState.getOpponentKeyInFrontOnTrack(), includePosition: true))
                     {
-                        OpponentData opponent = currentGameState.OpponentData[opponentKey];
-                        QueuedMessage queuedMessage;
-                        if (AudioPlayer.ttsOption != AudioPlayer.TTS_OPTION.NEVER)
-                        {
-                            queuedMessage = new QueuedMessage("opponentName", 0,
-                                messageFragments: MessageContents(opponent, Position.folderStub + opponent.ClassPosition));
-                        }
-                        else
-                        {
-                            queuedMessage = new QueuedMessage("opponentName", 0,
-                                messageFragments: MessageContents(opponent, Position.folderStub + opponent.ClassPosition),
-                                alternateMessageFragments: MessageContents(Position.folderStub + opponent.ClassPosition, folderCantPronounceName));
-                        }
-
-                        if (queuedMessage.canBePlayed)
-                        {
-                            audioPlayer.playMessageImmediately(queuedMessage);
-
-                            gotData = true;
-                        }
+                        gotData = true;
                     }
                 }
                 else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHOS_BEHIND_IN_THE_RACE))
@@ -1070,25 +1190,9 @@ namespace CrewChiefV4.Events
                     else
                     {
                         OpponentData opponent = currentGameState.getOpponentAtClassPosition(currentGameState.SessionData.ClassPosition + 1, currentGameState.carClass);
-                        if (opponent != null)
+                        if (PlayOpponentDetailed(opponent, includePosition: false))
                         {
-                            QueuedMessage queuedMessage;
-                            if (AudioPlayer.ttsOption != AudioPlayer.TTS_OPTION.NEVER)
-                            {
-                                queuedMessage = new QueuedMessage("opponentName", 0, messageFragments: MessageContents(opponent));
-                            }
-                            else
-                            {
-                                queuedMessage = new QueuedMessage("opponentName", 0,
-                                    messageFragments: MessageContents(opponent), alternateMessageFragments: MessageContents(folderCantPronounceName));
-                            }
-
-                            if (queuedMessage.canBePlayed)
-                            {
-                                audioPlayer.playMessageImmediately(queuedMessage);
-
-                                gotData = true;
-                            }
+                            gotData = true;
                         }
                     }
                 }
@@ -1103,49 +1207,18 @@ namespace CrewChiefV4.Events
                     else
                     {
                         OpponentData opponent = currentGameState.getOpponentAtClassPosition(currentGameState.SessionData.ClassPosition - 1, currentGameState.carClass);
-                        if (opponent != null)
+                        if (PlayOpponentDetailed(opponent, includePosition: false))
                         {
-                            QueuedMessage queuedMessage;
-                            if (AudioPlayer.ttsOption != AudioPlayer.TTS_OPTION.NEVER)
-                            {
-                                queuedMessage = new QueuedMessage("opponentName", 0, messageFragments: MessageContents(opponent));
-                            }
-                            else
-                            {
-                                queuedMessage = new QueuedMessage("opponentName", 0, messageFragments: MessageContents(opponent), 
-                                    alternateMessageFragments: MessageContents(folderCantPronounceName));
-                            }
-
-                            if (queuedMessage.canBePlayed)
-                            {
-                                audioPlayer.playMessageImmediately(queuedMessage);
-
-                                gotData = true;
-                            }
+                            gotData = true;
                         }
                     }
                 }
                 else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHOS_LEADING) && currentGameState.SessionData.ClassPosition > 1)
                 {
                     OpponentData opponent = currentGameState.getOpponentAtClassPosition(1, currentGameState.carClass);
-                    if (opponent != null)
+                    if (PlayOpponentDetailed(opponent, includePosition: false))
                     {
-                        QueuedMessage queuedMessage;
-                        if (AudioPlayer.ttsOption != AudioPlayer.TTS_OPTION.NEVER)
-                        {
-                            queuedMessage = new QueuedMessage("opponentName", 0, messageFragments: MessageContents(opponent));
-                        }
-                        else
-                        {
-                            queuedMessage = new QueuedMessage("opponentName",0, messageFragments: MessageContents(opponent),
-                                alternateMessageFragments: MessageContents(folderCantPronounceName));
-                        }
-                        if (queuedMessage.canBePlayed)
-                        {
-                            audioPlayer.playMessageImmediately(queuedMessage);
-
-                            gotData = true;
-                        }
+                        gotData = true;
                     }
                 }
                 else if (voiceMessage.StartsWith(SpeechRecogniser.WHOS_IN))
@@ -1153,29 +1226,16 @@ namespace CrewChiefV4.Events
                     string opponentKey = getOpponentKey(voiceMessage, "").Item1;
                     if (opponentKey != null)
                     {
-                        OpponentData opponent = null;
                         if (opponentKey == positionIsPlayerKey)
                         {
                             audioPlayer.playMessageImmediately(new QueuedMessage(folderWeAre, 0));
 
                             gotData = true;
                         }
-                        else if (currentGameState.OpponentData.TryGetValue(opponentKey, out opponent))
+                        else
                         {
-                            QueuedMessage queuedMessage;
-                            if (AudioPlayer.ttsOption != AudioPlayer.TTS_OPTION.NEVER)
+                            if (PlayOpponentDetailed(opponentKey, includePosition: false))
                             {
-                                queuedMessage = new QueuedMessage("opponentName", 0, messageFragments: MessageContents(opponent));
-                            }
-                            else
-                            {
-                                queuedMessage = new QueuedMessage("opponentName", 0, messageFragments: MessageContents(opponent),
-                                    alternateMessageFragments: MessageContents(folderCantPronounceName));
-                            }
-                            if (queuedMessage.canBePlayed)
-                            {
-                                audioPlayer.playMessageImmediately(queuedMessage);
-
                                 gotData = true;
                             }
                         }
