@@ -2244,6 +2244,12 @@ report_fuel_laps_left_in_timed_races = Report fuel as laps left in timed races
 report_fuel_laps_left_in_timed_races_help = Report how many laps left in timed races rather than how long it will last
 report_fuel_laps_left_in_timed_races_category = FUEL_TEMPS_AND_DAMAGES
 
+# Property: Enables the Opponents speech recognition grammar
+sre_enable_opponents = Opponent speech recognition grammar
+sre_enable_opponents_help = Enables relative (ahead, behind, leader) and absolute (position, number, name) queries that are constructed from the grammar rules, see the speech_recognition_config.txt file for more details. Disabling this can improve the speech recognition accuracy of everything else.
+sre_enable_opponents_category = AUDIO_VOICE_AND_CONTROLLERS
+sre_enable_opponents_metadata = RESTART_REQUIRED
+
 # Property: Identify opponents by race position
 sre_enable_opponents_by_position = Identify opponents by race position
 sre_enable_opponents_by_position_help = Allow the app to recognise opponents in voice commands by their race position

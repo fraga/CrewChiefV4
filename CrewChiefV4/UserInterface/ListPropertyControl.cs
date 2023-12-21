@@ -166,7 +166,7 @@ namespace CrewChiefV4
             this.comboBox1.SelectedIndexChanged += textChanged;
 
             // This has to be initialized last.
-            this.filter = new PropertyFilter(filterText, categoryText, changeRequiresRestart, propertyId, this.label);
+            this.filter = new PropertyFilter(filterText, categoryText, changeRequiresRestart, propertyId, this.label, helpText);
         }
 
         public String getValue()

@@ -22,11 +22,14 @@ namespace CrewChiefV4
         internal bool includeFilter = true;
         internal bool metadataRestartRequired = false;
         internal string propertyLabelUpper = null;
+        internal string propertyHelpTextUpper = null;
         internal bool propertyChanged = false;
         
-        internal PropertyFilter(string filter, string category, bool changeRequiresRestart, string propertyId, string propertyLabel)
+        internal PropertyFilter(string filter, string category, bool changeRequiresRestart, string propertyId, string propertyLabel, string helpText)
         {
             this.propertyLabelUpper = propertyLabel.ToUpperInvariant();
+            this.propertyHelpTextUpper = helpText.Contains(Configuration.getUIString("no_help_provided")) 
+                ? "" : helpText.ToUpperInvariant();
             this.metadataRestartRequired = changeRequiresRestart;
 
             // Process category filter.
@@ -130,7 +133,7 @@ namespace CrewChiefV4
             if (showChanged && !this.propertyChanged)
                 return false;
 
-            return string.IsNullOrWhiteSpace(textFilterUpper) || this.propertyLabelUpper.Contains(textFilterUpper);
+            return string.IsNullOrWhiteSpace(textFilterUpper) || this.propertyLabelUpper.Contains(textFilterUpper) || this.propertyHelpTextUpper.Contains(textFilterUpper);
         }
     }
 }

@@ -59,6 +59,7 @@
     <Compile Include="Misc\TDD_ParseTimeInput.cs" />
     <Compile Include="Misc\TestChatText.cs" />
     <Compile Include="Misc\TestFuzzyNames.cs" />
+    <Compile Include="Misc\TestNumberParser.cs" />
     <Compile Include="PitMenu\PitMenuEventHandler.cs" />
     <None Include="GrammarFiles\NUnitTestSpeechGrammar.cs" />
     <None Include="GrammarFiles\TestSpeechGrammar.cs" />

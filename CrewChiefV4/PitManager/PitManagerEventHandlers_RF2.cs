@@ -439,6 +439,20 @@ namespace CrewChiefV4.PitManager
         {
             return changeTyrePressure("RR PRESS:", voiceMessage);
         }
+        private static bool EH_changePressure(string voiceMessage)
+        {
+            if (changeTyrePressure("FL PRESS:", voiceMessage))
+            {
+                if (changeTyrePressure("FR PRESS:", voiceMessage))
+                {
+                    if (changeTyrePressure("RL PRESS:", voiceMessage))
+                    {
+                        return changeTyrePressure("RR PRESS:", voiceMessage);
+                    }
+                }
+            }
+            return false;
+        }
 
         #endregion Tyre pressures
 
@@ -730,9 +744,19 @@ namespace CrewChiefV4.PitManager
         {
             bool response = false;
 
-            var pressure = PitNumberHandling.processNumber(voiceMessage);
+            float pressure = NumberProcessing.SpokenNumberParser.Parse(voiceMessage);
             if (pressure > 0)
             {
+                // If metric units "FL PRESS: 135", Imperial units have "FL PRESS: 19.6"
+                Pmal.SmartSetCategory(tyreCategory);
+                var choice = Pmal.GetChoice();
+                if (choice != null)
+                {
+                    if (!choice.Contains(".") && pressure < 100)
+                    { // command is like "1.45 bar"
+                        pressure *= 100;
+                    }
+                }
                 response = Pmal.SetCategoryAndChoice(tyreCategory, pressure.ToString());
                 if (response)
                 {

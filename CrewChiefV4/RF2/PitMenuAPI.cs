@@ -232,7 +232,7 @@ namespace PitMenuAPI
             var choiceStr = GetStringFromBytes(pitInfo.mPitMneu.mChoiceString);
             if (CrewChief.Debugging)
             {
-                Log.Commentary($"Pit menu choice '{choiceStr}'");
+                Log.Verbose($"Pit menu choice '{choiceStr}'");
             }
             return choiceStr;
         }

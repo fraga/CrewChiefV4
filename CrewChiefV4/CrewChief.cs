@@ -149,6 +149,31 @@ namespace CrewChiefV4
 
         private Object latestRawGameData;
 
+
+        private string _latestTrackName;
+        public string LatestTrackName
+        {
+            get
+            {
+                return _latestTrackName != null ? _latestTrackName : "unknown";
+            } 
+            set
+            {
+                if (value != "unknown") _latestTrackName = value;
+            }}
+
+        private string _latestCarName;
+        public string LatestCarName
+        {
+            get
+            {
+                return _latestCarName != null ? _latestCarName : "unknown";
+            }
+            set
+            {
+                if (value != null) _latestCarName = value;
+            }
+        }
         public CrewChief(ControllerConfiguration controllerConfiguration)
         {
             speechRecogniser = new SpeechRecogniser(this);
@@ -523,13 +548,17 @@ namespace CrewChiefV4
                 audioPlayer.startMonitor(gameDefinition.gameEnum != GameEnum.NONE);
                 Boolean attemptedToRunGame = false;
 
-                OverlayDataSource.loadChartSubscriptions();
-                if (speechRecogniser != null)
+                if (UserSettings.GetUserSettings().getBoolean("enable_overlay_window"))
                 {
-                    speechRecogniser.addOverlayGrammar();
+                    OverlayDataSource.loadChartSubscriptions();
+                    if (speechRecogniser != null && !speechRecogniser.disableOverlayVoiceCommands)
+                    {
+                        speechRecogniser.addOverlayGrammar();
+                    }
                 }
+
                 bool useTelemetryIntervalWhereApplicable = CrewChief.gameDefinition.gameEnum != GameEnum.IRACING
-                    && UserSettings.GetUserSettings().getBoolean("enable_overlay_window");
+                                                           && UserSettings.GetUserSettings().getBoolean("enable_overlay_window");
                 if (CrewChief.gameDefinition.gameEnum != GameEnum.NONE &&
                     CrewChief.gameDefinition.gameEnum != GameEnum.PCARS_NETWORK &&
                     CrewChief.gameDefinition.gameEnum != GameEnum.F1_2018 &&
@@ -651,6 +680,10 @@ namespace CrewChiefV4
                         try
                         {
                             nextGameState = gameStateMapper.mapToGameStateData(latestRawGameData, currentGameState);
+                            if (nextGameState != null)
+                            {
+                                LatestCarName = nextGameState.carName;
+                            }
                         }
                         catch (Exception e)
                         {
@@ -774,7 +807,7 @@ namespace CrewChiefV4
                                         // match them again)
                                         SoundCache.loadDriverNameSounds(DriverNameHelper.getUsableDriverNameSounds(rawDriverNames));
                                         // if the SRE is active, load the appropriate phrases
-                                        if (speechRecogniser != null && speechRecogniser.initialised)
+                                        if (speechRecogniser != null && speechRecogniser.initialised && speechRecogniser.identifyOpponents)
                                         {
                                             speechRecogniser.addOpponentsSpeechRecognition(
                                                 DriverNameHelper.getUsableDriverNamesForSRE(rawDriverNames), currentGameState.getCarNumbers());
@@ -1177,6 +1210,7 @@ namespace CrewChiefV4
             Console.WriteLine("EventIndex: " + currentGameState.SessionData.EventIndex);
             Console.WriteLine("SessionIteration: " + currentGameState.SessionData.SessionIteration);
             String trackName = currentGameState.SessionData.TrackDefinition == null ? "unknown" : currentGameState.SessionData.TrackDefinition.name;
+            LatestTrackName = trackName;
             Console.WriteLine("TrackName: \"" + trackName + "\"");
 
             if (currentGameState.SessionData.TrackDefinition != null)
