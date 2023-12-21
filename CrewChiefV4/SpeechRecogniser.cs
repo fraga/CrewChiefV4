@@ -607,6 +607,8 @@ namespace CrewChiefV4
 
         public static Dictionary<String[], int> minuteMappings = getNumberMappings(0, 59);
 
+        public static Dictionary<String[], int> numbers0_99 = getNumberMappings(0, 99);
+
         private ChoicesWrapper digitsChoices;
 
         private ChoicesWrapper hourChoices;
