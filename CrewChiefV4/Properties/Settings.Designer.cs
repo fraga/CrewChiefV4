@@ -3938,6 +3938,18 @@ namespace CrewChiefV4.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool sre_enable_opponents {
+            get {
+                return ((bool)(this["sre_enable_opponents"]));
+            }
+            set {
+                this["sre_enable_opponents"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool sre_enable_opponents_by_position {
             get {
                 return ((bool)(this["sre_enable_opponents_by_position"]));
