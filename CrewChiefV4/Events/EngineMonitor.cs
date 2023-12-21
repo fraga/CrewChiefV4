@@ -86,7 +86,9 @@ namespace CrewChiefV4.Events
                 {
                     // Play stalled warning straight away - these messages only play in race and qually sessions but the 
                     // rest of the logic still needs to trigger
-                    if (currentGameState.SessionData.SessionType == SessionType.Race || currentGameState.SessionData.SessionType == SessionType.Qualify)
+                    if (currentGameState.SessionData.SessionType == SessionType.Race || 
+                        currentGameState.SessionData.SessionType == SessionType.Qualify ||
+                        currentGameState.SessionData.SessionType == SessionType.PrivateQualify)
                     {
                         if (!GlobalBehaviourSettings.justTheFacts)
                         {

@@ -328,7 +328,8 @@ namespace CrewChiefV4.Events
                     if (currentGameState.OpponentData.Count > 0
                         && currentGameState.SessionData.SessionType != SessionType.LonePractice && currentGameState.SessionData.SessionType != SessionType.HotLap)
                     {
-                        if (currentGameState.SessionData.SessionType == SessionType.Qualify)
+                        if (currentGameState.SessionData.SessionType == SessionType.Qualify
+                            || currentGameState.SessionData.SessionType == SessionType.PrivateQualify)
                         {
                             // always want the overall delta in qually
                             float opponentOverallBest = currentGameState.TimingData.getPlayerClassOpponentBestLapTime(TimingData.ConditionsEnum.ANY);
@@ -434,7 +435,8 @@ namespace CrewChiefV4.Events
                             };
                         }
                     }
-                    else if (currentGameState.SessionData.SessionType == SessionType.Qualify)
+                    else if (currentGameState.SessionData.SessionType == SessionType.Qualify ||
+                             currentGameState.SessionData.SessionType == SessionType.PrivateQualify)
                     {
                         // not interested in the conditions, just want best laps from all the data we have
                         lapAndSectorsComparisonData = currentGameState.getTimeAndSectorsForBestOpponentLapInWindow(-1, currentGameState.carClass);
@@ -448,8 +450,10 @@ namespace CrewChiefV4.Events
             {
                 Boolean sectorsReportedForLap = false;
                 if (currentGameState.SessionData.IsNewLap &&
-                    (((currentGameState.SessionData.SessionType == SessionType.HotLap || currentGameState.SessionData.SessionType == SessionType.LonePractice
-                        || currentGameState.SessionData.SessionType == SessionType.Qualify)
+                    (((currentGameState.SessionData.SessionType == SessionType.HotLap
+                       || currentGameState.SessionData.SessionType == SessionType.LonePractice
+                       || currentGameState.SessionData.SessionType == SessionType.Qualify
+                       || currentGameState.SessionData.SessionType == SessionType.PrivateQualify)
                             && currentGameState.SessionData.CompletedLaps > 0) ||
                       currentGameState.SessionData.CompletedLaps > 1))
                 {
@@ -479,7 +483,9 @@ namespace CrewChiefV4.Events
                                         abstractEvent: this, priority: 10));
                                 playedLapTime = true;
                             }
-                            else if (((currentGameState.SessionData.SessionType == SessionType.Qualify || currentGameState.SessionData.SessionType == SessionType.Practice) && frequencyOfPlayerQualAndPracLapTimeReports > Utilities.random.NextDouble() * 10)
+                            else if (((currentGameState.SessionData.SessionType == SessionType.Qualify ||
+                                       currentGameState.SessionData.SessionType == SessionType.PrivateQualify ||
+                                       currentGameState.SessionData.SessionType == SessionType.Practice) && frequencyOfPlayerQualAndPracLapTimeReports > Utilities.random.NextDouble() * 10)
                                 || (currentGameState.SessionData.SessionType == SessionType.Race && frequencyOfPlayerRaceLapTimeReports > Utilities.random.NextDouble() * 10))
                             {
                                 // usually play it in practice / qual mode, occasionally play it in race mode
@@ -495,8 +501,11 @@ namespace CrewChiefV4.Events
                             }
 
                             if (deltaPlayerLastToSessionBestInClassSet &&
-                                (currentGameState.SessionData.SessionType == SessionType.Qualify || currentGameState.SessionData.SessionType == SessionType.Practice ||
-                                currentGameState.SessionData.SessionType == SessionType.HotLap || currentGameState.SessionData.SessionType == SessionType.LonePractice))
+                                (currentGameState.SessionData.SessionType == SessionType.Qualify
+                                 || currentGameState.SessionData.SessionType == SessionType.PrivateQualify 
+                                 || currentGameState.SessionData.SessionType == SessionType.Practice 
+                                 || currentGameState.SessionData.SessionType == SessionType.HotLap 
+                                 || currentGameState.SessionData.SessionType == SessionType.LonePractice))
                             {
                                 if (currentGameState.SessionData.SessionType == SessionType.HotLap || currentGameState.SessionData.SessionType == SessionType.LonePractice ||
                                     currentGameState.OpponentData.Count == 0)
@@ -746,6 +755,7 @@ namespace CrewChiefV4.Events
                         ((currentGameState.SessionData.SessionType == SessionType.Race && canPlayForRace) ||
                         (((currentGameState.SessionData.SessionType == SessionType.Practice && (currentGameState.OpponentData.Count > 0 || currentGameState.SessionData.CompletedLaps > 1))
                         || currentGameState.SessionData.SessionType == SessionType.Qualify ||
+                        currentGameState.SessionData.SessionType == SessionType.PrivateQualify ||
                         ((currentGameState.SessionData.SessionType == SessionType.HotLap || currentGameState.SessionData.SessionType == SessionType.LonePractice)
                             && currentGameState.SessionData.CompletedLaps > 1)) && canPlayForPracAndQual)))
                     {

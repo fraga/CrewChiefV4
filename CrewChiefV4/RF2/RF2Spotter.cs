@@ -81,7 +81,8 @@ namespace CrewChiefV4.rFactor2
                 // turn off spotter for formation lap before going green
                 || currentState.scoring.mScoringInfo.mGamePhase == (int)rFactor2Constants.rF2GamePhase.Formation
                 || !this.tryGetVehicleInfo(currentState, out currentPlayerScoring)
-                || !this.tryGetVehicleInfo(lastState, out previousPlayerScoring))
+                || !this.tryGetVehicleInfo(lastState, out previousPlayerScoring)
+                || currentGameState.SessionData.SessionType == SessionType.PrivateQualify)
                 return;
 
             var now = DateTime.UtcNow;

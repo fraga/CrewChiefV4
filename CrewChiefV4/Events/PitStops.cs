@@ -230,7 +230,7 @@ namespace CrewChiefV4.Events
 
         public override List<SessionType> applicableSessionTypes
         {
-            get { return new List<SessionType> { SessionType.Practice, SessionType.Qualify, SessionType.Race, SessionType.LonePractice }; }
+            get { return new List<SessionType> { SessionType.Practice, SessionType.Qualify, SessionType.PrivateQualify, SessionType.Race, SessionType.LonePractice }; }
         }
 
         public override List<SessionPhase> applicableSessionPhases
@@ -910,6 +910,7 @@ namespace CrewChiefV4.Events
             {
                 if (currentGameState.SessionData.SessionType == SessionType.Race
                     || currentGameState.SessionData.SessionType == SessionType.Qualify
+                    || currentGameState.SessionData.SessionType == SessionType.PrivateQualify
                     || currentGameState.SessionData.SessionType == SessionType.Practice
                     || currentGameState.SessionData.SessionType == SessionType.LonePractice)
                 {
@@ -1134,7 +1135,10 @@ namespace CrewChiefV4.Events
                 CrewChief.gameDefinition.gameEnum == GameEnum.IRACING)
             {
                 if (!pitLaneSpeedWarningAnnounced
-                    && (currentGameState.SessionData.SessionType == SessionType.LonePractice || currentGameState.SessionData.SessionType == SessionType.Practice || currentGameState.SessionData.SessionType == SessionType.Qualify)
+                    && (currentGameState.SessionData.SessionType == SessionType.LonePractice 
+                        || currentGameState.SessionData.SessionType == SessionType.Practice 
+                        || currentGameState.SessionData.SessionType == SessionType.Qualify
+                        || currentGameState.SessionData.SessionType == SessionType.PrivateQualify)
                     && currentGameState.PitData.InPitlane
                     && currentGameState.PositionAndMotionData.CarSpeed > 0.5f
                     && !DriverTrainingService.isPlayingPaceNotes

@@ -47,6 +47,7 @@ namespace CrewChiefV4.PitManager
                 return new List<SessionType> {
                     SessionType.Practice,
                     SessionType.Qualify,
+                    SessionType.PrivateQualify,
                     SessionType.Race,
                     SessionType.LonePractice };
             }
