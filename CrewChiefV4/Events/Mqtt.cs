@@ -32,6 +32,7 @@ namespace CrewChiefV4.Events
         private string topic;
         private string login;
         private string password;
+        private bool useTls;
         private int port;
         private List<DataItem> dataItems;
 
@@ -94,11 +95,14 @@ namespace CrewChiefV4.Events
                 Mqtt.mqttFactory = new MqttFactory();
                 Mqtt.mqttClient = Mqtt.mqttFactory.CreateMqttClient();
             }
-
-            var mqttClientOptions = new MqttClientOptionsBuilder()
+            var mqttClientOptionsBuilder = new MqttClientOptionsBuilder()
                 .WithTcpServer(server, port)
-                .WithCredentials(login, password)
-                .Build();
+                .WithCredentials(login, password);
+            if (useTls)
+            {
+                mqttClientOptionsBuilder.WithTls();
+            }
+            var mqttClientOptions = mqttClientOptionsBuilder.Build();
 
             Task.Run(() =>
             {
@@ -158,7 +162,7 @@ namespace CrewChiefV4.Events
                 // if max_distance is not given, use the distance + 10 meters
                 if (max_distance < 0)
                     max_distance = distance + 10;
- 
+
                 message = new QueuedMessage(
                     messageName,
                     10,
@@ -368,7 +372,7 @@ namespace CrewChiefV4.Events
                 telemetry[TelemetryPropName] = value;
             }
         }
-        
+
         public void loadConfig()
         {
             JObject config = JObject.Parse(File.ReadAllText(getConfigFileLocation()));
@@ -376,6 +380,7 @@ namespace CrewChiefV4.Events
             topic = config.GetValue("Topic")?.ToString();
             login = config.GetValue("Login")?.ToString();
             password = config.GetValue("Password")?.ToString();
+            useTls = config.GetValue("UseTLS")?.ToObject<bool>() ?? false;
             port = config.GetValue("Port").ToObject<int>();
             updateRateLimit = config.GetValue("UpdateRateLimit").ToObject<int>();
             subscribeTopic = config.GetValue("SubscribeTopic")?.ToString();
@@ -392,14 +397,14 @@ namespace CrewChiefV4.Events
                 }
             }
         }
-        
+
         public static String getConfigFileLocation()
         {
             String userConfig = System.IO.Path.Combine(Environment.GetFolderPath(
                 Environment.SpecialFolder.MyDocuments), "CrewChiefV4", "mqtt_telemetry.json");
             String defaultConfig = Configuration.getDefaultFileLocation("mqtt_telemetry.json");
-            //string oldDefaultConfigMD5 = getMD5HashFromFile(userConfig);
-            String oldDefaultConfigMD5 = "AC30D9E0A7CF6B92BD108670B54A90FF";
+            //String oldDefaultConfigMD5 = getMD5HashFromFile(userConfig);
+            String oldDefaultConfigMD5 = "89E37718805A2D2946D1B586AA70678A";
 
             if (File.Exists(userConfig))
             {
