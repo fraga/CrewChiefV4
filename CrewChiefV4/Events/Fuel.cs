@@ -271,7 +271,7 @@ namespace CrewChiefV4.Events
         // fuel not implemented for HotLap/LonePractice modes
         public override List<SessionType> applicableSessionTypes
         {
-            get { return new List<SessionType> { SessionType.Practice, SessionType.Qualify, SessionType.Race, SessionType.LonePractice }; }
+            get { return new List<SessionType> { SessionType.Practice, SessionType.Qualify, SessionType.PrivateQualify, SessionType.Race, SessionType.LonePractice }; }
         }
 
         public override List<SessionPhase> applicableSessionPhases
@@ -317,6 +317,7 @@ namespace CrewChiefV4.Events
                      currentGameState.SessionData.SessionPhase == SessionPhase.Checkered)) ||
 
                  ((currentGameState.SessionData.SessionType == SessionType.Qualify ||
+                   currentGameState.SessionData.SessionType == SessionType.PrivateQualify ||
                    currentGameState.SessionData.SessionType == SessionType.Practice ||
                    currentGameState.SessionData.SessionType == SessionType.HotLap ||
                    currentGameState.SessionData.SessionType == SessionType.LonePractice) &&
@@ -361,7 +362,9 @@ namespace CrewChiefV4.Events
                     historicAverageUsagePerLap.Clear();
                     historicAverageUsagePerMinute.Clear();
                     // set the onLowFuelRun if we're in prac / qual - asssume we're on a low fuel run until we know otherwise
-                    if (currentGameState.SessionData.SessionType == SessionType.Practice || currentGameState.SessionData.SessionType == SessionType.Qualify)
+                    if (currentGameState.SessionData.SessionType == SessionType.Practice || 
+                        currentGameState.SessionData.SessionType == SessionType.Qualify ||
+                        currentGameState.SessionData.SessionType == SessionType.PrivateQualify)
                     {
                         onLowFuelRun = true;
                         lapsForLowFuelRun = 4f;

@@ -1910,7 +1910,9 @@ namespace CrewChiefV4.rFactor2
                 && !cgs.FlagData.isFullCourseYellow)  // Don't announce White flag under FCY.
             {
                 // Only works correctly if race is not timed.
-                if ((csd.SessionType == SessionType.Race || csd.SessionType == SessionType.Qualify)
+                if ((csd.SessionType == SessionType.Race || 
+                     csd.SessionType == SessionType.Qualify ||
+                     csd.SessionType == SessionType.PrivateQualify)
                     && csd.SessionPhase == SessionPhase.Green
                     && (playerScoring.mTotalLaps == csd.SessionNumberOfLaps - 1) || csd.LeaderHasFinishedRace)
                 {
@@ -2423,7 +2425,9 @@ namespace CrewChiefV4.rFactor2
                 // And, this is not an out/in lap
                 && !cgs.PitData.OnOutLap && !cgs.PitData.OnInLap
                 // And it's Race or Qualification
-                && (csd.SessionType == SessionType.Race || csd.SessionType == SessionType.Qualify)))
+                && (csd.SessionType == SessionType.Race || 
+                    csd.SessionType == SessionType.Qualify ||
+                    csd.SessionType == SessionType.PrivateQualify)))
             {
                 csd.CurrentLapIsValid = false;
             }
@@ -2670,24 +2674,7 @@ namespace CrewChiefV4.rFactor2
                 case 9:
                     // This might go from LonePractice to Practice without any nice state transition.  However,
                     // I am not aware of any horrible side effects.
-                    if (this.lastPracticeNumVehicles < shared.scoring.mScoringInfo.mNumVehicles)
-                    {
-                        this.lastPracticeNumVehicles = shared.scoring.mScoringInfo.mNumVehicles;
-                        this.lastPracticeNumNonGhostVehicles = 0;
-                        // Populate cached car info.
-                        for (int i = 0; i < shared.scoring.mScoringInfo.mNumVehicles; ++i)
-                        {
-                            var vehicleScoring = shared.scoring.mVehicles[i];
-
-                            var cci = this.GetCachedCarInfo(ref vehicleScoring);
-                            if (cci.isGhost)
-                                continue;  // Skip trainer.
-
-                            ++this.lastPracticeNumNonGhostVehicles;
-                        }
-                    }
-
-                    return this.lastPracticeNumNonGhostVehicles > 1 // 1 means player only session.
+                    return RealOpponents(shared)
                         ? SessionType.Practice
                         : SessionType.LonePractice;
                 // up to four possible qualifying sessions
@@ -2695,7 +2682,9 @@ namespace CrewChiefV4.rFactor2
                 case 6:
                 case 7:
                 case 8:
-                    return SessionType.Qualify;
+                    return RealOpponents(shared)
+                        ? SessionType.Qualify
+                        : SessionType.PrivateQualify;
                 // up to four possible race sessions
                 case 10:
                 case 11:
@@ -2703,8 +2692,31 @@ namespace CrewChiefV4.rFactor2
                 case 13:
                     return SessionType.Race;
                 default:
+                    Log.Fatal($"Invalid session type {shared.scoring.mScoringInfo.mSession}");
                     return SessionType.Unavailable;
             }
+        }
+
+        private bool RealOpponents(RF2SharedMemoryReader.RF2StructWrapper shared)
+        {
+            if (this.lastPracticeNumVehicles < shared.scoring.mScoringInfo.mNumVehicles)
+            {
+                this.lastPracticeNumVehicles = shared.scoring.mScoringInfo.mNumVehicles;
+                this.lastPracticeNumNonGhostVehicles = 0;
+                // Populate cached car info.
+                for (int i = 0; i < shared.scoring.mScoringInfo.mNumVehicles; ++i)
+                {
+                    var vehicleScoring = shared.scoring.mVehicles[i];
+
+                    var cci = this.GetCachedCarInfo(ref vehicleScoring);
+                    if (cci.isGhost)
+                        continue;  // Skip trainer.
+
+                    ++this.lastPracticeNumNonGhostVehicles;
+                }
+            }
+
+            return this.lastPracticeNumNonGhostVehicles > 1; // 1 means player only session.
         }
 
         private void ProcessTyreTypeClassMapping(CarData.CarClass carClass)

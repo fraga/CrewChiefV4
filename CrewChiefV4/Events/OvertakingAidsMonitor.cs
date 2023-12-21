@@ -47,7 +47,7 @@ namespace CrewChiefV4.Events
             get { return new List<SessionType> {
                 SessionType.Race,
                 // Only for DRS Beep
-                SessionType.Practice, SessionType.Qualify, SessionType.LonePractice
+                SessionType.Practice, SessionType.Qualify, SessionType.PrivateQualify, SessionType.LonePractice
             }; }
         }
 

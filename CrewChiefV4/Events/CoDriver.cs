@@ -1060,7 +1060,7 @@ namespace CrewChiefV4.Events
 
         public override List<SessionType> applicableSessionTypes
         {
-            get { return new List<SessionType> { SessionType.LonePractice, SessionType.HotLap, SessionType.Practice, SessionType.Qualify, SessionType.Race }; }
+            get { return new List<SessionType> { SessionType.LonePractice, SessionType.HotLap, SessionType.Practice, SessionType.Qualify, SessionType.PrivateQualify, SessionType.Race}; }
         }
 
         public override List<SessionPhase> applicableSessionPhases

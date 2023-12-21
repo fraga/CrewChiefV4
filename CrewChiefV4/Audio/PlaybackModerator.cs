@@ -158,7 +158,8 @@ namespace CrewChiefV4.Audio
                         || (currentGameState.SessionData.SessionHasFixedTime && currentGameState.SessionData.SessionRunningTime + 120 >= currentGameState.SessionData.SessionTotalRunTime))
                         PlaybackModerator.verbosity = Verbosity.MED;
                 }
-                else if (currentGameState.SessionData.SessionType == SessionType.Qualify
+                else if ((currentGameState.SessionData.SessionType == SessionType.Qualify
+                          || currentGameState.SessionData.SessionType == SessionType.PrivateQualify)
                     && !currentGameState.PitData.OnOutLap
                     && currentGameState.SessionData.CurrentLapIsValid)
                     PlaybackModerator.verbosity = Verbosity.MED;

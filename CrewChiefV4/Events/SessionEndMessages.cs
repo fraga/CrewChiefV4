@@ -72,7 +72,9 @@ namespace CrewChiefV4.Events
                     Console.WriteLine("Skipping race session end message because it didn't run for a lap or " + minSessionRunTimeForEndMessages + " seconds");
                 }
             }
-            else if (sessionType == SessionType.Practice || sessionType == SessionType.Qualify)
+            else if (sessionType == SessionType.Practice ||
+                     sessionType == SessionType.Qualify ||
+                     sessionType == SessionType.PrivateQualify)
             {
                 if (sessionRunningTime >= minSessionRunTimeForEndMessages)
                 {
@@ -193,7 +195,8 @@ namespace CrewChiefV4.Events
                 }
                 else
                 {
-                    if (sessionType == SessionType.Qualify && position == 1)
+                    if ((sessionType == SessionType.Qualify ||
+                         sessionType == SessionType.PrivateQualify) && position == 1)
                     {
                         audioPlayer.playMessage(new QueuedMessage(folderEndOfSessionPole, 0));
                     }
@@ -202,7 +205,9 @@ namespace CrewChiefV4.Events
                         audioPlayer.playMessage(new QueuedMessage(sessionEndMessageIdentifier, 0,
                             messageFragments: AbstractEvent.MessageContents(folderEndOfSession, Position.folderStub + position), priority: 10));
                     }
-                    if (sessionType == SessionType.Qualify && CrewChief.currentGameState != null)
+                    if ((sessionType == SessionType.Qualify ||
+                         sessionType == SessionType.PrivateQualify) &&
+                        CrewChief.currentGameState != null)
                     {
                         // report the expected race finish position
                         Position.reportExpectedFinishPosition(audioPlayer, CrewChief.currentGameState.SessionData.expectedFinishingPosition,

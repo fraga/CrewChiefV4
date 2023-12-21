@@ -189,7 +189,8 @@ namespace CrewChiefV4.Events
 
         private Boolean hasValidComparisonForBenchmark(GameStateData currentGameState)
         {
-            if (currentGameState.SessionData.SessionType == SessionType.Qualify)
+            if (currentGameState.SessionData.SessionType == SessionType.Qualify ||
+                currentGameState.SessionData.SessionType == SessionType.PrivateQualify)
             {
                 return false;
             }

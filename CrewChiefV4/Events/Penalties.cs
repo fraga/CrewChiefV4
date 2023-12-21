@@ -611,8 +611,11 @@ namespace CrewChiefV4.Events
                     }
                 }
             }
-            else if ((currentGameState.SessionData.SessionType == SessionType.Race || currentGameState.SessionData.SessionType == SessionType.Qualify
-                        || currentGameState.SessionData.SessionType == SessionType.Practice || currentGameState.SessionData.SessionType == SessionType.LonePractice)
+            else if ((currentGameState.SessionData.SessionType == SessionType.Race || 
+                      currentGameState.SessionData.SessionType == SessionType.Qualify ||
+                      currentGameState.SessionData.SessionType == SessionType.PrivateQualify ||
+                      currentGameState.SessionData.SessionType == SessionType.Practice ||
+                      currentGameState.SessionData.SessionType == SessionType.LonePractice)
                     && previousGameState != null && currentGameState.PenaltiesData.NumOutstandingPenalties > 0
                     && (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT || CrewChief.gameDefinition.gameEnum == GameEnum.ACC || CrewChief.gameDefinition.gameEnum == GameEnum.GTR2 ||
                 (CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM && currentGameState.PenaltiesData.PenaltyType != PenatiesData.DetailedPenaltyType.NONE)))
@@ -707,6 +710,7 @@ namespace CrewChiefV4.Events
             }
             if ((currentGameState.SessionData.SessionType == SessionType.Race ||
                 currentGameState.SessionData.SessionType == SessionType.Qualify ||
+                currentGameState.SessionData.SessionType == SessionType.PrivateQualify ||
                 currentGameState.SessionData.SessionType == SessionType.Practice ||
                 currentGameState.SessionData.SessionType == SessionType.LonePractice) && previousGameState != null &&
                 ((previousGameState.PenaltiesData.HasStopAndGo && !currentGameState.PenaltiesData.HasStopAndGo) ||

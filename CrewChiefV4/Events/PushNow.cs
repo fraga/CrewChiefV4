@@ -59,7 +59,7 @@ namespace CrewChiefV4.Events
 
         public override List<SessionType> applicableSessionTypes
         {
-            get { return new List<SessionType> { SessionType.Practice, SessionType.Qualify, SessionType.Race }; }
+            get { return new List<SessionType> { SessionType.Practice, SessionType.Qualify, SessionType.PrivateQualify, SessionType.Race }; }
         }
         
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
@@ -130,7 +130,8 @@ namespace CrewChiefV4.Events
                 {
                     Console.WriteLine("Failed to report brake temp status on pit exit");
                 }
-                if (!playedQualExitMessage && currentGameState.SessionData.SessionType == SessionType.Qualify)
+                if (!playedQualExitMessage && (currentGameState.SessionData.SessionType == SessionType.Qualify ||
+                                               currentGameState.SessionData.SessionType == SessionType.PrivateQualify))
                 {
                     playedQualExitMessage = true;
                     if (currentGameState.SessionData.SessionNumberOfLaps > 0)
