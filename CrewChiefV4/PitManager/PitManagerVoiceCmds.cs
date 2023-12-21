@@ -225,25 +225,14 @@ namespace CrewChiefV4.PitManager
         /// </returns>
         public static int processNumber(string _voiceMessage)
         {
-            int amount = 0;
+            float amount = NumberProcessing.SpokenNumberParser.Parse(_voiceMessage);
 
-            foreach (KeyValuePair<String[], int> entry in SpeechRecogniser.numberToNumber)
+            if (amount < 1)
             {
-                foreach (String numberStr in entry.Key)
-                {
-                    if (_voiceMessage.Contains(" " + numberStr))
-                    {
-                        amount = entry.Value;
-                        Log.Verbose("processed number " + amount.ToString());
-                        break;
-                    }
-                }
-            }
-            if (amount == 0)
-            {
+                amount = 0;
                 crewChief.audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderDidntUnderstand, 0));
             }
-            return amount;
+            return (int)amount;
         }
 
         /// <summary>
