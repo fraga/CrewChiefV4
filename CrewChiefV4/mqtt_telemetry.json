@@ -6,6 +6,7 @@
 	"Port": 31883,
 	"UpdateRateLimit": 0,
 	"SubscribeTopic": "/coach",
+	"UseTLS": false,
 	"Channels": [
 		{
 			"CrewChiefField": "ControlData.ClutchPedal",
