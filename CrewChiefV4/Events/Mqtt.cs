@@ -143,6 +143,11 @@ namespace CrewChiefV4.Events
             QueuedMessage message;
             var fragment = MessageFragment.Text(text);
             fragment.allowTTS = true;
+            if (text.StartsWith("http"))
+            {
+                fragment.allowDownload = true;
+            }
+
             string messageName = $"mqtt_response_{text}_{distance}";
             // Console.WriteLine($"MQTT: queue {messageName} - DRT: {CrewChief.currentGameState.PositionAndMotionData.DistanceRoundTrack}");
             // play message immediately if distance is 0
