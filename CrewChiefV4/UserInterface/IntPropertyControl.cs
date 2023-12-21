@@ -36,7 +36,7 @@ namespace CrewChiefV4
             this.changeRequiresRestart = changeRequiresRestart;
 
             // This has to be initialized last.
-            this.filter = new PropertyFilter(filterText, categoryText, changeRequiresRestart, propertyId, this.label);
+            this.filter = new PropertyFilter(filterText, categoryText, changeRequiresRestart, propertyId, this.label, helpText);
         }
 
         public int getValue()
