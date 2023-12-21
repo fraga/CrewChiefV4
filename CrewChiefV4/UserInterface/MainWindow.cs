@@ -2722,6 +2722,10 @@ namespace CrewChiefV4
                     CrewChief.gameDefinition.friendlyName +
                     "\nVOICE_OPTION: " +
                     UserSettings.GetUserSettings().getString("VOICE_OPTION") +
+                   "\nLast TrackName: " +
+                   crewChief.LatestTrackName +
+                   "\nLast car name: " +
+                   crewChief.LatestCarName +
                     "\n\nNon-default Properties:\n" +
                     UserSettings.getNonDefaultUserSettings() + "\n";
         }

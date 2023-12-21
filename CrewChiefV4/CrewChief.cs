@@ -149,6 +149,31 @@ namespace CrewChiefV4
 
         private Object latestRawGameData;
 
+
+        private string _latestTrackName;
+        public string LatestTrackName
+        {
+            get
+            {
+                return _latestTrackName != null ? _latestTrackName : "unknown";
+            } 
+            set
+            {
+                if (value != "unknown") _latestTrackName = value;
+            }}
+
+        private string _latestCarName;
+        public string LatestCarName
+        {
+            get
+            {
+                return _latestCarName != null ? _latestCarName : "unknown";
+            }
+            set
+            {
+                if (value != null) _latestCarName = value;
+            }
+        }
         public CrewChief(ControllerConfiguration controllerConfiguration)
         {
             speechRecogniser = new SpeechRecogniser(this);
@@ -651,6 +676,10 @@ namespace CrewChiefV4
                         try
                         {
                             nextGameState = gameStateMapper.mapToGameStateData(latestRawGameData, currentGameState);
+                            if (nextGameState != null)
+                            {
+                                LatestCarName = nextGameState.carName;
+                            }
                         }
                         catch (Exception e)
                         {
@@ -1177,6 +1206,7 @@ namespace CrewChiefV4
             Console.WriteLine("EventIndex: " + currentGameState.SessionData.EventIndex);
             Console.WriteLine("SessionIteration: " + currentGameState.SessionData.SessionIteration);
             String trackName = currentGameState.SessionData.TrackDefinition == null ? "unknown" : currentGameState.SessionData.TrackDefinition.name;
+            LatestTrackName = trackName;
             Console.WriteLine("TrackName: \"" + trackName + "\"");
 
             if (currentGameState.SessionData.TrackDefinition != null)
