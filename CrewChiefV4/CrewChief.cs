@@ -523,13 +523,17 @@ namespace CrewChiefV4
                 audioPlayer.startMonitor(gameDefinition.gameEnum != GameEnum.NONE);
                 Boolean attemptedToRunGame = false;
 
-                OverlayDataSource.loadChartSubscriptions();
-                if (speechRecogniser != null)
+                if (UserSettings.GetUserSettings().getBoolean("enable_overlay_window"))
                 {
-                    speechRecogniser.addOverlayGrammar();
+                    OverlayDataSource.loadChartSubscriptions();
+                    if (speechRecogniser != null)
+                    {
+                        speechRecogniser.addOverlayGrammar();
+                    }
                 }
+
                 bool useTelemetryIntervalWhereApplicable = CrewChief.gameDefinition.gameEnum != GameEnum.IRACING
-                    && UserSettings.GetUserSettings().getBoolean("enable_overlay_window");
+                                                           && UserSettings.GetUserSettings().getBoolean("enable_overlay_window");
                 if (CrewChief.gameDefinition.gameEnum != GameEnum.NONE &&
                     CrewChief.gameDefinition.gameEnum != GameEnum.PCARS_NETWORK &&
                     CrewChief.gameDefinition.gameEnum != GameEnum.F1_2018 &&
