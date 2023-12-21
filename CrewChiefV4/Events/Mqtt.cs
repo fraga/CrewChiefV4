@@ -35,6 +35,24 @@ namespace CrewChiefV4.Events
         private int port;
         private List<DataItem> dataItems;
 
+        public override List<CrewChief.RacingType> applicableRacingTypes
+        {
+
+            get { return new List<CrewChief.RacingType> { CrewChief.RacingType.Rally, CrewChief.RacingType.Circuit }; }
+        }
+
+        public override List<SessionType> applicableSessionTypes
+        {
+            get { return new List<SessionType> { SessionType.LonePractice, SessionType.HotLap, SessionType.Practice, SessionType.Qualify, SessionType.Race }; }
+
+        }
+
+        public override List<SessionPhase> applicableSessionPhases
+        {
+
+            get { return new List<SessionPhase> { SessionPhase.Countdown, SessionPhase.Green, SessionPhase.Finished, SessionPhase.Checkered, SessionPhase.Gridwalk, SessionPhase.Formation, SessionPhase.FullCourseYellow }; }
+        }
+
         // a static method that removes invalid characters from a string
         private static string SanitizeForTopic(string input)
         {
