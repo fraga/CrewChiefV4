@@ -980,6 +980,9 @@
     <Setting Name="TOGGLE_MUTE_device_type" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
+    <Setting Name="sre_enable_opponents" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
     <Setting Name="sre_enable_opponents_by_position" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>

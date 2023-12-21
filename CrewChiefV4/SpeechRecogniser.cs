@@ -32,6 +32,7 @@ namespace CrewChiefV4
         private int nAudioWaveInChannelCount = UserSettings.GetUserSettings().getInt("naudio_wave_in_channel_count");
         private int nAudioWaveInSampleDepth = UserSettings.GetUserSettings().getInt("naudio_wave_in_sample_depth");
 
+        public Boolean identifyOpponents = UserSettings.GetUserSettings().getBoolean("sre_enable_opponents");
         private Boolean identifyOpponentsByPosition = UserSettings.GetUserSettings().getBoolean("sre_enable_opponents_by_position");
         private Boolean identifyOpponentsByName = UserSettings.GetUserSettings().getBoolean("sre_enable_opponents_by_name");
         private Boolean identifyOpponentsByNumber = UserSettings.GetUserSettings().getBoolean("sre_enable_opponents_by_number");
@@ -44,7 +45,7 @@ namespace CrewChiefV4
         public static int cachedSpeechInputDeviceIndex = 0;
         private Boolean useNAudio = UserSettings.GetUserSettings().getBoolean("use_naudio_for_speech_recognition");
         private Boolean disableBehaviorAlteringVoiceCommands = UserSettings.GetUserSettings().getBoolean("disable_behavior_altering_voice_commands");
-        private Boolean disableOverlayVoiceCommands = UserSettings.GetUserSettings().getBoolean("disable_overlay_voice_commands");
+        public Boolean disableOverlayVoiceCommands = UserSettings.GetUserSettings().getBoolean("disable_overlay_voice_commands");
         private Boolean saveSREDebugData = UserSettings.GetUserSettings().getBoolean("save_sre_debug_data");
         private string debugDataPath = Path.Combine(Environment.GetFolderPath(
                              Environment.SpecialFolder.MyDocuments), "CrewChiefV4", "voiceRecognitionDebug");
@@ -827,11 +828,19 @@ namespace CrewChiefV4
                 string leadingNumber = numberStr[0].ToString();
                 string middleNumber = numberStr[1].ToString();
                 string finalNumber = numberStr[2].ToString();
-                string leadingNumberPhrase = Configuration.getSpeechRecognitionPhrases(leadingNumber)[0];   //"one" / "two" / etc
+                string leadingNumberPhrase = Configuration.getSpeechRecognitionPhrases(leadingNumber).FirstOrDefault();   //"one" / "two" / etc
+                string middleNumberPhrase = Configuration.getSpeechRecognitionPhrases(middleNumber).FirstOrDefault();
+                string finalNumberPhrase = Configuration.getSpeechRecognitionPhrases(finalNumber).FirstOrDefault();
+                string combinedFinalNumbersPhrase = Configuration.getSpeechRecognitionPhrases(middleNumber + finalNumber).FirstOrDefault();   //"twenty-one" / "twenty-two" / etc
+
+                if (leadingNumberPhrase == null || middleNumberPhrase == null || finalNumberPhrase == null || combinedFinalNumbersPhrase == null)
+                {
+                    return phrases.ToArray();
+                }
+
                 if (middleNumber == "0")
                 {
                     // need to add "one oh one", "five zero three", etc
-                    string finalNumberPhrase = Configuration.getSpeechRecognitionPhrases(finalNumber)[0];   //"one" / "two" / etc
                     string[] zeroPhrases = Configuration.getSpeechRecognitionPhrases("0");   //"zero", "oh", etc
                     foreach (string zeroPhrase in zeroPhrases)
                     {
@@ -841,9 +850,6 @@ namespace CrewChiefV4
                 else
                 {
                     // need to add "one two three", "four sevent eight", etc
-                    string middleNumberPhrase = Configuration.getSpeechRecognitionPhrases(middleNumber)[0];   //"one" / "two" / etc
-                    string finalNumberPhrase = Configuration.getSpeechRecognitionPhrases(finalNumber)[0];   //"one" / "two" / etc
-                    string combinedFinalNumbersPhrase = Configuration.getSpeechRecognitionPhrases(middleNumber + finalNumber)[0];   //"twenty-one" / "twenty-two" / etc
                     phrases.Add(leadingNumberPhrase + "-" + middleNumberPhrase + "-" + finalNumberPhrase);
                     phrases.Add(leadingNumberPhrase + "-" + combinedFinalNumbersPhrase);
                 }

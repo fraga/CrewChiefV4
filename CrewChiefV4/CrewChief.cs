@@ -551,7 +551,7 @@ namespace CrewChiefV4
                 if (UserSettings.GetUserSettings().getBoolean("enable_overlay_window"))
                 {
                     OverlayDataSource.loadChartSubscriptions();
-                    if (speechRecogniser != null)
+                    if (speechRecogniser != null && !speechRecogniser.disableOverlayVoiceCommands)
                     {
                         speechRecogniser.addOverlayGrammar();
                     }
@@ -807,7 +807,7 @@ namespace CrewChiefV4
                                         // match them again)
                                         SoundCache.loadDriverNameSounds(DriverNameHelper.getUsableDriverNameSounds(rawDriverNames));
                                         // if the SRE is active, load the appropriate phrases
-                                        if (speechRecogniser != null && speechRecogniser.initialised)
+                                        if (speechRecogniser != null && speechRecogniser.initialised && speechRecogniser.identifyOpponents)
                                         {
                                             speechRecogniser.addOpponentsSpeechRecognition(
                                                 DriverNameHelper.getUsableDriverNamesForSRE(rawDriverNames), currentGameState.getCarNumbers());
