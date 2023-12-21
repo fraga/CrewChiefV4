@@ -112,7 +112,12 @@ namespace CrewChiefV4.RBR
                 Console.WriteLine(msg);
             }
 
+            populateCarIds();
 
+        }
+
+        private void populateCarIds()
+        {
             try
             {
                 // Read cars.ini in an attempt to uniquely identify cars.
@@ -128,7 +133,8 @@ namespace CrewChiefV4.RBR
                             Console.WriteLine($"Failed to load car at slot ID: {i}");
                         else
                         {
-                            this.slotToCarID.Add(i, new CarID() {
+                            this.slotToCarID.Add(i, new CarID()
+                            {
                                 hash = carCgsFileName.GetHashCode(),
                                 carCgsFileName = carCgsFileName,
                                 carName = carName
@@ -145,7 +151,6 @@ namespace CrewChiefV4.RBR
             {
                 Utilities.ReportException(e, "Failed to parse cars.ini", needReport: false);
             }
-
         }
 
         private enum RBRSurfaceType
@@ -499,6 +504,21 @@ namespace CrewChiefV4.RBR
                     trackLength = rbrtd.approxLengthKM;
                 }
                 csd.TrackDefinition = new TrackDefinition(trackNameValidFolderName, (float) trackLength);
+
+                // reload car IDs, since they may have changed between sessions, e.g. RSF Launcher does this
+                this.populateCarIds();
+                // check if this.slotToCarId contains a valid car ID
+                this.slotToCarID.TryGetValue(shared.perFrame.mRBRMapSettings.carID, out var carId);
+                if (carId != null)
+                {
+                    cgs.carName = carId.carName;
+                }
+                else
+                {
+                    cgs.carName = shared.perFrame.mRBRMapSettings.carID.ToString();
+                }
+
+                csd.SessionStartTime = cgs.Now;
             }
 
             // Restore cumulative data.
@@ -507,6 +527,8 @@ namespace CrewChiefV4.RBR
                 cgs.CoDriverPacenotes = pgs.CoDriverPacenotes;
                 csd.IsDNF = psd.IsDNF;
                 csd.TrackDefinition = psd.TrackDefinition;
+                csd.SessionStartTime = psd.SessionStartTime;
+                cgs.carName = pgs.carName;
             }
 
             if (psd != null
@@ -521,6 +543,7 @@ namespace CrewChiefV4.RBR
             }
 
             csd.SessionRunningTime = -shared.perFrame.mRBRCarInfo.stageStartCountdown;
+            csd.LapTimeCurrent = shared.perFrame.mRBRCarInfo.raceTime;
 
             // --------------------------------
             // engine data
@@ -539,6 +562,8 @@ namespace CrewChiefV4.RBR
             cgs.ControlData.BrakePedal = shared.perFrame.mRBRCarControls.brake;
             cgs.ControlData.ThrottlePedal = shared.perFrame.mRBRCarControls.throttle;
             cgs.ControlData.ClutchPedal = shared.perFrame.mRBRCarControls.clutch;
+            cgs.ControlData.SteeringWheelAngle = shared.perFrame.mRBRCarControls.steering;
+            cgs.ControlData.HandBrake = shared.perFrame.mRBRCarControls.handBrake;
 
             // --------------------------------
             // damage
