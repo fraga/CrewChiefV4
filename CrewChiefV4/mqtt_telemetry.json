@@ -7,6 +7,7 @@
 	"UpdateRateLimit": 0,
 	"SubscribeTopic": "/coach",
 	"UseTLS": false,
+	"AllowSoundDownload": false,
 	"Channels": [
 		{
 			"CrewChiefField": "ControlData.ClutchPedal",

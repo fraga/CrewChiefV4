@@ -33,6 +33,7 @@ namespace CrewChiefV4.Events
         private string login;
         private string password;
         private bool useTls;
+        private bool allowSoundDownload;
         private int port;
         private List<DataItem> dataItems;
 
@@ -120,7 +121,7 @@ namespace CrewChiefV4.Events
                     // timeout the connect task after 5 seconds
                     if (Mqtt.mqttClient.ConnectAsync(mqttClientOptions, CancellationToken.None).Wait(Mqtt.CONNECT_DISCONNECT_TIMEOUT))
                     {
-                        Console.WriteLine($"Connected to MQTT server {server}:{port} as {login}");
+                        Log.Info($"Connected to MQTT server {server}:{port} as {login}");
                         SubscribeClient();
                     }
                     else
@@ -145,7 +146,14 @@ namespace CrewChiefV4.Events
             fragment.allowTTS = true;
             if (text.StartsWith("http"))
             {
-                fragment.allowDownload = true;
+                if (allowSoundDownload)
+                {
+                    fragment.allowDownload = true;
+                } else
+                {
+                    Log.Warning($"MQTT: sound download is disabled, not downloading sound from {text}");
+                    return;
+                }
             }
 
             string messageName = $"mqtt_response_{text}_{distance}";
@@ -255,7 +263,7 @@ namespace CrewChiefV4.Events
                 // timeout the subscribe task after 1 second
                 if (Mqtt.mqttClient.SubscribeAsync(new MqttTopicFilterBuilder().WithTopic(responseTopic).Build()).Wait(Mqtt.SUBSCRIBE_TIMEOUT))
                 {
-                    Console.WriteLine($"Subscribed to MQTT response topic {responseTopic}");
+                    Log.Info($"Subscribed to MQTT response topic {responseTopic}");
                 }
                 else
                 {
@@ -277,7 +285,7 @@ namespace CrewChiefV4.Events
                     // timeout the reconnect task after 5 seconds
                     if (Mqtt.mqttClient.ReconnectAsync().Wait(Mqtt.CONNECT_DISCONNECT_TIMEOUT))
                     {
-                        Console.WriteLine($"Re-Connected to MQTT server {server}:{port} as {login}");
+                        Log.Info($"Re-Connected to MQTT server {server}:{port} as {login}");
                         SubscribeClient();
                     }
                     else
@@ -386,6 +394,7 @@ namespace CrewChiefV4.Events
             login = config.GetValue("Login")?.ToString();
             password = config.GetValue("Password")?.ToString();
             useTls = config.GetValue("UseTLS")?.ToObject<bool>() ?? false;
+            allowSoundDownload = config.GetValue("AllowSoundDownload")?.ToObject<bool>() ?? false;
             port = config.GetValue("Port").ToObject<int>();
             updateRateLimit = config.GetValue("UpdateRateLimit").ToObject<int>();
             subscribeTopic = config.GetValue("SubscribeTopic")?.ToString();
