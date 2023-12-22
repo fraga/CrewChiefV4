@@ -1100,6 +1100,12 @@ namespace CrewChiefV4
                 style = CoDriver.CornerCallStyle.DIRECTION_FIRST_REVERSED
             });
 
+            this.codriverStyleBox.Items.Add(new MainWindow.CoDriverStyleEntry()
+            {
+                uiText = Configuration.getUIString("codriver_style_muted"),
+                style = CoDriver.CornerCallStyle.MUTED
+            });
+
             if (MainWindow.soundTestMode)
             {
                 this.SuspendLayout();
@@ -1434,6 +1440,8 @@ namespace CrewChiefV4
                 this.codriverStyleBox.Text = Configuration.getUIString("codriver_style_number_first_reversed");
             else if (savedCodriverSyle == (int)CoDriver.CornerCallStyle.DIRECTION_FIRST_REVERSED)
                 this.codriverStyleBox.Text = Configuration.getUIString("codriver_style_direction_first_reversed");
+            else if (savedCodriverSyle == (int)CoDriver.CornerCallStyle.MUTED)
+                this.codriverStyleBox.Text = Configuration.getUIString("codriver_style_muted");
             else
                 Debug.Assert(false, "Unknown codriver style.");
 

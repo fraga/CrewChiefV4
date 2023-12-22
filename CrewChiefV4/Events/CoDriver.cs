@@ -27,6 +27,7 @@ namespace CrewChiefV4.Events
             DESCRIPTIVE,
             NUMBER_FIRST_REVERSED,
             DIRECTION_FIRST_REVERSED,
+            MUTED,
         }
 
         // for making pace note corrections, and eventually stage recce
@@ -1119,13 +1120,15 @@ namespace CrewChiefV4.Events
             }
             else
             {
-                this.ProcessRaceStart(cgs, csd, psd);
-                if (CrewChief.gameDefinition.gameEnum == GameEnum.RBR)
-                {
-                    this.ProcessPenalties(cgs, pgs);
-                    this.ProcessLost(cgs, pgs);
+                if (CoDriver.cornerCallStyle != CornerCallStyle.MUTED) {
+                    this.ProcessRaceStart(cgs, csd, psd);
+                    if (CrewChief.gameDefinition.gameEnum == GameEnum.RBR)
+                    {
+                        this.ProcessPenalties(cgs, pgs);
+                        this.ProcessLost(cgs, pgs);
+                    }
+                    this.ProcessPacenotes(cgs, csd);
                 }
-                this.ProcessPacenotes(cgs, csd);
             }
         }
 
