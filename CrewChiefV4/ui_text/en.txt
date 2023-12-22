@@ -266,6 +266,7 @@ codriver_style_direction_first = Direction First
 codriver_style_descriptive = Descriptive
 codriver_style_number_first_reversed = Number First Reversed
 codriver_style_direction_first_reversed = Direction First Reversed
+codriver_style_muted = Muted (Blind Rally)
 messages_audio_device_label = Messages playbac&k device
 background_audio_device_label = Background playback &device
 
