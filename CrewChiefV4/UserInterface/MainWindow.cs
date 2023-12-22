@@ -1009,6 +1009,17 @@ namespace CrewChiefV4
             this.RestoreFromTray();
         }
 
+        Dictionary<CoDriver.CornerCallStyle, string> coDriverStyles =
+            new Dictionary<CoDriver.CornerCallStyle, string>()
+            {
+                { CoDriver.CornerCallStyle.NUMBER_FIRST, Configuration.getUIString("codriver_style_number_first") },
+                { CoDriver.CornerCallStyle.DIRECTION_FIRST, Configuration.getUIString("codriver_style_direction_first") },
+                { CoDriver.CornerCallStyle.DESCRIPTIVE, Configuration.getUIString("codriver_style_descriptive") },
+                { CoDriver.CornerCallStyle.NUMBER_FIRST_REVERSED, Configuration.getUIString("codriver_style_number_first_reversed") },
+                { CoDriver.CornerCallStyle.DIRECTION_FIRST_REVERSED, Configuration.getUIString("codriver_style_direction_first_reversed") },
+                { CoDriver.CornerCallStyle.MUTED, Configuration.getUIString("codriver_style_muted") }
+            };
+
         private void InitializeUiText()
         {
             this.startApplicationButton.Text = Configuration.getUIString("start_application");
@@ -1070,42 +1081,15 @@ namespace CrewChiefV4
             this.gameDefinitionList.Items.Clear();
             this.gameDefinitionList.Items.AddRange(GameDefinition.getGameDefinitionFriendlyNames());
 
-            this.codriverStyleBox.Items.Add(new MainWindow.CoDriverStyleEntry()
+            foreach (var style in coDriverStyles)
             {
-                uiText = Configuration.getUIString("codriver_style_number_first"),
-                style = CoDriver.CornerCallStyle.NUMBER_FIRST
-            });
-
-            this.codriverStyleBox.Items.Add(new MainWindow.CoDriverStyleEntry()
-            {
-                uiText = Configuration.getUIString("codriver_style_direction_first"),
-                style = CoDriver.CornerCallStyle.DIRECTION_FIRST
-            });
-
-            this.codriverStyleBox.Items.Add(new MainWindow.CoDriverStyleEntry()
-            {
-                uiText = Configuration.getUIString("codriver_style_descriptive"),
-                style = CoDriver.CornerCallStyle.DESCRIPTIVE
-            });
-
-            this.codriverStyleBox.Items.Add(new MainWindow.CoDriverStyleEntry()
-            {
-                uiText = Configuration.getUIString("codriver_style_number_first_reversed"),
-                style = CoDriver.CornerCallStyle.NUMBER_FIRST_REVERSED
-            });
-
-            this.codriverStyleBox.Items.Add(new MainWindow.CoDriverStyleEntry()
-            {
-                uiText = Configuration.getUIString("codriver_style_direction_first_reversed"),
-                style = CoDriver.CornerCallStyle.DIRECTION_FIRST_REVERSED
-            });
-
-            this.codriverStyleBox.Items.Add(new MainWindow.CoDriverStyleEntry()
-            {
-                uiText = Configuration.getUIString("codriver_style_muted"),
-                style = CoDriver.CornerCallStyle.MUTED
-            });
-
+                this.codriverStyleBox.Items.Add(new MainWindow.CoDriverStyleEntry()
+                {
+                    uiText = style.Value,
+                    style = style.Key
+                });
+            }
+ 
             if (MainWindow.soundTestMode)
             {
                 this.SuspendLayout();
@@ -1429,21 +1413,8 @@ namespace CrewChiefV4
                 this.codriverNameBox.Text = CoDriver.defaultCodriverId;
             }
 
-            var savedCodriverSyle = UserSettings.GetUserSettings().getInt("codriver_style");
-            if (savedCodriverSyle == (int)CoDriver.CornerCallStyle.NUMBER_FIRST)
-                this.codriverStyleBox.Text = Configuration.getUIString("codriver_style_number_first");
-            else if (savedCodriverSyle == (int)CoDriver.CornerCallStyle.DIRECTION_FIRST)
-                this.codriverStyleBox.Text = Configuration.getUIString("codriver_style_direction_first");
-            else if (savedCodriverSyle == (int)CoDriver.CornerCallStyle.DESCRIPTIVE)
-                this.codriverStyleBox.Text = Configuration.getUIString("codriver_style_descriptive");
-            else if (savedCodriverSyle == (int)CoDriver.CornerCallStyle.NUMBER_FIRST_REVERSED)
-                this.codriverStyleBox.Text = Configuration.getUIString("codriver_style_number_first_reversed");
-            else if (savedCodriverSyle == (int)CoDriver.CornerCallStyle.DIRECTION_FIRST_REVERSED)
-                this.codriverStyleBox.Text = Configuration.getUIString("codriver_style_direction_first_reversed");
-            else if (savedCodriverSyle == (int)CoDriver.CornerCallStyle.MUTED)
-                this.codriverStyleBox.Text = Configuration.getUIString("codriver_style_muted");
-            else
-                Debug.Assert(false, "Unknown codriver style.");
+            codriverStyleBox.Text = coDriverStyles[(CoDriver.CornerCallStyle)UserSettings.GetUserSettings().getInt("codriver_style")];
+
 
             // only register the value changed listener after loading the saved values
             this.personalisationBox.SelectedValueChanged += new System.EventHandler(this.personalisationSelected);
