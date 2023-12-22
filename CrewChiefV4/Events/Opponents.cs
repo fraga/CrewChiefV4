@@ -388,13 +388,21 @@ namespace CrewChiefV4.Events
                                     DateTime announceAfterTime = DateTime.MinValue;
                                     if (!WatchedOpponents.watchedOpponentKeys.Contains(opponentName) &&
                                         !opponentData.isEnteringPits() && !opponentData.InPits && (lastNextCarAheadOpponentName == null || !lastNextCarAheadOpponentName.Equals(opponentName)) &&
-                                        opponentData.CanUseName && AudioPlayer.canReadName(opponentName, false) &&
+                                        opponentData.CanUseName &&
                                         (!onlyAnnounceOpponentAfter.TryGetValue(opponentName, out announceAfterTime) || currentGameState.Now > announceAfterTime))
                                     {
                                         Console.WriteLine("New car ahead: " + opponentName);
                                         int delay = Utilities.random.Next(Position.maxSecondsToWaitBeforeReportingPass + 1, Position.maxSecondsToWaitBeforeReportingPass + 3);
+
+                                        var (main, alt) = getOpponentDetailed(opponentData, includePosition: false);
+                                        var intro = MessageFragment.Text(folderNextCarIs);
+                                        main.Insert(0, intro);
+                                        alt.Insert(0, intro);
+
                                         audioPlayer.playMessage(new QueuedMessage("new_car_ahead", delay + 2, secondsDelay: delay,
-                                            messageFragments: MessageContents(folderNextCarIs, opponentData), abstractEvent: this,
+                                            messageFragments: main,
+                                            alternateMessageFragments: alt,
+                                            abstractEvent: this,
                                             validationData: new Dictionary<string, object> { { validationDriverAheadKey, opponentData.DriverRawName } },
                                             priority: 7));
                                         nextCarAheadChangeMessage = currentGameState.Now.Add(TimeSpan.FromSeconds(30));
@@ -416,8 +424,19 @@ namespace CrewChiefV4.Events
                                     currentGameState.Now > nextLeadChangeMessage && leader.CanUseName && AudioPlayer.canReadName(name, false))
                                 {
                                     Console.WriteLine("Lead change, current leader is " + name + " laps completed = " + currentGameState.SessionData.CompletedLaps);
+                                    // we use the short version on the basis
+                                    // that we don't need to make an assessment
+                                    // about who they are, but we still want to
+                                    // be able to identify them on track
+                                    // (number) and voice (ideally name).
+                                    var (main, alt) = getOpponentShort(leader, alwaysIncludeNumber: true);
+                                    main.Add(MessageFragment.Text(folderIsNowLeading));
+                                    alt.Add(MessageFragment.Text(folderIsNowLeading));
+
                                     audioPlayer.playMessage(new QueuedMessage("new_leader", 4, secondsDelay:2,
-                                        messageFragments: MessageContents(leader, folderIsNowLeading), abstractEvent: this,
+                                        messageFragments: main,
+                                        alternateMessageFragments: alt,
+                                        abstractEvent: this,
                                         validationData: new Dictionary<string, object> { { validationNewLeaderKey, name } }, priority: 3));
                                     nextLeadChangeMessage = currentGameState.Now.Add(TimeSpan.FromSeconds(60));
                                     lastLeaderAnnounced = name;
@@ -718,7 +737,8 @@ namespace CrewChiefV4.Events
                 {
                     fragments.Add(MessageFragment.Text(clazz));
                 }
-            } else if (includePosition)
+            }
+            else if (includePosition)
             {
                 // position in class. There's no point in reporting the position of other classes, although
                 // it might make sense to report when it's the leader.
@@ -750,14 +770,17 @@ namespace CrewChiefV4.Events
                 if (irating > 0 && Math.Abs(irating - our_irating) >= our_irating / 10)
                 {
                     fragments.Add(MessageFragment.Text(folderRatingIntro));
-                    // will this automatically convert into the optimised 1point3 sound packs?
                     Tuple<int, int> parts = Utilities.WholeAndFractionalPart(irating / 1000.0f);
-                    fragments.Add(MessageFragment.Integer(parts.Item1));
-                    fragments.Add(MessageFragment.Text(NumberReader.folderPoint));
-                    fragments.Add(MessageFragment.Integer(parts.Item2));
-                    // fragments.Add(MessageFragment.Text("k"));
+                    // fragments.Add(MessageFragment.Integer(parts.Item1));
+                    // fragments.Add(MessageFragment.Text(NumberReader.folderPoint));
+                    // fragments.Add(MessageFragment.Integer(parts.Item2));
+                    String number = "numbers/" + parts.Item1 + "point" + parts.Item2;
+                    fragments.Add(MessageFragment.Text(number));
+                    // the "k" sounds a bit forced, there's too much of a gap
+                    // fragments.Add(MessageFragment.Text(folderK));
                 }
-            } else if (CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM)
+            }
+            else if (CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM)
             {
                 R3ERatingData ratingData = R3ERatings.getRatingForUserId(opponent.r3eUserId);
                 if (R3ERatings.playerRating != null && ratingData != null)
@@ -797,14 +820,37 @@ namespace CrewChiefV4.Events
                 }
             }
 
-            List<MessageFragment> fragments_alt = new List<MessageFragment>(fragments);
+            var (main, alt) = getOpponentShort(opponent, !includePosition);
+            main.AddRange(fragments);
+            alt.AddRange(fragments);
 
-            // prefer the driver name, but fall back to their car number
-            fragments.Insert(0, MessageFragment.Opponent(opponent));
-            fragments_alt.Insert(0, MessageFragment.Text(Opponents.folderCarNumber));
-            fragments_alt.InsertRange(1, new CarNumber(opponent.CarNumber).getMessageFragments());
+            return Tuple.Create(main, alt);
+        }
+        // the driver's name and an alt that uses their car number (unless the number is -1 in which case we say we have a stock response)
+        private Tuple<List<MessageFragment>, List<MessageFragment>> getOpponentShort(OpponentData opponent, bool alwaysIncludeNumber)
+        {
+            var main = new List<MessageFragment>();
+            var alt = new List<MessageFragment>();
 
-            return Tuple.Create(fragments, fragments_alt);
+            main.Add(MessageFragment.Opponent(opponent));
+
+            if (opponent.CarNumber.Equals("-1"))
+            {
+                // AMS2 doesn't have car numbers
+                alt.Add(MessageFragment.Text(folderCantPronounceName));
+            } else {
+                alt.Add(MessageFragment.Text(Opponents.folderCarNumber));
+                var num = new CarNumber(opponent.CarNumber).getMessageFragments();
+                alt.AddRange(num);
+
+                if (alwaysIncludeNumber) {
+                    // this is for cases where it makes sense to know the numbers
+                    // that we can distinguish on the car on track.
+                    main.AddRange(num);
+                }
+            }
+
+            return Tuple.Create(main, alt);
         }
         private bool PlayOpponentDetailed(string opponentKey, bool includePosition)
         {
