@@ -103,7 +103,7 @@ namespace CrewChiefV4.NumberProcessing
                     fragments.Add(MessageFragment.Integer(hundreds));
                 }
                 // if the remainder < 10, add a 'zero' if we haven't already
-                if (remainder < 10)
+                if (hundreds > 0 && remainder < 10)
                 {
                     if (!addedLeadingZeros)
                     {
@@ -117,7 +117,7 @@ namespace CrewChiefV4.NumberProcessing
                     fragments.Add(MessageFragment.Integer(remainder / 10));
                     fragments.Add(MessageFragment.Integer(remainder % 10));
                 }
-                // for others read as "thirty five" or whatever
+                // for others read as "one" or "thirty five" or whatever
                 else
                 {
                     fragments.Add(MessageFragment.Integer(remainder));
