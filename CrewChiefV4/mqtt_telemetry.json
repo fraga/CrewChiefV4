@@ -8,6 +8,7 @@
 	"SubscribeTopic": "/coach",
 	"UseTLS": false,
 	"AllowSoundDownload": false,
+	"DebugResponse": false,
 	"Channels": [
 		{
 			"CrewChiefField": "ControlData.ClutchPedal",
