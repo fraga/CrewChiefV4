@@ -518,6 +518,21 @@ namespace CrewChiefV4.RBR
                     cgs.carName = shared.perFrame.mRBRMapSettings.carID.ToString();
                 }
 
+                // based on shared.perFrame.mRBRMapSettings.tyreType int value, set the tyre type name
+                string[] tyreTypes =
+                {
+                    "Dry Tarmac",
+                    "Intermediate Tarmac",
+                    "Wet Tarmac",
+                    "Dry Gravel",
+                    "Intermediate Gravel",
+                    "Wet Gravel",
+                    "Snow",
+                };
+                cgs.TyreData.TyreTypeName = shared.perFrame.mRBRMapSettings.tyreType < tyreTypes.Length ?
+                    tyreTypes[shared.perFrame.mRBRMapSettings.tyreType] :
+                    "Unknown";
+
                 csd.SessionStartTime = cgs.Now;
             }
 
@@ -529,6 +544,7 @@ namespace CrewChiefV4.RBR
                 csd.TrackDefinition = psd.TrackDefinition;
                 csd.SessionStartTime = psd.SessionStartTime;
                 cgs.carName = pgs.carName;
+                cgs.TyreData.TyreTypeName = pgs.TyreData.TyreTypeName;
             }
 
             if (psd != null
