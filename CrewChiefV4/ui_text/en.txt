@@ -178,7 +178,7 @@ guessed_opponent_names = Guessed Opponent Names
 edit_guessed_names_file = Edit Guessed Names File
 delete_additional_names_file = Delete Additional Names File
 edit_opponent_names_file = Edit Opponent Names File
-edit_guessed_names_file_tooltip = Opens the file in Notepad which contains oppponent names that Crew Chief has guessed so you can edit the guesses or delete the contents completely
+edit_guessed_names_file_tooltip = Opens the file in Notepad which contains opponent names that Crew Chief has guessed so you can edit the guesses or delete the contents completely
 edit_opponent_names_file_tooltip = Opens the file in Notepad which contains preset opponent names so you can edit them
 opponent_names_list_tooltip = Opponent name : Recorded name pairs\Select then right click to listen to or change the sound
 
@@ -221,9 +221,9 @@ personalisation_tooltip = Choose a name you'd like Chief to call you (requires r
 install_plugin_popup_text = Crew Chief has additional files which it needs to be installed or updated before you can run
 install_plugin_popup_text2 = Click OK to install or Cancel to Return
 install_plugin_popup_title = Plugin Needed
-install_plugin_select_directory_start = Please select
-install_plugin_select_directory_end = installation directory
-install_plugin_popup_enable_text = Crew Chief can automatically enable the plugin for you, if you select Cancel you will have to enable it manually in the game ui. Click OK to enable or Cancel to Return
+install_plugin_select_directory_start = Please select the folder where you installed
+install_plugin_select_directory_end = (As it's not
+install_plugin_popup_enable_text = Crew Chief can automatically enable the plugin for you, if you select Cancel you will have to enable it manually in the game UI. Click OK to enable or Cancel to Return
 install_plugin_popup_enable_title = Enable Plugin
 install_plugin_popup_error_text = Failed to Install or Update the Plugin.  Please make sure the game is not running. Error:
 install_plugin_popup_error_title = Plugin Install or Update failed
@@ -358,8 +358,8 @@ multiple_fuel_action = Fuel action
 wait_action = Wait action
 free_text_action = Free text
 modifier_and_key = Modifier and key
-advanced_edit_action = Advanced edit(no error checking!)
-action_repeated_key_presses = Repetition count(integer)
+advanced_edit_action = Advanced edit (no error checking!)
+action_repeated_key_presses = Repetition count (integer)
 action_wait_time = Wait time in milliseconds.
 action_free_text = Free Text
 undo_last_action = Undo last action
@@ -907,7 +907,7 @@ speech_recognition_country_metadata = RESTART_REQUIRED
 
 # Property: UI language
 ui_language = UI language
-ui_language_help = Optional - the localisation country to use for the ui. If this isn't set, the app will use OS system language. If you set it, the value must be a valid ISO 639-1 code for country, followed by a hyphen, then a valid two letter region code. For example en-GB. If no translation file is found, the app will default back to English.
+ui_language_help = Optional - the localisation country to use for the UI. If this isn't set, the app will use OS system language. If you set it, the value must be a valid ISO 639-1 code for country, followed by a hyphen, then a valid two letter region code. For example en-GB. If no translation file is found, the app will default back to English.
 ui_language_category = INTERNATIONALISATION;AUDIO_VOICE_AND_CONTROLLERS
 ui_language_metadata = RESTART_REQUIRED
 
@@ -2177,8 +2177,8 @@ enable_iracing_pit_state_during_fcy_help = Announce pit state during Safety Car/
 enable_iracing_pit_state_during_fcy_filter = IRACING
 enable_iracing_pit_state_during_fcy_category = FLAGS_AND_RULES;PIT_STOPS_AND_MULTICLASS
 
-# Property: iRacing fcy/formation use driver names
-iracing_fcy_formation_use_drivername = iRacing fcy/formation use driver names
+# Property: iRacing FCY/formation use driver names
+iracing_fcy_formation_use_drivername = iRacing FCY/formation use driver names
 iracing_fcy_formation_use_drivername_help = Use driver names instead of car number if available during FCY and formation laps
 iracing_fcy_formation_use_drivername_filter = IRACING
 iracing_fcy_formation_use_drivername_category = FLAGS_AND_RULES;PIT_STOPS_AND_MULTICLASS
@@ -2680,7 +2680,7 @@ enable_mqtt_telemetry_help = Enable MQTT telemetry transmission to an MQTT broke
 enable_mqtt_telemetry_category = MISC
 
 # Property: MQTT mqtt_topic_drivername
-mqtt_topic_drivername = MQTT drivername
+mqtt_topic_drivername = MQTT driver name
 mqtt_topic_drivername_help = A unique driver name to be inserted into the MQTT topic
 mqtt_topic_drivername_category = MISC
 

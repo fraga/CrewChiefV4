@@ -323,7 +323,8 @@ namespace CrewChiefV4
                         FolderBrowserDialog dialog = new FolderBrowserDialog();
                         dialog.ShowNewFolderButton = false;
                         dialog.Description = Configuration.getUIString("install_plugin_select_directory_start") + " " +
-                            gameDefinition.gameInstallDirectory + " " + Configuration.getUIString("install_plugin_select_directory_end");
+                            gameDefinition.gameInstallDirectory + "\n" + Configuration.getUIString("install_plugin_select_directory_end") +
+                            " " + gameInstallPath + ")";
                         dialog.RootFolder = Environment.SpecialFolder.MyComputer;
 
                         DialogResult result = dialog.ShowDialog();
