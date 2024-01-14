@@ -43,30 +43,30 @@ class acsVehicleInfo(ctypes.Structure):
         ('engineLifeLeft', c_float),
         ('tyreInflation', c_float * 4),
     ]
-      
+
 class SPageFileCrewChief(ctypes.Structure):
     _pack_ = 4
     _fields_ = [
         ('numVehicles', c_int32),
         ('focusVehicle', c_int32),
         ('serverName', c_char * 512),
-        ('vehicleInfo', acsVehicleInfo * 64),
+        ('vehicleInfo', acsVehicleInfo * 128),
         ('acInstallPath', c_char * 512),
         ('isInternalMemoryModuleLoaded', c_int32),
-        ('pluginVersion', c_char * 32)		
+        ('pluginVersion', c_char * 32)
     ]
 
 class CrewChiefShared:
     def __init__(self):
         self._acpmf_crewchief = mmap.mmap(0, ctypes.sizeof(SPageFileCrewChief),"acpmf_crewchief")
         self.crewchief = SPageFileCrewChief.from_buffer(self._acpmf_crewchief)
-              
+
     def close(self):
         self._acpmf_crewchief.close()
 
     def __del__(self):
         self.close()
-            
+
     def getsharedmem(self):
         return self.crewchief
-        
+
