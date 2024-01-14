@@ -9,6 +9,7 @@ namespace CrewChiefV4.assetto
         public const string SharedMemoryNameGraphic = "Local\\acpmf_graphics"; // Local\\acpmf_graphics
         public const string SharedMemoryNameStatic = "Local\\acpmf_static"; // Local\\acpmf_static
         public const string SharedMemoryNameCrewChief= "Local\\acpmf_crewchief"; // Local\\acpmf_static
+        public const int MaxVehicles = 128;
     }
 
     namespace assettoData
@@ -301,7 +302,7 @@ namespace CrewChiefV4.assetto
             public int focusVehicle;
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 512)]
             public byte[] serverName;
-            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 64)]
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = assettoConstant.MaxVehicles)]
             public acsVehicleInfo[] vehicle;
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 512)]
             public byte[] acInstallPath;
