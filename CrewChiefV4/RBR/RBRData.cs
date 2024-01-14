@@ -191,8 +191,18 @@ namespace CrewChiefV4.RBR
             public int unknown3;   // 0x10
             public int transmissionType; // 0x14  (0=Manual, 1=Automatic)
 
-            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 0x48 - 0x14 - sizeof(int))]
-            [JsonIgnore] public byte[] pad1;
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 0x30 - 0x14 - sizeof(int))]
+            [JsonIgnore] public byte[] pad1; // Padding to reach 0x30
+
+            public int racePaused; // 0x30 (0=Normal mode, 1=Racing in paused state)
+
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 0x38 - 0x30 - sizeof(int))]
+            [JsonIgnore] public byte[] pad2; // Padding to reach 0x38
+
+            public int tyreType;   // 0x38 (0=Dry tarmac, 1=Intermediate tarmac, 2=Wet tarmac, 3=Dry gravel, 4=Inter gravel, 5=Wet gravel, 6=Snow)
+
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 0x48 - 0x38 - sizeof(int))]
+            [JsonIgnore] public byte[] pad3; // Padding to reach 0x48
 
             public int weatherType;    // 0x48   (0=Good, 1=Random, 3=Bad)
             public int unknown4;       // 0x4C
