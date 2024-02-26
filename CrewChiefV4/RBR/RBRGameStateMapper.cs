@@ -592,9 +592,6 @@ namespace CrewChiefV4.RBR
             cgs.PositionAndMotionData.CarSpeed = shared.perFrame.mRBRCarInfo.speed / 3.6f;  // Convert to m/s
             cgs.PositionAndMotionData.DistanceRoundTrack = shared.perFrame.mRBRCarInfo.distanceFromStartControl;
 
-            if (shared.perFrame.mRBRCarInfo.carPosition != null)
-                cgs.PositionAndMotionData.WorldPosition = new float[] { shared.perFrame.mRBRCarInfo.carPosition[0], shared.perFrame.mRBRCarInfo.carPosition[1], shared.perFrame.mRBRCarInfo.carPosition[2] };
-
             if (shared.perFrame.mRBRCarMovement.carMapLocation != null)
             {
                 // Thank you, Nicolas! (Wotever).
@@ -611,7 +608,21 @@ namespace CrewChiefV4.RBR
 
                 var angle = (float)Math.Atan2((double)single4, (double)single5);
                 cgs.PositionAndMotionData.Orientation.Yaw = -(angle * 180.0f) / 3.1415926535897931f;
+
+                cgs.PositionAndMotionData.WorldPosition = new float[] {
+                    shared.perFrame.mRBRCarMovement.carMapLocation[12],
+                    shared.perFrame.mRBRCarMovement.carMapLocation[13],
+                    shared.perFrame.mRBRCarMovement.carMapLocation[14]
+                };
             }
+
+            // If we don't have a world position yet, use the car position.
+            if (cgs.PositionAndMotionData.WorldPosition == null && shared.perFrame.mRBRCarInfo.carPosition != null)
+                cgs.PositionAndMotionData.WorldPosition = new float[] {
+                    shared.perFrame.mRBRCarInfo.carPosition[0],
+                    shared.perFrame.mRBRCarInfo.carPosition[1],
+                    shared.perFrame.mRBRCarInfo.carPosition[2]
+                };
 
             if (!this.pacenotesLoaded
                 && !cgs.UseCrewchiefPaceNotes
