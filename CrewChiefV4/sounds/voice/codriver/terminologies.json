@@ -29,28 +29,39 @@
     "NUMBER_FIRST": {
       "terminology": {
         "corner_left_acute": "corner_hairpin_left",
-        "corner_right_acute": "corner_hairpin_right"
+        "corner_right_acute": "corner_hairpin_right",
+        "detail_keep_left_rbr": "detail_keep_left",
+        "detail_keep_right_rbr": "detail_keep_right"
       }
     },
     "DIRECTION_FIRST": {
       "terminology": {
         "corner_left_acute": "corner_hairpin_left",
-        "corner_right_acute": "corner_hairpin_right"
+        "corner_right_acute": "corner_hairpin_right",
+        "detail_keep_left_rbr": "detail_keep_left",
+        "detail_keep_right_rbr": "detail_keep_right"
       }
     },
     "DESCRIPTIVE": {
-      "terminology": {}
+      "terminology": {
+        "detail_keep_left_rbr": "detail_keep_left",
+        "detail_keep_right_rbr": "detail_keep_right"
+      }
     },
     "NUMBER_FIRST_REVERSED": {
       "terminology": {
         "corner_left_acute": "corner_hairpin_left",
-        "corner_right_acute": "corner_hairpin_right"
+        "corner_right_acute": "corner_hairpin_right",
+        "detail_keep_left_rbr": "detail_keep_left",
+        "detail_keep_right_rbr": "detail_keep_right"
       }
     },
     "DIRECTION_FIRST_REVERSED": {
       "terminology": {
         "corner_left_acute": "corner_hairpin_left",
-        "corner_right_acute": "corner_hairpin_right"
+        "corner_right_acute": "corner_hairpin_right",
+        "detail_keep_left_rbr": "detail_keep_left",
+        "detail_keep_right_rbr": "detail_keep_right"
       }
     }
   },
