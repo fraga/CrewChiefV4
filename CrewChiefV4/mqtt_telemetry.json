@@ -3,10 +3,10 @@
 	"Topic": "crewchief",
 	"Login": "crewchief",
 	"Password": "crewchief",
-	"Port": 31883,
+	"Port": 30883,
 	"UpdateRateLimit": 0,
 	"SubscribeTopic": "/coach",
-	"UseTLS": false,
+	"UseTLS": true,
 	"AllowSoundDownload": false,
 	"Channels": [
 		{
