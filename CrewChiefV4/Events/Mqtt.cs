@@ -34,6 +34,7 @@ namespace CrewChiefV4.Events
         private string password;
         private bool useTls;
         private bool allowSoundDownload;
+        private bool debugResponse;
         private int port;
         private List<DataItem> dataItems;
 
@@ -189,7 +190,7 @@ namespace CrewChiefV4.Events
                         {
                             if (distance <= drt && drt <= max_distance)
                             {
-                                // Console.WriteLine($"MQTT: play {messageName} -  max: {max_distance} drt: {drt}");
+                                publishDebugResponse($"play {messageName} -  distance: {distance} - max: {max_distance}");
                                 return true;
                             }
                         }
@@ -197,7 +198,7 @@ namespace CrewChiefV4.Events
                         {
                             if (distance <= drt || drt <= max_distance)
                             {
-                                // Console.WriteLine($"MQTT: play {messageName} -  max: {max_distance} drt: {drt}");
+                                publishDebugResponse($"play {messageName} -  distance: {distance} - max: {max_distance}");
                                 return true;
                             }
                         }
@@ -250,6 +251,8 @@ namespace CrewChiefV4.Events
                         message = response;
                     }
                     playMessage(message, distance, max_distance, priority);
+
+                    publishDebugResponse(response);
                 }
                 catch (AggregateException ex)
                 {
@@ -273,6 +276,35 @@ namespace CrewChiefV4.Events
             catch (AggregateException ex)
             {
                 Log.Error("Failed to connect to the server: " + ex.InnerException.Message);
+            }
+        }
+
+        private void publishDebugResponse(string response)
+        {
+            if (!debugResponse) 
+                return;
+
+            try
+            {
+                var responseTopic = subscribeTopic + "/_debug/" + driverName;
+                var payload = new Dictionary<string, object>();
+                payload["response"] = response;
+                if (CrewChief.currentGameState != null)
+                {
+                    if (CrewChief.currentGameState.PositionAndMotionData != null)
+                    {
+                        payload["distance"] = CrewChief.currentGameState.PositionAndMotionData.DistanceRoundTrack;
+                    }
+                }
+                var ack = new MqttApplicationMessageBuilder()
+                    .WithTopic(responseTopic)
+                    .WithPayload(JsonConvert.SerializeObject(payload))
+                    .Build();
+                Mqtt.mqttClient.PublishAsync(ack, CancellationToken.None);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"MQTT: Failed to publish to response topic: {ex.Message}");
             }
         }
 
@@ -395,6 +427,7 @@ namespace CrewChiefV4.Events
             password = config.GetValue("Password")?.ToString();
             useTls = config.GetValue("UseTLS")?.ToObject<bool>() ?? false;
             allowSoundDownload = config.GetValue("AllowSoundDownload")?.ToObject<bool>() ?? false;
+            debugResponse = config.GetValue("DebugResponse")?.ToObject<bool>() ?? false;
             port = config.GetValue("Port").ToObject<int>();
             updateRateLimit = config.GetValue("UpdateRateLimit").ToObject<int>();
             subscribeTopic = config.GetValue("SubscribeTopic")?.ToString();
