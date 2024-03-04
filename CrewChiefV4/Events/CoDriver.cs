@@ -458,6 +458,34 @@ namespace CrewChiefV4.Events
             1000
         };
 
+        // used for mapping corners to their reverse if cornerCallStyle is set to _REVERSED
+        private static readonly Dictionary<string, string> reverseCorners = new Dictionary<string, string>
+        {
+            {"corner_1_left", "corner_6_left"},
+            {"corner_2_left", "corner_5_left"},
+            {"corner_3_left", "corner_4_left"},
+            {"corner_4_left", "corner_3_left"},
+            {"corner_5_left", "corner_2_left"},
+            {"corner_6_left", "corner_1_left"},
+            {"corner_1_right", "corner_6_right"},
+            {"corner_2_right", "corner_5_right"},
+            {"corner_3_right", "corner_4_right"},
+            {"corner_4_right", "corner_3_right"},
+            {"corner_5_right", "corner_2_right"},
+            {"corner_6_right", "corner_1_right"},
+            {"corner_1_left_plus", "corner_6_left_plus"},
+            {"corner_2_left_plus", "corner_5_left_plus"},
+            {"corner_3_left_plus", "corner_4_left_plus"},
+            {"corner_4_left_plus", "corner_3_left_plus"},
+            {"corner_5_left_plus", "corner_2_left_plus"},
+            {"corner_6_left_plus", "corner_1_left_plus"},
+            {"corner_1_right_plus", "corner_6_right_plus"},
+            {"corner_2_right_plus", "corner_5_right_plus"},
+            {"corner_3_right_plus", "corner_4_right_plus"},
+            {"corner_4_right_plus", "corner_3_right_plus"},
+            {"corner_5_right_plus", "corner_2_right_plus"},
+            {"corner_6_right_plus", "corner_1_right_plus"}
+        };
 
         // It turns out that chainedNotes not only define "into" logic, they also affect distance calculation.
         // That means we may need to allow specifying those in the .json.
@@ -1833,30 +1861,10 @@ namespace CrewChiefV4.Events
                     || CoDriver.cornerCallStyle == CoDriver.CornerCallStyle.DIRECTION_FIRST_REVERSED)
                 {
                     // Invert 1:6 -> 6:1.
-                    if (pacenoteStrRemapped == "corner_1_left")
-                        pacenoteStrRemapped = "corner_6_left";
-                    else if (pacenoteStrRemapped == "corner_2_left")
-                        pacenoteStrRemapped = "corner_5_left";
-                    else if (pacenoteStrRemapped == "corner_3_left")
-                        pacenoteStrRemapped = "corner_4_left";
-                    else if (pacenoteStrRemapped == "corner_4_left")
-                        pacenoteStrRemapped = "corner_3_left";
-                    else if (pacenoteStrRemapped == "corner_5_left")
-                        pacenoteStrRemapped = "corner_2_left";
-                    else if (pacenoteStrRemapped == "corner_6_left")
-                        pacenoteStrRemapped = "corner_1_left";
-                    else if (pacenoteStrRemapped == "corner_1_right")
-                        pacenoteStrRemapped = "corner_6_right";
-                    else if (pacenoteStrRemapped == "corner_2_right")
-                        pacenoteStrRemapped = "corner_5_right";
-                    else if (pacenoteStrRemapped == "corner_3_right")
-                        pacenoteStrRemapped = "corner_4_right";
-                    else if (pacenoteStrRemapped == "corner_4_right")
-                        pacenoteStrRemapped = "corner_3_right";
-                    else if (pacenoteStrRemapped == "corner_5_right")
-                        pacenoteStrRemapped = "corner_2_right";
-                    else if (pacenoteStrRemapped == "corner_6_right")
-                        pacenoteStrRemapped = "corner_1_right";
+                    if (reverseCorners.ContainsKey(pacenoteStrRemapped))
+                    {
+                        pacenoteStrRemapped = reverseCorners[pacenoteStrRemapped];
+                    }
 
                     if (CoDriver.cornerCallStyle == CoDriver.CornerCallStyle.DIRECTION_FIRST_REVERSED)
                     {
