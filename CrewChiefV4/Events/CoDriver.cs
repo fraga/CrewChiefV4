@@ -385,6 +385,7 @@ namespace CrewChiefV4.Events
             detail_and = 4084,
             detail_thightens = 4088,
             detail_double_tightens = 4089,
+            detail_long = 4092,
 
             // _don't care?
             detail_place_holder = 10005,
@@ -458,7 +459,7 @@ namespace CrewChiefV4.Events
             1000
         };
 
-        // used for mapping corners to their reverse if cornerCallStyle is set to _REVERSED
+        // Used for mapping corners to their reverse if cornerCallStyle is set to _REVERSED
         private static readonly Dictionary<string, string> reverseCorners = new Dictionary<string, string>
         {
             {"corner_1_left", "corner_6_left"},
