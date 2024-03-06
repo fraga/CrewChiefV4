@@ -162,39 +162,6 @@ namespace CrewChiefV4.RBR
    
         }
 
-        [Flags]
-        private enum RBRPacenoteModifier : int
-        {
-            none = 0,
-            detail_narrows = 1,
-            detail_wideout = 2,
-            detail_tightens = 4,
-            detail_dont_cut = 32,
-            detail_cut = 64,
-            detail_double_tightens = 128,
-            detail_no_link = 256,
-            detail_long = 1024,
-            detail_maybe = 8192
-        }
-        private static int SanitizePacenoteModifier(int input)
-        {
-            // Initialize a variable to hold the result bitfield.
-            int resultBitfield = 0;
-
-            // Iterate through the RBRPacenoteModifier enum values.
-            foreach (RBRPacenoteModifier modifier in Enum.GetValues(typeof(RBRPacenoteModifier)))
-            {
-                // Check if the current modifier bit is set in the input.
-                if ((input & (int)modifier) != 0)
-                {
-                    // Add the modifier to the result bitfield.
-                    resultBitfield |= (int)modifier;
-                }
-            }
-
-            return resultBitfield;
-        }
-
         private class RBRTrackDefinition
         {
             public RBRTrackDefinition(string name, string country, RBRGameStateMapper.RBRSurfaceType surface, double approxLengthKM)
@@ -798,9 +765,14 @@ namespace CrewChiefV4.RBR
 
                 // Remove modifier flags that are not yet interesting.
                 var flagsSanitized = shared.coDriver.mPacenotes[i].flags;
-
-                flagsSanitized = RBRGameStateMapper.SanitizePacenoteModifier(flagsSanitized);
-
+                if ((shared.coDriver.mPacenotes[i].flags & 8) != 0)
+                {
+                    // 8 seems to be sound index to use (1st sound?).
+                    flagsSanitized &= ~8;
+#if DEBUG
+                    Console.WriteLine($"LoadPacenotes: WARNING: removed modifier 8 on pacenote at: {i}  {pacenote}  flags: {shared.coDriver.mPacenotes[i].flags}  distance: {distance.ToString("0.000")}.");
+#endif  // DEBUG
+                }
 
                 if ((shared.coDriver.mPacenotes[i].flags & 256) != 0)
                 {
