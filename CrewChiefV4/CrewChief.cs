@@ -117,6 +117,9 @@ namespace CrewChiefV4
 
         public GameStateData previousGameState = null;
 
+        /// <summary>
+        /// Data is available from a game
+        /// </summary>
         public Boolean mapped = false;
 
         private SessionEndMessages sessionEndMessages;
@@ -465,6 +468,12 @@ namespace CrewChiefV4
             return this.spotter.getGridSide(this.latestRawGameData);
         }
 
+        /// <summary>
+        /// Run Crew Chief
+        /// </summary>
+        /// <param name="filenameToRun">if running from trace data, otherwise null</param>
+        /// <param name="dumpToFile">if saving trace data</param>
+        /// <returns>Game ran</returns>
         public Boolean Run(String filenameToRun, Boolean dumpToFile)
         {
             clearAndReloadEvents();
@@ -577,7 +586,7 @@ namespace CrewChiefV4
                     alarmClock.trigger(null, null);
 
                     if (!loadDataFromFile)
-                    {
+                    { // Get real data from game, set "mapped" if it's available
                         // Turns our checking for running process by name is an expensive system call.  So don't do that on every tick.
                         if (now > nextProcessStateCheck && gameDefinition.processName != null)
                         {
@@ -654,10 +663,10 @@ namespace CrewChiefV4
                                     // ignore
                                 }
                                 running = false;
-                                continue;
+                                continue; // while(running)
                             }
                         }
-                        else
+                        else // mapped (real data is available)
                         {
                             try
                             {
@@ -666,13 +675,13 @@ namespace CrewChiefV4
                             catch (GameDataReadException e)
                             {
                                 Console.WriteLine("Error reading game data " + e.cause.Message + ", " + e.cause.StackTrace);
-                                continue;
+                                continue; // while(running)
                             }
                         }
                         // another Thread may have stopped the app - check here before processing the game data
                         if (!running)
                         {
-                            continue;
+                            continue; // while(running)
                         }
                         gameStateMapper.versionCheck(latestRawGameData);
 
@@ -958,6 +967,7 @@ namespace CrewChiefV4
 
                         }
                     }
+
                     if (filenameToRun != null)
                     {
                         // mute the audio player for anything < 10ms

@@ -25,9 +25,15 @@ namespace CrewChiefV4.GameState
             }
         }
 
-        /** May return null if the game state raw data is considered invalid */
+        /// <summary>
+        /// May return null if the game state raw data is considered invalid
+        /// </summary>
         public abstract GameStateData mapToGameStateData(Object memoryMappedFileStruct, GameStateData previousGameState);
 
+        /// <summary>
+        /// May throw an exception if data is not available
+        /// (depends on which game)
+        /// </summary>
         public abstract void versionCheck(Object memoryMappedFileStruct);
 
         private DateTime nextOpponentBehindPitMessageDue = DateTime.MinValue;

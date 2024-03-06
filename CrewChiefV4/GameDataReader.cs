@@ -26,6 +26,12 @@ namespace CrewChiefV4
 
         public abstract void DumpRawGameData();
 
+        /// <summary>
+        /// Kinda enumerator, returns an item of game data each time it's called
+        /// </summary>
+        /// <param name="filename">(which EVERY game handler processes into a full path)</param>
+        /// <param name="pauseBeforeStart">mS to sleep the first time it's called</param>
+        /// <returns>raw game data</returns>
         public abstract Object ReadGameDataFromFile(String filename, int pauseBeforeStart);
 
         public abstract void ResetGameDataFromFile();
