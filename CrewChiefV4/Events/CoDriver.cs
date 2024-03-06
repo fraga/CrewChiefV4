@@ -325,15 +325,7 @@ namespace CrewChiefV4.Events
             detail_tightens_to_3 = 2004,
             detail_tightens_to_2 = 2005,
             detail_tightens_to_1 = 2006,
-            detail_tightens_to_hairpin = 2007,
-            detail_tightens_to_acute = 2027,
-            detail_tightens_to_6_plus = 2062,
-            detail_tightens_to_5_plus = 2063,
-            detail_tightens_to_4_plus = 2064,
-            detail_tightens_to_3_plus = 2065,
-            detail_tightens_to_2_plus = 2264,
-            detail_tightens_to_1_plus = 2066,
-            detail_tightens_to_open_hairpin = 2067,
+            detail_tightens_to_acute = 2007,
             detail_to_6 = 2008,
             detail_to_5 = 2009,
             detail_to_4 = 2010,
@@ -355,20 +347,6 @@ namespace CrewChiefV4.Events
             detail_immediate = 2030,
             corner_left_acute = 2040,
             corner_right_acute = 2041,
-            corner_6_right_plus = 2050,
-            corner_5_right_plus = 2051,
-            corner_4_right_plus = 2052,
-            corner_3_right_plus = 2053,
-            corner_2_right_plus = 2262,
-            corner_1_right_plus = 2054,
-            corner_open_hairpin_right_rbr = 2055,
-            corner_6_left_plus = 2056,
-            corner_5_left_plus = 2057,
-            corner_4_left_plus = 2058,
-            corner_3_left_plus = 2059,
-            corner_2_left_plus = 2263,
-            corner_1_left_plus = 2060,
-            corner_open_hairpin_left_rbr = 2061,
             detail_keep_left_rbr = 2100,
             detail_keep_right_rbr = 2101,
             detail_double = 2102,
@@ -385,7 +363,6 @@ namespace CrewChiefV4.Events
             detail_and = 4084,
             detail_thightens = 4088,
             detail_double_tightens = 4089,
-            detail_long = 4092,
 
             // _don't care?
             detail_place_holder = 10005,
@@ -459,34 +436,6 @@ namespace CrewChiefV4.Events
             1000
         };
 
-        // Used for mapping corners to their reverse if cornerCallStyle is set to _REVERSED
-        private static readonly Dictionary<string, string> reverseCorners = new Dictionary<string, string>
-        {
-            {"corner_1_left", "corner_6_left"},
-            {"corner_2_left", "corner_5_left"},
-            {"corner_3_left", "corner_4_left"},
-            {"corner_4_left", "corner_3_left"},
-            {"corner_5_left", "corner_2_left"},
-            {"corner_6_left", "corner_1_left"},
-            {"corner_1_right", "corner_6_right"},
-            {"corner_2_right", "corner_5_right"},
-            {"corner_3_right", "corner_4_right"},
-            {"corner_4_right", "corner_3_right"},
-            {"corner_5_right", "corner_2_right"},
-            {"corner_6_right", "corner_1_right"},
-            {"corner_1_left_plus", "corner_6_left_plus"},
-            {"corner_2_left_plus", "corner_5_left_plus"},
-            {"corner_3_left_plus", "corner_4_left_plus"},
-            {"corner_4_left_plus", "corner_3_left_plus"},
-            {"corner_5_left_plus", "corner_2_left_plus"},
-            {"corner_6_left_plus", "corner_1_left_plus"},
-            {"corner_1_right_plus", "corner_6_right_plus"},
-            {"corner_2_right_plus", "corner_5_right_plus"},
-            {"corner_3_right_plus", "corner_4_right_plus"},
-            {"corner_4_right_plus", "corner_3_right_plus"},
-            {"corner_5_right_plus", "corner_2_right_plus"},
-            {"corner_6_right_plus", "corner_1_right_plus"}
-        };
 
         // It turns out that chainedNotes not only define "into" logic, they also affect distance calculation.
         // That means we may need to allow specifying those in the .json.
@@ -1862,10 +1811,30 @@ namespace CrewChiefV4.Events
                     || CoDriver.cornerCallStyle == CoDriver.CornerCallStyle.DIRECTION_FIRST_REVERSED)
                 {
                     // Invert 1:6 -> 6:1.
-                    if (reverseCorners.ContainsKey(pacenoteStrRemapped))
-                    {
-                        pacenoteStrRemapped = reverseCorners[pacenoteStrRemapped];
-                    }
+                    if (pacenoteStrRemapped == "corner_1_left")
+                        pacenoteStrRemapped = "corner_6_left";
+                    else if (pacenoteStrRemapped == "corner_2_left")
+                        pacenoteStrRemapped = "corner_5_left";
+                    else if (pacenoteStrRemapped == "corner_3_left")
+                        pacenoteStrRemapped = "corner_4_left";
+                    else if (pacenoteStrRemapped == "corner_4_left")
+                        pacenoteStrRemapped = "corner_3_left";
+                    else if (pacenoteStrRemapped == "corner_5_left")
+                        pacenoteStrRemapped = "corner_2_left";
+                    else if (pacenoteStrRemapped == "corner_6_left")
+                        pacenoteStrRemapped = "corner_1_left";
+                    else if (pacenoteStrRemapped == "corner_1_right")
+                        pacenoteStrRemapped = "corner_6_right";
+                    else if (pacenoteStrRemapped == "corner_2_right")
+                        pacenoteStrRemapped = "corner_5_right";
+                    else if (pacenoteStrRemapped == "corner_3_right")
+                        pacenoteStrRemapped = "corner_4_right";
+                    else if (pacenoteStrRemapped == "corner_4_right")
+                        pacenoteStrRemapped = "corner_3_right";
+                    else if (pacenoteStrRemapped == "corner_5_right")
+                        pacenoteStrRemapped = "corner_2_right";
+                    else if (pacenoteStrRemapped == "corner_6_right")
+                        pacenoteStrRemapped = "corner_1_right";
 
                     if (CoDriver.cornerCallStyle == CoDriver.CornerCallStyle.DIRECTION_FIRST_REVERSED)
                     {
