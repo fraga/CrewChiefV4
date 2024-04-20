@@ -683,7 +683,15 @@ namespace CrewChiefV4
                         {
                             continue; // while(running)
                         }
-                        gameStateMapper.versionCheck(latestRawGameData);
+                        try
+                        {
+                            gameStateMapper.versionCheck(latestRawGameData);
+                        }
+                        catch (Exception e)
+                        {
+                            // Prevent CC crash.  Individual mappers should still make sure they don't throw indefinitely.
+                            Console.WriteLine("Error verifying raw data version: " + e.Message + ", " + e.StackTrace);
+                        }
 
                         GameStateData nextGameState = null;
                         try
