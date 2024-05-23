@@ -45,6 +45,7 @@
 #    "isBatteryPowered": if true, this is battery only powered vehicle class.
 #    "isVehicleSwapAllowed": if true, this battery series allows pitting to exchange for a car with fresh battery.
 #    "isRefuelingAllowed": if true, this series allows refueling.
+#    "preferNameForOrderMessages": if true, will refer the driver name over the car number in order messages (FCY, SC phase, rolling start, formation etc.)
 #}
 #
 # The default values are:

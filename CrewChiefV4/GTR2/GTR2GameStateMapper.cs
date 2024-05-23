@@ -187,70 +187,83 @@ namespace CrewChiefV4.GTR2
         private static int reinitWaitAttempts = 0;
         public override void versionCheck(Object memoryMappedFileStruct)
         {
-            if (GTR2GameStateMapper.pluginVerified)
+            if (GTR2GameStateMapper.pluginVerified || GTR2GameStateMapper.reinitWaitAttempts > 500)
                 return;
 
-            var shared = memoryMappedFileStruct as GTR2SharedMemoryReader.GTR2StructWrapper;
-            var versionStr = GTR2GameStateMapper.GetStringFromBytes(shared.extended.mVersion);
-            if (string.IsNullOrWhiteSpace(versionStr)
-                && GTR2GameStateMapper.reinitWaitAttempts < 500)
+            try
             {
-                // SimHub (and possibly other tools) leaks the shared memory block, making us read the empty one.
-                // Wait a bit before re-checking version string.
-                ++GTR2GameStateMapper.reinitWaitAttempts;
-                Thread.Sleep(100);
-                return;
-            }
-
-            // Only verify once.
-            GTR2GameStateMapper.pluginVerified = true;
-            GTR2GameStateMapper.reinitWaitAttempts = 0;
-
-            var failureHelpMsg = ".\nMake sure you have \"Update game plugins on startup\" option enabled."
-                + "\nFor manual setup instructions, visit https://thecrewchief.org/showthread.php?2012-GTR2-Setup-Instructions-and-Known-Issues.";
-
-            var versionParts = versionStr.Split('.');
-            if (versionParts.Length != 4)
-            {
-                Console.WriteLine("Corrupt or leaked GTR 2 Shared Memory.  Version string: " + versionStr + failureHelpMsg);
-                return;
-            }
-
-            int smVer = 0;
-            int minVer = 0;
-            int partFactor = 1;
-            for (int i = 3; i >= 0; --i)
-            {
-                int versionPart = 0;
-                if (!int.TryParse(versionParts[i], out versionPart))
+                var shared = memoryMappedFileStruct as GTR2SharedMemoryReader.GTR2StructWrapper;
+                var versionStr = GTR2GameStateMapper.GetStringFromBytes(shared.extended.mVersion);
+                if (string.IsNullOrWhiteSpace(versionStr)
+                    && GTR2GameStateMapper.reinitWaitAttempts < 500)
                 {
-                    Console.WriteLine("Corrupt or leaked GTR 2 Shared Memory version.  Version string: " + versionStr + failureHelpMsg);
+                    // SimHub (and possibly other tools) leaks the shared memory block, making us read the empty one.
+                    // Wait a bit before re-checking version string.
+                    ++GTR2GameStateMapper.reinitWaitAttempts;
+                    Thread.Sleep(100);
                     return;
                 }
 
-                smVer += (versionPart * partFactor);
-                minVer += (this.minimumSupportedVersionParts[i] * partFactor);
-                partFactor *= 100;
-            }
+                // Only verify once.  If user is super unlucky, string may still be incorrect due to timing.  However, in GTR2 this
+                // check is informational only, it won't stop mapper from running.
+                GTR2GameStateMapper.pluginVerified = true;
+                GTR2GameStateMapper.reinitWaitAttempts = 0;
 
-            if (smVer < minVer)
-            {
-                var minVerStr = string.Join(".", this.minimumSupportedVersionParts);
-                var msg1 = "Unsupported GTR 2 Shared Memory version: " + versionStr;
+                var failureHelpMsg = ".\nMake sure you have \"Update game plugins on startup\" option enabled."
+                    + "\nFor manual setup instructions, visit https://thecrewchief.org/showthread.php?2012-GTR2-Setup-Instructions-and-Known-Issues.";
 
-                var msg2 = "Minimum supported version is: "
-                    + minVerStr
-                    + "\nPlease update the CrewChief.dll" + failureHelpMsg;
-                Console.WriteLine(msg1 + " " + msg2);
-                MessageBox.Show(msg2, msg1,
-                    //Configuration.getUIString("install_plugin_popup_enable_text"),
-                    //Configuration.getUIString("install_plugin_popup_enable_title"),
-                    MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+                var versionParts = versionStr.Split('.');
+                if (versionParts.Length != 4)
+                {
+                    Console.WriteLine("Corrupt or leaked GTR 2 Shared Memory.  Version string: " + versionStr + failureHelpMsg);
+                    return;
+                }
+
+                int smVer = 0;
+                int minVer = 0;
+                int partFactor = 1;
+                for (int i = 3; i >= 0; --i)
+                {
+                    int versionPart = 0;
+                    if (!int.TryParse(versionParts[i], out versionPart))
+                    {
+                        Console.WriteLine("Corrupt or leaked GTR 2 Shared Memory version.  Version string: " + versionStr + failureHelpMsg);
+                        return;
+                    }
+
+                    smVer += (versionPart * partFactor);
+                    minVer += (this.minimumSupportedVersionParts[i] * partFactor);
+                    partFactor *= 100;
+                }
+
+                if (smVer < minVer)
+                {
+                    var minVerStr = string.Join(".", this.minimumSupportedVersionParts);
+                    var msg1 = "Unsupported GTR 2 Shared Memory version: " + versionStr;
+
+                    var msg2 = "Minimum supported version is: "
+                        + minVerStr
+                        + "\nPlease update the CrewChief.dll" + failureHelpMsg;
+                    Console.WriteLine(msg1 + " " + msg2);
+                    MessageBox.Show(msg2, msg1,
+                        //Configuration.getUIString("install_plugin_popup_enable_text"),
+                        //Configuration.getUIString("install_plugin_popup_enable_title"),
+                        MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    var msg = "GTR2 Shared Memory version: " + versionStr;
+                    Console.WriteLine(msg);
+                }
             }
-            else
+            catch (Exception)
             {
-                var msg = "GTR2 Shared Memory version: " + versionStr;
-                Console.WriteLine(msg);
+                // If we're very unlucky, SM might be dirty and string parsing would crash.
+                if (GTR2GameStateMapper.reinitWaitAttempts < 500)
+                {
+                    ++GTR2GameStateMapper.reinitWaitAttempts;
+                    Thread.Sleep(100);
+                }
             }
         }
 
@@ -3330,14 +3343,7 @@ namespace CrewChiefV4.GTR2
             var isGhost = string.Equals(driverName, "transparent trainer", StringComparison.InvariantCultureIgnoreCase);
 
             var carNumber = vehicleExtendedScoring.mYearAndCarNumber % 1000;
-            string carNumberStr = null;
-            if (carNumber < 10)
-                carNumberStr = $"00{carNumber}";
-            else if (carNumber < 100)
-                carNumberStr = $"0{carNumber}";
-            else
-                carNumberStr = $"{carNumber}";
-
+            string carNumberStr = $"{carNumber}";
             ci = new CarInfo()
             {
                 carClass = carClass,
